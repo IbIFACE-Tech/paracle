@@ -1,0 +1,224 @@
+# Language-Specific Conventions
+# Build, test, lint configurations per language
+
+version: "1.0"
+
+# Python Configuration
+python:
+  version: ">=3.10"
+  package_manager: uv # or poetry
+
+  # Project Structure
+  structure:
+    source: packages/
+    tests: tests/
+    docs: docs/
+    examples: examples/
+
+  # Dependency Management
+  dependencies:
+    file: pyproject.toml
+    lock_file: uv.lock
+    groups:
+      - main
+      - dev
+      - test
+      - docs
+
+  # Build System
+  build:
+    tool: setuptools
+    backend: setuptools.build_meta
+    commands:
+      install: uv sync
+      install_dev: uv sync --all-extras
+      build: uv build
+      publish: uv publish
+
+  # Testing
+  testing:
+    framework: pytest
+    coverage_tool: pytest-cov
+    min_coverage: 80
+    commands:
+      test: uv run pytest
+      test_verbose: uv run pytest -v
+      test_coverage: uv run pytest --cov=packages --cov-report=html
+      test_watch: uv run pytest-watch
+
+  # Linting & Formatting
+  linting:
+    formatters:
+      - name: black
+        config: pyproject.toml
+        command: uv run black .
+
+      - name: isort
+        config: pyproject.toml
+        command: uv run isort .
+
+    linters:
+      - name: mypy
+        config: pyproject.toml
+        command: uv run mypy packages/
+
+      - name: ruff
+        config: pyproject.toml
+        command: uv run ruff check .
+
+    security:
+      - name: bandit
+        command: uv run bandit -r packages/
+
+      - name: safety
+        command: uv run safety check
+
+  # Pre-commit Hooks
+  pre_commit:
+    enabled: true
+    config: .pre-commit-config.yaml
+    hooks:
+      - trailing-whitespace
+      - end-of-file-fixer
+      - check-yaml
+      - check-added-large-files
+      - black
+      - isort
+      - mypy
+
+  # Type Checking
+  type_checking:
+    enabled: true
+    strict: true
+    tools: [mypy, pyright]
+
+  # Documentation
+  documentation:
+    tool: mkdocs
+    theme: material
+    plugins:
+      - search
+      - mkdocstrings
+    commands:
+      serve: uv run mkdocs serve
+      build: uv run mkdocs build
+
+  # Code Quality
+  quality:
+    complexity: 10 # cyclomatic complexity
+    duplication: 5 # percentage
+    maintainability: B # rating
+
+# TypeScript Configuration (Future)
+typescript:
+  version: ">=5.0"
+  package_manager: pnpm
+
+  structure:
+    source: src/
+    tests: tests/
+    dist: dist/
+
+  build:
+    tool: tsc
+    commands:
+      install: pnpm install
+      build: pnpm build
+      dev: pnpm dev
+
+  testing:
+    framework: vitest
+    commands:
+      test: pnpm test
+      test_watch: pnpm test:watch
+
+  linting:
+    tool: eslint
+    prettier: true
+    commands:
+      lint: pnpm lint
+      format: pnpm format
+
+# Go Configuration (Future)
+go:
+  version: ">=1.21"
+
+  structure:
+    source: pkg/
+    cmd: cmd/
+    tests: "*_test.go"
+
+  build:
+    commands:
+      install: go mod download
+      build: go build ./...
+      install_binary: go install ./cmd/...
+
+  testing:
+    commands:
+      test: go test ./...
+      test_verbose: go test -v ./...
+      test_coverage: go test -cover ./...
+
+  linting:
+    tool: golangci-lint
+    commands:
+      lint: golangci-lint run
+
+# Rust Configuration (Future - for performance-critical parts)
+rust:
+  version: ">=1.70"
+  package_manager: cargo
+
+  structure:
+    source: src/
+    tests: tests/
+
+  build:
+    commands:
+      install: cargo fetch
+      build: cargo build --release
+      test: cargo test
+
+  linting:
+    tool: clippy
+    formatter: rustfmt
+    commands:
+      lint: cargo clippy
+      format: cargo fmt
+
+# Multi-Language Project
+project:
+  primary_language: python
+  additional_languages: [] # Will add TypeScript for SDK later
+
+  # Cross-language tools
+  tools:
+    - name: pre-commit
+      applies_to: [python, typescript]
+
+    - name: git-hooks
+      applies_to: all
+
+  # Documentation
+  docs:
+    primary_tool: mkdocs
+    api_docs: true
+    multilingual: false
+
+# CI/CD Integration
+ci_cd:
+  test_on:
+    - push
+    - pull_request
+
+  build_on:
+    - tag
+    - release
+
+  deploy_on:
+    - release
+
+  matrix:
+    python_versions: ["3.10", "3.11", "3.12"]
+    os: [ubuntu-latest, macos-latest, windows-latest]

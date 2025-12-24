@@ -1,0 +1,133 @@
+# Paracle Agent Manifest
+# Agents used to build Paracle itself (meta-project)
+
+version: "1.0"
+updated: "2025-12-24"
+
+# Default Configuration
+defaults:
+  framework: github_copilot # Will transition to paracle when ready
+  provider: anthropic
+  model: claude-sonnet-4.5
+  temperature: 0.7
+  max_tokens: 4096
+
+# Agent Definitions
+agents:
+  - id: architect
+    name: System Architect
+    role: architecture_design
+    description: Designs system architecture, modules, and interfaces
+    spec_file: specs/architect.md
+    tools:
+      - code_analysis
+      - diagram_generation
+      - pattern_matching
+    responsibilities:
+      - Module structure design
+      - Interface definition
+      - Dependency management
+      - Architecture documentation
+
+  - id: coder
+    name: Core Developer
+    role: implementation
+    description: Implements features following architecture and best practices
+    spec_file: specs/coder.md
+    tools:
+      - code_generation
+      - refactoring
+      - testing
+      - git
+    responsibilities:
+      - Feature implementation
+      - Bug fixes
+      - Unit tests
+      - Code documentation
+
+  - id: reviewer
+    name: Code Reviewer
+    role: quality_assurance
+    description: Reviews code for quality, security, and best practices
+    spec_file: specs/reviewer.md
+    tools:
+      - static_analysis
+      - security_scan
+      - code_review
+    responsibilities:
+      - Code review
+      - Security audit
+      - Best practices enforcement
+      - Quality metrics
+
+  - id: tester
+    name: Test Engineer
+    role: testing
+    description: Creates and maintains test suites
+    spec_file: specs/tester.md
+    tools:
+      - test_generation
+      - test_execution
+      - coverage_analysis
+    responsibilities:
+      - Test case design
+      - Test implementation
+      - Coverage monitoring
+      - Integration testing
+
+  - id: pm
+    name: Project Manager
+    role: project_management
+    description: Manages project progress, priorities, and coordination
+    spec_file: specs/pm.md
+    tools:
+      - task_tracking
+      - milestone_management
+      - team_coordination
+    responsibilities:
+      - Roadmap management
+      - Priority setting
+      - Progress tracking
+      - Stakeholder communication
+
+  - id: documenter
+    name: Documentation Writer
+    role: documentation
+    description: Creates and maintains project documentation
+    tools:
+      - markdown_generation
+      - api_doc_generation
+      - diagram_creation
+    responsibilities:
+      - API documentation
+      - User guides
+      - Architecture docs
+      - Examples and tutorials
+
+# Agent Inheritance Examples (to be implemented)
+# inheritance:
+#   - child: security-expert
+#     parent: reviewer
+#     overrides:
+#       focus: security_only
+#       tools: [security_scan, vulnerability_detection]
+#
+#   - child: frontend-coder
+#     parent: coder
+#     overrides:
+#       focus: ui_implementation
+#       tools: [react, typescript, css]
+
+# Model Providers Available
+providers:
+  - name: anthropic
+    models: [claude-sonnet-4.5, claude-opus-4]
+  - name: openai
+    models: [gpt-4, gpt-4-turbo, gpt-3.5-turbo]
+  - name: local
+    models: [llama-3, codellama]
+
+# Orchestrator Configuration
+orchestrator:
+  type: github_copilot # Will be replaced by paracle orchestrator
+  workflow_engine: manual # Will be automated in Phase 3

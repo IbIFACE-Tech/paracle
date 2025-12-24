@@ -1,0 +1,103 @@
+# Security Policy
+# Define security rules and restrictions
+
+# Schema version
+schema_version: "1.0"
+
+# Content filtering
+content_filtering:
+  enabled: true
+  filter_pii: true # Filter personally identifiable information
+  filter_harmful: true # Filter harmful content
+  filter_bias: false # Filter biased content (experimental)
+
+  # Allowed topics
+  allowed_topics:
+    - general
+    - technical
+    - business
+
+  # Blocked topics
+  blocked_topics:
+    - illegal_activities
+    - violence
+    - hate_speech
+    # Add custom blocked topics
+
+# Rate limiting
+rate_limiting:
+  enabled: true
+  requests_per_minute: 60 # Max requests per minute per user
+  requests_per_hour: 1000 # Max requests per hour per user
+  burst_size: 10 # Allow burst of requests
+
+# API Security
+api_security:
+  require_authentication: false # Require API key/token
+  allowed_origins: # CORS allowed origins
+    - http://localhost:3000
+    - http://localhost:8000
+  # allowed_ips:                # IP whitelist
+  #   - 127.0.0.1
+  #   - 192.168.1.0/24
+
+# Data protection
+data_protection:
+  encrypt_at_rest: false # Encrypt stored data
+  encrypt_in_transit: true # Use HTTPS/TLS
+  retention_days: 30 # Delete old data after X days
+  anonymize_logs: true # Remove sensitive data from logs
+
+# Tool permissions
+tool_permissions:
+  default_deny: true # Deny tools by default
+
+  # Allowed tools per agent (optional)
+  # agent_permissions:
+  #   assistant:
+  #     - web_search
+  #   code-reviewer:
+  #     - file_system
+
+  # Restricted operations
+  restricted_operations:
+    - write_files
+    - execute_code
+    - network_access
+    # Add custom restricted operations
+
+# Guardrails
+guardrails:
+  max_execution_time: 300 # Max execution time in seconds
+  max_memory_usage: 1GB # Max memory per agent
+  max_output_size: 10MB # Max output size
+
+  # Input validation
+  input_validation:
+    max_input_length: 10000 # Max input characters
+    require_sanitization: true # Sanitize user input
+
+  # Output validation
+  output_validation:
+    require_review: false # Require human review
+    enable_content_scan: true # Scan output for issues
+
+# Audit logging
+audit:
+  enabled: true
+  log_all_requests: true
+  log_tool_usage: true
+  log_errors: true
+  retention_days: 90
+
+# Incident response
+incident_response:
+  auto_disable_on_breach: true # Auto-disable system on security breach
+  notification_email: security@example.com
+  # webhook_url: https://hooks.example.com/security
+
+# Compliance (optional)
+compliance:
+  # gdpr: true                  # GDPR compliance mode
+  # hipaa: false                # HIPAA compliance mode
+  # soc2: false                 # SOC 2 compliance mode

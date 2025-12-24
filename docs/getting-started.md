@@ -1,0 +1,204 @@
+# Getting Started with Paracle
+
+Welcome to Paracle! This guide will help you get up and running in less than 5 minutes.
+
+## Installation
+
+### Prerequisites
+
+- Python 3.10 or higher
+- uv (recommended) or pip
+
+### Install Paracle
+
+```bash
+# Using uv (recommended)
+uv pip install paracle
+
+# Using pip
+pip install paracle
+```
+
+### Verify Installation
+
+```bash
+paracle hello
+```
+
+You should see:
+
+```
+🎉 Paracle v0.0.1 - Hello World!
+
+Framework successfully installed!
+
+Phase 0: Foundation ✅
+```
+
+## First Steps
+
+### 1. Create a Simple Agent
+
+Create a file `my_agent.py`:
+
+```python
+from paracle_domain.models import AgentSpec, Agent
+
+# Define agent specification
+agent_spec = AgentSpec(
+    name="my-first-agent",
+    description="A friendly assistant",
+    provider="openai",
+    model="gpt-4",
+    temperature=0.7,
+    system_prompt="You are a helpful assistant."
+)
+
+# Create agent instance
+agent = Agent(spec=agent_spec)
+print(f"✅ Agent created with ID: {agent.id}")
+```
+
+Run it:
+
+```bash
+python my_agent.py
+```
+
+### 2. Agent Inheritance Example
+
+Create `inherited_agent.py`:
+
+```python
+from paracle_domain.models import AgentSpec
+
+# Base agent
+base = AgentSpec(
+    name="base-assistant",
+    provider="openai",
+    model="gpt-4",
+    temperature=0.7
+)
+
+# Specialized agent (inherits from base)
+specialist = AgentSpec(
+    name="python-expert",
+    parent="base-assistant",
+    system_prompt="You are an expert Python developer.",
+    temperature=0.5  # Override parent's temperature
+)
+
+print(f"Base agent: {base.name}")
+print(f"Specialist: {specialist.name} (inherits from {specialist.parent})")
+```
+
+### 3. CLI Commands
+
+Paracle provides a CLI for common tasks:
+
+```bash
+# Show help
+paracle --help
+
+# Create an agent (coming in Phase 1)
+paracle agent create my-agent
+
+# Run a workflow (coming in Phase 3)
+paracle workflow run my-workflow
+```
+
+## Project Structure
+
+When working with Paracle, you can organize your project:
+
+```
+my-paracle-project/
+├── .parac/              # Paracle workspace (optional)
+│   ├── project.yaml     # Project configuration
+│   ├── agents/          # Agent definitions
+│   └── workflows/       # Workflow definitions
+├── agents/              # Your agent code
+├── workflows/           # Your workflow code
+└── requirements.txt     # Dependencies
+```
+
+## Configuration
+
+### Environment Variables
+
+Create a `.env` file:
+
+```bash
+# LLM Provider Keys
+OPENAI_API_KEY=your-openai-key
+ANTHROPIC_API_KEY=your-anthropic-key
+
+# Optional: Database
+DATABASE_URL=sqlite:///paracle.db
+
+# Optional: Features
+ENABLE_MCP=true
+```
+
+### Project Configuration
+
+Create `.parac/project.yaml`:
+
+```yaml
+name: my-paracle-project
+version: 0.0.1
+description: My first Paracle project
+
+defaults:
+  python_version: "3.10"
+  model_provider: openai
+  default_model: gpt-4
+```
+
+## Next Steps
+
+Now that you're set up, explore:
+
+1. **[Architecture Guide](architecture.md)** - Understand Paracle's design
+2. **[API Reference](api.md)** - Detailed API documentation
+3. **[Examples](../examples/)** - Sample projects
+4. **[Roadmap](../.roadmap/)** - Upcoming features
+
+## Common Issues
+
+### Import Errors
+
+If you see import errors:
+
+```bash
+# Reinstall with all dependencies
+uv pip install paracle[all]
+```
+
+### Permission Errors
+
+On Linux/Mac, you might need:
+
+```bash
+python3 -m pip install --user paracle
+```
+
+### API Key Issues
+
+Make sure your API keys are set:
+
+```bash
+export OPENAI_API_KEY=your-key
+# or
+echo "OPENAI_API_KEY=your-key" >> .env
+```
+
+## Need Help?
+
+- **Issues**: [GitHub Issues](https://github.com/IbIFACE-Tech/paracle-lite/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/IbIFACE-Tech/paracle-lite/discussions)
+- **Documentation**: [Full Docs](https://github.com/IbIFACE-Tech/paracle-lite/docs)
+
+---
+
+**Ready to build?** Check out the [Examples](../examples/) to see Paracle in action!

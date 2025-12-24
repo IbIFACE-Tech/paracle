@@ -1,0 +1,376 @@
+# Paracle .parac Configuration Rules
+
+You are working with a Paracle multi-agent AI project that uses a `.parac/` directory for configuration and project management.
+
+## Project Structure
+
+```
+.parac/
+├── project.yaml              # Main project configuration (REQUIRED)
+├── agents/                   # Agent definitions
+│   ├── manifest.yaml        # Agent registry
+│   └── specs/*.yaml         # Individual agent specs
+├── workflows/                # Workflow definitions
+│   ├── catalog.yaml         # Workflow registry
+│   └── templates/*.yaml     # Workflow definitions
+├── tools/                    # Tool management
+│   └── registry.yaml        # Available tools
+├── policies/                 # Security & governance
+│   ├── policy-pack.yaml     # Active policies
+│   └── security.yaml        # Security rules
+├── memory/                   # Project memory
+│   ├── index.yaml           # Memory index
+│   └── knowledge/*.md       # Knowledge base
+├── adapters/                 # External integrations
+│   └── orchestrators.yaml   # Provider configs
+└── logs/                     # Execution logs (auto-generated)
+```
+
+## Core Principles
+
+1. **Schema Compliance**: All YAML files must include `schema_version: "1.0"`
+2. **Validation**: Always validate YAML syntax and required fields
+3. **Security First**: Review security implications before enabling features
+4. **Documentation**: Keep configuration well-commented
+5. **Version Control**: Don't commit logs, API keys, or runtime data
+
+## Working with project.yaml
+
+This is the main configuration file. Key sections:
+
+### Required Fields
+```yaml
+name: project-name           # lowercase, hyphens only
+version: 0.1.0              # semantic versioning
+description: "..."          # brief description
+schema_version: "1.0"       # do not modify
+```
+
+### Defaults Section
+```yaml
+defaults:
+  python_version: "3.10"    # 3.10, 3.11, 3.12
+  agent_framework: internal # internal, msaf, langchain, llamaindex
+  model_provider: openai    # openai, anthropic, google, local
+  default_model: gpt-4      # provider-specific model name
+  temperature: 0.7          # 0.0-1.0
+```
+
+### Features Section
+```yaml
+features:
+  enable_mcp: true          # Model Context Protocol
+  enable_api: true          # REST API
+  enable_events: true       # Event bus
+  enable_tracing: false     # OpenTelemetry
+```
+
+## Working with Agents
+
+### Agent Manifest (agents/manifest.yaml)
+```yaml
+schema_version: "1.0"
+agents:
+  - name: agent-name        # unique identifier
+    description: "..."      # clear purpose
+    spec_file: specs/agent-name.yaml
+    enabled: true           # enable/disable
+    version: 1.0.0         # agent version
+    tags: [tag1, tag2]     # categorization
+```
+
+### Agent Specification (agents/specs/*.yaml)
+```yaml
+name: agent-name            # matches manifest
+description: "..."
+version: 1.0.0
+
+provider: openai            # openai, anthropic, google, local
+model: gpt-4               # provider-specific model
+temperature: 0.7           # 0.0-1.0
+max_tokens: 2000           # response limit
+
+system_prompt: |           # multi-line, clear instructions
+  You are a helpful assistant...
+
+# Optional
+capabilities: [cap1, cap2]
+skills: [skill1, skill2]   # assigned skills (see Agent Skills section)
+tools: []
+memory:
+  enabled: true
+  type: conversation       # conversation, semantic, hybrid
+```
+
+### Agent Best Practices
+- **Naming**: lowercase, hyphens, descriptive (e.g., `code-reviewer`, `data-analyst`)
+- **System Prompts**: Clear role, guidelines, and constraints
+- **Temperature**: Lower (0.0-0.3) for deterministic, higher (0.7-1.0) for creative
+- **Models**: Use appropriate model for task (gpt-4 for complex, gpt-3.5-turbo for simple)
+
+## Working with Workflows
+
+### Workflow Catalog (workflows/catalog.yaml)
+```yaml
+schema_version: "1.0"
+workflows:
+  - name: workflow-name
+    description: "..."
+    template: templates/workflow-name.yaml  # or definitions/
+    enabled: true
+    version: 1.0.0
+    tags: [tag1, tag2]
+```
+
+### Workflow Definition (workflows/templates/*.yaml)
+```yaml
+name: workflow-name
+description: "..."
+version: 1.0.0
+
+inputs:
+  - name: input_name
+    type: string            # string, number, boolean, array, object
+    description: "..."
+    required: false
+    default: "value"
+
+steps:
+  - name: step_name
+    agent: agent-name       # reference to agent in manifest
+    prompt: |              # can use {input_name} placeholders
+      Process this: {input_name}
+    output: variable_name   # store result
+
+outputs:
+  - name: result
+    value: "{variable_name}"
+    description: "..."
+```
+
+## Working with Tools
+
+### Tool Registry (tools/registry.yaml)
+```yaml
+schema_version: "1.0"
+
+builtin_tools:
+  - name: web_search
+    enabled: false         # disable by default for security
+    provider: duckduckgo
+
+  - name: file_system
+    enabled: false
+    permissions: [read]    # read, write
+    allowed_paths: [/tmp]
+
+custom_tools:
+  - name: custom_tool
+    implementation: custom/tool.py
+    enabled: false
+    config: {}
+```
+
+### Tool Security Rules
+- **Default Disabled**: All tools should be disabled by default
+- **Minimal Permissions**: Grant minimum required permissions
+- **Path Restrictions**: Limit file system access to specific paths
+- **Review Custom Tools**: Audit custom tool implementations
+
+## Working with Policies
+
+### Security Policy (policies/security.yaml)
+```yaml
+schema_version: "1.0"
+
+content_filtering:
+  enabled: true
+  filter_pii: true         # personally identifiable information
+  filter_harmful: true
+
+rate_limiting:
+  enabled: true
+  requests_per_minute: 60
+
+data_protection:
+  encrypt_at_rest: false
+  encrypt_in_transit: true
+  retention_days: 30
+```
+
+### Security Best Practices
+- **Enable Filtering**: Always enable content and PII filtering
+- **Rate Limiting**: Protect against abuse
+- **Review Permissions**: Regularly audit tool and API permissions
+- **Encryption**: Enable for production environments
+- **Audit Logs**: Keep for compliance and debugging
+
+## Naming Conventions
+
+### Files and Directories
+- **lowercase-with-hyphens**: For all file names
+- **snake_case**: For Python variables in YAML
+- **.yaml**: Use `.yaml` not `.yml`
+
+### Agents and Workflows
+- **Descriptive**: `code-reviewer`, not `agent1`
+- **Role-based**: `data-analyst`, `content-generator`
+- **Specific**: `python-code-reviewer`, not just `reviewer`
+
+### Variables and Outputs
+- **snake_case**: `user_input`, `final_result`
+- **Descriptive**: `greeting_message`, not `msg`
+- **Consistent**: Use same naming style throughout
+
+## YAML Formatting
+
+```yaml
+# Good formatting
+name: my-agent
+description: |
+  Multi-line description
+  with proper indentation
+settings:
+  option1: value1
+  option2: value2
+list_items:
+  - item1
+  - item2
+
+# Bad formatting
+name: my-agent
+description: Single line that's way too long and hard to read so it wraps awkwardly
+settings: {option1: value1, option2: value2}  # avoid inline
+list_items: [item1, item2]  # avoid inline for readability
+```
+
+## Common Operations
+
+### Creating a New Agent
+1. Define spec in `agents/specs/my-agent.yaml`
+2. Add to `agents/manifest.yaml`
+3. Set `enabled: true` when ready
+4. Test thoroughly before production use
+
+### Adding a Workflow
+1. Create definition in `workflows/templates/my-workflow.yaml`
+2. Register in `workflows/catalog.yaml`
+3. Ensure all referenced agents exist
+4. Validate input/output schema
+
+### Enabling a Tool
+1. Review security implications
+2. Set `enabled: true` in `tools/registry.yaml`
+3. Configure permissions appropriately
+4. Update `policies/security.yaml` if needed
+
+### Configuring a Provider
+1. Update `defaults.model_provider` in `project.yaml`
+2. Configure in `adapters/orchestrators.yaml`
+3. Set environment variable for API key
+4. Test connectivity before use
+
+## Validation Checklist
+
+Before committing changes:
+
+- [ ] All YAML files have valid syntax
+- [ ] `schema_version: "1.0"` is present where required
+- [ ] Required fields are populated
+- [ ] References (agents, workflows) are valid
+- [ ] Security settings are appropriate
+- [ ] No API keys or secrets in files
+- [ ] Documentation is updated
+- [ ] Changes follow naming conventions
+
+## Environment Variables
+
+Never hardcode in `.parac/` files:
+
+```yaml
+# ❌ Bad
+provider_config:
+  api_key: sk-1234567890...
+
+# ✅ Good - use environment variables
+# Set via .env file or shell
+provider_config:
+  # api_key: set via OPENAI_API_KEY environment variable
+```
+
+Common environment variables:
+- `OPENAI_API_KEY`
+- `ANTHROPIC_API_KEY`
+- `GOOGLE_API_KEY`
+- `PARACLE_ENV` (development, production)
+- `PARACLE_LOG_LEVEL`
+
+## Git Ignore Rules
+
+Always ignore in `.parac/.gitignore`:
+
+```gitignore
+# Runtime data
+logs/
+runs/
+*.log
+
+# Temporary context
+memory/context/
+
+# Sensitive data
+*.key
+*.secret
+.env
+```
+
+## Error Handling
+
+When you encounter configuration issues:
+
+1. **Validate YAML**: Check syntax first
+2. **Check Schema**: Ensure schema_version is correct
+3. **Verify References**: Ensure agents/workflows exist
+4. **Review Logs**: Check `.parac/logs/` for details
+5. **Consult Docs**: Refer to template README
+
+## When to Ask User
+
+Always confirm with the user before:
+
+- **Enabling tools** with write permissions
+- **Changing security settings** (disabling filters, etc.)
+- **Modifying production configurations**
+- **Adding external integrations**
+- **Changing model providers** (cost implications)
+
+## Quick Reference
+
+### Create New Project Config
+```bash
+cp -r templates/.parac-template .parac
+# Edit .parac/project.yaml
+# Set up .env with API keys
+```
+
+### Add Agent
+```bash
+# Create .parac/agents/specs/my-agent.yaml
+# Add to .parac/agents/manifest.yaml
+```
+
+### Add Workflow
+```bash
+# Create .parac/workflows/templates/my-workflow.yaml
+# Add to .parac/workflows/catalog.yaml
+```
+
+### Enable Feature
+```bash
+# Edit .parac/project.yaml
+# Update features section
+```
+
+---
+
+**Remember**: The `.parac/` directory is the source of truth for project configuration. Treat it with care and always validate changes.

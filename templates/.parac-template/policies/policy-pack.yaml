@@ -1,0 +1,54 @@
+# Policy Pack
+# Active policies for this project
+
+# Schema version
+schema_version: "1.0"
+
+# Active policies
+policies:
+  - name: security
+    file: security.yaml
+    enabled: true
+    priority: 1
+    description: Security and content filtering policies
+
+  # - name: approvals
+  #   file: approvals.yaml
+  #   enabled: false
+  #   priority: 2
+  #   description: Approval workflows for sensitive operations
+
+  # - name: compliance
+  #   file: compliance.yaml
+  #   enabled: false
+  #   priority: 3
+  #   description: Compliance policies (GDPR, HIPAA, etc.)
+
+# Policy enforcement
+enforcement:
+  mode: enforce # enforce, audit, disabled
+  fail_on_violation: true # Fail execution on policy violation
+  log_violations: true # Log policy violations
+  notify_on_violation: false # Send notifications on violations
+  # notification_email: admin@example.com
+
+# Policy evaluation
+evaluation:
+  evaluate_on_start: true # Evaluate policies on execution start
+  evaluate_on_tool_use: true # Evaluate policies when tools are used
+  evaluate_on_output: true # Evaluate policies on agent output
+  cache_evaluations: true # Cache policy evaluations
+  cache_ttl: 300 # Cache TTL in seconds
+
+# Exceptions (optional)
+# Allow specific agents or workflows to bypass certain policies
+exceptions:
+  # agents:
+  #   - agent: admin-agent
+  #     policies: [security]
+  #     reason: Admin agent requires unrestricted access
+
+  # workflows:
+  #   - workflow: emergency-response
+  #     policies: [approvals]
+  #     reason: Emergency workflow bypasses approval

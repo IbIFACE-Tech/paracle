@@ -1,0 +1,132 @@
+# Paracle .parac Rules
+
+## Context
+Paracle multi-agent AI framework. Configuration in `.parac/` directory.
+
+## Structure
+```
+.parac/
+├── project.yaml        # Main config
+├── agents/            # Agent defs
+├── workflows/         # Workflows
+├── tools/             # Tools
+├── policies/          # Security
+└── memory/            # Knowledge
+```
+
+## Rules
+
+### Files
+- Use `.yaml` not `.yml`
+- Include `schema_version: "1.0"`
+- Validate YAML before saving
+- Use lowercase-with-hyphens
+
+### Security
+- Tools disabled by default
+- Enable content filtering
+- Rate limit all endpoints
+- No secrets in config
+- Use environment variables
+
+### Agents
+```yaml
+name: agent-name       # lowercase-hyphenated
+provider: openai       # openai, anthropic, google
+model: gpt-4          # appropriate model
+temperature: 0.7      # 0.0-1.0
+system_prompt: |      # clear instructions
+  Your role...
+skills:               # assigned capabilities
+  - question-answering
+  - code-generation
+```
+
+### Skills
+Two formats: YAML (quick) or SKILL.md (detailed)
+
+```yaml
+# YAML format: .parac/agents/skills/custom/my-skill.yaml
+name: my-skill
+category: creation    # communication, analysis, creation, transformation, integration, memory
+level: intermediate   # basic, intermediate, advanced, expert
+description: What it does
+tools: [tool1]
+tags: [tag1]
+```
+
+```markdown
+# SKILL.md format: .parac/agents/skills/custom/my-skill/SKILL.md
+---
+name: my-skill
+description: Detailed description with use cases
+metadata:
+  category: creation
+  level: intermediate
+---
+# Instructions with code examples...
+```
+
+Built-in: question-answering, code-generation, data-analysis, text-summarization, api-integration
+
+### Workflows
+```yaml
+name: workflow-name
+steps:
+  - name: step1
+    agent: existing-agent
+    prompt: "Task"
+    output: var_name
+```
+
+### Temperature
+- 0.0-0.3: Deterministic
+- 0.5-0.7: Balanced
+- 0.8-1.0: Creative
+
+### Validation
+- [ ] Valid YAML
+- [ ] schema_version present
+- [ ] Required fields
+- [ ] No secrets
+- [ ] References valid
+
+### Environment
+```bash
+OPENAI_API_KEY=sk-...
+ANTHROPIC_API_KEY=sk-ant-...
+PARACLE_ENV=development
+```
+
+## Quick Tasks
+
+**New Agent**
+1. Create `agents/specs/name.yaml`
+2. Add to `agents/manifest.yaml`
+
+**New Workflow**
+1. Create `workflows/templates/name.yaml`
+2. Add to `workflows/catalog.yaml`
+
+**Enable Tool**
+1. Review security
+2. Set `enabled: true` in `tools/registry.yaml`
+3. Add permissions in `policies/security.yaml`
+
+## Anti-Patterns
+- ❌ Hardcoded API keys
+- ❌ CamelCase names
+- ❌ Missing schema_version
+- ❌ Tools enabled by default
+- ❌ No content filtering
+
+## Best Practices
+- ✅ Security first
+- ✅ Validate always
+- ✅ Document changes
+- ✅ Use env vars
+- ✅ Test before commit
+
+---
+
+Security first. Simple. Validated.

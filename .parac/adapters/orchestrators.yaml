@@ -1,0 +1,184 @@
+# Orchestrator Adapters Configuration
+# Bring Your Own Orchestrator
+
+version: "1.0"
+
+# Available Orchestrators
+orchestrators:
+  # Internal Paracle Orchestrator (Default)
+  - id: internal
+    name: Paracle Internal Orchestrator
+    type: native
+    status: in_development
+    priority: default
+    version: "0.0.1"
+    capabilities:
+      - workflow_dag
+      - parallel_execution
+      - agent_inheritance
+      - event_driven
+      - rollback_support
+    configuration:
+      async: true
+      max_concurrent_agents: 100
+      timeout: 300 # seconds
+      retry_policy:
+        max_attempts: 3
+        backoff: exponential
+
+  # Microsoft Agent Framework
+  - id: msaf
+    name: Microsoft Agent Framework
+    type: external
+    status: planned
+    priority: high
+    phase: phase_2
+    docs: https://github.com/microsoft/agent-framework
+    capabilities:
+      - multi_agent_orchestration
+      - memory_management
+      - tool_calling
+    adapter:
+      package: paracle_adapters.msaf
+      interface: MSAFOrchestrator
+    configuration:
+      runtime: azure_ai_projects
+      auth: azure_identity
+
+  # LangChain
+  - id: langchain
+    name: LangChain
+    type: external
+    status: planned
+    priority: high
+    phase: phase_2
+    docs: https://python.langchain.com
+    capabilities:
+      - chains
+      - agents
+      - memory
+      - callbacks
+    adapter:
+      package: paracle_adapters.langchain
+      interface: LangChainOrchestrator
+    configuration:
+      runtime: langchain_core
+
+  # LlamaIndex
+  - id: llamaindex
+    name: LlamaIndex
+    type: external
+    status: planned
+    priority: medium
+    phase: phase_2
+    docs: https://docs.llamaindex.ai
+    capabilities:
+      - index_management
+      - query_engines
+      - agents
+    adapter:
+      package: paracle_adapters.llamaindex
+      interface: LlamaIndexOrchestrator
+    configuration:
+      runtime: llama_index
+
+  # AutoGen
+  - id: autogen
+    name: Microsoft AutoGen
+    type: external
+    status: future
+    priority: low
+    phase: phase_4
+    docs: https://microsoft.github.io/autogen
+    capabilities:
+      - conversable_agents
+      - group_chat
+      - code_execution
+    adapter:
+      package: paracle_adapters.autogen
+      interface: AutoGenOrchestrator
+
+  # CrewAI
+  - id: crewai
+    name: CrewAI
+    type: external
+    status: future
+    priority: low
+    phase: phase_4
+    docs: https://docs.crewai.com
+    capabilities:
+      - role_based_agents
+      - task_delegation
+      - crew_management
+    adapter:
+      package: paracle_adapters.crewai
+      interface: CrewAIOrchestrator
+
+# Adapter Interface
+adapter_interface:
+  required_methods:
+    - initialize(config: Dict) -> None
+    - create_agent(spec: AgentSpec) -> Agent
+    - execute_workflow(workflow: Workflow) -> Result
+    - shutdown() -> None
+
+  optional_methods:
+    - stream_execution(workflow: Workflow) -> AsyncIterator[Event]
+    - pause_workflow(workflow_id: str) -> None
+    - resume_workflow(workflow_id: str) -> None
+    - cancel_workflow(workflow_id: str) -> None
+
+  events:
+    - workflow.started
+    - workflow.step.started
+    - workflow.step.completed
+    - workflow.step.failed
+    - workflow.completed
+    - workflow.failed
+
+# Selection Strategy
+selection:
+  default: internal
+
+  criteria:
+    performance:
+      weight: 0.3
+
+    features:
+      weight: 0.3
+
+    maturity:
+      weight: 0.2
+
+    community:
+      weight: 0.1
+
+    cost:
+      weight: 0.1
+
+  user_preference:
+    allow_override: true
+    config_key: "orchestrator.preferred"
+
+# Migration Support
+migration:
+  export_format: paracle_workflow_v1
+  import_formats:
+    - langchain_chain
+    - msaf_workflow
+
+  compatibility_layer: true
+  conversion_tools: paracle-migrate
+
+# Testing
+testing:
+  test_suite_per_adapter: required
+  integration_tests: required
+  benchmark_suite: recommended
+
+# Documentation
+documentation:
+  adapter_guide: required
+  migration_guide: required
+  comparison_matrix: required
+  examples: required

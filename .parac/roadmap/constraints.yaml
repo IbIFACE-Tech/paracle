@@ -1,0 +1,104 @@
+# Paracle Constraints
+# Technical, budget, timeline, and quality constraints
+
+# Technical Constraints
+technical:
+  languages:
+    primary: python
+    version: ">=3.10"
+
+  architecture:
+    style: modular_monolith
+    packages: 17
+    pattern: hexagonal
+
+  dependencies:
+    max_external: 50
+    security_scan: required
+    license_compliance: apache_compatible
+
+  performance:
+    time_to_first_agent: "<5min"
+    api_response_p95: "<500ms"
+    concurrent_agents: ">100"
+
+# Timeline Constraints
+timeline:
+  total_duration: 17_weeks
+  phase_0: 1_week
+  mvp_target: 12_weeks
+  release_target: 17_weeks
+
+  milestones:
+    - name: foundation_complete
+      deadline: week_1
+    - name: core_domain_complete
+      deadline: week_4
+    - name: multi_provider_complete
+      deadline: week_8
+    - name: orchestration_complete
+      deadline: week_12
+    - name: production_ready
+      deadline: week_15
+    - name: v0_0_1_release
+      deadline: week_17
+
+# Budget Constraints
+budget:
+  development:
+    type: open_source
+    funding: community_driven
+
+  infrastructure:
+    ci_cd: github_actions_free_tier
+    hosting: self_hosted_first
+
+  services:
+    llm_providers: bring_your_own_key
+    monitoring: open_source_tools
+
+# Quality Constraints
+quality:
+  code_coverage:
+    minimum: 80%
+    target: 90%
+
+  documentation:
+    coverage: 100%
+    formats: [markdown, docstrings, openapi]
+
+  security:
+    vulnerability_scan: required
+    secret_detection: required
+    dependency_audit: weekly
+
+  testing:
+    unit_tests: required
+    integration_tests: required
+    e2e_tests: optional_v0_0_1
+
+  code_quality:
+    linting: black_isort_mypy
+    complexity: "<10 cyclomatic"
+    duplication: "<5%"
+
+# Team Constraints
+team:
+  size: small
+  experience: senior_level
+  availability: part_time
+
+# User Constraints
+users:
+  target_audience: developers
+  experience_level: intermediate_to_advanced
+  use_cases:
+    - multi_agent_applications
+    - ai_workflow_automation
+    - custom_ai_solutions
+
+# Compliance Constraints
+compliance:
+  license: Apache-2.0
+  data_privacy: gdpr_aware
+  ai_ethics: responsible_ai_guidelines

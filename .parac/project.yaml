@@ -1,0 +1,50 @@
+# Paracle Project Configuration
+# Version: 0.0.1
+# Schema: .parac v1.0
+
+name: paracle-lite
+version: 0.0.1
+description: Framework multi-agent user-driven pour applications IA natives
+schema_version: "1.0"
+
+# Identity
+identity:
+  organization: IbIFACE-Tech
+  repository: paracle-lite
+  license: Apache-2.0
+  homepage: https://github.com/IbIFACE-Tech/paracle-lite
+
+# Team
+team:
+  maintainers:
+    - role: lead
+      contact: team@ibiface-tech.com
+
+# Defaults
+defaults:
+  python_version: "3.10"
+  agent_framework: internal # Will support msaf, langchain, llamaindex
+  model_provider: openai
+  default_model: gpt-4
+  orchestrator: internal
+
+# Project Metadata
+metadata:
+  created_at: "2025-12-24"
+  phase: "Phase 0 - Foundation"
+  status: active
+  tags:
+    - multi-agent
+    - ai-framework
+    - agent-inheritance
+    - api-first
+
+# Logging Configuration
+logging:
+  level: INFO
+  format: json
+  rotation: daily
+  retention_days: 30
+  output:
+    - console
+    - file

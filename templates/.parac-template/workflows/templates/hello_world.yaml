@@ -1,0 +1,56 @@
+# Hello World Workflow
+# A simple example workflow to get started
+
+name: hello-world
+description: A simple hello world workflow that demonstrates basic agent interaction
+version: 1.0.0
+
+# Workflow input schema
+inputs:
+  - name: user_name
+    type: string
+    description: Name of the user to greet
+    required: false
+    default: "World"
+
+# Workflow steps
+steps:
+  # Step 1: Generate greeting
+  - name: generate_greeting
+    agent: assistant
+    prompt: |
+      Generate a friendly greeting for {user_name}.
+      Keep it warm and welcoming.
+    output: greeting_message
+
+  # Step 2: Add emoji (optional)
+  - name: add_emoji
+    agent: assistant
+    prompt: |
+      Take this greeting: "{greeting_message}"
+      Add an appropriate emoji to make it more friendly.
+      Return only the enhanced greeting.
+    output: final_greeting
+
+# Workflow output
+outputs:
+  - name: result
+    value: "{final_greeting}"
+    description: The final greeting message
+
+# Workflow metadata
+metadata:
+  category: example
+  author: Paracle Team
+  created_at: "2025-12-24"
+  tags:
+    - example
+    - hello-world
+    - getting-started
+
+# Execution settings (optional)
+execution:
+  timeout: 60 # Timeout in seconds
+  max_retries: 2 # Maximum retry attempts
+  retry_delay: 1 # Delay between retries in seconds
+  continue_on_error: false # Continue if a step fails

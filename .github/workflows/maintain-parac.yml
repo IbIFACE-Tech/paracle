@@ -1,0 +1,70 @@
+name: Maintain .parac Workspace
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - "packages/**"
+      - "templates/**"
+      - "docs/**"
+      - "examples/**"
+      - ".roadmap/**"
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+jobs:
+  maintain-parac:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyyaml
+
+      - name: Run .parac maintenance
+        run: |
+          python .parac/tools/auto-maintain.py --verbose
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          if git diff --quiet .parac/; then
+            echo "changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "changes=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push if changed
+        if: steps.check_changes.outputs.changes == 'true' && github.event_name == 'push'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add .parac/memory/context/current_state.yaml
+          git add .parac/changelog.md
+          git add .parac/roadmap/roadmap.yaml
+          git commit -m "chore: auto-update .parac workspace state [skip ci]"
+          git push
+
+      - name: Create PR comment if changed (on PR)
+        if: steps.check_changes.outputs.changes == 'true' && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '⚠️ **Warning**: This PR requires `.parac/` workspace updates. Please run `python .parac/tools/auto-maintain.py` locally and commit the changes.'
+            })

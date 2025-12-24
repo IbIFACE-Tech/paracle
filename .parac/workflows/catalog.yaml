@@ -1,0 +1,53 @@
+# Workflows Catalog
+# Version: 1.0
+
+# Available Workflows
+workflows:
+  - name: hello_world
+    description: Simple hello world workflow
+    file: templates/hello_world.yaml
+    category: examples
+    status: active
+
+  - name: code_review
+    description: Automated code review process
+    file: templates/code_review.yaml
+    category: development
+    status: planned
+
+  - name: documentation_generator
+    description: Generate comprehensive documentation
+    file: templates/documentation.yaml
+    category: development
+    status: planned
+
+# Workflow Categories
+categories:
+  examples:
+    description: Example workflows for learning
+  development:
+    description: Development and engineering workflows
+  analysis:
+    description: Data and code analysis workflows
+  deployment:
+    description: Deployment and CI/CD workflows
+
+# Workflow Templates
+templates:
+  sequential:
+    description: Linear sequence of steps
+    example: templates/hello_world.yaml
+
+  parallel:
+    description: Concurrent execution
+    example: templates/parallel_template.yaml
+
+  conditional:
+    description: Branching logic
+    example: templates/conditional_template.yaml
+
+# Execution Settings
+defaults:
+  timeout_seconds: 300
+  retry_attempts: 3
+  log_level: INFO

@@ -1,0 +1,46 @@
+# Memory Index
+# Index of project memory and context
+
+# Schema version
+schema_version: "1.0"
+
+# Current context
+context:
+  state_file: context/current_state.yaml
+  questions_file: context/open_questions.md
+  last_updated: "2025-12-24"
+
+# Knowledge base
+knowledge:
+  domain_file: knowledge/domain.md
+  # Add additional knowledge files
+  # technical_file: knowledge/technical.md
+  # business_file: knowledge/business.md
+
+# Summaries
+summaries:
+  # Add phase or milestone summaries
+  # - phase: Phase 0
+  #   file: summaries/phase_0.md
+  #   completed: "2025-12-24"
+
+# Memory settings
+settings:
+  auto_save: true # Auto-save context
+  save_interval: 300 # Save interval in seconds
+  max_history: 100 # Max history entries
+  enable_search: true # Enable memory search
+
+# Memory structure
+structure:
+  context:
+    description: Current project state and open questions
+    retention: temporary # temporary, session, permanent
+
+  knowledge:
+    description: Persistent domain and project knowledge
+    retention: permanent
+
+  summaries:
+    description: Phase and milestone summaries
+    retention: permanent

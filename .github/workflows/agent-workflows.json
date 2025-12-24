@@ -1,0 +1,304 @@
+[
+  {
+    "id": "code-review",
+    "name": "Code Review Pipeline",
+    "description": "Automated code review with security and quality checks",
+    "icon": "👁️",
+    "trigger": "manual",
+    "steps": [
+      {
+        "id": "s1",
+        "name": "Lint Check",
+        "agent": "09-QA-Engineer",
+        "action": "runLinter",
+        "outputs": [
+          "lintResults"
+        ]
+      },
+      {
+        "id": "s2",
+        "name": "Security Scan",
+        "agent": "08-Security-Engineer",
+        "action": "securityAudit",
+        "outputs": [
+          "securityReport"
+        ]
+      },
+      {
+        "id": "s3",
+        "name": "Code Quality",
+        "agent": "13-Code-Reviewer",
+        "action": "reviewCode",
+        "inputs": {
+          "includeMetrics": true
+        },
+        "outputs": [
+          "reviewReport"
+        ]
+      },
+      {
+        "id": "s4",
+        "name": "Generate Summary",
+        "agent": "10-Technical-Writer",
+        "action": "writeSummary",
+        "inputs": {
+          "reports": [
+            "lintResults",
+            "securityReport",
+            "reviewReport"
+          ]
+        }
+      }
+    ],
+    "createdAt": "2025-12-24T12:54:24.874Z",
+    "updatedAt": "2025-12-24T12:54:24.874Z"
+  },
+  {
+    "id": "feature-development",
+    "name": "Feature Development",
+    "description": "End-to-end feature implementation workflow",
+    "icon": "🚀",
+    "trigger": "manual",
+    "steps": [
+      {
+        "id": "s1",
+        "name": "Analyze Requirements",
+        "agent": "01-Project-Manager",
+        "action": "analyzeRequirements",
+        "outputs": [
+          "specs"
+        ]
+      },
+      {
+        "id": "s2",
+        "name": "Design Architecture",
+        "agent": "02-System-Architect",
+        "action": "designComponent",
+        "inputs": {
+          "specs": "specs"
+        },
+        "outputs": [
+          "design"
+        ]
+      },
+      {
+        "id": "s3",
+        "name": "Implement Backend",
+        "agent": "03-Backend-Engineer",
+        "action": "implementApi",
+        "inputs": {
+          "design": "design"
+        },
+        "outputs": [
+          "backendCode"
+        ]
+      },
+      {
+        "id": "s4",
+        "name": "Implement Frontend",
+        "agent": "04-Frontend-Engineer",
+        "action": "implementUi",
+        "inputs": {
+          "design": "design"
+        },
+        "outputs": [
+          "frontendCode"
+        ]
+      },
+      {
+        "id": "s5",
+        "name": "Write Tests",
+        "agent": "09-QA-Engineer",
+        "action": "writeTests",
+        "outputs": [
+          "tests"
+        ]
+      },
+      {
+        "id": "s6",
+        "name": "Document",
+        "agent": "10-Technical-Writer",
+        "action": "writeDocumentation",
+        "outputs": [
+          "docs"
+        ]
+      }
+    ],
+    "createdAt": "2025-12-24T12:54:24.874Z",
+    "updatedAt": "2025-12-24T12:54:24.874Z"
+  },
+  {
+    "id": "bug-fix",
+    "name": "Bug Fix Workflow",
+    "description": "Systematic bug investigation and fix",
+    "icon": "🐛",
+    "trigger": "manual",
+    "steps": [
+      {
+        "id": "s1",
+        "name": "Reproduce Issue",
+        "agent": "09-QA-Engineer",
+        "action": "reproduceIssue",
+        "outputs": [
+          "reproduction"
+        ]
+      },
+      {
+        "id": "s2",
+        "name": "Analyze Root Cause",
+        "agent": "03-Backend-Engineer",
+        "action": "analyzeCode",
+        "outputs": [
+          "analysis"
+        ]
+      },
+      {
+        "id": "s3",
+        "name": "Implement Fix",
+        "agent": "03-Backend-Engineer",
+        "action": "implementFix",
+        "outputs": [
+          "fix"
+        ]
+      },
+      {
+        "id": "s4",
+        "name": "Verify Fix",
+        "agent": "09-QA-Engineer",
+        "action": "verifyFix",
+        "condition": "fix.success === true"
+      },
+      {
+        "id": "s5",
+        "name": "Update Tests",
+        "agent": "09-QA-Engineer",
+        "action": "updateTests",
+        "outputs": [
+          "newTests"
+        ]
+      }
+    ],
+    "createdAt": "2025-12-24T12:54:24.874Z",
+    "updatedAt": "2025-12-24T12:54:24.874Z"
+  },
+  {
+    "id": "performance-optimization",
+    "name": "Performance Optimization",
+    "description": "Profile and optimize application performance",
+    "icon": "⚡",
+    "trigger": "manual",
+    "steps": [
+      {
+        "id": "s1",
+        "name": "Profile Application",
+        "agent": "12-Performance-Engineer",
+        "action": "profileApp",
+        "outputs": [
+          "profile"
+        ]
+      },
+      {
+        "id": "s2",
+        "name": "Identify Bottlenecks",
+        "agent": "12-Performance-Engineer",
+        "action": "analyzeProfile",
+        "outputs": [
+          "bottlenecks"
+        ]
+      },
+      {
+        "id": "s3",
+        "name": "Optimize Database",
+        "agent": "11-Database-Expert",
+        "action": "optimizeQueries",
+        "condition": "bottlenecks.includes(\"database\")"
+      },
+      {
+        "id": "s4",
+        "name": "Optimize Code",
+        "agent": "03-Backend-Engineer",
+        "action": "optimizeCode",
+        "condition": "bottlenecks.includes(\"code\")"
+      },
+      {
+        "id": "s5",
+        "name": "Implement Caching",
+        "agent": "12-Performance-Engineer",
+        "action": "implementCaching"
+      },
+      {
+        "id": "s6",
+        "name": "Verify Improvements",
+        "agent": "12-Performance-Engineer",
+        "action": "benchmarkApp",
+        "outputs": [
+          "benchmarks"
+        ]
+      }
+    ],
+    "createdAt": "2025-12-24T12:54:24.874Z",
+    "updatedAt": "2025-12-24T12:54:24.874Z"
+  },
+  {
+    "id": "release-prep",
+    "name": "Release Preparation",
+    "description": "Prepare application for release",
+    "icon": "📦",
+    "trigger": "manual",
+    "steps": [
+      {
+        "id": "s1",
+        "name": "Run Full Tests",
+        "agent": "09-QA-Engineer",
+        "action": "runFullTestSuite",
+        "outputs": [
+          "testResults"
+        ]
+      },
+      {
+        "id": "s2",
+        "name": "Security Audit",
+        "agent": "08-Security-Engineer",
+        "action": "fullSecurityAudit",
+        "outputs": [
+          "securityReport"
+        ]
+      },
+      {
+        "id": "s3",
+        "name": "Update Changelog",
+        "agent": "10-Technical-Writer",
+        "action": "generateChangelog",
+        "outputs": [
+          "changelog"
+        ]
+      },
+      {
+        "id": "s4",
+        "name": "Update Version",
+        "agent": "07-DevOps-Engineer",
+        "action": "bumpVersion",
+        "outputs": [
+          "version"
+        ]
+      },
+      {
+        "id": "s5",
+        "name": "Build Artifacts",
+        "agent": "07-DevOps-Engineer",
+        "action": "buildRelease",
+        "outputs": [
+          "artifacts"
+        ]
+      },
+      {
+        "id": "s6",
+        "name": "Deploy to Staging",
+        "agent": "07-DevOps-Engineer",
+        "action": "deployStaging"
+      }
+    ],
+    "createdAt": "2025-12-24T12:54:24.874Z",
+    "updatedAt": "2025-12-24T12:54:24.874Z"
+  }
+]

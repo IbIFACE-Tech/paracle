@@ -1,0 +1,145 @@
+# Paracle Project Configuration
+# Version: 1.0.0
+# This is a template file - customize it for your project
+
+# Basic Project Information
+name: my-project                      # Your project name (lowercase, hyphens)
+version: 0.1.0                        # Semantic versioning (major.minor.patch)
+description: A Paracle multi-agent project  # Brief project description
+schema_version: "1.0"                 # .parac schema version (do not modify)
+
+# Identity (Optional)
+identity:
+  organization: my-organization       # Your organization/team name
+  repository: my-repo                 # Git repository name
+  license: Apache-2.0                 # License type (MIT, Apache-2.0, etc.)
+  homepage: https://github.com/org/repo  # Project homepage URL
+
+# Team (Optional)
+team:
+  maintainers:
+    - role: lead                      # Role: lead, developer, contributor
+      name: Your Name                 # Maintainer name
+      contact: your.email@example.com # Contact email
+  # Add more maintainers as needed
+  # - role: developer
+  #   name: Developer Name
+  #   contact: dev@example.com
+
+# Default Configuration
+defaults:
+  python_version: "3.10"              # Minimum Python version (3.10, 3.11, 3.12)
+  agent_framework: internal           # Options: internal, msaf, langchain, llamaindex
+  model_provider: openai              # Default LLM provider (openai, anthropic, google, local)
+  default_model: gpt-4                # Default model name
+  orchestrator: internal              # Orchestrator: internal, msaf, custom
+  temperature: 0.7                    # Default temperature (0.0 - 1.0)
+  max_tokens: 2000                    # Default max tokens per response
+
+# Project Metadata
+metadata:
+  created_at: "2025-12-24"            # Creation date (YYYY-MM-DD)
+  phase: "Development"                # Current phase: Development, Production, Maintenance
+  status: active                      # Status: active, archived, paused
+  tags:                               # Project tags for categorization
+    - multi-agent
+    - ai
+    # Add custom tags
+  environment: development            # Environment: development, staging, production
+
+# Logging Configuration
+logging:
+  level: INFO                         # Log level: DEBUG, INFO, WARNING, ERROR, CRITICAL
+  format: json                        # Format: json, text, structured
+  rotation: daily                     # Rotation: daily, weekly, size-based
+  retention_days: 30                  # Number of days to keep logs
+  output:                             # Log outputs
+    - console                         # Output to console
+    - file                            # Output to file
+  # Optional: Custom log paths
+  # paths:
+  #   agents: .parac/logs/agents
+  #   workflows: .parac/logs/workflows
+  #   errors: .parac/logs/errors
+
+# Feature Flags (Optional)
+features:
+  enable_mcp: true                    # Enable Model Context Protocol support
+  enable_api: true                    # Enable REST API
+  enable_events: true                 # Enable event bus
+  enable_persistence: true            # Enable data persistence
+  enable_tracing: false               # Enable execution tracing (OpenTelemetry)
+  enable_observability: false         # Enable metrics and monitoring
+
+# Security Settings (Optional)
+security:
+  require_api_key: false              # Require API key for API access
+  enable_rate_limiting: true          # Enable rate limiting
+  allowed_origins:                    # CORS allowed origins for API
+    - http://localhost:3000
+  # max_requests_per_minute: 60      # Rate limit (requests per minute)
+
+# Agent Defaults (Optional)
+agents:
+  default_timeout: 300                # Default agent timeout in seconds
+  max_retries: 3                      # Maximum retry attempts
+  retry_delay: 1                      # Delay between retries in seconds
+  enable_streaming: true              # Enable streaming responses
+  enable_memory: true                 # Enable agent memory
+
+# Workflow Defaults (Optional)
+workflows:
+  default_timeout: 600                # Default workflow timeout in seconds
+  enable_parallel_execution: true    # Allow parallel agent execution
+  max_concurrent_agents: 5            # Maximum concurrent agents
+
+# Storage Configuration (Optional)
+storage:
+  provider: local                     # Options: local, s3, azure, gcp
+  # For local storage
+  base_path: .parac/data              # Base path for local storage
+  # For cloud storage (uncomment and configure as needed)
+  # s3:
+  #   bucket: my-bucket
+  #   region: us-east-1
+  # azure:
+  #   container: my-container
+  #   account: my-account
+
+# External Integrations (Optional)
+integrations:
+  # OpenAI Configuration
+  openai:
+    enabled: true
+    # api_key: set via OPENAI_API_KEY environment variable
+    # organization: your-org-id
+  
+  # Anthropic Configuration
+  anthropic:
+    enabled: false
+    # api_key: set via ANTHROPIC_API_KEY environment variable
+  
+  # Google AI Configuration
+  google:
+    enabled: false
+    # api_key: set via GOOGLE_API_KEY environment variable
+  
+  # Custom integrations
+  # custom_service:
+  #   enabled: false
+  #   endpoint: https://api.example.com
+
+# Development Settings (Optional)
+development:
+  auto_reload: true                   # Auto-reload on code changes
+  debug_mode: false                   # Enable debug mode
+  show_stack_traces: true             # Show detailed stack traces
+  # test_mode: false                  # Enable test mode
+
+# Custom Configuration (Optional)
+# Add any custom configuration specific to your project
+custom:
+  # example_setting: value
+  # notification:
+  #   email: notifications@example.com
+  #   slack_webhook: https://hooks.slack.com/...

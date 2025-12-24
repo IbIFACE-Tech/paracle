@@ -1,0 +1,106 @@
+{
+  "Agent Spec": {
+    "prefix": "agent_spec",
+    "body": [
+      "spec = AgentSpec(",
+      "    name=\"${1:agent_name}\",",
+      "    model=\"${2:gpt-4}\",",
+      "    temperature=${3:0.7},",
+      "    system_prompt=\"${4:You are a helpful AI assistant}\",",
+      "    tools=${5:[]},",
+      "    metadata=${6:{}}",
+      ")"
+    ],
+    "description": "Create a new AgentSpec"
+  },
+  "Agent with Inheritance": {
+    "prefix": "agent_inherit",
+    "body": [
+      "spec = AgentSpec(",
+      "    name=\"${1:child_agent}\",",
+      "    parent=\"${2:parent_agent}\",",
+      "    model=\"${3:gpt-4}\",",
+      "    temperature=${4:0.7},",
+      "    system_prompt=\"${5:Enhanced system prompt}\"",
+      ")"
+    ],
+    "description": "Create an AgentSpec with inheritance"
+  },
+  "Workflow Definition": {
+    "prefix": "workflow",
+    "body": [
+      "workflow = WorkflowSpec(",
+      "    name=\"${1:workflow_name}\",",
+      "    description=\"${2:Workflow description}\",",
+      "    steps=[",
+      "        WorkflowStep(",
+      "            name=\"${3:step_1}\",",
+      "            agent=\"${4:agent_name}\",",
+      "            inputs=${5:{}},",
+      "            outputs=${6:[]}",
+      "        )",
+      "    ]",
+      ")"
+    ],
+    "description": "Create a new WorkflowSpec"
+  },
+  "Test Function": {
+    "prefix": "test_func",
+    "body": [
+      "def test_${1:feature}():",
+      "    \"\"\"Test ${2:description}.\"\"\"",
+      "    # Arrange",
+      "    ${3:pass}",
+      "    ",
+      "    # Act",
+      "    ${4:pass}",
+      "    ",
+      "    # Assert",
+      "    ${5:pass}"
+    ],
+    "description": "Create a test function"
+  },
+  "Async Test": {
+    "prefix": "test_async",
+    "body": [
+      "async def test_${1:feature}():",
+      "    \"\"\"Test ${2:description}.\"\"\"",
+      "    # Arrange",
+      "    ${3:pass}",
+      "    ",
+      "    # Act",
+      "    ${4:pass}",
+      "    ",
+      "    # Assert",
+      "    ${5:pass}"
+    ],
+    "description": "Create an async test function"
+  },
+  "Pydantic Model": {
+    "prefix": "pydantic_model",
+    "body": [
+      "class ${1:ModelName}(BaseModel):",
+      "    \"\"\"${2:Model description}.\"\"\"",
+      "    ",
+      "    ${3:field}: ${4:str}",
+      "    ${5:optional_field}: Optional[${6:int}] = None",
+      "    ",
+      "    model_config = ConfigDict(",
+      "        validate_assignment=True,",
+      "        arbitrary_types_allowed=False",
+      "    )"
+    ],
+    "description": "Create a Pydantic model"
+  },
+  "CLI Command": {
+    "prefix": "cli_command",
+    "body": [
+      "@click.command()",
+      "@click.option(\"--${1:option}\", default=${2:None}, help=\"${3:Option help}\")",
+      "def ${4:command}(${1:option}):",
+      "    \"\"\"${5:Command description}.\"\"\"",
+      "    ${6:pass}"
+    ],
+    "description": "Create a Click CLI command"
+  }
+}

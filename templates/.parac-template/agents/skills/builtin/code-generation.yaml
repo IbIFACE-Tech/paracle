@@ -1,0 +1,48 @@
+name: code-generation
+display_name: "Code Generation"
+category: creation
+description: |
+  Generate high-quality code in various programming languages.
+  Follows best practices, includes documentation, and considers edge cases.
+
+  Supported languages:
+  - Python
+  - JavaScript/TypeScript
+  - Java
+  - C#
+  - Go
+  - Rust
+  - And more
+
+  Use cases:
+  - Function implementation
+  - Class design
+  - API endpoints
+  - Scripts and utilities
+  - Test code
+
+level: advanced
+
+tools:
+  - code_executor
+  - file_system
+
+capabilities:
+  - multi_language_support
+  - best_practices
+  - documentation
+  - error_handling
+  - testing
+
+requirements:
+  - skill_name: question-answering
+    min_level: basic
+
+tags:
+  - coding
+  - programming
+  - development
+  - software
+
+version: "1.0.0"
+enabled: true

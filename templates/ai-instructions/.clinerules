@@ -1,0 +1,238 @@
+# Paracle .parac Configuration Rules for Cline
+
+You are Cline, working with a Paracle multi-agent AI project. The project uses `.parac/` directory for configuration.
+
+## Quick Overview
+
+```
+.parac/
+├── project.yaml          # Main config (REQUIRED)
+├── agents/              # Agent definitions
+├── workflows/           # Workflow definitions
+├── tools/               # Tool registry
+├── policies/            # Security rules
+├── memory/              # Project memory
+└── adapters/            # Provider configs
+```
+
+## Core Rules
+
+1. ✅ Always include `schema_version: "1.0"` in YAML files
+2. ✅ Validate YAML syntax before saving
+3. ✅ Use lowercase-with-hyphens for names
+4. ✅ Never commit API keys or secrets
+5. ✅ Enable security features by default
+
+## project.yaml Structure
+
+```yaml
+name: project-name              # Required
+version: 0.1.0                 # Required (semver)
+description: "..."             # Required
+schema_version: "1.0"          # Required
+
+defaults:
+  python_version: "3.10"       # 3.10, 3.11, 3.12
+  model_provider: openai       # openai, anthropic, google
+  default_model: gpt-4         # Provider-specific
+  temperature: 0.7             # 0.0-1.0
+
+features:
+  enable_mcp: true
+  enable_api: true
+  enable_events: true
+```
+
+## Agent Configuration
+
+### Manifest (agents/manifest.yaml)
+```yaml
+schema_version: "1.0"
+agents:
+  - name: agent-name
+    description: "Purpose"
+    spec_file: specs/agent-name.yaml
+    enabled: true
+    version: 1.0.0
+```
+
+### Spec (agents/specs/agent-name.yaml)
+```yaml
+name: agent-name
+description: "What it does"
+version: 1.0.0
+
+provider: openai
+model: gpt-4
+temperature: 0.7
+max_tokens: 2000
+
+system_prompt: |
+  You are...
+  Role and guidelines here.
+
+# Agent capabilities
+skills:
+  - question-answering
+  - code-generation
+```
+
+## Agent Skills
+
+**Two formats**: YAML (quick) or SKILL.md (detailed)
+
+**YAML**: `.parac/agents/skills/custom/skill.yaml`
+```yaml
+name: skill-name
+category: creation      # communication, analysis, creation, transformation, integration, memory
+level: intermediate     # basic, intermediate, advanced, expert
+description: What it does
+tools: []
+```
+
+**SKILL.md**: `.parac/agents/skills/custom/skill/SKILL.md`
+```markdown
+---
+name: skill-name
+description: Detailed description
+metadata:
+  category: creation
+  level: intermediate
+---
+# Instructions and code examples
+```
+
+**Built-in**: question-answering, code-generation, data-analysis, text-summarization, api-integration
+
+## Workflow Configuration
+
+### Catalog (workflows/catalog.yaml)
+```yaml
+schema_version: "1.0"
+workflows:
+  - name: workflow-name
+    description: "Purpose"
+    template: templates/workflow-name.yaml
+    enabled: true
+```
+
+### Definition (workflows/templates/*.yaml)
+```yaml
+name: workflow-name
+version: 1.0.0
+
+inputs:
+  - name: input_var
+    type: string
+    required: false
+
+steps:
+  - name: step1
+    agent: agent-name
+    prompt: "Process {input_var}"
+    output: result_var
+
+outputs:
+  - name: result
+    value: "{result_var}"
+```
+
+## Security Rules
+
+1. **Tools**: Disabled by default
+   ```yaml
+   builtin_tools:
+     - name: web_search
+       enabled: false  # ← Always false initially
+   ```
+
+2. **Content Filtering**: Always enabled
+   ```yaml
+   content_filtering:
+     enabled: true
+     filter_pii: true
+     filter_harmful: true
+   ```
+
+3. **Rate Limiting**: Production must have
+   ```yaml
+   rate_limiting:
+     enabled: true
+     requests_per_minute: 60
+   ```
+
+## Common Tasks
+
+### Add New Agent
+1. Create `agents/specs/new-agent.yaml`
+2. Add entry to `agents/manifest.yaml`
+3. Set enabled: true
+4. Test before committing
+
+### Add Workflow
+1. Create `workflows/templates/new-workflow.yaml`
+2. Register in `workflows/catalog.yaml`
+3. Verify all agent references exist
+
+### Enable Tool
+1. Review security implications
+2. Set `enabled: true` in `tools/registry.yaml`
+3. Add permissions in `policies/security.yaml`
+
+## Validation
+
+Before saving any `.parac/` file:
+
+- [ ] Valid YAML syntax
+- [ ] schema_version present
+- [ ] Required fields populated
+- [ ] No hardcoded secrets
+- [ ] Naming conventions followed
+
+## Environment Variables
+
+Never hardcode - always use env vars:
+- OPENAI_API_KEY
+- ANTHROPIC_API_KEY
+- GOOGLE_API_KEY
+- PARACLE_ENV
+
+## When to Confirm
+
+Ask user before:
+- Enabling tools with write access
+- Disabling security features
+- Changing production settings
+- Adding external integrations
+
+## Quick Commands
+
+```bash
+# Initialize from template
+cp -r templates/.parac-template .parac
+
+# Validate YAML
+python -c "import yaml; yaml.safe_load(open('.parac/project.yaml'))"
+
+# Check for secrets
+grep -r "api_key.*sk-" .parac/  # Should return nothing
+```
+
+## File Naming
+
+- ✅ `my-agent.yaml` (lowercase, hyphens)
+- ✅ `data_processor.yaml` (snake_case for technical)
+- ❌ `MyAgent.yaml` (no CamelCase)
+- ❌ `agent.yml` (use .yaml not .yml)
+
+## Remember
+
+- `.parac/` is source of truth for configuration
+- Validate before committing
+- Security first, always
+- Document your changes
+- Keep it simple and readable
+
+---
+
+For full details, see templates/ai-instructions/README.md

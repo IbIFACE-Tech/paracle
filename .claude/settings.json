@@ -1,0 +1,51 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(uv:*)",
+      "Bash(python:*)",
+      "Bash(pytest:*)",
+      "Bash(make:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git branch:*)",
+      "Bash(git show:*)",
+      "Bash(paracle:*)",
+      "Read(./packages/**)",
+      "Read(./tests/**)",
+      "Read(./docs/**)",
+      "Read(./examples/**)",
+      "Read(./.parac/**)",
+      "Read(./pyproject.toml)",
+      "Read(./Makefile)",
+      "Read(./README.md)",
+      "Read(./CONTRIBUTING.md)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./secrets/**)",
+      "Read(**/*credentials*)",
+      "Read(**/*secret*)",
+      "Bash(rm -rf:*)"
+    ],
+    "ask": [
+      "Bash(git push:*)",
+      "Bash(git commit:*)",
+      "Bash(git checkout:*)",
+      "Bash(git merge:*)",
+      "Bash(git rebase:*)",
+      "Bash(pip install:*)",
+      "Bash(uv add:*)"
+    ]
+  },
+  "env": {
+    "PYTHONPATH": "./packages",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "model": "claude-opus-4-5-20251101",
+  "attribution": {
+    "commit": "🤖 Generated with Claude Code\n\nCo-Authored-By: Claude <noreply@anthropic.com>",
+    "pr": "🤖 Generated with [Claude Code](https://claude.ai/code)"
+  }
+}

@@ -1,0 +1,47 @@
+name: data-analysis
+display_name: "Data Analysis"
+category: analysis
+description: |
+  Analyze and interpret data to generate meaningful insights.
+  Can work with structured and unstructured data.
+
+  Capabilities include:
+  - Descriptive statistics
+  - Pattern identification
+  - Trend analysis
+  - Anomaly detection
+  - Insight generation
+  - Visualization recommendations
+
+  Use cases:
+  - Business intelligence
+  - Research analysis
+  - Performance metrics
+  - User behavior analysis
+
+level: advanced
+
+tools:
+  - file_system
+  - code_executor
+
+capabilities:
+  - statistical_analysis
+  - pattern_recognition
+  - data_visualization
+  - insight_generation
+  - correlation_analysis
+
+requirements:
+  - skill_name: question-answering
+    min_level: basic
+
+tags:
+  - analytics
+  - statistics
+  - insights
+  - data
+  - intelligence
+
+version: "1.0.0"
+enabled: true

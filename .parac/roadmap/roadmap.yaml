@@ -1,0 +1,140 @@
+# Paracle v0.0.1 - Roadmap Canonique
+# Status: Active | Version: 1.0 | Verrouillable: true
+
+version: 0.0.1
+timeline: 17_weeks
+status: in_progress
+current_phase: phase_0
+last_update: "2025-12-24"
+
+# Recent Achievements (Phase 0 Extensions)
+recent_achievements:
+  - id: agent_skills_system
+    name: "Agent Skills System"
+    completed: "2025-12-24"
+    impact: high
+    description: |
+      Dual format support (YAML + SKILL.md) with Agent Skills standard compliance.
+      5 built-in skills + 2 framework development skills created.
+    deliverables:
+      - templates/.parac-template/agents/skills/ (user skills)
+      - .parac/agents/skills/ (framework skills)
+      - Dual format loader design
+
+  - id: ai_ide_instructions
+    name: "AI IDE Instructions"
+    completed: "2025-12-24"
+    impact: high
+    description: |
+      9 IDE-specific instruction files for Paracle configuration.
+      All files include comprehensive Agent Skills documentation.
+    deliverables:
+      - templates/ai-instructions/ (9 files)
+      - Skills integration across all IDEs
+
+  - id: user_templates
+    name: "User Templates"
+    completed: "2025-12-24"
+    impact: medium
+    description: |
+      Complete .parac-template with 15+ configuration files.
+      Ready-to-use templates for end users.
+    deliverables:
+      - templates/.parac-template/ (complete structure)
+
+# Global Metrics
+metrics:
+  time_to_first_agent: "<5min"
+  test_coverage: ">80%"
+  documentation_coverage: "100%"
+  breaking_changes: 0
+
+# Phases
+phases:
+  - id: phase_0
+    name: "Foundation & Setup"
+    duration: 1_week
+    status: in_progress
+    priority: critical
+    deliverables:
+      - repository_structure
+      - pyproject_toml
+      - ci_cd_pipeline
+      - basic_documentation
+      - hello_world
+
+  - id: phase_1
+    name: "Core Domain"
+    duration: 3_weeks
+    status: planned
+    priority: critical
+    deliverables:
+      - domain_models
+      - persistence_layer
+      - event_bus
+      - agent_inheritance
+      - repository_pattern
+
+  - id: phase_2
+    name: "Multi-Provider & Multi-Framework"
+    duration: 4_weeks
+    status: planned
+    priority: high
+    deliverables:
+      - llm_abstraction
+      - provider_adapters
+      - framework_adapters
+      - mcp_protocol
+      - agent_factory
+
+  - id: phase_3
+    name: "Orchestration & API"
+    duration: 4_weeks
+    status: planned
+    priority: high
+    deliverables:
+      - workflow_orchestrator
+      - rest_api
+      - websocket_support
+      - monitoring
+      - authentication
+
+  - id: phase_4
+    name: "Production Scale"
+    duration: 3_weeks
+    status: planned
+    priority: medium
+    deliverables:
+      - horizontal_scaling
+      - caching_layer
+      - performance_optimization
+      - observability
+      - deployment_guides
+
+  - id: phase_5
+    name: "Polish & Release"
+    duration: 2_weeks
+    status: planned
+    priority: high
+    deliverables:
+      - comprehensive_docs
+      - video_tutorials
+      - migration_guides
+      - security_audit
+      - v0_0_1_release
+
+# Dependencies
+dependencies:
+  phase_1: [phase_0]
+  phase_2: [phase_1]
+  phase_3: [phase_2]
+  phase_4: [phase_3]
+  phase_5: [phase_4]
+
+# Success Criteria
+success_criteria:
+  - functional_mvp
+  - early_adopter_ready
+  - stable_api
+  - comprehensive_tests
+  - production_ready_architecture

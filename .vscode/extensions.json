@@ -1,0 +1,31 @@
+{
+  "recommendations": [
+    // Python Development
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "ms-python.debugpy",
+    "charliermarsh.ruff",
+    // YAML Support
+    "redhat.vscode-yaml",
+    // Markdown
+    "yzhang.markdown-all-in-one",
+    "davidanson.vscode-markdownlint",
+    // Git
+    "eamodio.gitlens",
+    "mhutchie.git-graph",
+    // GitHub Copilot
+    "github.copilot",
+    "github.copilot-chat",
+    // Testing
+    "littlefoxteam.vscode-python-test-adapter",
+    // Code Quality
+    "ms-python.mypy-type-checker",
+    "streetsidesoftware.code-spell-checker",
+    // Utilities
+    "editorconfig.editorconfig",
+    "gruntfuggly.todo-tree",
+    "aaron-bond.better-comments",
+    // Docker (future)
+    "ms-azuretools.vscode-docker"
+  ]
+}

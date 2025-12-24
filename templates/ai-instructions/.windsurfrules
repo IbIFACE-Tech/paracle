@@ -1,0 +1,215 @@
+# Paracle .parac Configuration Rules for Windsurf
+
+## Overview
+
+Working with Paracle multi-agent framework. Configuration in `.parac/` directory.
+
+## Directory Structure
+
+```
+.parac/
+├── project.yaml          # Main configuration ⭐
+├── agents/              # Agent definitions
+│   ├── manifest.yaml
+│   └── specs/*.yaml
+├── workflows/           # Workflows
+│   ├── catalog.yaml
+│   └── templates/*.yaml
+├── tools/registry.yaml  # Available tools
+├── policies/            # Security & governance
+│   ├── policy-pack.yaml
+│   └── security.yaml
+└── memory/              # Project memory
+```
+
+## Essential Rules
+
+1. **Schema Version**: Always include `schema_version: "1.0"`
+2. **YAML Syntax**: Validate before saving
+3. **Naming**: Use lowercase-with-hyphens
+4. **Security**: Default-deny for tools, default-enable for filters
+5. **Secrets**: Use environment variables, never hardcode
+
+## project.yaml
+
+```yaml
+# Required
+name: my-project
+version: 0.1.0
+description: "Project description"
+schema_version: "1.0"
+
+# Configuration
+defaults:
+  python_version: "3.10"
+  model_provider: openai
+  default_model: gpt-4
+  temperature: 0.7
+
+features:
+  enable_mcp: true
+  enable_api: true
+  enable_tracing: false
+```
+
+## Agent Configuration
+
+```yaml
+# agents/manifest.yaml
+schema_version: "1.0"
+agents:
+  - name: my-agent
+    spec_file: specs/my-agent.yaml
+    enabled: true
+    version: 1.0.0
+
+# agents/specs/my-agent.yaml
+name: my-agent
+provider: openai
+model: gpt-4
+temperature: 0.7
+
+system_prompt: |
+  Clear role and instructions
+
+# Assign skills to agent
+skills:
+  - question-answering
+  - code-generation
+  - custom-skill
+```
+
+## Agent Skills
+
+Paracle supports **two skill formats**:
+
+### 1. YAML Format (Quick)
+```yaml
+# .parac/agents/skills/custom/my-skill.yaml
+name: my-skill
+category: creation       # communication, analysis, creation, transformation, integration, memory
+level: intermediate      # basic, intermediate, advanced, expert
+description: Skill description
+tools: []
+capabilities:
+  - capability1
+tags: [tag1]
+version: "1.0.0"
+```
+
+### 2. SKILL.md Format (Detailed)
+```markdown
+# .parac/agents/skills/custom/my-skill/SKILL.md
+---
+name: my-skill
+description: Detailed description with use cases
+metadata:
+  category: creation
+  level: intermediate
+allowed-tools: Read Write
+---
+# Skill Instructions
+## When to use
+## How to...
+## Examples
+```
+
+**Built-in skills**: question-answering, code-generation, data-analysis, text-summarization, api-integration
+
+**Assign to agents**: Add skill names to `skills:` list in agent spec
+
+## Workflow Configuration
+
+```yaml
+# workflows/catalog.yaml
+schema_version: "1.0"
+workflows:
+  - name: my-workflow
+    template: templates/my-workflow.yaml
+    enabled: true
+
+# workflows/templates/my-workflow.yaml
+name: my-workflow
+steps:
+  - name: step1
+    agent: my-agent
+    prompt: "Task description"
+    output: result
+```
+
+## Security Checklist
+
+- [ ] Content filtering enabled
+- [ ] PII filtering enabled
+- [ ] Rate limiting configured
+- [ ] Tools disabled by default
+- [ ] No secrets in config files
+- [ ] Audit logging enabled
+
+## Quick Actions
+
+**New Agent**:
+1. Create spec in `agents/specs/`
+2. Add to `agents/manifest.yaml`
+
+**New Workflow**:
+1. Create template in `workflows/templates/`
+2. Register in `workflows/catalog.yaml`
+
+**Enable Tool**:
+1. Review security implications
+2. Update `tools/registry.yaml`
+3. Add permissions to `policies/security.yaml`
+
+## Validation
+
+```bash
+# Check YAML syntax
+python -c "import yaml; yaml.safe_load(open('.parac/project.yaml'))"
+
+# Ensure no secrets
+grep -r "sk-\|key.*:" .parac/ --exclude-dir=logs
+```
+
+## Naming Conventions
+
+- Files: `my-agent.yaml` ✅
+- Agents: `code-reviewer` ✅
+- Variables: `user_input` ✅
+- Avoid: `MyAgent.yaml` ❌, `agent1` ❌
+
+## Common Patterns
+
+**Temperature Guidelines**:
+- 0.0-0.3: Deterministic tasks (code, data)
+- 0.5-0.7: Balanced (general assistance)
+- 0.8-1.0: Creative tasks (content, ideas)
+
+**Model Selection**:
+- gpt-4: Complex reasoning, important tasks
+- gpt-3.5-turbo: Simple, high-volume tasks
+- claude-3-opus: Long context, detailed analysis
+
+## Environment Variables
+
+```bash
+# Required
+OPENAI_API_KEY=sk-...
+ANTHROPIC_API_KEY=sk-ant-...
+
+# Optional
+PARACLE_ENV=development
+PARACLE_LOG_LEVEL=INFO
+```
+
+## When to Ask
+
+Confirm before:
+- Enabling write permissions
+- Disabling security features
+- Modifying production config
+- Changing model providers
+
+---
+
+Keep it simple. Security first. Document changes.

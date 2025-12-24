@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# Git pre-commit hook for automatic .parac maintenance
+#
+# Installation:
+#   cp .parac/tools/hooks/pre-commit .git/hooks/pre-commit
+#   chmod +x .git/hooks/pre-commit
+#
+# This hook runs the auto-maintain.py script before each commit
+# to keep .parac/ state synchronized with project changes.
+
+set -e
+
+echo "🔄 Running .parac maintenance..."
+
+# Run the maintenance tool
+python3 .parac/tools/auto-maintain.py --verbose
+
+# If changes were made to .parac/, stage them
+if git diff --name-only | grep -q "^\.parac/"; then
+    echo "✅ Staging .parac updates..."
+    git add .parac/memory/context/current_state.yaml
+    git add .parac/changelog.md
+    git add .parac/roadmap/roadmap.yaml
+fi
+
+exit 0

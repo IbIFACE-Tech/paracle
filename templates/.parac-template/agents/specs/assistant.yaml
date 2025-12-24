@@ -1,0 +1,76 @@
+# Example Agent Specification
+# This is a template - customize for your use case
+
+# Basic Information
+name: assistant
+description: A helpful AI assistant that can answer questions and help with tasks
+version: 1.0.0
+
+# Provider Configuration
+provider: openai # Options: openai, anthropic, google, local
+model: gpt-4 # Model name
+temperature: 0.7 # Creativity (0.0 = deterministic, 1.0 = creative)
+max_tokens: 2000 # Maximum response length
+
+# System Prompt
+system_prompt: |
+  You are a helpful AI assistant.
+
+  Your role is to:
+  - Answer questions accurately and concisely
+  - Help users with tasks and problem-solving
+  - Provide clear explanations
+  - Be professional and courteous
+
+  Guidelines:
+  - Always verify information when possible
+  - Admit when you don't know something
+  - Ask clarifying questions if needed
+  - Provide step-by-step guidance for complex tasks
+
+# Capabilities (optional)
+capabilities:
+  - question_answering
+  - task_assistance
+  - explanation
+  - problem_solving
+
+# Tools (optional)
+# List of tools this agent can use
+tools:
+  # - name: web_search
+  #   enabled: true
+  # - name: file_system
+  #   enabled: false
+
+# Memory Configuration (optional)
+memory:
+  enabled: true
+  type: conversation # Options: conversation, semantic, hybrid
+  max_history: 10 # Number of messages to remember
+  # persistence: local          # Options: local, redis, postgres
+
+# Guardrails (optional)
+guardrails:
+  enable_content_filtering: true
+  enable_pii_detection: false
+  max_retries: 3
+  timeout: 300 # Timeout in seconds
+
+# Metadata (optional)
+metadata:
+  author: Your Name
+  created_at: "2025-12-24"
+  tags:
+    - general-purpose
+    - assistant
+  category: productivity
+
+# Advanced Configuration (optional)
+advanced:
+  streaming: true # Enable streaming responses
+  top_p: 1.0 # Nucleus sampling
+  frequency_penalty: 0.0 # Reduce repetition
+  presence_penalty: 0.0 # Encourage diversity
+  # stop_sequences:            # Stop generation at these sequences
+  #   - "\n\n"

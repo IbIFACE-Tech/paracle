@@ -1,0 +1,71 @@
+.PHONY: help install install-dev test test-cov lint format clean build publish
+
+help: ## Show this help message
+	@echo 'Usage: make [target]'
+	@echo ''
+	@echo 'Available targets:'
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
+
+install: ## Install package
+	uv sync
+
+install-dev: ## Install package with dev dependencies
+	uv sync --all-extras
+
+test: ## Run tests
+	uv run pytest
+
+test-cov: ## Run tests with coverage
+	uv run pytest --cov=packages --cov-report=html --cov-report=term
+
+test-watch: ## Run tests in watch mode
+	uv run pytest-watch
+
+lint: ## Run linters
+	uv run black --check packages/ tests/
+	uv run isort --check-only packages/ tests/
+	uv run ruff check packages/ tests/
+	uv run mypy packages/
+
+format: ## Format code
+	uv run black packages/ tests/
+	uv run isort packages/ tests/
+
+security: ## Run security checks
+	uv run bandit -r packages/ -ll
+	uv run safety check
+
+clean: ## Clean build artifacts
+	rm -rf build/
+	rm -rf dist/
+	rm -rf *.egg-info
+	rm -rf .pytest_cache
+	rm -rf .mypy_cache
+	rm -rf .ruff_cache
+	rm -rf htmlcov/
+	rm -rf .coverage
+	find . -type d -name __pycache__ -exec rm -rf {} +
+	find . -type f -name '*.pyc' -delete
+
+build: clean ## Build package
+	uv build
+
+publish: build ## Publish to PyPI
+	uv publish
+
+docs-serve: ## Serve documentation locally
+	uv run mkdocs serve
+
+docs-build: ## Build documentation
+	uv run mkdocs build
+
+pre-commit-install: ## Install pre-commit hooks
+	uv run pre-commit install
+
+pre-commit-run: ## Run pre-commit on all files
+	uv run pre-commit run --all-files
+
+cli-hello: ## Run CLI hello command
+	uv run paracle hello
+
+all: install-dev lint test ## Run install, lint, and test

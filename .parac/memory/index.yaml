@@ -1,0 +1,83 @@
+# Paracle Memory Index
+# Index of knowledge and context artifacts
+
+version: "1.0"
+last_updated: "2025-12-24"
+
+# Knowledge Base
+knowledge:
+  - id: domain
+    title: Domain Knowledge
+    path: knowledge/domain.md
+    type: markdown
+    status: active
+    topics: [domain_models, business_logic, agent_inheritance]
+
+  - id: architecture
+    title: System Architecture
+    path: knowledge/architecture.md
+    type: markdown
+    status: active
+    topics: [hexagonal_architecture, modules, packages, interfaces]
+
+  - id: glossary
+    title: Project Glossary
+    path: knowledge/glossary.md
+    type: markdown
+    status: active
+    topics: [terminology, definitions, abbreviations]
+
+# Context
+context:
+  current_state:
+    path: context/current_state.yaml
+    description: Current project state snapshot
+
+  open_questions:
+    path: context/open_questions.md
+    description: Unresolved questions and decisions
+
+  decisions:
+    path: ../roadmap/decisions.md
+    description: Architecture Decision Records
+
+# Summaries
+summaries:
+  - path: summaries/phase_0_summary.md
+    phase: phase_0
+    status: in_progress
+
+  - path: summaries/weekly_summary.md
+    frequency: weekly
+    status: active
+
+# References
+references:
+  external_docs:
+    - name: FastAPI
+      url: https://fastapi.tiangolo.com
+
+    - name: Pydantic
+      url: https://docs.pydantic.dev
+
+    - name: SQLAlchemy
+      url: https://docs.sqlalchemy.org
+
+    - name: MCP Protocol
+      url: https://modelcontextprotocol.io
+
+  internal_docs:
+    - name: Roadmap
+      path: ../roadmap/
+
+    - name: Agents
+      path: ../agents/
+
+    - name: Policies
+      path: ../policies/
+
+# Metadata
+metadata:
+  total_documents: 3
+  total_summaries: 2
+  last_indexed: "2025-12-24"
