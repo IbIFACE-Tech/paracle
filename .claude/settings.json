@@ -5,21 +5,50 @@
       "Bash(python:*)",
       "Bash(pytest:*)",
       "Bash(make:*)",
+      "Bash(ruff:*)",
+      "Bash(black:*)",
+      "Bash(mypy:*)",
+      "Bash(alembic:*)",
       "Bash(git status:*)",
       "Bash(git diff:*)",
       "Bash(git log:*)",
       "Bash(git branch:*)",
       "Bash(git show:*)",
+      "Bash(git stash:*)",
       "Bash(paracle:*)",
+      "Bash(tree:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(wc:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
       "Read(./packages/**)",
       "Read(./tests/**)",
       "Read(./docs/**)",
       "Read(./examples/**)",
       "Read(./.parac/**)",
+      "Read(./.roadmap/**)",
+      "Read(./.claude/**)",
+      "Read(./.github/**)",
+      "Read(./.vscode/**)",
       "Read(./pyproject.toml)",
       "Read(./Makefile)",
       "Read(./README.md)",
-      "Read(./CONTRIBUTING.md)"
+      "Read(./CONTRIBUTING.md)",
+      "Read(./.editorconfig)",
+      "Read(./.gitignore)",
+      "Edit(./packages/**)",
+      "Edit(./tests/**)",
+      "Edit(./docs/**)",
+      "Edit(./examples/**)",
+      "Edit(./.parac/**)",
+      "Edit(./.roadmap/**)",
+      "Write(./packages/**)",
+      "Write(./tests/**)",
+      "Write(./docs/**)",
+      "Write(./examples/**)"
     ],
     "deny": [
       "Read(./.env)",
@@ -27,7 +56,15 @@
       "Read(./secrets/**)",
       "Read(**/*credentials*)",
       "Read(**/*secret*)",
-      "Bash(rm -rf:*)"
+      "Read(**/*password*)",
+      "Read(**/*token*)",
+      "Read(**/*.pem)",
+      "Read(**/*.key)",
+      "Bash(rm -rf:*)",
+      "Bash(curl:*)",
+      "Bash(wget:*)",
+      "Bash(ssh:*)",
+      "Bash(scp:*)"
     ],
     "ask": [
       "Bash(git push:*)",
@@ -35,17 +72,29 @@
       "Bash(git checkout:*)",
       "Bash(git merge:*)",
       "Bash(git rebase:*)",
+      "Bash(git reset:*)",
       "Bash(pip install:*)",
-      "Bash(uv add:*)"
-    ]
+      "Bash(uv add:*)",
+      "Bash(uv remove:*)",
+      "Bash(docker:*)",
+      "Bash(npm:*)",
+      "Edit(./pyproject.toml)",
+      "Edit(./Makefile)",
+      "Edit(./.github/**)",
+      "Write(./.parac/**)",
+      "Write(./.roadmap/**)"
+    ],
+    "additionalDirectories": []
   },
   "env": {
     "PYTHONPATH": "./packages",
-    "PYTHONDONTWRITEBYTECODE": "1"
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PARACLE_ENV": "development",
+    "PARACLE_LOG_LEVEL": "DEBUG"
   },
   "model": "claude-opus-4-5-20251101",
   "attribution": {
-    "commit": "🤖 Generated with Claude Code\n\nCo-Authored-By: Claude <noreply@anthropic.com>",
-    "pr": "🤖 Generated with [Claude Code](https://claude.ai/code)"
+    "commit": "feat: [description]\n\n[detailed changes]\n\n🤖 Generated with Claude Code (Opus 4.5)\nCo-Authored-By: Claude <noreply@anthropic.com>",
+    "pr": "## Summary\n\n[Brief description]\n\n## Changes\n\n- [Change 1]\n- [Change 2]\n\n## Testing\n\n- [ ] Unit tests added/updated\n- [ ] Integration tests pass\n- [ ] Manual testing completed\n\n---\n🤖 Generated with [Claude Code](https://claude.ai/code) (Opus 4.5)"
   }
 }

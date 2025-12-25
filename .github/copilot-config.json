@@ -1,0 +1,70 @@
+{
+  "version": "1.0",
+  "instructions": ".github/copilot-instructions.md",
+  "agents": {
+    "parac": {
+      "enabled": true,
+      "specs_directory": ".parac/agents/specs/",
+      "agents": [
+        {
+          "id": "pm",
+          "name": "Project Manager",
+          "spec": ".parac/agents/specs/pm.md",
+          "triggers": ["planifie", "roadmap", "priorité", "sprint", "tracking"]
+        },
+        {
+          "id": "architect",
+          "name": "System Architect",
+          "spec": ".parac/agents/specs/architect.md",
+          "triggers": ["architecture", "design", "pattern", "structure", "décision"]
+        },
+        {
+          "id": "coder",
+          "name": "Developer",
+          "spec": ".parac/agents/specs/coder.md",
+          "triggers": ["implémente", "code", "feature", "fonction", "classe"]
+        },
+        {
+          "id": "tester",
+          "name": "QA Engineer",
+          "spec": ".parac/agents/specs/tester.md",
+          "triggers": ["test", "teste", "coverage", "qa", "validation"]
+        },
+        {
+          "id": "reviewer",
+          "name": "Code Reviewer",
+          "spec": ".parac/agents/specs/reviewer.md",
+          "triggers": ["review", "revue", "vérifie", "valide", "approuve"]
+        },
+        {
+          "id": "documenter",
+          "name": "Technical Writer",
+          "spec": ".parac/agents/specs/documenter.md",
+          "triggers": ["documente", "documentation", "readme", "guide", "api"]
+        }
+      ]
+    }
+  },
+  "context": {
+    "source_of_truth": ".parac/",
+    "priority_files": [
+      ".parac/memory/context/current_state.yaml",
+      ".parac/roadmap/roadmap.yaml",
+      ".parac/GOVERNANCE.md"
+    ],
+    "update_after_changes": [
+      ".parac/memory/context/current_state.yaml",
+      ".parac/roadmap/decisions.md"
+    ]
+  },
+  "standards": {
+    "python_version": "3.10+",
+    "formatter": "black",
+    "line_length": 88,
+    "type_hints": "required",
+    "validation": "pydantic_v2",
+    "architecture": "hexagonal",
+    "testing": "pytest",
+    "docstrings": "google_style"
+  }
+}

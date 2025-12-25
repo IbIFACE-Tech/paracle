@@ -3,6 +3,8 @@
 import click
 from rich.console import Console
 
+from paracle_cli.commands.parac import parac
+
 console = Console()
 
 
@@ -11,6 +13,10 @@ console = Console()
 def cli() -> None:
     """Paracle - User-driven multi-agent framework."""
     pass
+
+
+# Register command groups
+cli.add_command(parac)
 
 
 @cli.command()

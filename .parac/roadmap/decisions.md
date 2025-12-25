@@ -324,6 +324,73 @@ Create `.parac/` workspace structure as local project configuration and state.
 
 ---
 
+## ADR-009: .parac/ Governance in Framework
+
+**Date**: 2025-12-24
+**Status**: Accepted
+**Deciders**: Core Team
+
+### Context
+
+The `.parac/` workspace needs to stay synchronized with project reality. Initial implementation used manual Python scripts in `.parac/hooks/`, but this approach has limitations:
+
+- Scripts must be called manually
+- Logic duplicated for each project
+- No integration with framework lifecycle
+- Users must maintain their own sync logic
+
+### Decision
+
+Move `.parac/` governance logic into the framework (`packages/`):
+
+1. **`paracle_core/parac/`** - Core governance logic:
+   - State synchronization
+   - Validation
+   - YAML parsing and updates
+
+2. **`paracle_cli/commands/parac.py`** - CLI commands:
+   - `paracle parac status` - Show current state
+   - `paracle parac sync` - Synchronize with project
+   - `paracle parac validate` - Validate consistency
+   - `paracle parac session start` - Start work session
+   - `paracle parac session end` - End session with updates
+
+3. **Git hooks** (optional, installed via `paracle init`):
+   - pre-commit: validate .parac/
+   - post-commit: sync state
+
+4. **User hooks** - Custom hooks in `.parac/hooks/` called by framework
+
+### Consequences
+
+**Positive:**
+
+- Single implementation, reusable across all projects
+- Integrated with CLI and framework lifecycle
+- Automatic synchronization options
+- Consistent behavior for all users
+- Framework can evolve governance logic
+
+**Negative:**
+
+- More code in framework to maintain
+- Users depend on framework for governance
+
+**Migration:**
+
+- Existing `.parac/hooks/` scripts remain as prototypes
+- Framework commands replace manual script calls
+- User custom hooks still supported via config
+
+### Implementation Order
+
+1. `paracle_core/parac/` - Core logic (Phase 1)
+2. `paracle_cli/commands/parac.py` - CLI commands (Phase 1)
+3. Git hooks integration (Phase 2)
+4. `paracle_governance/` - Full governance package (v0.7.0)
+
+---
+
 ## Future Decisions
 
 ### Under Consideration

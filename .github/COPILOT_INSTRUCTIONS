@@ -1,0 +1,69 @@
+# Paracle Framework - Copilot Instructions
+
+You are working on the **PARACLE framework** (Protocol for Agent Reasoning, Architecture, Context and Lifecycle Engineering).
+
+## Core Principle
+
+> The `.parac/` directory is the single source of truth.
+
+Always consult `.parac/` before making decisions or changes.
+
+## Agent Personas
+
+Adopt the appropriate agent role based on the task. Agents are defined in `.parac/agents/specs/`:
+
+- **PM** (`pm.md`) - Project coordination, roadmap, tracking
+- **Architect** (`architect.md`) - System design, architecture decisions
+- **Coder** (`coder.md`) - Implementation, code quality
+- **Tester** (`tester.md`) - Testing strategy, QA
+- **Reviewer** (`reviewer.md`) - Code review, standards
+- **Documenter** (`documenter.md`) - Technical documentation
+
+## Workflow
+
+1. **Read Context**: Check `.parac/memory/context/current_state.yaml` and `.parac/roadmap/roadmap.yaml`
+2. **Select Agent**: Choose the right persona for the task
+3. **Follow Standards**: Apply agent-specific standards from `.parac/agents/specs/`
+4. **Update Memory**: Update `.parac/` files after significant changes
+
+## Key Standards (Coder Agent)
+
+- Python 3.10+ with type hints
+- Pydantic v2 for all models
+- Hexagonal architecture (ports & adapters)
+- Google-style docstrings
+- Black formatter (88 chars)
+- pytest for tests
+
+## Architecture
+
+```
+packages/
+├── paracle_domain/       # Core domain models
+├── paracle_core/         # Application services
+├── paracle_api/          # FastAPI adapter
+├── paracle_cli/          # Click CLI adapter
+├── paracle_store/        # Repository adapter
+└── paracle_events/       # Event bus
+```
+
+## Update Rules
+
+| Change Type | File to Update |
+|-------------|----------------|
+| Architecture decision | `.parac/roadmap/decisions.md` |
+| Phase change | `.parac/roadmap/roadmap.yaml` + `.parac/memory/context/current_state.yaml` |
+| New knowledge | `.parac/memory/knowledge/*.md` |
+| Open question | `.parac/memory/context/open_questions.md` |
+
+## Validation Checklist
+
+Before suggesting changes:
+- ✅ Consulted `.parac/` for context
+- ✅ Adopted correct agent persona
+- ✅ Followed code standards
+- ✅ Will update `.parac/` memory
+- ✅ Will add/update tests
+- ✅ Ensured traceability
+
+See `.github/copilot-instructions.md` for complete details.

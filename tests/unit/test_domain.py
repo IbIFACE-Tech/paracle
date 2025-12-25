@@ -1,7 +1,7 @@
 """Unit tests for domain models."""
 
 import pytest
-from paracle_domain.models import AgentSpec, Agent
+from paracle_domain.models import AgentSpec, Agent, EntityStatus
 
 
 class TestAgentSpec:
@@ -42,7 +42,7 @@ class TestAgent:
         agent = Agent(spec=spec)
         assert agent.id is not None
         assert agent.spec == spec
-        assert agent.status.phase == "Pending"
+        assert agent.status.phase == EntityStatus.PENDING
 
     def test_agent_id_generation(self, sample_agent_spec: dict) -> None:
         """Test that each agent gets a unique ID."""

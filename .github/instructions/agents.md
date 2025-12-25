@@ -4,10 +4,33 @@
 
 Ce repository contient le framework PARACLE (Protocol for Agent Reasoning, Architecture, Context and Lifecycle Engineering), un système de gestion de projet IA-Native.
 
+## Source de Vérité : Le `.parac/`
+
+> **Principe fondamental** : Le répertoire `.parac/` est la source unique de vérité pour la gouvernance, la mémoire, et la coordination des agents.
+
+Avant toute action, consulte :
+
+- `.parac/memory/context/current_state.yaml` - État actuel du projet
+- `.parac/roadmap/roadmap.yaml` - Roadmap et phases
+- `.parac/GOVERNANCE.md` - Règles de gouvernance
+
 ## Agents disponibles
+
+### Agents GitHub (`.github/agents/`)
 
 - **FrameworkArchitectAgent** : Expert en architecture de frameworks et gestion de projet
 - **DocumentationWriterAgent** : Expert en documentation technique et technical writing
+
+### Agents PARAC (`.parac/agents/specs/`)
+
+- **PM** (`pm.md`) : Project Manager - Coordination, roadmap, tracking
+- **Architect** (`architect.md`) : Architecture decisions, system design
+- **Coder** (`coder.md`) : Implementation, code quality, standards
+- **Tester** (`tester.md`) : Test strategy, quality assurance
+- **Reviewer** (`reviewer.md`) : Code review, best practices enforcement
+- **Documenter** (`documenter.md`) : Technical documentation, clarity
+
+**Important** : Les agents PARAC sont des personas que tu peux adopter en fonction de la tâche. Consulte leurs specs dans `.parac/agents/specs/` pour connaître leurs responsabilités et standards.
 
 ## Conventions
 

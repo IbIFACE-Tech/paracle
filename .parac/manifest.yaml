@@ -1,0 +1,76 @@
+schema_version: '1.0'
+generated_at: '2025-12-25T03:20:03.430717'
+workspace:
+  name: paracle-lite
+  version: 0.0.1
+  parac_version: 0.0.1
+  root: C:\Projets\paracle\paracle-lite\.parac
+agents:
+- id: architect
+  name: System Architect Agent
+  role: System architecture design, module structure, and technical decision making.
+  spec_file: agents\specs\architect.md
+  capabilities:
+  - architecture design
+  - technical decisions
+  - documentation
+  description: System architecture design, module structure, and technical decision
+    making.
+- id: coder
+  name: Coder Agent
+  role: Implementation of features, writing production-quality code following project
+    standards and best practices.
+  spec_file: agents\specs\coder.md
+  capabilities:
+  - code implementation
+  - code quality
+  - integration
+  description: Implementation of features, writing production-quality code following
+    project standards and best practices.
+- id: documenter
+  name: Documenter Agent
+  role: Technical documentation, API references, user guides, and knowledge management.
+  spec_file: agents\specs\documenter.md
+  capabilities:
+  - documentation creation
+  - knowledge management
+  - quality assurance
+  description: Technical documentation, API references, user guides, and knowledge
+    management.
+- id: pm
+  name: Project Manager Agent
+  role: Project coordination, roadmap management, progress tracking, and stakeholder
+    communication.
+  spec_file: agents\specs\pm.md
+  capabilities:
+  - project planning
+  - progress tracking
+  - risk management
+  - team coordination
+  description: Project coordination, roadmap management, progress tracking, and stakeholder
+    communication.
+- id: reviewer
+  name: Reviewer Agent
+  role: Code review, quality assurance, and ensuring adherence to project standards
+    and best practices.
+  spec_file: agents\specs\reviewer.md
+  capabilities:
+  - code review
+  - quality assurance
+  - knowledge transfer
+  description: Code review, quality assurance, and ensuring adherence to project standards
+    and best practices.
+- id: tester
+  name: Tester Agent
+  role: Test design, implementation, and quality validation ensuring comprehensive
+    coverage and reliability.
+  spec_file: agents\specs\tester.md
+  capabilities:
+  - test design
+  - test implementation
+  - quality validation
+  description: Test design, implementation, and quality validation ensuring comprehensive
+    coverage and reliability.
+metadata:
+  agent_count: 6
+  specs_directory: agents/specs/

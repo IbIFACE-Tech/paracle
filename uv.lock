@@ -1794,6 +1794,7 @@ api = [
 ]
 dev = [
     { name = "black" },
+    { name = "httpx" },
     { name = "isort" },
     { name = "mypy" },
     { name = "pre-commit" },
@@ -1832,6 +1833,7 @@ requires-dist = [
     { name = "black", marker = "extra == 'dev'", specifier = ">=23.11.0" },
     { name = "click", specifier = ">=8.1.0" },
     { name = "fastapi", marker = "extra == 'api'", specifier = ">=0.104.1" },
+    { name = "httpx", marker = "extra == 'dev'", specifier = ">=0.27.0" },
     { name = "isort", marker = "extra == 'dev'", specifier = ">=5.12.0" },
     { name = "langchain", marker = "extra == 'adapters'", specifier = ">=0.1.0" },
     { name = "mkdocs", marker = "extra == 'docs'", specifier = ">=1.5.3" },
