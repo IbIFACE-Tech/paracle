@@ -19,6 +19,7 @@ from paracle_core.parac.state import find_parac_root, load_state, save_state
 from paracle_core.parac.sync import ParacSynchronizer
 from paracle_core.parac.validator import ParacValidator, ValidationLevel
 from paracle_core.parac.manifest_generator import write_manifest
+from paracle_core.parac.logger import ActionType, AgentType, log_action
 
 console = Console()
 
@@ -142,6 +143,9 @@ def sync(git: bool, metrics: bool, manifest: bool) -> None:
 
     if result.success:
         console.print("\n[green]✅ Synchronization complete.[/green]")
+        # Log the sync action
+        changes_desc = ", ".join(result.changes[:3]) if result.changes else "no changes"
+        log_action(ActionType.SYNC, f"Synchronized .parac/ state: {changes_desc}")
     else:
         console.print("\n[red]❌ Synchronization failed.[/red]")
         raise SystemExit(1)
@@ -192,8 +196,10 @@ def validate(fix: bool) -> None:
 
     if result.valid:
         console.print("\n[green]✅ Validation passed.[/green]")
+        log_action(ActionType.VALIDATION, f"Validated .parac/ workspace: {result.files_checked} files checked")
     else:
         console.print("\n[red]❌ Validation failed.[/red]")
+        log_action(ActionType.VALIDATION, f"Validation failed: {len(result.errors)} errors, {len(result.warnings)} warnings")
         raise SystemExit(1)
 
 
@@ -240,6 +246,9 @@ def session_start() -> None:
     console.print()
     console.print("[green]Source of truth verified. Proceeding.[/green]")
     console.print()
+
+    # Log session start
+    log_action(ActionType.SESSION, f"Session started: {phase.id} - {phase.name} ({phase.progress})")
 
 
 @session.command("end")
@@ -307,11 +316,14 @@ def session_end(
     if changes:
         if save_state(state, parac_root):
             console.print("[green]✅ Changes applied.[/green]")
+            # Log session end with changes
+            log_action(ActionType.SESSION, f"Session ended: {', '.join(changes)}")
         else:
             console.print("[red]❌ Failed to save changes.[/red]")
             raise SystemExit(1)
     else:
         console.print("[dim]No changes to apply.[/dim]")
+        log_action(ActionType.SESSION, "Session ended: no changes")
 
     console.print()
 
@@ -422,11 +434,18 @@ This directory is the single source of truth for the project.
     governance_file.write_text(governance_content, encoding="utf-8")
     console.print(f"  📄 Created {governance_file.relative_to(target)}")
 
+    # Create logs directory for the new workspace
+    logs_dir = parac_dir / "memory" / "logs"
+    logs_dir.mkdir(parents=True, exist_ok=True)
+
     console.print(f"\n[green]✅ .parac/ workspace initialized at {target}[/green]")
     console.print("\nNext steps:")
     console.print("  • paracle status     - View project state")
     console.print("  • paracle sync       - Sync with reality")
     console.print("  • paracle validate   - Check consistency")
+
+    # Log the init action (will use the new workspace's logs)
+    log_action(ActionType.INIT, f"Initialized .parac/ workspace for: {project_name}")
 
 
 # Legacy compatibility: keep 'parac' group for backward compatibility
