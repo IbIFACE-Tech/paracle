@@ -1,7 +1,0 @@
-# Ignorer tous les fichiers de log
-*.log
-*.log.*
-
-# Mais garder la structure
-!.gitignore
-!README.md

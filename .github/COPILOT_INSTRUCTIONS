@@ -2,9 +2,16 @@
 
 You are working on the **PARACLE framework** (Protocol for Agent Reasoning, Architecture, Context and Lifecycle Engineering).
 
+## Dogfooding Context
+
+**Important**: We use PARACLE to build PARACLE itself.
+
+- **`packages/`** = The framework (the product we're building)
+- **`.parac/`** = Our user workspace (dogfooding - managing this project)
+
 ## Core Principle
 
-> The `.parac/` directory is the single source of truth.
+> The `.parac/` directory is the single source of truth **for managing this project**.
 
 Always consult `.parac/` before making decisions or changes.
 
@@ -24,7 +31,8 @@ Adopt the appropriate agent role based on the task. Agents are defined in `.para
 1. **Read Context**: Check `.parac/memory/context/current_state.yaml` and `.parac/roadmap/roadmap.yaml`
 2. **Select Agent**: Choose the right persona for the task
 3. **Follow Standards**: Apply agent-specific standards from `.parac/agents/specs/`
-4. **Update Memory**: Update `.parac/` files after significant changes
+4. **Log Action**: Add entry to `.parac/memory/logs/agent_actions.log` with format `[TIMESTAMP] [AGENT] [ACTION] Description`
+5. **Update Memory**: Update `.parac/` files after significant changes
 
 ## Key Standards (Coder Agent)
 
@@ -49,12 +57,12 @@ packages/
 
 ## Update Rules
 
-| Change Type | File to Update |
-|-------------|----------------|
-| Architecture decision | `.parac/roadmap/decisions.md` |
-| Phase change | `.parac/roadmap/roadmap.yaml` + `.parac/memory/context/current_state.yaml` |
-| New knowledge | `.parac/memory/knowledge/*.md` |
-| Open question | `.parac/memory/context/open_questions.md` |
+| Change Type           | File to Update                                                             |
+| --------------------- | -------------------------------------------------------------------------- |
+| Architecture decision | `.parac/roadmap/decisions.md`                                              |
+| Phase change          | `.parac/roadmap/roadmap.yaml` + `.parac/memory/context/current_state.yaml` |
+| New knowledge         | `.parac/memory/knowledge/*.md`                                             |
+| Open question         | `.parac/memory/context/open_questions.md`                                  |
 
 ## Validation Checklist
 

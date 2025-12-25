@@ -6,6 +6,37 @@ Ce dossier contient les configurations pour intégrer le système d'agents PARAC
 
 Le framework PARACLE utilise un système d'agents définis dans `.parac/agents/specs/` qui peuvent être adoptés comme **personas** par les assistants IA.
 
+### Dogfooding : Nous utilisons PARACLE pour développer PARACLE
+
+> **Important** : Ce projet a une relation méta particulière.
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    PARACLE FRAMEWORK                        │
+│                      packages/                              │
+│                                                             │
+│   Le PRODUIT que nous développons                          │
+│   - Code source du framework                                │
+│   - Génère les .parac/ pour les utilisateurs              │
+└─────────────────────────────────────────────────────────────┘
+                          ↓ génère/utilise
+┌─────────────────────────────────────────────────────────────┐
+│                   .parac/ WORKSPACE                         │
+│                  (Côté utilisateur)                         │
+│                                                             │
+│   Ici : Notre propre utilisation du framework              │
+│   - Gouvernance de notre développement                     │
+│   - Source de vérité pour gérer CE projet                 │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Distinction clé** :
+
+- **`packages/`** = Le framework PARACLE (le produit que nous construisons)
+- **`.parac/`** = Notre workspace utilisateur (comment nous gérons ce projet avec notre propre framework)
+
+C'est du **dogfooding** - nous sommes notre premier utilisateur.
+
 ## Fichiers Principaux
 
 ### Instructions
@@ -28,14 +59,14 @@ Le framework PARACLE utilise un système d'agents définis dans `.parac/agents/s
 
 Les agents suivants sont définis dans `.parac/agents/specs/` :
 
-| Agent | Rôle | Quand l'utiliser |
-|-------|------|------------------|
-| **PM** | Project Manager | Planification, roadmap, tracking |
-| **Architect** | System Architect | Décisions architecturales, design |
-| **Coder** | Developer | Implémentation, code quality |
-| **Tester** | QA Engineer | Tests, validation, QA |
-| **Reviewer** | Code Reviewer | Revue de code, standards |
-| **Documenter** | Tech Writer | Documentation technique |
+| Agent          | Rôle             | Quand l'utiliser                  |
+| -------------- | ---------------- | --------------------------------- |
+| **PM**         | Project Manager  | Planification, roadmap, tracking  |
+| **Architect**  | System Architect | Décisions architecturales, design |
+| **Coder**      | Developer        | Implémentation, code quality      |
+| **Tester**     | QA Engineer      | Tests, validation, QA             |
+| **Reviewer**   | Code Reviewer    | Revue de code, standards          |
+| **Documenter** | Tech Writer      | Documentation technique           |
 
 ## Comment ça Fonctionne
 
@@ -165,6 +196,7 @@ Inclure le contenu de `.github/copilot-instructions.md` dans le system prompt.
 User: "Ajoute un système de webhooks pour les événements"
 
 Assistant (Architect + Coder):
+
 1. Lit .parac/roadmap/roadmap.yaml → vérifie priorité
 2. Consulte .parac/memory/knowledge/architecture.md
 3. Propose design dans .parac/roadmap/decisions.md
@@ -179,6 +211,7 @@ Assistant (Architect + Coder):
 User: "Planifie la Phase 2 du projet"
 
 Assistant (PM):
+
 1. Lit .parac/roadmap/roadmap.yaml
 2. Analyse .parac/memory/context/current_state.yaml
 3. Consulte .parac/memory/context/open_questions.md
@@ -192,6 +225,7 @@ Assistant (PM):
 User: "Documente l'API REST"
 
 Assistant (Documenter):
+
 1. Lit le code dans packages/paracle_api/
 2. Consulte .parac/memory/knowledge/architecture.md
 3. Crée/met à jour docs/api-reference.md

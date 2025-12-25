@@ -1,0 +1,17 @@
+#!/bin/bash
+# Pre-commit hook to regenerate manifest when agents change
+
+# Check if any agent specs were modified
+AGENT_SPECS_CHANGED=$(git diff --cached --name-only | grep -c "^\.parac/agents/specs/.*\.md$")
+
+if [ $AGENT_SPECS_CHANGED -gt 0 ]; then
+    echo "🤖 Agent specs modified, regenerating manifest..."
+
+    # Regenerate manifest
+    paracle sync --manifest --no-git --no-metrics
+
+    # Add the updated manifest to the commit
+    git add .parac/manifest.yaml
+
+    echo "✅ Manifest regenerated and staged"
+fi

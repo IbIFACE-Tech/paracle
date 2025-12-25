@@ -8,14 +8,14 @@ Les agents définis dans `.parac/agents/specs/` sont disponibles comme **persona
 
 ### Liste des Agents
 
-| Agent ID | Fichier Spec | Rôle | Activation |
-|----------|--------------|------|------------|
-| `pm` | `.parac/agents/specs/pm.md` | Project Manager | Sur demande ou pour tâches de planification |
-| `architect` | `.parac/agents/specs/architect.md` | System Architect | Pour décisions architecturales |
-| `coder` | `.parac/agents/specs/coder.md` | Developer | Pour implémentation de code |
-| `tester` | `.parac/agents/specs/tester.md` | QA Engineer | Pour stratégie de tests |
-| `reviewer` | `.parac/agents/specs/reviewer.md` | Code Reviewer | Pour revue de code |
-| `documenter` | `.parac/agents/specs/documenter.md` | Tech Writer | Pour documentation |
+| Agent ID     | Fichier Spec                        | Rôle             | Activation                                  |
+| ------------ | ----------------------------------- | ---------------- | ------------------------------------------- |
+| `pm`         | `.parac/agents/specs/pm.md`         | Project Manager  | Sur demande ou pour tâches de planification |
+| `architect`  | `.parac/agents/specs/architect.md`  | System Architect | Pour décisions architecturales              |
+| `coder`      | `.parac/agents/specs/coder.md`      | Developer        | Pour implémentation de code                 |
+| `tester`     | `.parac/agents/specs/tester.md`     | QA Engineer      | Pour stratégie de tests                     |
+| `reviewer`   | `.parac/agents/specs/reviewer.md`   | Code Reviewer    | Pour revue de code                          |
+| `documenter` | `.parac/agents/specs/documenter.md` | Tech Writer      | Pour documentation                          |
 
 ## Comment Utiliser les Agents
 
@@ -99,14 +99,14 @@ User: "Design the new orchestration engine"
 
 Les assistants IA devraient automatiquement détecter le besoin d'un agent en fonction du type de requête :
 
-| Type de Requête | Agent Activé |
-|-----------------|--------------|
-| "Planifie...", "Mets à jour la roadmap..." | PM |
-| "Design...", "Architecture de..." | Architect |
-| "Implémente...", "Ajoute une feature..." | Coder |
-| "Teste...", "Ajoute des tests pour..." | Tester |
-| "Review...", "Vérifie le code..." | Reviewer |
-| "Documente...", "Écris la doc de..." | Documenter |
+| Type de Requête                            | Agent Activé |
+| ------------------------------------------ | ------------ |
+| "Planifie...", "Mets à jour la roadmap..." | PM           |
+| "Design...", "Architecture de..."          | Architect    |
+| "Implémente...", "Ajoute une feature..."   | Coder        |
+| "Teste...", "Ajoute des tests pour..."     | Tester       |
+| "Review...", "Vérifie le code..."          | Reviewer     |
+| "Documente...", "Écris la doc de..."       | Documenter   |
 
 ## Contexte Partagé
 

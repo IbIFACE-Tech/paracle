@@ -10,37 +10,73 @@
           "id": "pm",
           "name": "Project Manager",
           "spec": ".parac/agents/specs/pm.md",
-          "triggers": ["planifie", "roadmap", "priorité", "sprint", "tracking"]
+          "triggers": [
+            "planifie",
+            "roadmap",
+            "priorité",
+            "sprint",
+            "tracking"
+          ]
         },
         {
           "id": "architect",
           "name": "System Architect",
           "spec": ".parac/agents/specs/architect.md",
-          "triggers": ["architecture", "design", "pattern", "structure", "décision"]
+          "triggers": [
+            "architecture",
+            "design",
+            "pattern",
+            "structure",
+            "décision"
+          ]
         },
         {
           "id": "coder",
           "name": "Developer",
           "spec": ".parac/agents/specs/coder.md",
-          "triggers": ["implémente", "code", "feature", "fonction", "classe"]
+          "triggers": [
+            "implémente",
+            "code",
+            "feature",
+            "fonction",
+            "classe"
+          ]
         },
         {
           "id": "tester",
           "name": "QA Engineer",
           "spec": ".parac/agents/specs/tester.md",
-          "triggers": ["test", "teste", "coverage", "qa", "validation"]
+          "triggers": [
+            "test",
+            "teste",
+            "coverage",
+            "qa",
+            "validation"
+          ]
         },
         {
           "id": "reviewer",
           "name": "Code Reviewer",
           "spec": ".parac/agents/specs/reviewer.md",
-          "triggers": ["review", "revue", "vérifie", "valide", "approuve"]
+          "triggers": [
+            "review",
+            "revue",
+            "vérifie",
+            "valide",
+            "approuve"
+          ]
         },
         {
           "id": "documenter",
           "name": "Technical Writer",
           "spec": ".parac/agents/specs/documenter.md",
-          "triggers": ["documente", "documentation", "readme", "guide", "api"]
+          "triggers": [
+            "documente",
+            "documentation",
+            "readme",
+            "guide",
+            "api"
+          ]
         }
       ]
     }

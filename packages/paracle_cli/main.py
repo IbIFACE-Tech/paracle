@@ -3,7 +3,15 @@
 import click
 from rich.console import Console
 
-from paracle_cli.commands.parac import parac
+from paracle_cli.commands.agents import agents
+from paracle_cli.commands.parac import (
+    init,
+    parac,
+    session,
+    status,
+    sync,
+    validate,
+)
 
 console = Console()
 
@@ -15,7 +23,17 @@ def cli() -> None:
     pass
 
 
-# Register command groups
+# Register top-level governance commands (new API)
+cli.add_command(init)
+cli.add_command(status)
+cli.add_command(sync)
+cli.add_command(validate)
+cli.add_command(session)
+
+# Register domain command groups
+cli.add_command(agents)
+
+# Legacy compatibility (hidden, deprecated)
 cli.add_command(parac)
 
 
@@ -26,14 +44,14 @@ def hello() -> None:
     console.print("\n[cyan]Framework successfully installed![/cyan]")
     console.print("\n[yellow]Phase 0: Foundation ✅[/yellow]")
     console.print("\nNext steps:")
-    console.print("  • paracle agent create    - Create a new agent")
-    console.print("  • paracle workflow run    - Run a workflow")
+    console.print("  • paracle agents create   - Create a new agent")
+    console.print("  • paracle status          - View project state")
     console.print("  • paracle --help          - Show all commands")
 
 
 @cli.group()
 def agent() -> None:
-    """Manage agents."""
+    """Manage agents (singular alias)."""
     pass
 
 
@@ -42,7 +60,7 @@ def agent() -> None:
 def agent_create(name: str) -> None:
     """Create a new agent."""
     console.print(f"[green]Creating agent: {name}[/green]")
-    console.print("[yellow]⚠️  Agent creation coming in Phase 1[/yellow]")
+    console.print("[yellow]⚠️  Use 'paracle agents create' instead[/yellow]")
 
 
 @cli.group()

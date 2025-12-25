@@ -2,7 +2,105 @@
 
 Ce répertoire contient les scripts de mise à jour automatique de `.parac/`.
 
-## Hooks Disponibles
+## 🔄 Synchronisation des Agents
+
+### Scripts de Synchronisation
+
+#### `install-hooks.ps1` / `install-hooks.sh`
+Installe les git hooks pour auto-régénérer le manifeste des agents.
+
+**Installation (Windows)** :
+```powershell
+.\.parac\hooks\install-hooks.ps1
+```
+
+**Installation (Unix/Linux/Mac)** :
+```bash
+bash .parac/hooks/install-hooks.sh
+```
+
+**Effet** : Régénère automatiquement `.parac/manifest.yaml` lors du commit si des agents sont modifiés.
+
+#### `sync-watch.py`
+Surveille `.parac/agents/specs/` et régénère le manifeste en temps réel.
+
+**Usage** :
+```bash
+# Mode watchdog (temps réel, recommandé)
+pip install watchdog
+python .parac/hooks/sync-watch.py
+
+# Mode polling (sans dépendances)
+python .parac/hooks/sync-watch.py --interval=2
+```
+
+### Workflows de Synchronisation
+
+#### Workflow 1 : Git Hooks (Recommandé)
+```bash
+# 1. Installer les hooks une fois
+.\.parac\hooks\install-hooks.ps1
+
+# 2. Modifier un agent
+vim .parac/agents/specs/coder.md
+
+# 3. Commiter
+git commit -am "Updated coder agent"
+# → Le manifeste est automatiquement régénéré et inclus
+```
+
+#### Workflow 2 : Watch Mode (Développement)
+```bash
+# Terminal 1: Lancer le watcher
+python .parac/hooks/sync-watch.py
+
+# Terminal 2: Modifier les agents
+vim .parac/agents/specs/architect.md
+# → Régénération automatique à chaque sauvegarde
+```
+
+#### Workflow 3 : Manuel
+```bash
+# Modifier un agent
+vim .parac/agents/specs/tester.md
+
+# Régénérer manuellement
+paracle sync --manifest
+
+# Vérifier
+paracle agents get tester
+```
+
+## 📝 Logging des Actions
+
+### agent-logger.py
+Logger pour tracer les actions des agents dans `.parac/memory/logs/`.
+
+```bash
+# Logger une action
+python .parac/hooks/agent-logger.py CoderAgent IMPLEMENTATION "Added webhook system"
+
+# Logger une décision
+python .parac/hooks/agent-logger.py ArchitectAgent DECISION "Use event sourcing" \
+  --decision \
+  --rationale "Better auditability" \
+  --impact "Medium impact on persistence"
+```
+
+Utilisation depuis Python:
+
+```python
+from parac.hooks.agent_logger import AgentLogger
+
+logger = AgentLogger()
+logger.log_action("CoderAgent", "IMPLEMENTATION", "Added new feature")
+logger.log_decision(
+    "ArchitectAgent",
+    "Use hexagonal architecture",
+    "Better separation of concerns",
+    "High impact - restructure packages"
+)
+```
 
 ### pre-session.py
 Vérifie l'état de `.parac/` avant une session de travail.

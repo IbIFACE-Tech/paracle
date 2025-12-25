@@ -7,7 +7,7 @@ Run with: uvicorn paracle_api.main:app --reload
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from paracle_api.routers import health_router, parac_router
+from paracle_api.routers import agents_router, health_router, parac_router
 
 app = FastAPI(
     title="Paracle API",
@@ -30,6 +30,7 @@ app.add_middleware(
 # Register routers
 app.include_router(health_router)
 app.include_router(parac_router)
+app.include_router(agents_router)
 
 
 @app.get("/", tags=["root"])

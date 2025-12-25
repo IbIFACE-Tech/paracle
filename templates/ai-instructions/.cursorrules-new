@@ -1,0 +1,85 @@
+# Cursor IDE - Paracle Instructions
+
+You are working with the **PARACLE framework** using `.parac/` as the single source of truth.
+
+## Core Principle
+
+> **Read `.parac/` for ALL project context, agents, and governance.**
+
+## Source Files
+
+- **Agents**: `.parac/agents/specs/*.md` - Agent definitions
+- **Governance**: `.parac/GOVERNANCE.md` - Project rules
+- **Context**: `.parac/memory/context/current_state.yaml` - Current state
+- **Roadmap**: `.parac/roadmap/roadmap.yaml` - Roadmap and phases
+- **Decisions**: `.parac/roadmap/decisions.md` - Architecture decisions
+- **Logs**: `.parac/memory/logs/agent_actions.log` - Action history
+
+## Workflow
+
+1. **Read Context**: Load `.parac/memory/context/current_state.yaml` and `.parac/roadmap/roadmap.yaml`
+2. **Select Agent**: Identify appropriate agent from `.parac/agents/specs/`
+3. **Read Agent Spec**: Load full spec from `.parac/agents/specs/{agent}.md`
+4. **Apply Standards**: Follow agent's responsibilities and standards
+5. **Execute Task**: Complete the work
+6. **Log Action**: Append to `.parac/memory/logs/agent_actions.log` with format:
+   ```
+   [TIMESTAMP] [AGENT] [ACTION] Description
+   ```
+7. **Update Memory**: Update relevant `.parac/` files
+
+## Available Agents
+
+Read these files for full specifications:
+
+- **PM** (`.parac/agents/specs/pm.md`) - Project management
+- **Architect** (`.parac/agents/specs/architect.md`) - Architecture decisions
+- **Coder** (`.parac/agents/specs/coder.md`) - Implementation
+- **Tester** (`.parac/agents/specs/tester.md`) - Testing strategy
+- **Reviewer** (`.parac/agents/specs/reviewer.md`) - Code review
+- **Documenter** (`.parac/agents/specs/documenter.md`) - Documentation
+
+## Cursor-Specific Features
+
+- Use `Cmd+K` / `Ctrl+K` for inline edits
+- Use `Cmd+L` / `Ctrl+L` for chat
+- Reference `.parac/` files with `@` mentions
+- Use Composer for multi-file edits
+
+## Important Rules
+
+- ❌ DO NOT duplicate agent definitions here
+- ❌ DO NOT create your own governance rules
+- ✅ ALWAYS read from `.parac/` for current state
+- ✅ ALWAYS log significant actions
+- ✅ ALWAYS reference the source `.parac/` file
+
+## Dogfooding Context
+
+This project builds PARACLE using PARACLE:
+
+- `packages/` = Framework source code (the product)
+- `.parac/` = Our workspace (managing this project)
+
+When working on framework code (`packages/`), you're developing PARACLE.
+When updating `.parac/`, you're managing this project with PARACLE.
+
+## Quick Reference
+
+```bash
+# Read current state
+cat .parac/memory/context/current_state.yaml
+
+# List agents
+ls .parac/agents/specs/
+
+# View recent actions
+tail -20 .parac/memory/logs/agent_actions.log
+
+# Check roadmap
+cat .parac/roadmap/roadmap.yaml
+```
+
+---
+
+For complete instructions, see `.github/copilot-instructions.md`.

@@ -270,8 +270,8 @@ obj = ClassName("value")
 ```markdown
 # Tutorial: [Objectif]
 
-**Durée estimée:** 15 minutes  
-**Niveau:** 🟢 Débutant  
+**Durée estimée:** 15 minutes
+**Niveau:** 🟢 Débutant
 **Prérequis:** Installation complète
 
 ## Ce que vous allez apprendre
@@ -432,6 +432,6 @@ _Documentation Writer Agent - Transforming complexity into clarity_ ✍️
 
 ---
 
-**Version:** 1.0.0  
-**Dernière mise à jour:** 2025-12-18  
+**Version:** 1.0.0
+**Dernière mise à jour:** 2025-12-18
 **Compatibilité:** Paracle Framework

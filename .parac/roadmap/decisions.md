@@ -407,3 +407,501 @@ Move `.parac/` governance logic into the framework (`packages/`):
 - Kubernetes operators (post v1.0)
 - Enterprise features (SSO, RBAC) (post v0.5)
 - UI/Dashboard (post v0.3)
+
+---
+
+## ADR-008: Agent Discovery System for IDE/AI Assistant Integration
+
+**Date**: 2025-12-25
+**Status**: Proposed
+**Deciders**: Architect Agent, PM Agent
+**Consulted**: Coder Agent
+
+### Context
+
+Currently, integrating PARACLE agents with IDEs/AI assistants requires manual configuration for each tool:
+- **Copilot**: Duplicate agent specs in `.github/copilot-instructions.md`
+- **Cursor**: Custom `.cursorrules` file with embedded specs
+- **Claude**: Separate `.claude-instructions.md` with specs
+- **Cline, Windsurf**: Similar duplication pattern
+
+**Problems**:
+1. **Duplication**: Agent specs must be copied to each IDE configuration
+2. **Maintenance**: Updating one agent requires updating 5+ files
+3. **No Discovery**: IDEs cannot auto-discover agents from `.parac/`
+4. **Not Scalable**: Adding new IDEs requires more duplication
+5. **Framework Limitation**: This should be solved at framework level, not user level
+
+### Decision
+
+Implement a **standardized agent discovery system** in the PARACLE framework with 3 components:
+
+#### 1. Agent Manifest (`.parac/manifest.yaml`)
+
+Auto-generated metadata file that IDEs can read:
+
+```yaml
+schema_version: "1.0"
+workspace:
+  name: "paracle-lite"
+  version: "0.0.1"
+  parac_version: "0.0.1"
+
+agents:
+  - id: "pm"
+    name: "PM Agent"
+    role: "Project Manager"
+    spec_file: ".parac/agents/specs/pm.md"
+    capabilities: ["planning", "tracking", "coordination"]
+
+  - id: "architect"
+    name: "Architect Agent"
+    role: "System Architect"
+    spec_file: ".parac/agents/specs/architect.md"
+    capabilities: ["design", "decisions", "documentation"]
+
+  - id: "coder"
+    name: "Coder Agent"
+    role: "Developer"
+    spec_file: ".parac/agents/specs/coder.md"
+    capabilities: ["implementation", "refactoring", "bugfix"]
+```
+
+#### 2. CLI Introspection Commands
+
+```bash
+# List all agents
+paracle agents list
+paracle agents list --format=json
+
+# Get specific agent spec
+paracle agents get pm
+paracle agents get coder --format=markdown
+
+# Export all agents
+paracle agents export --format=json > agents.json
+```
+
+#### 3. IDE Instructions Generator
+
+```bash
+# Generate instructions for specific IDE
+paracle generate instructions --ide=copilot
+paracle generate instructions --ide=cursor --output=.cursorrules
+paracle generate instructions --ide=claude
+
+# Generate for all supported IDEs
+paracle generate instructions --all
+
+# Regenerate when agents change
+paracle generate instructions --ide=copilot --force
+```
+
+**Generated files**:
+- `.github/copilot-instructions.md` (GitHub Copilot)
+- `.cursorrules` (Cursor AI)
+- `.claude-instructions.md` (Claude Projects)
+- `.clinerules` (Cline)
+- `.windsurfrules` (Windsurf)
+
+### Architecture
+
+```
+┌─────────────────────────────────────────────────────┐
+│                 PARACLE FRAMEWORK                   │
+│                   (packages/)                       │
+│                                                     │
+│  ┌──────────────────────────────────────────┐     │
+│  │  paracle_core/parac/                     │     │
+│  │    • agent_discovery.py                  │     │
+│  │    • manifest_generator.py               │     │
+│  │    • instruction_generator.py            │     │
+│  └──────────────────────────────────────────┘     │
+│                                                     │
+│  ┌──────────────────────────────────────────┐     │
+│  │  paracle_cli/commands/                   │     │
+│  │    • agents.py (list, get, export)       │     │
+│  │    • generate.py (instructions)          │     │
+│  └──────────────────────────────────────────┘     │
+└─────────────────────────────────────────────────────┘
+                      ↓ generates
+┌─────────────────────────────────────────────────────┐
+│                .parac/ WORKSPACE                    │
+│                                                     │
+│  • manifest.yaml (auto-generated)                  │
+│  • agents/specs/*.md (user-defined)                │
+└─────────────────────────────────────────────────────┘
+                      ↓ reads
+┌─────────────────────────────────────────────────────┐
+│            IDE INSTRUCTION FILES                    │
+│            (auto-generated)                         │
+│                                                     │
+│  • .github/copilot-instructions.md                 │
+│  • .cursorrules                                     │
+│  • .claude-instructions.md                          │
+│  • etc.                                             │
+└─────────────────────────────────────────────────────┘
+```
+
+### Implementation Plan
+
+#### Phase 1: Core Discovery System
+
+**Files to create**:
+- `packages/paracle_core/parac/agent_discovery.py`
+- `packages/paracle_core/parac/manifest_generator.py`
+- `packages/paracle_cli/commands/agents.py`
+
+**Functionality**:
+- Scan `.parac/agents/specs/` directory
+- Parse agent markdown files
+- Generate `manifest.yaml`
+- Expose via CLI: `paracle agents list/get/export`
+
+#### Phase 2: Instructions Generator
+
+**Files to create**:
+- `packages/paracle_core/parac/instruction_generator.py`
+- `packages/paracle_cli/commands/generate.py`
+- `templates/ide-instructions/*.jinja2` (templates for each IDE)
+
+**Functionality**:
+- Read manifest and agent specs
+- Use Jinja2 templates for each IDE
+- Generate IDE-specific instruction files
+- Support: Copilot, Cursor, Claude, Cline, Windsurf
+
+#### Phase 3: Auto-Sync
+
+**Functionality**:
+- Watch `.parac/agents/specs/` for changes
+- Auto-regenerate `manifest.yaml`
+- Optional: Auto-regenerate IDE instructions
+- Integrate with `paracle parac sync`
+
+### Consequences
+
+#### Positive
+
+✅ **Single Source of Truth**: Agents defined once in `.parac/agents/specs/`
+✅ **Zero Duplication**: IDE files auto-generated from specs
+✅ **Easy Maintenance**: Update one agent → regenerate all IDE files
+✅ **IDE Agnostic**: Add new IDEs with just a template
+✅ **Framework-Level**: Solved at the right abstraction level
+✅ **Discoverable**: `manifest.yaml` is machine-readable
+✅ **Extensible**: New IDEs just need a Jinja2 template
+
+#### Negative
+
+⚠️ **Build Step**: Users must run `paracle generate instructions` after agent changes
+⚠️ **Template Maintenance**: Each IDE needs its own template
+⚠️ **Complexity**: Adds new framework components
+
+#### Mitigations
+
+- Auto-generate on `paracle parac sync`
+- Provide git pre-commit hook
+- Clear error messages if files out of sync
+- Well-documented templates for community contributions
+
+### Alternatives Considered
+
+#### Alternative 1: MCP (Model Context Protocol) Server
+
+**Pros**: Real-time, no file generation, IDE-agnostic protocol
+**Cons**: Only supported by some IDEs, requires running server
+**Decision**: Keep as future enhancement, not MVP
+
+#### Alternative 2: HTTP API
+
+**Pros**: RESTful, language-agnostic
+**Cons**: Requires running service, overkill for local files
+**Decision**: Not needed, CLI is sufficient
+
+#### Alternative 3: Keep Manual Configuration
+
+**Pros**: No framework changes
+**Cons**: Doesn't scale, high maintenance, defeats PARAC purpose
+**Decision**: Rejected - this is the problem we're solving
+
+### References
+
+- [Model Context Protocol](https://modelcontextprotocol.io/)
+- [GitHub Copilot Instructions](https://docs.github.com/en/copilot)
+- [Cursor AI Rules](https://cursor.sh/docs)
+- PARACLE Agent Specifications (`.parac/agents/specs/`)
+
+### Related ADRs
+
+- ADR-001: Python as Primary Language
+- ADR-002: Hexagonal Architecture
+- ADR-009: API First Architecture (Supersedes partial implementation)
+
+---
+
+## ADR-009: API First Architecture for Agent Discovery
+
+**Date**: 2025-12-25
+**Status**: Accepted
+**Deciders**: Architect Agent
+
+### Context
+
+After implementing ADR-008 (Agent Discovery System), we discovered that the CLI commands (`paracle agents`) were directly calling `AgentDiscovery` and `ManifestGenerator` services, bypassing the API layer. This violated the project's "API First" principle stated in the architecture.
+
+**Problem**: CLI should consume the REST API, not call services directly.
+
+**Principle**: PARACLE is API First - every feature must be exposed via REST API before being consumed by clients (CLI, Web, IDE plugins).
+
+### Decision
+
+Refactor agent discovery to follow API First architecture:
+
+1. **Create REST API endpoints** in `packages/paracle_api/routers/agents.py`:
+   - `GET /agents` - List all agents
+   - `GET /agents/{agent_id}` - Get agent metadata
+   - `GET /agents/{agent_id}/spec` - Get agent specification
+   - `GET /agents/manifest` - Get manifest as JSON
+   - `POST /agents/manifest` - Generate and write manifest.yaml
+
+2. **Create Pydantic schemas** in `packages/paracle_api/schemas/agents.py`:
+   - `AgentMetadataResponse`
+   - `AgentListResponse`
+   - `AgentSpecResponse`
+   - `ManifestResponse`
+   - `ManifestWriteResponse`
+
+3. **Refactor CLI** in `packages/paracle_cli/commands/agents.py`:
+   - Replace direct service calls with HTTP requests via `httpx`
+   - Add proper error handling for API connectivity
+   - Keep Rich formatting for beautiful terminal output
+
+4. **Add httpx dependency** to runtime dependencies (moved from dev-only)
+
+5. **Create comprehensive tests** in `tests/unit/test_api_agents.py`
+
+6. **Update documentation** in `docs/agent-discovery.md` with API usage
+
+### Architecture
+
+```
+┌─────────────────────┐
+│   REST API          │
+│  (FastAPI)          │
+│                     │
+│  GET /agents        │  ← Single source of truth
+│  GET /agents/{id}   │  ← All clients consume this
+│  POST /manifest     │
+└─────────┬───────────┘
+          │
+  ┌───────┼───────┐
+  │       │       │
+┌─▼──┐ ┌─▼──┐ ┌─▼──┐
+│CLI │ │Web │ │IDE │
+└────┘ └────┘ └────┘
+```
+
+**Benefits**:
+- ✅ Consistency: One implementation shared by all clients
+- ✅ Testability: API tested independently
+- ✅ Extensibility: Easy to add new clients (web app, IDE plugins)
+- ✅ Documentation: OpenAPI/Swagger automatic
+- ✅ Separation: Clear boundaries between layers
+
+### Consequences
+
+#### Positive
+
+✅ **Architectural Correctness**: Respects API First principle
+✅ **Multi-Client Support**: Web, CLI, IDE plugins all use same API
+✅ **Better Testing**: API can be tested independently
+✅ **Auto-Documentation**: FastAPI generates OpenAPI/Swagger docs
+✅ **Future-Proof**: Easy to add GraphQL, gRPC, WebSocket layers
+
+#### Negative
+
+⚠️ **Runtime Dependency**: CLI requires API to be running
+⚠️ **Network Overhead**: HTTP calls add latency vs direct calls
+⚠️ **Complexity**: More components (API server + CLI client)
+
+#### Mitigations
+
+- **For local use**: API can run embedded in CLI (future enhancement)
+- **For development**: `uvicorn --reload` makes API startup instant
+- **For production**: API runs as service, CLI is thin client
+- **Error handling**: Clear messages when API is unreachable
+
+### Implementation Details
+
+**Files Created**:
+- `packages/paracle_api/schemas/agents.py` (80 lines)
+- `packages/paracle_api/routers/agents.py` (230 lines)
+- `tests/unit/test_api_agents.py` (250 lines)
+
+**Files Modified**:
+- `packages/paracle_api/main.py` - Register agents router
+- `packages/paracle_api/routers/__init__.py` - Export agents_router
+- `packages/paracle_cli/commands/agents.py` - Refactored to use httpx
+- `pyproject.toml` - Added httpx to runtime dependencies
+- `docs/agent-discovery.md` - Added API documentation section
+
+**Test Coverage**:
+- ✅ GET /agents (list all)
+- ✅ GET /agents/{id} (get one)
+- ✅ GET /agents/{id}/spec (get spec content)
+- ✅ GET /agents/manifest (manifest as JSON)
+- ✅ POST /agents/manifest (write manifest.yaml)
+- ✅ Error handling (404, 409, 500)
+
+### Alternatives Considered
+
+#### Alternative 1: Keep Direct Service Calls
+
+**Pros**: Simpler, no API needed, faster
+**Cons**: Violates API First principle, no web/IDE support, duplicates logic
+**Decision**: Rejected - goes against core architectural principle
+
+#### Alternative 2: Dual Mode (Direct + API)
+
+**Pros**: Flexibility, works offline
+**Cons**: Two code paths to maintain, inconsistency risk
+**Decision**: Rejected - adds complexity without clear benefit
+
+#### Alternative 3: Embedded API Mode
+
+**Pros**: Best of both worlds, CLI can run API internally
+**Cons**: Complex, requires process management
+**Decision**: Consider for future enhancement (Phase 2)
+
+### Migration Path
+
+**For existing users**:
+1. Start API server: `uvicorn paracle_api.main:app --reload`
+2. Use CLI as before: `paracle agents list`
+
+**For new users**:
+- Quick start guide shows API + CLI setup
+- Docker Compose file includes both services
+
+### Success Metrics
+
+✅ All CLI commands work via API
+✅ API endpoints have 100% test coverage
+✅ Documentation includes API usage examples
+✅ OpenAPI docs accessible at `/docs`
+
+### References
+
+- [FastAPI Best Practices](https://fastapi.tiangolo.com/tutorial/)
+- [API First Design](https://swagger.io/resources/articles/adopting-an-api-first-approach/)
+- [RESTful API Design](https://restfulapi.net/)
+- ADR-008: Agent Discovery System
+
+### Related ADRs
+
+- ADR-002: Hexagonal Architecture
+- ADR-008: Agent Discovery System
+
+---
+
+## ADR-010: CLI Simplification - Remove `parac` Sub-command
+
+**Date**: 2025-12-25
+**Status**: Accepted
+**Deciders**: Core Team
+
+### Context
+
+The CLI had a nested command structure where governance commands were under a `parac` sub-group:
+
+```bash
+# Old structure (verbose)
+paracle parac status
+paracle parac sync --manifest
+paracle parac validate
+paracle parac session start
+```
+
+This structure was redundant since:
+1. `paracle` is the Paracle framework CLI
+2. `.parac/` governance is a core feature, not a separate module
+3. Users should interact with the framework naturally without extra nesting
+
+### Decision
+
+Promote governance commands to the root level:
+
+```bash
+# New structure (clean)
+paracle status        # Show current project state
+paracle sync          # Synchronize with project reality
+paracle validate      # Validate workspace consistency
+paracle session start # Start work session
+paracle init          # Initialize new .parac/ workspace
+```
+
+**Backward Compatibility**: Keep the `parac` sub-group as hidden (deprecated) for existing scripts:
+
+```bash
+# Still works (deprecated, hidden from help)
+paracle parac status  # → redirects to paracle status
+```
+
+### Implementation
+
+1. **Commands promoted to root level**:
+   - `status` - Show project state
+   - `sync` - Synchronize with reality
+   - `validate` - Validate consistency
+   - `session` - Session management group
+   - `init` - Initialize workspace (new)
+
+2. **New command added**:
+   - `paracle init [path]` - Creates `.parac/` structure
+
+3. **Legacy support**:
+   - `parac` group kept but hidden (`hidden=True`)
+   - Same commands accessible via old path
+
+4. **Hooks updated**:
+   - All hooks now use `paracle sync` instead of `paracle parac sync`
+
+### Consequences
+
+#### Positive
+
+✅ **Cleaner UX**: Less typing, more intuitive
+✅ **Framework Identity**: Commands feel native to Paracle
+✅ **Discoverability**: Root commands visible in `--help`
+✅ **Backward Compatible**: Old scripts still work
+
+#### Negative
+
+⚠️ **Migration**: Users must update scripts (optional, old syntax works)
+⚠️ **Documentation**: Must update all docs
+
+#### Files Modified
+
+- `packages/paracle_cli/commands/parac.py` - Restructured as standalone commands
+- `packages/paracle_cli/main.py` - Register commands at root level
+- `tests/unit/test_parac_cli.py` - Updated tests for new API + legacy tests
+- `.git/hooks/pre-commit.ps1` - Use new command syntax
+- `.parac/hooks/install-hooks.ps1` - Use new command syntax
+- `.parac/hooks/install-hooks.sh` - Use new command syntax
+- `.parac/hooks/pre-commit` - Use new command syntax
+- `.parac/hooks/README.md` - Use new command syntax
+
+### CLI Reference
+
+| Old Command | New Command | Description |
+|-------------|-------------|-------------|
+| `paracle parac status` | `paracle status` | Show project state |
+| `paracle parac sync` | `paracle sync` | Sync with reality |
+| `paracle parac validate` | `paracle validate` | Validate workspace |
+| `paracle parac session start` | `paracle session start` | Start session |
+| `paracle parac session end` | `paracle session end` | End session |
+| (none) | `paracle init` | Initialize workspace |
+
+### Related ADRs
+
+- ADR-009: .parac/ Governance in Framework
