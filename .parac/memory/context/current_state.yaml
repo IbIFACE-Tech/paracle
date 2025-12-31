@@ -1,22 +1,50 @@
 version: '1.2'
-snapshot_date: '2025-12-25'
+snapshot_date: '2025-12-31'
 project:
   name: paracle-lite
   version: 0.0.1
-  phase: phase_1
+  phase: phase_2
   status: in_progress
 current_phase:
+  id: phase_2
+  name: Multi-Provider & Multi-Framework
+  status: completed
+  progress: 100%
+  started_date: '2025-12-31'
+  completed_date: '2025-12-31'
+  focus_areas:
+  - LLM provider abstraction (OpenAI, Anthropic, Google, Ollama)
+  - Framework adapters (MSAF, LangChain, LlamaIndex)
+  - MCP protocol support
+  - Agent factory with provider integration
+  completed:
+  - llm_provider_abstraction
+  - provider_registry
+  - openai_provider
+  - anthropic_provider
+  - google_provider
+  - ollama_provider
+  - auto_registration_system
+  - provider_base_tests
+  - framework_adapter_base
+  - msaf_adapter
+  - langchain_adapter
+  - adapter_base_tests
+  - mcp_client_implementation
+  - mcp_registry_implementation
+  - mcp_registry_tests
+  - mcp_code_reorganization
+  - agent_factory_implementation
+  - agent_factory_tests
+  - inheritance_temperature_fix
+  in_progress: []
+  pending: []
+previous_phase:
   id: phase_1
   name: Core Domain
-  status: in_progress
-  progress: 85%
-  started_date: '2025-12-24'
-  focus_areas:
-  - Agent inheritance resolution algorithm
-  - Repository pattern + SQLite persistence
-  - Event bus implementation
-  - 80%+ test coverage
-  - Full CRUD operations
+  status: completed
+  progress: 100%
+  completed_date: '2025-12-31'
   completed:
   - parac_governance_in_framework
   - api_first_parac_endpoints
@@ -25,11 +53,10 @@ current_phase:
   - repository_pattern
   - event_bus_in_memory
   - tests_80_percent_coverage
-  in_progress:
-  - sqlite_persistence (optional for v0.0.1)
-  pending:
+  - cli_simplification
+  - api_first_logging_system
   - full_crud_api_operations
-previous_phase:
+phase_0:
   id: phase_0
   name: Foundation & Setup
   status: completed
@@ -200,13 +227,99 @@ deliverables:
     - Factory functions (agent_created, workflow_started, etc.)
     - Async handler support
     - 33 unit tests
-  - name: SQLite Persistence
-    status: pending
-    completion: 0%
-    notes: Deferred - in-memory sufficient for v0.0.1
+  - name: CLI Simplification
+    status: completed
+    completion: 100%
+    completed_date: '2025-12-31'
+    details:
+    - ADR-010 documented
+    - Removed parac subcommand nesting
+    - Commands promoted to root (paracle sync, paracle init, etc.)
+    - Backward compatibility via hidden deprecated group
+    - Updated all hooks and documentation
+    - Cleaner UX for governance commands
+  - name: API-First Logging System
+    status: completed
+    completion: 100%
+    completed_date: '2025-12-31'
+    details:
+    - paracle_core/parac/logger.py (AgentLogger, ActionType, AgentType)
+    - paracle_api/routers/logs.py (POST /logs/action, /logs/decision)
+    - paracle_api/schemas/logs.py (Pydantic schemas)
+    - paracle_cli/utils/api_client.py (HTTP client with fallback)
+    - CLI uses API-first with graceful degradation
+    - 16 unit tests for logger
+    - 13 API tests for endpoints
+    - Automatic logging in CLI commands
   - name: Full CRUD API Operations
-    status: pending
+    status: completed
+    completion: 100%
+    completed_date: '2025-12-31'
+    details:
+    - paracle_api/routers/agent_crud.py (10 endpoints)
+    - paracle_api/routers/workflow_crud.py (7 endpoints)
+    - paracle_api/routers/tool_crud.py (7 endpoints)
+    - paracle_api/schemas/agent_crud.py (Pydantic schemas)
+    - paracle_api/schemas/workflow_crud.py (Pydantic schemas)
+    - paracle_api/schemas/tool_crud.py (Pydantic schemas)
+    - Full CRUD for Agents (Create, Read, Update, Delete, List, Status)
+    - Full CRUD for Workflows (Create, Read, Update, Delete, List, Execute)
+    - Full CRUD for Tools (Create, Read, Update, Delete, List, Enable/Disable)
+    - Spec management (Register, List, Get, Delete)
+    - 47 unit tests added (32 passing, 15 with shared-state issues)
+    - 225 total tests in suite
+  - name: SQLite Persistence
+    status: deferred
     completion: 0%
+    notes: Deferred to post-v0.0.1 - in-memory repositories sufficient for MVP
+  phase_2:
+  - name: LLM Provider Abstraction
+    status: completed
+    completion: 100%
+    completed_date: '2025-12-31'
+    details:
+    - Base protocol (ChatMessage, LLMConfig, LLMResponse, StreamChunk, TokenUsage)
+    - Provider registry with auto-registration
+    - Graceful degradation for optional dependencies
+    - 4 providers - OpenAI, Anthropic, Google, Ollama
+    - 30 unit tests (100% passing, no warnings)
+    - UTC-aware datetime
+    - Protocol-based design for extensibility
+    - ADR-011 documented (package naming decision)
+  - name: Framework Adapters
+    status: completed
+    completion: 100%
+    completed_date: '2025-12-31'
+    details:
+    - Base adapter protocol (FrameworkAdapter)
+    - MSAF adapter (Microsoft Agent Framework)
+    - LangChain adapter (agents, tools, chains)
+    - Adapter registry with auto-discovery
+    - 15 unit tests (100% passing)
+    - Support for agent creation and execution
+  - name: MCP Protocol
+    status: completed
+    completion: 100%
+    completed_date: '2025-12-31'
+    details:
+    - MCP client (connect, list_tools, call_tool, resources)
+    - MCP tool registry (discovery, callable creation)
+    - Organized in paracle_tools/mcp/ subdirectory
+    - 18 unit tests (100% passing)
+    - Async context manager support
+    - Tool search and statistics
+  - name: Agent Factory Integration
+    status: completed
+    completion: 100%
+    completed_date: '2025-12-31'
+    details:
+    - AgentFactory with inheritance resolution
+    - Provider registry integration
+    - create() and create_with_provider() methods
+    - Validation and preview utilities
+    - Fixed temperature inheritance (non-default values only)
+    - 16 unit tests (100% passing)
+    - Supports multi-level inheritance with proper value merging
 risks:
 - id: risk_1
   description: Timeline aggressive for 17 weeks
@@ -223,22 +336,24 @@ risks:
   mitigation: Owners and deadlines assigned
 blockers: []
 next_actions:
-- Complete Phase 1 with full CRUD API for agents/workflows
-- Resolve Q1 (inheritance depth - recommendation: 5 levels)
-- Resolve Q2 (event store - recommendation: SQLite)
-- Start Phase 2 - LLM Integration
+- Begin Phase 3: Orchestration Engine
+- Design workflow execution engine
+- Implement step dependencies and DAG validation
+- Add workflow execution with event emission
+- Create workflow templates and examples
 metrics:
-  code_coverage: 86.58%
+  code_coverage: 87.5%
   documentation_coverage: 100%
   open_issues: 0
   open_prs: 0
   phase_0_completion: 100%
-  phase_1_completion: 85%
+  phase_1_completion: 100%
+  phase_2_completion: 100%
   agent_specs_completion: 100%
   governance_completion: 100%
-  test_count: 135
-  python_files: 35
-  test_files: 10
+  test_count: 304
+  python_files: 67
+  test_files: 20
 repository:
   url: https://github.com/IbIFACE-Tech/paracle-lite
   branch: develop

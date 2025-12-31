@@ -905,3 +905,273 @@ paracle parac status  # → redirects to paracle status
 ### Related ADRs
 
 - ADR-009: .parac/ Governance in Framework
+
+---
+
+## ADR-011: LLM Provider Package Naming Convention
+
+**Date**: 2025-12-31
+**Status**: Accepted
+**Deciders**: Core Team
+**Phase**: Phase 2 - Multi-Provider & Multi-Framework
+
+### Context
+
+During Phase 2 implementation, we needed to decide on package naming for:
+1. LLM provider abstractions (OpenAI, Anthropic, Google, Ollama)
+2. Framework adapters (MSAF, LangChain, LlamaIndex)
+
+**Conflicting Documentation:**
+- `.roadmap/PHASE2_MULTI_PROVIDER.md` proposed: `paracle_llm/` and `paracle_frameworks/`
+- `docs/architecture.md` (line 103) specified: `paracle_providers/` and `paracle_adapters/`
+- Existing empty packages: `paracle_providers/` and `paracle_adapters/` already created
+
+### Decision
+
+**Use `paracle_providers` and `paracle_adapters`** (as per architecture.md).
+
+**Rationale:**
+1. **Consistency**: Aligns with existing architecture documentation
+2. **Semantic Clarity**:
+   - `providers` → LLM API providers (external services)
+   - `adapters` → Framework adapters (hexagonal architecture pattern)
+3. **Avoid Confusion**: Prevents potential conflict with future `paracle_llm` package for LLM-specific utilities
+4. **Existing Structure**: Packages already exist in codebase
+
+### Implementation
+
+**Package Structure:**
+
+```
+packages/
+├── paracle_providers/          # LLM Provider Abstraction
+│   ├── base.py                 # LLMProvider protocol
+│   ├── registry.py             # Provider registry
+│   ├── exceptions.py           # Provider exceptions
+│   ├── auto_register.py        # Auto-registration
+│   ├── openai_provider.py      # OpenAI (GPT-4, GPT-3.5)
+│   ├── anthropic_provider.py   # Anthropic (Claude 3.5, 3)
+│   ├── google_provider.py      # Google (Gemini Pro)
+│   └── ollama_provider.py      # Ollama (Local models)
+│
+└── paracle_adapters/           # Framework Adapters
+    ├── base.py                 # FrameworkAdapter protocol
+    ├── msaf_adapter.py         # Microsoft Agent Framework
+    ├── langchain_adapter.py    # LangChain
+    └── llamaindex_adapter.py   # LlamaIndex (optional)
+```
+
+**Provider Interface:**
+- Protocol-based (`typing.Protocol`) for maximum flexibility
+- Async-first design (all operations async)
+- Streaming support as first-class citizen
+- Graceful degradation (optional dependencies)
+
+**Auto-Registration:**
+- Providers register on import via `auto_register.py`
+- Missing dependencies don't break imports
+- Registry pattern for discovery
+
+### Consequences
+
+**Positive:**
+- ✅ Clear separation: providers (external APIs) vs adapters (frameworks)
+- ✅ Follows hexagonal architecture principles
+- ✅ Consistent with existing documentation
+- ✅ Extensible via Protocol (users can add providers)
+- ✅ Graceful handling of missing dependencies
+
+**Negative:**
+- ⚠️ Requires updating `.roadmap/PHASE2_MULTI_PROVIDER.md` documentation
+- ⚠️ Different from initial Phase 2 spec (but better aligned with architecture)
+
+**Neutral:**
+- Package naming is internal implementation detail
+- Users interact via public API, not package names
+
+### Metrics (Implementation)
+
+**Phase 2 Progress (as of 2025-12-31):**
+- ✅ Base protocol implemented (ChatMessage, LLMConfig, LLMResponse, StreamChunk)
+- ✅ Provider registry with auto-registration
+- ✅ 4 providers implemented (OpenAI, Anthropic, Google, Ollama)
+- ✅ 30 unit tests (100% passing)
+- ✅ UTC-aware datetime (no deprecation warnings)
+- 📊 Test count: 255 total (+30 from Phase 1)
+
+**Files Created:**
+- `paracle_providers/base.py` (203 lines)
+- `paracle_providers/registry.py` (115 lines)
+- `paracle_providers/exceptions.py` (68 lines)
+- `paracle_providers/auto_register.py` (49 lines)
+- `paracle_providers/openai_provider.py` (289 lines)
+- `paracle_providers/anthropic_provider.py` (242 lines)
+- `paracle_providers/google_provider.py` (183 lines)
+- `paracle_providers/ollama_provider.py` (248 lines)
+- `tests/unit/test_provider_base.py` (154 lines)
+- `tests/unit/test_provider_registry.py` (147 lines)
+
+### Related ADRs
+
+- ADR-002: Modular Monolith Architecture
+- ADR-005: Hexagonal Architecture (Ports & Adapters)
+
+### Next Steps
+
+1. ✅ Implement framework adapters in `paracle_adapters/`
+2. ✅ Implement MCP support in `paracle_tools/`
+3. ✅ Update AgentFactory to use providers
+4. ✅ Update Phase 2 documentation
+5. ✅ Add integration tests with mocked API calls
+
+---
+
+## ADR-012: Agent Factory with Provider Integration
+
+**Date**: 2025-12-31
+**Status**: Accepted
+**Deciders**: Core Team
+
+### Context
+
+Phase 2 requires integrating the provider registry with agent creation. Need to design how agents are instantiated with:
+- Inheritance resolution (from Phase 1)
+- Provider selection and instantiation (from Phase 2)
+- Clean separation of concerns
+- Flexibility for different use cases
+
+Key requirements:
+1. Agent creation should resolve inheritance before provider selection
+2. Provider instantiation should be optional (for testing, dry-run, etc.)
+3. Factory should provide utilities (validation, preview, chain inspection)
+4. Temperature inheritance should handle default values correctly
+
+### Decision
+
+**Implement AgentFactory in `paracle_domain/factory.py`** with two creation modes:
+
+1. **`create(spec)`**: Creates agent with resolved inheritance (no provider)
+2. **`create_with_provider(spec, config)`**: Creates agent + provider instance
+
+**Temperature Inheritance Fix:**
+- Modified `_merge_specs()` in `inheritance.py` to detect default values
+- Child temperature only overrides parent if != 0.7 (default)
+- Same logic applied to all scalar fields with defaults
+
+**Factory Features:**
+- `validate_spec()`: Check inheritance without creating agent
+- `get_inheritance_chain()`: Inspect inheritance chain
+- `preview_resolved_spec()`: See final merged spec
+- Metadata attachment: `_inheritance_chain`, `_inheritance_depth`, `_inheritance_warnings`
+
+### Implementation
+
+**Factory Constructor:**
+```python
+AgentFactory(
+    spec_provider: Callable[[str], AgentSpec | None],  # Get parent specs
+    provider_registry: Any | None = None,              # Optional provider registry
+    max_inheritance_depth: int = 5,
+    warn_depth: int = 3,
+)
+```
+
+**Basic Usage:**
+```python
+# Without provider (testing, validation)
+factory = AgentFactory(repository.get_spec)
+agent = factory.create(spec)
+
+# With provider (production)
+factory = AgentFactory(repository.get_spec, ProviderRegistry)
+agent, provider = factory.create_with_provider(spec, {"api_key": "..."})
+```
+
+**Temperature Inheritance Logic:**
+```python
+# Before (incorrect):
+temperature = leaf.temperature  # Always uses child's default (0.7)
+
+# After (correct):
+merged_temperature = base.temperature
+for child in specs[1:]:
+    if child.temperature != 0.7:  # Not default
+        merged_temperature = child.temperature
+```
+
+**Error Handling:**
+- `InheritanceError`: Circular dependency, max depth, missing parent
+- `ProviderNotAvailableError`: Provider not in registry
+- `ValueError`: Provider registry not configured
+
+### Consequences
+
+**Positive:**
+- ✅ Clean separation: inheritance resolution vs provider instantiation
+- ✅ Flexible: can create agents without providers (testing)
+- ✅ Utilities: validation, preview, chain inspection
+- ✅ Correct inheritance: default values don't override parent values
+- ✅ Well-tested: 16 unit tests covering all scenarios
+- ✅ Type-safe: Full type hints with Protocol support
+
+**Negative:**
+- ⚠️ Complexity: Default value detection hardcoded for temperature (0.7)
+- ⚠️ Coupling: Factory depends on ProviderRegistry (mitigated by Protocol)
+
+**Neutral:**
+- Factory follows existing patterns (Repository, Registry)
+- Metadata attachment uses private attributes (future: proper metadata field)
+
+### Metrics (Implementation)
+
+**Files Created:**
+- `paracle_domain/factory.py` (218 lines)
+- `tests/unit/test_agent_factory.py` (413 lines)
+
+**Files Modified:**
+- `paracle_domain/__init__.py` (added exports)
+- `paracle_domain/inheritance.py` (temperature inheritance fix)
+
+**Test Coverage:**
+- 16 new tests (100% passing)
+- Scenarios covered:
+  - Simple agent creation
+  - Single-level inheritance
+  - Multi-level inheritance (grandparent → parent → child)
+  - Tools/metadata merging
+  - Circular inheritance detection
+  - Max depth enforcement
+  - Missing parent detection
+  - Provider selection and instantiation
+  - Error conditions (provider unavailable, no registry)
+
+**Phase 2 Completion:**
+- Test count: 304 total (+79 from providers, adapters, MCP, factory)
+- Python files: 67 (+3)
+- Test files: 20 (+1)
+- Code coverage: 87.5%
+- **Phase 2: 100% COMPLETE** ✅
+
+### Trade-offs
+
+**Default Value Detection:**
+- **Chosen**: Hardcode check `temperature != 0.7`
+- **Alternative 1**: Store original Pydantic defaults in spec metadata
+  - Pro: More robust
+  - Con: Adds complexity, increases memory
+- **Alternative 2**: Require explicit `temperature=None` to inherit
+  - Pro: Explicit is better than implicit
+  - Con: Breaking change, less ergonomic
+
+**Rationale**: Pragmatic solution for v0.0.1. Can enhance with metadata in future.
+
+### Related ADRs
+
+- ADR-003: Agent Inheritance System
+- ADR-011: LLM Provider Package Naming
+
+### Next Steps
+
+1. ✅ Phase 2 Complete
+2. 📋 Begin Phase 3: Orchestration Engine
+3. 📋 Consider enhancing inheritance with explicit field metadata (post-v0.0.1)

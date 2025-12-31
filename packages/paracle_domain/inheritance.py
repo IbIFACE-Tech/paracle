@@ -166,6 +166,9 @@ def _merge_specs(specs: list[AgentSpec]) -> AgentSpec:
     - tools: merged additively (child adds to parent's tools)
     - metadata: merged additively (child overrides parent's keys)
     - config: merged additively (child overrides parent's keys)
+
+    For scalar values like temperature, the merged value is taken from
+    the first spec in the chain (root to leaf) that has a non-default value.
     """
     if not specs:
         raise ValueError("Cannot merge empty specs list")
@@ -179,7 +182,15 @@ def _merge_specs(specs: list[AgentSpec]) -> AgentSpec:
     merged_metadata = dict(base.metadata)
     merged_config = dict(base.config)
 
-    # Apply each child spec
+    # Track merged scalar values (walk root to leaf, last non-None/non-default wins)
+    merged_description = base.description
+    merged_provider = base.provider
+    merged_model = base.model
+    merged_temperature = base.temperature
+    merged_max_tokens = base.max_tokens
+    merged_system_prompt = base.system_prompt
+
+    # Apply each child spec (root to leaf order)
     for child in specs[1:]:
         # Merge tools (additive, avoid duplicates)
         for tool in child.tools:
@@ -192,17 +203,31 @@ def _merge_specs(specs: list[AgentSpec]) -> AgentSpec:
         # Merge config (child overrides)
         merged_config.update(child.config)
 
-    # Final spec uses leaf's explicit values, with merged collections
+        # Merge scalar values (child overrides if explicitly set)
+        if child.description is not None:
+            merged_description = child.description
+        merged_provider = child.provider  # Provider always from child
+        merged_model = child.model  # Model always from child
+        # Temperature: only override if child explicitly set it (not default 0.7)
+        # We detect "explicit" by checking if it differs from AgentSpec default
+        if child.temperature != 0.7:  # 0.7 is the default from AgentSpec
+            merged_temperature = child.temperature
+        if child.max_tokens is not None:
+            merged_max_tokens = child.max_tokens
+        if child.system_prompt is not None:
+            merged_system_prompt = child.system_prompt
+
+    # Final spec uses merged values
     leaf = specs[-1]
 
     return AgentSpec(
         name=leaf.name,
-        description=leaf.description if leaf.description else base.description,
-        provider=leaf.provider,
-        model=leaf.model,
-        temperature=leaf.temperature,
-        max_tokens=leaf.max_tokens if leaf.max_tokens else base.max_tokens,
-        system_prompt=leaf.system_prompt if leaf.system_prompt else base.system_prompt,
+        description=merged_description,
+        provider=merged_provider,
+        model=merged_model,
+        temperature=merged_temperature,
+        max_tokens=merged_max_tokens,
+        system_prompt=merged_system_prompt,
         parent=leaf.parent,
         tools=merged_tools,
         config=merged_config,

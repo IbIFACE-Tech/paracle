@@ -1,5 +1,10 @@
 """Paracle Domain - Core Domain Models."""
 
+from paracle_domain.factory import (
+    AgentFactory,
+    AgentFactoryError,
+    ProviderNotAvailableError,
+)
 from paracle_domain.inheritance import (
     CircularInheritanceError,
     InheritanceError,
@@ -36,6 +41,10 @@ __all__ = [
     "WorkflowSpec",
     "WorkflowStatus",
     "WorkflowStep",
+    # Factory
+    "AgentFactory",
+    "AgentFactoryError",
+    "ProviderNotAvailableError",
     # Inheritance
     "CircularInheritanceError",
     "InheritanceError",
