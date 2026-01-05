@@ -169,13 +169,13 @@ class RoadmapStateSynchronizer:
         # Check completion percentage
         roadmap_completion = roadmap_phase.get("completion", 0)
         state_progress = state_phase.get("progress", "0%")
-        
+
         # Handle both string ("75%") and int (75) formats
         if isinstance(state_progress, str):
             state_completion = int(state_progress.rstrip("%"))
         else:
             state_completion = int(state_progress)
-        
+
         # Ensure roadmap_completion is also an int
         if isinstance(roadmap_completion, str):
             roadmap_completion = int(roadmap_completion.rstrip("%"))

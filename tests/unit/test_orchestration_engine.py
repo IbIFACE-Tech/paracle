@@ -6,9 +6,16 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from paracle_domain.models import generate_id
-from paracle_domain.models import Workflow, WorkflowSpec, WorkflowStep
+from paracle_domain.models import (
+    ApprovalConfig,
+    ApprovalPriority,
+    Workflow,
+    WorkflowSpec,
+    WorkflowStep,
+    generate_id,
+)
 from paracle_events import EventBus
+from paracle_orchestration.approval import ApprovalManager
 from paracle_orchestration.context import ExecutionContext, ExecutionStatus
 from paracle_orchestration.engine import WorkflowOrchestrator
 from paracle_orchestration.exceptions import (
@@ -534,3 +541,244 @@ class TestActiveExecutionManagement:
 
         # Assert
         assert len(orchestrator.active_executions) == 0
+
+
+class TestApprovalIntegration:
+    """Test Human-in-the-Loop approval integration."""
+
+    @pytest.fixture
+    def approval_manager(self, event_bus):
+        """Create an approval manager for testing."""
+        return ApprovalManager(event_bus)
+
+    @pytest.fixture
+    def orchestrator_with_approvals(self, event_bus, approval_manager):
+        """Create an orchestrator with approval manager."""
+        async def mock_executor(step, inputs):
+            return {"output": f"result from {step.name}", "inputs": inputs}
+
+        return WorkflowOrchestrator(
+            event_bus,
+            mock_executor,
+            approval_manager=approval_manager,
+        )
+
+    @pytest.fixture
+    def approval_workflow(self):
+        """Create a workflow with an approval-required step."""
+        spec = WorkflowSpec(
+            name="approval-workflow",
+            steps=[
+                make_step("analyze"),
+                make_step(
+                    "deploy",
+                    depends_on=["analyze"],
+                    requires_approval=True,
+                    approval_config={
+                        "required": True,
+                        "timeout_seconds": 300,
+                        "priority": "high",
+                    },
+                ),
+            ],
+        )
+        return Workflow(spec=spec)
+
+    @pytest.mark.asyncio
+    async def test_step_with_approval_creates_request(
+        self, orchestrator_with_approvals, approval_manager, approval_workflow
+    ):
+        """Test that a step with requires_approval creates an approval request."""
+        # Arrange
+        created_requests = []
+
+        def capture_created(request):
+            created_requests.append(request)
+
+        approval_manager._on_approval_created = capture_created
+
+        # Act - Start execution in background
+        async def execute_and_approve():
+            task = asyncio.create_task(
+                orchestrator_with_approvals.execute(approval_workflow, {"env": "prod"})
+            )
+
+            # Wait for approval request to be created
+            await asyncio.sleep(0.1)
+
+            # Approve the request
+            if created_requests:
+                await approval_manager.approve(
+                    created_requests[0].id,
+                    approver="admin@example.com",
+                    reason="Looks good",
+                )
+
+            return await task
+
+        context = await execute_and_approve()
+
+        # Assert
+        assert len(created_requests) == 1
+        assert created_requests[0].step_name == "deploy"
+        assert created_requests[0].agent_name == "deploy"
+        assert context.status == ExecutionStatus.COMPLETED
+
+    @pytest.mark.asyncio
+    async def test_approved_step_continues_execution(
+        self, orchestrator_with_approvals, approval_manager, approval_workflow
+    ):
+        """Test that approved step allows workflow to complete."""
+        # Arrange & Act
+        async def execute_and_approve():
+            task = asyncio.create_task(
+                orchestrator_with_approvals.execute(approval_workflow, {"env": "prod"})
+            )
+
+            # Wait for approval request
+            await asyncio.sleep(0.1)
+
+            # Get pending requests and approve
+            pending = approval_manager.list_pending()
+            if pending:
+                await approval_manager.approve(
+                    pending[0].id,
+                    approver="admin@example.com",
+                )
+
+            return await task
+
+        context = await execute_and_approve()
+
+        # Assert
+        assert context.status == ExecutionStatus.COMPLETED
+        assert "analyze" in context.step_results
+        assert "deploy" in context.step_results
+
+    @pytest.mark.asyncio
+    async def test_rejected_step_fails_workflow(
+        self, orchestrator_with_approvals, approval_manager, approval_workflow
+    ):
+        """Test that rejected approval fails the workflow."""
+        # Arrange & Act
+        async def execute_and_reject():
+            task = asyncio.create_task(
+                orchestrator_with_approvals.execute(approval_workflow, {"env": "prod"})
+            )
+
+            # Wait for approval request
+            await asyncio.sleep(0.1)
+
+            # Get pending requests and reject
+            pending = approval_manager.list_pending()
+            if pending:
+                await approval_manager.reject(
+                    pending[0].id,
+                    approver="security@example.com",
+                    reason="Security review required",
+                )
+
+            return await task
+
+        context = await execute_and_reject()
+
+        # Assert
+        assert context.status == ExecutionStatus.FAILED
+        assert len(context.errors) > 0
+        assert "rejected" in context.errors[0].lower()
+
+    @pytest.mark.asyncio
+    async def test_approval_context_includes_step_output(
+        self, orchestrator_with_approvals, approval_manager, approval_workflow
+    ):
+        """Test that approval request includes step output as context."""
+        # Arrange
+        created_request = None
+
+        def capture_request(request):
+            nonlocal created_request
+            created_request = request
+
+        approval_manager._on_approval_created = capture_request
+
+        # Act
+        async def execute_and_approve():
+            task = asyncio.create_task(
+                orchestrator_with_approvals.execute(approval_workflow, {"env": "prod"})
+            )
+
+            await asyncio.sleep(0.1)
+
+            # Approve to complete
+            pending = approval_manager.list_pending()
+            if pending:
+                await approval_manager.approve(pending[0].id, approver="admin")
+
+            return await task
+
+        await execute_and_approve()
+
+        # Assert
+        assert created_request is not None
+        assert "step_output" in created_request.context
+        assert "step_inputs" in created_request.context
+        assert "workflow_name" in created_request.context
+
+    @pytest.mark.asyncio
+    async def test_workflow_without_approval_steps_completes_normally(
+        self, orchestrator_with_approvals
+    ):
+        """Test that workflow without approval steps completes without waiting."""
+        # Arrange
+        spec = WorkflowSpec(
+            name="no-approval-workflow",
+            steps=[
+                make_step("step1"),
+                make_step("step2", depends_on=["step1"]),
+            ],
+        )
+        workflow = Workflow(spec=spec)
+
+        # Act
+        context = await orchestrator_with_approvals.execute(workflow, {"data": "test"})
+
+        # Assert
+        assert context.status == ExecutionStatus.COMPLETED
+        assert "step1" in context.step_results
+        assert "step2" in context.step_results
+
+    @pytest.mark.asyncio
+    async def test_execution_context_shows_awaiting_approval_status(
+        self, orchestrator_with_approvals, approval_manager, approval_workflow
+    ):
+        """Test that execution context reflects awaiting approval status."""
+        # Arrange
+        observed_status = None
+
+        # Act
+        async def observe_and_approve():
+            nonlocal observed_status
+
+            task = asyncio.create_task(
+                orchestrator_with_approvals.execute(approval_workflow, {"env": "prod"})
+            )
+
+            # Wait for approval to be requested
+            await asyncio.sleep(0.1)
+
+            # Check active execution status
+            active = orchestrator_with_approvals.get_active_executions()
+            if active:
+                observed_status = active[0].status
+
+            # Approve to complete
+            pending = approval_manager.list_pending()
+            if pending:
+                await approval_manager.approve(pending[0].id, approver="admin")
+
+            return await task
+
+        await observe_and_approve()
+
+        # Assert
+        assert observed_status == ExecutionStatus.AWAITING_APPROVAL

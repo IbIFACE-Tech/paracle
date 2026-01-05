@@ -3,67 +3,67 @@ name: Governance Validation
 on:
   pull_request:
     paths:
-      - '.parac/**'
-      - '.cursorrules'
-      - '.github/copilot-instructions.md'
-      - '.parac/integrations/ide/**'
+      - ".parac/**"
+      - ".cursorrules"
+      - ".github/copilot-instructions.md"
+      - ".parac/integrations/ide/**"
   push:
-    branches: 
+    branches:
       - main
       - develop
     paths:
-      - '.parac/**'
-      - '.cursorrules'
-      - '.github/copilot-instructions.md'
+      - ".parac/**"
+      - ".cursorrules"
+      - ".github/copilot-instructions.md"
 
 jobs:
   validate-governance:
     name: Validate Governance
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
-          
+          python-version: "3.10"
+
       - name: Install uv
         run: pip install uv
-        
+
       - name: Install dependencies
         run: uv sync
-        
+
       - name: Validate AI Instructions
         run: uv run paracle validate ai-instructions
-        
+
       - name: Validate Governance Structure
         run: uv run paracle validate governance
-        
+
       - name: Validate Roadmap Consistency
         run: uv run paracle validate roadmap
-        
+
       - name: Check YAML Syntax
         run: |
           for file in $(find .parac -name "*.yaml" -o -name "*.yml"); do
             echo "Validating $file"
             python -c "import yaml; yaml.safe_load(open('$file'))"
           done
-          
+
       - name: Verify ADR Numbering
         run: uv run python scripts/check_adr_numbering.py
-        continue-on-error: true  # Don't fail if script doesn't exist yet
+        continue-on-error: true # Don't fail if script doesn't exist yet
 
   validate-structure:
     name: Validate .parac/ Structure
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
+
       - name: Check required files exist
         run: |
           required_files=(
@@ -77,7 +77,7 @@ jobs:
             ".parac/memory/context/open_questions.md"
             ".parac/agents/manifest.yaml"
           )
-          
+
           missing=()
           for file in "${required_files[@]}"; do
             if [ ! -f "$file" ]; then
@@ -87,13 +87,13 @@ jobs:
               echo "✅ Found: $file"
             fi
           done
-          
+
           if [ ${#missing[@]} -gt 0 ]; then
             echo ""
             echo "Error: Missing ${#missing[@]} required governance files"
             exit 1
           fi
-          
+
       - name: Verify pre-flight checklist in IDE configs
         run: |
           ide_files=(
@@ -103,21 +103,21 @@ jobs:
             ".parac/integrations/ide/CLAUDE.md"
             ".github/copilot-instructions.md"
           )
-          
+
           required_sections=(
             "MANDATORY PRE-FLIGHT CHECKLIST"
             "PRE_FLIGHT_CHECKLIST.md"
             "VALIDATE"
             "If Task NOT in Roadmap"
           )
-          
+
           failed=()
           for file in "${ide_files[@]}"; do
             if [ ! -f "$file" ]; then
               echo "⚠️  File not found: $file"
               continue
             fi
-            
+
             echo "Checking $file..."
             missing_sections=()
             for section in "${required_sections[@]}"; do
@@ -125,7 +125,7 @@ jobs:
                 missing_sections+=("$section")
               fi
             done
-            
+
             if [ ${#missing_sections[@]} -gt 0 ]; then
               echo "❌ $file missing sections: ${missing_sections[*]}"
               failed+=("$file")
@@ -133,7 +133,7 @@ jobs:
               echo "✅ $file has all required sections"
             fi
           done
-          
+
           if [ ${#failed[@]} -gt 0 ]; then
             echo ""
             echo "Error: ${#failed[@]} IDE config files missing pre-flight checklist sections"
@@ -143,22 +143,22 @@ jobs:
   test-governance:
     name: Run Governance Tests
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
-          
+          python-version: "3.10"
+
       - name: Install uv
         run: pip install uv
-        
+
       - name: Install dependencies
         run: uv sync
-        
+
       - name: Run governance tests
         run: uv run pytest tests/governance/ -v
-        continue-on-error: true  # Don't fail if tests don't exist yet
+        continue-on-error: true # Don't fail if tests don't exist yet

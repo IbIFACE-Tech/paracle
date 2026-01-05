@@ -181,7 +181,8 @@ class ApprovalManager:
         config = config or ApprovalConfig(required=True)
 
         # Calculate expiration time
-        expires_at = datetime.now(UTC) + timedelta(seconds=config.timeout_seconds)
+        timeout = config.timeout_seconds
+        expires_at = datetime.now(UTC) + timedelta(seconds=timeout)
 
         request = ApprovalRequest(
             workflow_id=workflow_id,
@@ -434,7 +435,7 @@ class ApprovalManager:
             priority: Filter by priority.
 
         Returns:
-            List of pending ApprovalRequests, sorted by priority and creation time.
+            List of pending ApprovalRequests, sorted by priority and time.
         """
         requests = list(self._pending_approvals.values())
 
@@ -556,12 +557,28 @@ class ApprovalManager:
         if self._event_bus is None:
             return
 
-        from paracle_events.events import Event
+        from paracle_events.events import Event, EventType
+
+        # Map approval events to EventType enum
+        # Use closest matching workflow event types since approval events
+        # don't have dedicated enum values
+        type_mapping = {
+            "approval.created": EventType.WORKFLOW_STEP_STARTED,
+            "approval.approved": EventType.WORKFLOW_STEP_COMPLETED,
+            "approval.rejected": EventType.WORKFLOW_STEP_FAILED,
+            "approval.cancelled": EventType.WORKFLOW_FAILED,
+            "approval.expired": EventType.WORKFLOW_FAILED,
+        }
+
+        mapped_type = type_mapping.get(
+            event_type, EventType.WORKFLOW_STEP_STARTED
+        )
 
         event = Event(
-            event_type=event_type,
+            type=mapped_type,
             source="approval_manager",
-            data={
+            payload={
+                "approval_event": event_type,  # Store original event type
                 "approval_id": request.id,
                 "workflow_id": request.workflow_id,
                 "execution_id": request.execution_id,
@@ -573,4 +590,4 @@ class ApprovalManager:
                 "reason": request.decision_reason,
             },
         )
-        await self._event_bus.publish(event)
+        await self._event_bus.publish_async(event)

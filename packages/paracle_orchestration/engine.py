@@ -1,10 +1,24 @@
-"""Workflow orchestration engine."""
+"""Workflow orchestration engine.
+
+This module provides the WorkflowOrchestrator for executing DAG-based workflows
+with support for:
+- Parallel step execution
+- Human-in-the-Loop approval gates (ISO 42001 compliance)
+- Event-driven observability
+- Timeout handling
+"""
 
 import asyncio
 from collections.abc import Callable
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from paracle_domain.models import Workflow, WorkflowStep, generate_id
+from paracle_domain.models import (
+    ApprovalConfig,
+    ApprovalPriority,
+    Workflow,
+    WorkflowStep,
+    generate_id,
+)
 from paracle_events import EventBus
 from paracle_events.events import (
     Event,
@@ -13,6 +27,10 @@ from paracle_events.events import (
     workflow_started,
 )
 
+from paracle_orchestration.approval import (
+    ApprovalManager,
+    ApprovalTimeoutError as ApprovalTimeout,
+)
 from paracle_orchestration.context import ExecutionContext
 from paracle_orchestration.dag import DAG
 from paracle_orchestration.exceptions import (
@@ -20,6 +38,9 @@ from paracle_orchestration.exceptions import (
     InvalidWorkflowError,
     StepExecutionError,
 )
+
+if TYPE_CHECKING:
+    from paracle_domain.models import ApprovalRequest
 
 
 class WorkflowOrchestrator:
@@ -29,13 +50,23 @@ class WorkflowOrchestrator:
     - Validates workflow structure (DAG, dependencies)
     - Executes steps in topological order
     - Parallelizes independent steps
+    - Supports Human-in-the-Loop approval gates (ISO 42001)
     - Emits events for observability
     - Manages execution context and error handling
+
+    Human-in-the-Loop Approval:
+        Steps can be configured to require human approval before execution.
+        When a step has `requires_approval=True`, the workflow will:
+        1. Execute the step to generate output
+        2. Create an approval request with the output as context
+        3. Pause execution and wait for human decision
+        4. Continue if approved, fail if rejected
 
     Example:
         >>> orchestrator = WorkflowOrchestrator(
         ...     event_bus=event_bus,
-        ...     step_executor=execute_step_fn
+        ...     step_executor=execute_step_fn,
+        ...     approval_manager=ApprovalManager(event_bus),
         ... )
         >>> workflow = Workflow(spec=workflow_spec)
         >>> context = await orchestrator.execute(workflow, {"input": "data"})
@@ -46,6 +77,7 @@ class WorkflowOrchestrator:
         self,
         event_bus: EventBus,
         step_executor: Callable[[WorkflowStep, dict[str, Any]], Any],
+        approval_manager: ApprovalManager | None = None,
     ) -> None:
         """Initialize the orchestrator.
 
@@ -53,9 +85,12 @@ class WorkflowOrchestrator:
             event_bus: Event bus for publishing workflow events
             step_executor: Async function to execute a single step
                           Signature: async def (step, inputs) -> result
+            approval_manager: Optional approval manager for Human-in-the-Loop.
+                            If None, steps with requires_approval are skipped.
         """
         self.event_bus = event_bus
         self.step_executor = step_executor
+        self.approval_manager = approval_manager or ApprovalManager(event_bus)
         self.active_executions: dict[str, ExecutionContext] = {}
 
     async def execute(
@@ -178,7 +213,10 @@ class WorkflowOrchestrator:
         context: ExecutionContext,
         dag: DAG,
     ) -> Any:
-        """Execute a single workflow step.
+        """Execute a single workflow step with optional approval gate.
+
+        If the step requires approval (`requires_approval=True`), the workflow
+        will pause after execution and wait for human decision.
 
         Args:
             workflow: Parent workflow
@@ -188,6 +226,9 @@ class WorkflowOrchestrator:
 
         Returns:
             Step execution result
+
+        Raises:
+            StepExecutionError: If step execution or approval fails.
         """
         context.current_step = step.name
 
@@ -206,6 +247,12 @@ class WorkflowOrchestrator:
             # Execute the step
             result = await self.step_executor(step, step_inputs)
 
+            # Check if step requires approval (Human-in-the-Loop)
+            if step.requires_approval:
+                result = await self._handle_approval_gate(
+                    workflow, step, context, result, step_inputs
+                )
+
             await self._emit_event(
                 "workflow.step.completed",
                 context,
@@ -220,6 +267,136 @@ class WorkflowOrchestrator:
                 context,
                 {"step": step.name, "agent": step.agent, "error": str(e)},
             )
+            raise
+
+    async def _handle_approval_gate(
+        self,
+        workflow: Workflow,
+        step: WorkflowStep,
+        context: ExecutionContext,
+        result: Any,
+        step_inputs: dict[str, Any],
+    ) -> Any:
+        """Handle Human-in-the-Loop approval gate for a step.
+
+        Creates an approval request and waits for human decision.
+
+        Args:
+            workflow: Parent workflow
+            step: Step requiring approval
+            context: Execution context
+            result: Step execution result to be approved
+            step_inputs: Inputs that were provided to the step
+
+        Returns:
+            Original result if approved.
+
+        Raises:
+            StepExecutionError: If rejected or approval timeout.
+        """
+        # Build approval config from step's approval_config dict
+        approval_config = ApprovalConfig(**step.approval_config)
+
+        # Determine priority from config or default to MEDIUM
+        priority = approval_config.priority or ApprovalPriority.MEDIUM
+
+        # Create approval request with execution context
+        approval_context = {
+            "step_output": result,
+            "step_inputs": step_inputs,
+            "workflow_name": workflow.spec.name,
+            "previous_steps": list(context.step_results.keys()),
+        }
+
+        request = await self.approval_manager.create_request(
+            workflow_id=workflow.id,
+            execution_id=context.execution_id,
+            step_id=step.name,
+            step_name=step.name,
+            agent_name=step.agent,
+            context=approval_context,
+            config=approval_config,
+            priority=priority,
+            metadata={
+                "workflow_inputs": context.inputs,
+                "total_steps": context.metadata.get("total_steps", 0),
+            },
+        )
+
+        # Mark context as awaiting approval
+        context.await_approval(step.name, request.id)
+
+        await self._emit_event(
+            "workflow.step.awaiting_approval",
+            context,
+            {
+                "step": step.name,
+                "agent": step.agent,
+                "approval_id": request.id,
+                "priority": priority.value,
+            },
+        )
+
+        try:
+            # Wait for human decision
+            is_approved = await self.approval_manager.wait_for_decision(
+                request.id,
+                timeout_seconds=approval_config.timeout_seconds,
+            )
+
+            # Resume from approval state
+            context.resume_from_approval()
+
+            if not is_approved:
+                # Get the decided request to include rejection reason
+                decided = self.approval_manager.get_request(request.id)
+                reason = decided.decision_reason if decided else "Rejected by approver"
+
+                await self._emit_event(
+                    "workflow.step.approval_rejected",
+                    context,
+                    {
+                        "step": step.name,
+                        "approval_id": request.id,
+                        "reason": reason,
+                    },
+                )
+
+                raise StepExecutionError(
+                    step.name,
+                    Exception(f"Approval rejected: {reason}"),
+                )
+
+            # Approval granted
+            await self._emit_event(
+                "workflow.step.approval_granted",
+                context,
+                {"step": step.name, "approval_id": request.id},
+            )
+
+            return result
+
+        except ApprovalTimeout as e:
+            # Handle timeout
+            context.resume_from_approval()
+
+            await self._emit_event(
+                "workflow.step.approval_timeout",
+                context,
+                {
+                    "step": step.name,
+                    "approval_id": request.id,
+                    "timeout_seconds": e.timeout_seconds,
+                },
+            )
+
+            if approval_config.auto_reject_on_timeout:
+                raise StepExecutionError(
+                    step.name,
+                    Exception(f"Approval timed out after {e.timeout_seconds}s"),
+                )
+
+            # Re-raise the timeout error
             raise
 
     def _resolve_step_inputs(
