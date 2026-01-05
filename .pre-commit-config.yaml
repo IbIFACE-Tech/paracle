@@ -13,7 +13,7 @@ repos:
         language: system
         pass_filenames: false
         files: ^(\.cursorrules|\.parac/integrations/ide/|\.github/copilot-instructions\.md)
-        
+
       # Validate .parac/ structure and consistency
       - id: validate-governance
         name: Validate Governance Structure
@@ -21,7 +21,7 @@ repos:
         language: system
         pass_filenames: false
         files: ^\.parac/
-        
+
       # Validate roadmap consistency
       - id: validate-roadmap
         name: Validate Roadmap Consistency
@@ -29,7 +29,7 @@ repos:
         language: system
         pass_filenames: false
         files: ^\.parac/(roadmap/roadmap\.yaml|memory/context/current_state\.yaml)
-        
+
       # Validate YAML syntax in .parac/
       - id: validate-yaml
         name: Validate YAML Syntax
@@ -44,9 +44,9 @@ repos:
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: check-yaml
-        exclude: ^\.parac/  # Use our custom YAML validator above
+        exclude: ^\.parac/ # Use our custom YAML validator above
       - id: check-added-large-files
-        args: ['--maxkb=1000']
+        args: ["--maxkb=1000"]
       - id: check-merge-conflict
       - id: check-case-conflict
 

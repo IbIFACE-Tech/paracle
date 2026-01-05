@@ -65,6 +65,18 @@ pre-commit-install: ## Install pre-commit hooks
 pre-commit-run: ## Run pre-commit on all files
 	uv run pre-commit run --all-files
 
+validate: ## Validate governance compliance
+	uv run paracle validate --all
+
+validate-ai: ## Validate AI instruction files
+	uv run paracle validate ai-instructions
+
+validate-governance: ## Validate .parac/ structure
+	uv run paracle validate governance
+
+validate-roadmap: ## Validate roadmap consistency
+	uv run paracle validate roadmap
+
 cli-hello: ## Run CLI hello command
 	uv run paracle hello
 

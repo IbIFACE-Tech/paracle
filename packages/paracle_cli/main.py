@@ -12,11 +12,12 @@ from paracle_cli.commands.parac import (
     session,
     status,
     sync,
-    validate,
 )
+from paracle_cli.commands.parac import validate as parac_validate
 from paracle_cli.commands.providers import providers
 from paracle_cli.commands.serve import serve
 from paracle_cli.commands.tools import tools
+from paracle_cli.commands.validate import validate as governance_validate
 from paracle_cli.commands.workflow import workflow
 
 console = Console()
@@ -33,7 +34,10 @@ def cli() -> None:
 cli.add_command(init)
 cli.add_command(status)
 cli.add_command(sync)
-cli.add_command(validate)
+# Old: paracle parac validate
+cli.add_command(parac_validate, name="parac-validate")
+# New: paracle validate
+cli.add_command(governance_validate, name="validate")
 cli.add_command(session)
 
 # Register server command (Priority 0 - Essential)
