@@ -81,6 +81,8 @@ Avant et après chaque session de travail:
 │ 2. Vérifier .parac/memory/context/open_questions.md        │
 │ 3. Consulter .parac/roadmap/roadmap.yaml                   │
 │ 4. Confirmer la phase et les priorités actuelles           │
+│ 5. Exécuter `paracle sync --roadmap` pour vérifier         │
+│    l'alignement roadmap/state                               │
 └─────────────────────────────────────────────────────────────┘
                             ↓
                     [TRAVAIL EN COURS]
@@ -99,6 +101,9 @@ Avant et après chaque session de travail:
 │                                                             │
 │ 4. Mettre à jour roadmap.yaml si milestone atteint         │
 │                                                             │
+│ 5. Exécuter `paracle sync --roadmap` pour valider          │
+│    la cohérence finale                                      │
+│                                                             │
 │ 5. Créer weekly_summary.md si fin de semaine               │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -108,6 +113,7 @@ Avant et après chaque session de travail:
 Quand un deliverable majeur est complété:
 
 1. **Mettre à jour `roadmap.yaml`**
+
    ```yaml
    deliverables:
      - name: "Feature X"
@@ -117,6 +123,7 @@ Quand un deliverable majeur est complété:
    ```
 
 2. **Mettre à jour `current_state.yaml`**
+
    ```yaml
    current_phase:
      progress: XX%  # ← Recalculer
@@ -124,12 +131,21 @@ Quand un deliverable majeur est complété:
        - feature_x  # ← Ajouter
    ```
 
-3. **Créer un résumé** dans `memory/summaries/`
+3. **Vérifier la cohérence**
+
+   ```bash
+   paracle sync --roadmap
+   # Devrait montrer aucun avertissement après mise à jour
+   ```
+
+4. **Créer un résumé** dans `memory/summaries/`
 
 ### À Chaque Changement de Phase
 
 1. Archiver le résumé de phase dans `memory/summaries/phase_N_completion.md`
+
 2. Mettre à jour `roadmap.yaml`:
+
    ```yaml
    phases:
      - id: phase_N
@@ -139,7 +155,9 @@ Quand un deliverable majeur est complété:
        status: in_progress
        started_date: "YYYY-MM-DD"
    ```
+
 3. Mettre à jour `current_state.yaml`:
+
    ```yaml
    current_phase:
      id: phase_N+1
@@ -148,6 +166,13 @@ Quand un deliverable majeur est complété:
    previous_phase:
      id: phase_N
      status: completed
+   ```
+
+4. **Valider l'alignement**
+
+   ```bash
+   paracle sync --roadmap
+   # Devrait confirmer nouvelle phase sans avertissement
    ```
 
 ---

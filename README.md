@@ -31,6 +31,16 @@ uv pip install paracle
 pip install paracle
 ```
 
+### Configure API Keys
+
+```bash
+# Copy example and add your keys
+cp .env.example .env
+# Edit .env with your API keys (OPENAI_API_KEY, etc.)
+```
+
+📖 **See [API Keys Guide](docs/api-keys.md) for detailed setup**
+
 ### Hello World
 
 ```bash
@@ -148,11 +158,19 @@ workflow = Workflow(
 
 ## 📖 Documentation
 
-- [Getting Started](docs/getting-started.md)
-- [Architecture](docs/architecture.md)
-- [API Reference](docs/api.md)
-- [Examples](examples/)
-- [Roadmap](.roadmap/)
+### Getting Started
+- [Getting Started Guide](docs/getting-started.md) - Quick start in 5 minutes
+- [API Keys Configuration](docs/api-keys.md) - Set up LLM provider API keys
+- [Providers Guide](docs/providers.md) - All 14+ supported providers
+
+### Architecture & Design
+- [Architecture Overview](docs/architecture.md) - System design and patterns
+- [Synchronization Guide](docs/synchronization-guide.md) - Sync/async patterns
+
+### Advanced
+- [API Reference](docs/api.md) - REST API documentation
+- [Examples](examples/) - Code examples and tutorials
+- [Roadmap](.roadmap/) - Development roadmap
 
 ## 🛠️ Development
 
