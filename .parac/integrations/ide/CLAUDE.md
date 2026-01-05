@@ -2,20 +2,50 @@
 # Paracle AI Instructions for Claude Code
 # Auto-generated from .parac/ - DO NOT EDIT MANUALLY
 # Regenerate with: paracle ide sync --copy
-# Generated: 2026-01-04T07:27:26.447877
+# Generated: 2026-01-05T14:09:10.601245
 
 
 ## Core Principle
 
 > **`.parac/` is the single source of truth. Read it. Follow it. Log to it.**
 
-**Before ANY action**, you MUST read:
+## 🚨 MANDATORY: Pre-Flight Checklist
+
+**Before ANY implementation task:**
+
+📋 **Complete [.parac/PRE_FLIGHT_CHECKLIST.md](.parac/PRE_FLIGHT_CHECKLIST.md)** (~4 minutes)
+
+This checklist ensures:
+- You're working on the RIGHT task
+- At the RIGHT phase
+- With the RIGHT priority
+- In the RIGHT sequence
+
+**Quick version:**
+1. Read `.parac/GOVERNANCE.md` - Governance rules
+2. Check `.parac/memory/context/current_state.yaml` - Current state
+3. Consult `.parac/roadmap/roadmap.yaml` - Phase & priorities
+4. Verify `.parac/memory/context/open_questions.md` - Blockers
+5. **VALIDATE**: Task in roadmap? Correct phase? Priority? Dependencies?
+6. Adopt agent persona from `.parac/agents/specs/{agent}.md`
+7. Check policies (CODE_STYLE, TESTING, SECURITY)
+
+**Before ANY action**, you MUST:
 1. `.parac/GOVERNANCE.md` - Governance rules and dogfooding context
 2. `.parac/agents/manifest.yaml` - Available agents
 3. `.parac/memory/context/current_state.yaml` - Current project state
 4. `.parac/roadmap/roadmap.yaml` - Phases and priorities
-5. Adopt agent persona from `.parac/agents/specs/{agent_id}.md`
+5. `.parac/PRE_FLIGHT_CHECKLIST.md` - Mandatory task validation
+6. Adopt agent persona from `.parac/agents/specs/{agent_id}.md`
 
+
+
+## Current Project State
+
+- **Project**: paracle-lite v0.0.1
+- **Phase**: phase_4 - API Server & CLI Enhancement (75%)
+- **Status**: in_progress
+- **Focus**: REST API server with uvicorn, Workflow execution endpoints (async/sync), CLI command enhancements, MCP tool integration, Command-line workflow management, IDE integration and templates
 
 
 
@@ -105,7 +135,7 @@ Toute information concernant l'état du projet, les décisions, les politiques, 
 
 Toute décision architecturale, tout changement de scope, toute modification de roadmap DOIT être documentée dans `.parac/`.
 
-| Type de Changement | Fichier à Mettre à Jour |
+| Type de Changement      | Fichier à Mettre à Jour                                      |
 
 
 
@@ -193,11 +223,70 @@ with agent_context("CoderAgent"):
 
 
 
+## Governance Tools & Commands
+
+### Roadmap-State Synchronization
+
+**Check alignment between roadmap and current state:**
+```bash
+paracle sync --roadmap
+```
+
+This detects:
+- Phase name/status mismatches
+- Completion % differences
+- Missing/extra deliverables
+- Metric inconsistencies
+
+**See [docs/roadmap-state-sync.md](../docs/roadmap-state-sync.md) for details.**
+
+### Governance Validation
+
+**Validate all .parac/ files:**
+```bash
+paracle validate
+```
+
+Checks:
+- YAML syntax
+- Required files exist
+- Roadmap-state alignment
+- File permissions
+
+### Session Management
+
+**Start a session:**
+```bash
+paracle session start "Feature: Add X"
+```
+
+**End session and checkpoint:**
+```bash
+paracle session end
+```
+
+### API Keys Configuration
+
+**Configure LLM provider API keys** for your project:
+
+1. Copy example: `cp .env.example .env`
+2. Add keys to `.env`: `OPENAI_API_KEY=sk-...`
+3. Never commit `.env` to git!
+
+**See [docs/api-keys.md](../docs/api-keys.md) for:**
+- 12+ provider setup guides
+- Security best practices
+- Docker/production deployment
+- Troubleshooting
+
+
+
 ## Essential .parac/ Files
 
 | File | Purpose | When to Read |
 | --- | --- | --- |
 | **`.parac/GOVERNANCE.md`** | Governance rules, dogfooding context | ALWAYS first |
+| **`.parac/PRE_FLIGHT_CHECKLIST.md`** | **NEW: Mandatory task validation** | **Before ANY implementation** |
 | **`.parac/UNIVERSAL_AI_INSTRUCTIONS.md`** | Universal instructions (any IDE) | Setup / reference |
 | **`.parac/USING_PARAC.md`** | Complete 20+ section guide | Deep understanding |
 | **`.parac/CONFIG_FILES.md`** | project.yaml vs manifest.yaml | When confused about config |
@@ -216,6 +305,8 @@ with agent_context("CoderAgent"):
 | **`.parac/policies/CODE_STYLE.md`** | Code style guide | Before coding |
 | **`.parac/policies/TESTING.md`** | Testing policy | Before writing tests |
 | **`.parac/policies/SECURITY.md`** | Security policy | Security-sensitive code |
+| **`docs/api-keys.md`** | **NEW: API key management guide** | **Setting up LLM providers** |
+| **`docs/roadmap-state-sync.md`** | **NEW: Roadmap sync guide** | **Understanding governance automation** |
 
 
 

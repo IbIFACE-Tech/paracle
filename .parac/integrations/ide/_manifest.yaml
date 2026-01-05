@@ -19,6 +19,6 @@ configs:
   exists: true
   file: .windsurfrules
   ide: windsurf
-generated_at: '2026-01-04T07:27:27.045957'
+generated_at: '2026-01-05T14:09:11.063865'
 generator_version: 0.0.1
 parac_root: C:\Projets\paracle\paracle-lite\.parac
