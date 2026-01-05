@@ -1,0 +1,87 @@
+# Pre-commit hooks for Paracle governance validation
+# Install: make pre-commit-install or: uv run pre-commit install
+# Run manually: make pre-commit-run or: uv run pre-commit run --all-files
+
+repos:
+  # Local governance validation hooks
+  - repo: local
+    hooks:
+      # Validate AI instruction files have pre-flight checklist
+      - id: validate-ai-instructions
+        name: Validate AI Instructions
+        entry: uv run paracle validate ai-instructions
+        language: system
+        pass_filenames: false
+        files: ^(\.cursorrules|\.parac/integrations/ide/|\.github/copilot-instructions\.md)
+        
+      # Validate .parac/ structure and consistency
+      - id: validate-governance
+        name: Validate Governance Structure
+        entry: uv run paracle validate governance
+        language: system
+        pass_filenames: false
+        files: ^\.parac/
+        
+      # Validate roadmap consistency
+      - id: validate-roadmap
+        name: Validate Roadmap Consistency
+        entry: uv run paracle validate roadmap
+        language: system
+        pass_filenames: false
+        files: ^\.parac/(roadmap/roadmap\.yaml|memory/context/current_state\.yaml)
+        
+      # Validate YAML syntax in .parac/
+      - id: validate-yaml
+        name: Validate YAML Syntax
+        entry: python -c "import yaml, sys; [yaml.safe_load(open(f)) for f in sys.argv[1:]]"
+        language: system
+        files: ^\.parac/.*\.ya?ml$
+
+  # Standard pre-commit hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+        exclude: ^\.parac/  # Use our custom YAML validator above
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      - id: check-merge-conflict
+      - id: check-case-conflict
+
+  # Python formatting and linting
+  - repo: https://github.com/psf/black
+    rev: 24.1.1
+    hooks:
+      - id: black
+        language_version: python3.10
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.15
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+
+# Configuration
+default_language_version:
+  python: python3.10
+
+# Exclude patterns
+exclude: |
+  (?x)^(
+    \.parac/memory/logs/.*|
+    \.parac/memory/snapshots/.*|
+    build/.*|
+    dist/.*|
+    .*\.egg-info/.*|
+    __pycache__/.*|
+    \.pytest_cache/.*|
+    \.mypy_cache/.*|
+    \.ruff_cache/.*
+  )
