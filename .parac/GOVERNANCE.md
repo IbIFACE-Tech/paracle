@@ -44,15 +44,15 @@ Toute information concernant l'état du projet, les décisions, les politiques, 
 
 Toute décision architecturale, tout changement de scope, toute modification de roadmap DOIT être documentée dans `.parac/`.
 
-| Type de Changement | Fichier à Mettre à Jour |
-|--------------------|-------------------------|
-| Décision architecturale | `roadmap/decisions.md` |
-| Changement de phase | `roadmap/roadmap.yaml` + `memory/context/current_state.yaml` |
-| Nouvelle question | `memory/context/open_questions.md` |
-| Résolution de question | `memory/context/open_questions.md` → `roadmap/decisions.md` |
-| Nouvelle politique | `policies/policy-pack.yaml` |
-| Modification d'agent | `agents/specs/<agent>.md` |
-| Nouveau savoir | `memory/knowledge/<topic>.md` |
+| Type de Changement      | Fichier à Mettre à Jour                                      |
+| ----------------------- | ------------------------------------------------------------ |
+| Décision architecturale | `roadmap/decisions.md`                                       |
+| Changement de phase     | `roadmap/roadmap.yaml` + `memory/context/current_state.yaml` |
+| Nouvelle question       | `memory/context/open_questions.md`                           |
+| Résolution de question  | `memory/context/open_questions.md` → `roadmap/decisions.md`  |
+| Nouvelle politique      | `policies/policy-pack.yaml`                                  |
+| Modification d'agent    | `agents/specs/<agent>.md`                                    |
+| Nouveau savoir          | `memory/knowledge/<topic>.md`                                |
 
 ### Règle 2: Immutabilité des Décisions
 
@@ -181,28 +181,28 @@ Quand un deliverable majeur est complété:
 
 ### Source de Vérité Principale
 
-| Fichier | Rôle | Fréquence de MAJ |
-|---------|------|------------------|
-| `roadmap/roadmap.yaml` | Roadmap officielle, phases, métriques | Par milestone |
-| `memory/context/current_state.yaml` | État actuel du projet | Chaque session |
-| `roadmap/decisions.md` | Décisions architecturales | Par décision |
+| Fichier                             | Rôle                                  | Fréquence de MAJ |
+| ----------------------------------- | ------------------------------------- | ---------------- |
+| `roadmap/roadmap.yaml`              | Roadmap officielle, phases, métriques | Par milestone    |
+| `memory/context/current_state.yaml` | État actuel du projet                 | Chaque session   |
+| `roadmap/decisions.md`              | Décisions architecturales             | Par décision     |
 
 ### Contexte et Mémoire
 
-| Fichier | Rôle | Fréquence de MAJ |
-|---------|------|------------------|
-| `memory/context/open_questions.md` | Questions en attente | Selon besoin |
-| `memory/knowledge/*.md` | Base de connaissances | Quand nouveau savoir |
-| `memory/summaries/*.md` | Résumés périodiques | Hebdomadaire/Phase |
+| Fichier                            | Rôle                  | Fréquence de MAJ     |
+| ---------------------------------- | --------------------- | -------------------- |
+| `memory/context/open_questions.md` | Questions en attente  | Selon besoin         |
+| `memory/knowledge/*.md`            | Base de connaissances | Quand nouveau savoir |
+| `memory/summaries/*.md`            | Résumés périodiques   | Hebdomadaire/Phase   |
 
 ### Gouvernance
 
-| Fichier | Rôle | Fréquence de MAJ |
-|---------|------|------------------|
-| `policies/policy-pack.yaml` | Politiques actives | Rarement |
-| `policies/security.yaml` | Règles de sécurité | Rarement |
-| `agents/manifest.yaml` | Registre des agents | Par nouvel agent |
-| `agents/specs/*.md` | Spécifications agents | Par modification |
+| Fichier                     | Rôle                  | Fréquence de MAJ |
+| --------------------------- | --------------------- | ---------------- |
+| `policies/policy-pack.yaml` | Politiques actives    | Rarement         |
+| `policies/security.yaml`    | Règles de sécurité    | Rarement         |
+| `agents/manifest.yaml`      | Registre des agents   | Par nouvel agent |
+| `agents/specs/*.md`         | Spécifications agents | Par modification |
 
 ---
 

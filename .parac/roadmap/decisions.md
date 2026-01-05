@@ -14,6 +14,88 @@ Each decision follows this structure:
 
 ---
 
+## ADR-016: Mandatory Pre-Flight Checklist for AI Agents
+
+**Date**: 2026-01-04
+**Status**: Accepted
+**Deciders**: Core Team
+
+### Context
+
+AI agents were implementing tasks without validating them against the roadmap, leading to:
+- Off-track work not aligned with current phase priorities
+- Scope creep without explicit decision-making
+- No systematic check for task priority, phase alignment, or dependencies
+- Wasted effort on features not planned for current phase
+
+User feedback: "why the roadmap are not automatically checked when I ask you to implement task?"
+
+### Decision
+
+Implement **mandatory 9-step Pre-Flight Checklist** that ALL AI agents MUST complete before any implementation task:
+
+1. Read GOVERNANCE.md (governance rules)
+2. Check current_state.yaml (current phase & progress)
+3. Consult roadmap.yaml (priorities & deliverables)
+4. Check open_questions.md (blockers)
+5. **VALIDATE with STOP conditions**:
+   - Is task in roadmap? ❌ → Ask user to add/defer/justify
+   - Is task in current phase? ❌ → Ask user to move/defer/justify
+   - Is task priority P0/P1? 🟡 → Warn user if P2
+   - Are dependencies complete? ❌ → Ask user to complete/proceed/block
+6. Adopt agent persona from specs
+7. Check policies (CODE_STYLE, TESTING, SECURITY)
+8. Log action to agent_actions.log (after implementation)
+9. Update current_state.yaml if milestone reached
+
+**Critical enforcement**: If task NOT in roadmap, AI agent MUST **STOP and ask user** to either:
+- a) Add to current phase roadmap
+- b) Create ADR for decision/scope change
+- c) Plan for future phase implementation
+- d) Provide explicit justification to proceed
+
+### Implementation
+
+- Created `.parac/PRE_FLIGHT_CHECKLIST.md` (4-minute checklist)
+- Updated UNIVERSAL_AI_INSTRUCTIONS.md with mandatory section
+- Updated all IDE instructions:
+  - .github/copilot-instructions.md
+  - .cursorrules (Cursor)
+  - .parac/integrations/ide/.clinerules (Cline)
+  - .parac/integrations/ide/.windsurfrules (Windsurf)
+  - .parac/integrations/ide/CLAUDE.md (Claude Code)
+  - .parac/integrations/ide/copilot-instructions.md
+
+### Consequences
+
+**Positive:**
+- ✅ Prevents off-roadmap work (saves hours of wasted effort)
+- ✅ Forces explicit decision-making for scope changes
+- ✅ Ensures task priority and phase alignment
+- ✅ Creates audit trail for all implementation decisions
+- ✅ Enforces governance rules systematically
+- ✅ Prompts ADR creation for architectural changes
+- ✅ 4-minute investment prevents 4-hour rework
+
+**Negative:**
+- ⚠️ Adds 4-minute overhead to each task (acceptable tradeoff)
+- ⚠️ Requires AI agents to interrupt user flow with questions (by design)
+- ⚠️ May slow down exploration/prototyping (exception cases documented)
+
+**Mitigation:**
+- Exception cases documented (emergency fixes, exploration, user override)
+- Checklist optimized for speed (4 minutes target)
+- Steps 1-4 can be parallelized by reading multiple files
+- Benefits (prevent wrong work) far outweigh costs (4-minute validation)
+
+### Related Decisions
+
+- Related to ADR-013 (API-First CLI) - systematic enforcement pattern
+- Related to roadmap governance rules in GOVERNANCE.md
+- Supports dogfooding principle (Paracle develops Paracle using .parac/)
+
+---
+
 ## ADR-001: Python as Primary Language
 
 **Date**: 2025-12-24
@@ -2500,13 +2582,13 @@ class StorageConfig(BaseModel):
 
 ### Migration Path
 
-| Version | Storage | Description |
-|---------|---------|-------------|
-| v0.0.1 | YAML + SQLite | Config in files, runtime in SQLite |
-| v0.1.0 | + Event persistence | Persistent event store |
-| v0.5.0 | + ChromaDB | RAG and embeddings |
-| v0.7.0 | + PostgreSQL option | Production scaling |
-| v1.0.0 | + pgvector | Unified relational + vector |
+| Version | Storage             | Description                        |
+| ------- | ------------------- | ---------------------------------- |
+| v0.0.1  | YAML + SQLite       | Config in files, runtime in SQLite |
+| v0.1.0  | + Event persistence | Persistent event store             |
+| v0.5.0  | + ChromaDB          | RAG and embeddings                 |
+| v0.7.0  | + PostgreSQL option | Production scaling                 |
+| v1.0.0  | + pgvector          | Unified relational + vector        |
 
 ### Success Criteria
 
@@ -2780,7 +2862,7 @@ Add complete provider ecosystem:
 **6 New Commercial Providers**:
 1. Mistral - Open-weight models with function calling
 2. Cohere - Specialized in embeddings, reranking, RAG
-3. Together.ai - 100+ open-source models with fast inference  
+3. Together.ai - 100+ open-source models with fast inference
 4. Perplexity - Search-enhanced AI with real-time web access
 5. OpenRouter - Unified gateway to 200+ models
 6. Fireworks.ai - Production-grade inference
@@ -3023,14 +3105,14 @@ Implement **three-tier enterprise log management architecture**:
 
 #### Retention Policies 📅
 
-| Category | Retention | Compression | Rationale |
-|----------|-----------|-------------|-----------|
-| Framework | 90 days | After 7d | Troubleshooting window |
-| Governance | Permanent | No (Git) | Audit trail |
-| Runtime | 30 days | After 7d | Active debugging |
-| Security | 365 days | After 30d | Compliance (ISO 27001) |
-| Errors | 90 days | After 7d | Root cause analysis |
-| API Access | 180 days | After 30d | Security audits |
+| Category   | Retention | Compression | Rationale              |
+| ---------- | --------- | ----------- | ---------------------- |
+| Framework  | 90 days   | After 7d    | Troubleshooting window |
+| Governance | Permanent | No (Git)    | Audit trail            |
+| Runtime    | 30 days   | After 7d    | Active debugging       |
+| Security   | 365 days  | After 30d   | Compliance (ISO 27001) |
+| Errors     | 90 days   | After 7d    | Root cause analysis    |
+| API Access | 180 days  | After 30d   | Security audits        |
 
 #### Monitoring & Alerting 🚨
 - Error rate thresholds (>5% triggers alert)
@@ -3140,19 +3222,19 @@ paracle logs health
 
 **Index Size**: ~10% of raw log size
 
-**Retention Savings**: 
+**Retention Savings**:
 - 30-day runtime logs: ~90% deletion
 - 90-day framework logs: ~70% deletion
 - Compression: Additional 80% space savings
 
 ### Compliance Mapping
 
-| Standard | Requirements Met |
-|----------|------------------|
-| **ISO 42001** | Audit trail, tamper-proof, user actions, model decisions |
+| Standard      | Requirements Met                                          |
+| ------------- | --------------------------------------------------------- |
+| **ISO 42001** | Audit trail, tamper-proof, user actions, model decisions  |
 | **ISO 27001** | Security events (365d), access control, incident response |
-| **GDPR** | PII protection, right to erasure, data breach logging |
-| **SOC 2** | Access logging, change management, monitoring |
+| **GDPR**      | PII protection, right to erasure, data breach logging     |
+| **SOC 2**     | Access logging, change management, monitoring             |
 
 ### Future Enhancements (Phase 5+)
 
@@ -3207,8 +3289,8 @@ paracle logs health
 
 ## ADR-020: Vibe Kanban-Inspired Features for Total AI Project Management
 
-**Date**: 2026-01-05  
-**Status**: Accepted  
+**Date**: 2026-01-05
+**Status**: Accepted
 **Context**: Roadmap expansion for community edition
 
 ### Context
@@ -3308,8 +3390,8 @@ Paracle Framework (Community)
 
 ### Implementation
 
-**Timeline Extended**: 17 weeks → 32 weeks  
-**CLI Commands**: 45 → 75 commands  
+**Timeline Extended**: 17 weeks → 32 weeks
+**CLI Commands**: 45 → 75 commands
 **New Packages**: 5 packages (sandbox, execution, git, notifications, templates)
 
 **New CLI Commands**:

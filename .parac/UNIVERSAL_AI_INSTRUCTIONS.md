@@ -9,6 +9,28 @@
 
 Avant TOUTE action, consulte `.parac/` pour comprendre le contexte, les règles, et l'état actuel.
 
+## 🚨 CHECKLIST OBLIGATOIRE
+
+**Avant TOUTE implémentation, lis le Pre-Flight Checklist:**
+
+👉 **[.parac/PRE_FLIGHT_CHECKLIST.md](PRE_FLIGHT_CHECKLIST.md)**
+
+**Version courte (4 minutes):**
+
+```
+✅ 1. Lire GOVERNANCE.md
+✅ 2. Vérifier current_state.yaml (phase, progrès, en cours)
+✅ 3. Consulter roadmap.yaml (focus phase, priorités)
+✅ 4. Vérifier open_questions.md (blockers)
+✅ 5. VALIDER: Tâche dans roadmap? Phase actuelle? Priorité? Dépendances?
+✅ 6. Adopter agent persona
+✅ 7. Vérifier policies
+✅ 8. APRÈS: Logger dans agent_actions.log
+✅ 9. APRÈS: Mettre à jour current_state.yaml si milestone
+```
+
+**PAS D'EXCEPTION. Cela garantit que tu travailles sur LA BONNE CHOSE au BON MOMENT.**
+
 ---
 
 ## 📖 LECTURE OBLIGATOIRE (Dans l'ordre)

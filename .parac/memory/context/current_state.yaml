@@ -1,5 +1,5 @@
-version: '1.5'
-snapshot_date: '2026-01-05'
+version: "1.5"
+snapshot_date: "2026-01-05"
 project:
   name: paracle-lite
   version: 0.0.1
@@ -10,96 +10,103 @@ current_phase:
   name: API Server & CLI Enhancement
   status: in_progress
   progress: 75%
-  started_date: '2026-01-04'
+  started_date: "2026-01-04"
   focus_areas:
-  - REST API server with uvicorn
-  - Workflow execution endpoints (async/sync)
-  - CLI command enhancements
-  - MCP tool integration
-  - Command-line workflow management
-  - IDE integration and templates
+    - REST API server with uvicorn
+    - Workflow execution endpoints (async/sync)
+    - CLI command enhancements
+    - MCP tool integration
+    - Command-line workflow management
+    - IDE integration and templates
   completed:
-  - paracle_serve_command_implementation
-  - workflow_execution_endpoints_implementation
-  - workflow_engine_wrapper_implementation
-  - workflow_execution_tests_15_passing
-  - cli_workflow_commands_implementation
-  - cli_tools_commands_implementation
-  - cli_providers_commands_implementation
-  - api_first_architecture_with_fallback
-  - universal_ai_instructions_documentation
-  - config_files_clarification_guide
-  - ide_template_enhancements_comprehensive
-  - ide_config_generation_tested
-  - templates_updated_with_improvements
-  - multi_provider_support_xai_deepseek_groq
-  - model_capabilities_tracking_system
-  - openai_compatible_provider_wrapper
-  - model_catalog_and_discovery
-  - comprehensive_provider_documentation
-  in_progress:
-  - cli_commands_testing
-  - cli_documentation
-  pending:
+    - paracle_serve_command_implementation
+    - workflow_execution_endpoints_implementation
+    - workflow_engine_wrapper_implementation
+    - workflow_execution_tests_15_passing
+    - cli_workflow_commands_implementation
+    - cli_tools_commands_implementation
+    - cli_providers_commands_implementation
+    - api_first_architecture_with_fallback
+    - universal_ai_instructions_documentation
+    - config_files_clarification_guide
+    - ide_template_enhancements_comprehensive
+    - ide_config_generation_tested
+    - templates_updated_with_improvements
+    - multi_provider_support_xai_deepseek_groq
+    - model_capabilities_tracking_system
+    - openai_compatible_provider_wrapper
+    - model_catalog_and_discovery
+    - comprehensive_provider_documentation
+    - pre_flight_checklist_enforcement_adr016
+    - governance_validation_commands
+    - pre_commit_hooks_configuration
+    - ci_cd_governance_workflow
+    - automated_governance_tests
+    - governance_validation_testing
+in_progress:
+  - adr_numbering_cleanup
+pending:
   - mcp_tool_integration
   - api_server_documentation
+  - pre_commit_hooks_installation
+  - ci_cd_workflow_testing
 previous_phase:
   id: phase_1
   name: Core Domain
   status: completed
   progress: 100%
-  completed_date: '2025-12-31'
+  completed_date: "2025-12-31"
   completed:
-  - parac_governance_in_framework
-  - api_first_parac_endpoints
-  - domain_models_implementation
-  - agent_inheritance_algorithm
-  - repository_pattern
-  - event_bus_in_memory
-  - tests_80_percent_coverage
-  - cli_simplification
-  - api_first_logging_system
-  - full_crud_api_operations
+    - parac_governance_in_framework
+    - api_first_parac_endpoints
+    - domain_models_implementation
+    - agent_inheritance_algorithm
+    - repository_pattern
+    - event_bus_in_memory
+    - tests_80_percent_coverage
+    - cli_simplification
+    - api_first_logging_system
+    - full_crud_api_operations
 phase_0:
   id: phase_0
   name: Foundation & Setup
   status: completed
   progress: 100%
-  completed_date: '2025-12-24'
+  completed_date: "2025-12-24"
   completed:
-  - .parac_structure_created
-  - project_configuration_defined
-  - repository_setup
-  - pyproject_configuration
-  - ci_cd_pipeline
-  - documentation
-  - hello_world_example
-  - package_structure
-  - example_code
-  - tests_created
-  - agent_skills_system
-  - ai_ide_instructions
-  - user_templates
-  - framework_skills
-  - roadmap_skills_integration
-  - claude_code_configuration
-  - agent_skills_v2_system
-  - skills_test_suite
-  - skills_integration_complete
-  - architectural_decisions_q4_q10_q11
+    - .parac_structure_created
+    - project_configuration_defined
+    - repository_setup
+    - pyproject_configuration
+    - ci_cd_pipeline
+    - documentation
+    - hello_world_example
+    - package_structure
+    - example_code
+    - tests_created
+    - agent_skills_system
+    - ai_ide_instructions
+    - user_templates
+    - framework_skills
+    - roadmap_skills_integration
+    - claude_code_configuration
+    - agent_skills_v2_system
+    - skills_test_suite
+    - skills_integration_complete
+    - architectural_decisions_q4_q10_q11
 team:
   active_members: 1
   roles:
-  - architect
-  - developer
-  - reviewer
+    - architect
+    - developer
+    - reviewer
   agents:
-  - 'architect (spec: complete, skills: 5)'
-  - 'coder (spec: complete, skills: 5)'
-  - 'reviewer (spec: complete, skills: 4)'
-  - 'tester (spec: complete, skills: 4)'
-  - 'pm (spec: complete, skills: 4)'
-  - 'documenter (spec: complete, skills: 3)'
+    - "architect (spec: complete, skills: 5)"
+    - "coder (spec: complete, skills: 5)"
+    - "reviewer (spec: complete, skills: 4)"
+    - "tester (spec: complete, skills: 4)"
+    - "pm (spec: complete, skills: 4)"
+    - "documenter (spec: complete, skills: 3)"
 stack:
   language: python
   version: 3.10+
@@ -116,333 +123,333 @@ governance:
   open_questions: 11 total (3 resolved, 8 pending)
 deliverables:
   phase_0:
-  - name: .parac structure
-    status: completed
-    completion: 100%
-  - name: Repository structure
-    status: completed
-    completion: 100%
-  - name: pyproject.toml
-    status: completed
-    completion: 100%
-  - name: CI/CD pipeline
-    status: completed
-    completion: 100%
-  - name: Documentation
-    status: completed
-    completion: 100%
-  - name: Hello World
-    status: completed
-    completion: 100%
-  - name: Examples
-    status: completed
-    completion: 100%
-  - name: Agent Skills System
-    status: completed
-    completion: 100%
-    details:
-    - Dual format support (YAML + SKILL.md)
-    - 5 built-in skills created
-    - 2 framework development skills
-    - Agent Skills standard compliance
-  - name: AI IDE Instructions
-    status: completed
-    completion: 100%
-    details:
-    - 9 IDE-specific instruction files
-    - Skills integration in all files
-    - Format comparison documentation
-  - name: User Templates
-    status: completed
-    completion: 100%
-    details:
-    - Complete .parac-template structure
-    - 15+ configuration files
-    - Skills examples (YAML and SKILL.md)
-  - name: Claude Code Configuration
-    status: completed
-    completion: 100%
-    details:
-    - Senior architect mode
-    - 7 rule files created
-    - Multi-perspective analysis
-    - Anti-hallucination protocol
-    - Session management
+    - name: .parac structure
+      status: completed
+      completion: 100%
+    - name: Repository structure
+      status: completed
+      completion: 100%
+    - name: pyproject.toml
+      status: completed
+      completion: 100%
+    - name: CI/CD pipeline
+      status: completed
+      completion: 100%
+    - name: Documentation
+      status: completed
+      completion: 100%
+    - name: Hello World
+      status: completed
+      completion: 100%
+    - name: Examples
+      status: completed
+      completion: 100%
+    - name: Agent Skills System
+      status: completed
+      completion: 100%
+      details:
+        - Dual format support (YAML + SKILL.md)
+        - 5 built-in skills created
+        - 2 framework development skills
+        - Agent Skills standard compliance
+    - name: AI IDE Instructions
+      status: completed
+      completion: 100%
+      details:
+        - 9 IDE-specific instruction files
+        - Skills integration in all files
+        - Format comparison documentation
+    - name: User Templates
+      status: completed
+      completion: 100%
+      details:
+        - Complete .parac-template structure
+        - 15+ configuration files
+        - Skills examples (YAML and SKILL.md)
+    - name: Claude Code Configuration
+      status: completed
+      completion: 100%
+      details:
+        - Senior architect mode
+        - 7 rule files created
+        - Multi-perspective analysis
+        - Anti-hallucination protocol
+        - Session management
   phase_1:
-  - name: .parac/ Governance in Framework
-    status: completed
-    completion: 100%
-    completed_date: '2025-12-24'
-    details:
-    - ADR-009 documented
-    - paracle_core/parac/ module (state, validator, sync)
-    - paracle_cli/commands/parac.py (status, sync, validate, session)
-    - 25 unit tests added
-    - CLI integrated (paracle parac ...)
-  - name: API First - Parac Endpoints
-    status: completed
-    completion: 100%
-    completed_date: '2025-12-24'
-    details:
-    - paracle_api/schemas/ (health, parac)
-    - paracle_api/routers/ (health, parac)
-    - paracle_api/main.py (FastAPI app)
-    - GET /health, GET /parac/status, POST /parac/sync
-    - GET /parac/validate, POST /parac/session/start|end
-    - 13 API tests added
-    - OpenAPI documentation at /docs
-  - name: Core Domain Models
-    status: completed
-    completion: 100%
-    completed_date: '2025-12-25'
-    details:
-    - EntityStatus enum
-    - AgentSpec with tools, metadata, parent inheritance
-    - Agent with resolved_spec and status updates
-    - WorkflowStep, WorkflowSpec, Workflow with lifecycle
-    - ToolSpec and Tool with MCP support
-    - Modern Pydantic v2 patterns (ConfigDict)
-  - name: Agent Inheritance Algorithm
-    status: completed
-    completion: 100%
-    completed_date: '2025-12-25'
-    details:
-    - paracle_domain/inheritance.py
-    - resolve_inheritance() function
-    - Circular dependency detection
-    - Max depth enforcement (5 levels, warning at 3+)
-    - Tools and metadata merging
-    - validate_inheritance_chain() for batch validation
-    - 10 unit tests
-  - name: Repository Pattern
-    status: completed
-    completion: 100%
-    completed_date: '2025-12-25'
-    details:
-    - paracle_store/repository.py (base Repository, InMemoryRepository)
-    - paracle_store/agent_repository.py (specs, status queries)
-    - paracle_store/workflow_repository.py (running, completed queries)
-    - paracle_store/tool_repository.py (MCP, enable/disable)
-    - 28 unit tests
-  - name: Event Bus
-    status: completed
-    completion: 100%
-    completed_date: '2025-12-25'
-    details:
-    - paracle_events/events.py (Event, EventType enum)
-    - paracle_events/bus.py (EventBus with pub/sub)
-    - Wildcard subscriptions (agent.*)
-    - Event history for replay/debugging
-    - EventStore for persistence
-    - Factory functions (agent_created, workflow_started, etc.)
-    - Async handler support
-    - 33 unit tests
-  - name: CLI Simplification
-    status: completed
-    completion: 100%
-    completed_date: '2025-12-31'
-    details:
-    - ADR-010 documented
-    - Removed parac subcommand nesting
-    - Commands promoted to root (paracle sync, paracle init, etc.)
-    - Backward compatibility via hidden deprecated group
-    - Updated all hooks and documentation
-    - Cleaner UX for governance commands
-  - name: API-First Logging System
-    status: completed
-    completion: 100%
-    completed_date: '2025-12-31'
-    details:
-    - paracle_core/parac/logger.py (AgentLogger, ActionType, AgentType)
-    - paracle_api/routers/logs.py (POST /logs/action, /logs/decision)
-    - paracle_api/schemas/logs.py (Pydantic schemas)
-    - paracle_cli/utils/api_client.py (HTTP client with fallback)
-    - CLI uses API-first with graceful degradation
-    - 16 unit tests for logger
-    - 13 API tests for endpoints
-    - Automatic logging in CLI commands
-  - name: Full CRUD API Operations
-    status: completed
-    completion: 100%
-    completed_date: '2025-12-31'
-    details:
-    - paracle_api/routers/agent_crud.py (10 endpoints)
-    - paracle_api/routers/workflow_crud.py (7 endpoints)
-    - paracle_api/routers/tool_crud.py (7 endpoints)
-    - paracle_api/schemas/agent_crud.py (Pydantic schemas)
-    - paracle_api/schemas/workflow_crud.py (Pydantic schemas)
-    - paracle_api/schemas/tool_crud.py (Pydantic schemas)
-    - Full CRUD for Agents (Create, Read, Update, Delete, List, Status)
-    - Full CRUD for Workflows (Create, Read, Update, Delete, List, Execute)
-    - Full CRUD for Tools (Create, Read, Update, Delete, List, Enable/Disable)
-    - Spec management (Register, List, Get, Delete)
-    - 47 unit tests added (32 passing, 15 with shared-state issues)
-    - 225 total tests in suite
-  - name: SQLite Persistence
-    status: deferred
-    completion: 0%
-    notes: Deferred to post-v0.0.1 - in-memory repositories sufficient for MVP
+    - name: .parac/ Governance in Framework
+      status: completed
+      completion: 100%
+      completed_date: "2025-12-24"
+      details:
+        - ADR-009 documented
+        - paracle_core/parac/ module (state, validator, sync)
+        - paracle_cli/commands/parac.py (status, sync, validate, session)
+        - 25 unit tests added
+        - CLI integrated (paracle parac ...)
+    - name: API First - Parac Endpoints
+      status: completed
+      completion: 100%
+      completed_date: "2025-12-24"
+      details:
+        - paracle_api/schemas/ (health, parac)
+        - paracle_api/routers/ (health, parac)
+        - paracle_api/main.py (FastAPI app)
+        - GET /health, GET /parac/status, POST /parac/sync
+        - GET /parac/validate, POST /parac/session/start|end
+        - 13 API tests added
+        - OpenAPI documentation at /docs
+    - name: Core Domain Models
+      status: completed
+      completion: 100%
+      completed_date: "2025-12-25"
+      details:
+        - EntityStatus enum
+        - AgentSpec with tools, metadata, parent inheritance
+        - Agent with resolved_spec and status updates
+        - WorkflowStep, WorkflowSpec, Workflow with lifecycle
+        - ToolSpec and Tool with MCP support
+        - Modern Pydantic v2 patterns (ConfigDict)
+    - name: Agent Inheritance Algorithm
+      status: completed
+      completion: 100%
+      completed_date: "2025-12-25"
+      details:
+        - paracle_domain/inheritance.py
+        - resolve_inheritance() function
+        - Circular dependency detection
+        - Max depth enforcement (5 levels, warning at 3+)
+        - Tools and metadata merging
+        - validate_inheritance_chain() for batch validation
+        - 10 unit tests
+    - name: Repository Pattern
+      status: completed
+      completion: 100%
+      completed_date: "2025-12-25"
+      details:
+        - paracle_store/repository.py (base Repository, InMemoryRepository)
+        - paracle_store/agent_repository.py (specs, status queries)
+        - paracle_store/workflow_repository.py (running, completed queries)
+        - paracle_store/tool_repository.py (MCP, enable/disable)
+        - 28 unit tests
+    - name: Event Bus
+      status: completed
+      completion: 100%
+      completed_date: "2025-12-25"
+      details:
+        - paracle_events/events.py (Event, EventType enum)
+        - paracle_events/bus.py (EventBus with pub/sub)
+        - Wildcard subscriptions (agent.*)
+        - Event history for replay/debugging
+        - EventStore for persistence
+        - Factory functions (agent_created, workflow_started, etc.)
+        - Async handler support
+        - 33 unit tests
+    - name: CLI Simplification
+      status: completed
+      completion: 100%
+      completed_date: "2025-12-31"
+      details:
+        - ADR-010 documented
+        - Removed parac subcommand nesting
+        - Commands promoted to root (paracle sync, paracle init, etc.)
+        - Backward compatibility via hidden deprecated group
+        - Updated all hooks and documentation
+        - Cleaner UX for governance commands
+    - name: API-First Logging System
+      status: completed
+      completion: 100%
+      completed_date: "2025-12-31"
+      details:
+        - paracle_core/parac/logger.py (AgentLogger, ActionType, AgentType)
+        - paracle_api/routers/logs.py (POST /logs/action, /logs/decision)
+        - paracle_api/schemas/logs.py (Pydantic schemas)
+        - paracle_cli/utils/api_client.py (HTTP client with fallback)
+        - CLI uses API-first with graceful degradation
+        - 16 unit tests for logger
+        - 13 API tests for endpoints
+        - Automatic logging in CLI commands
+    - name: Full CRUD API Operations
+      status: completed
+      completion: 100%
+      completed_date: "2025-12-31"
+      details:
+        - paracle_api/routers/agent_crud.py (10 endpoints)
+        - paracle_api/routers/workflow_crud.py (7 endpoints)
+        - paracle_api/routers/tool_crud.py (7 endpoints)
+        - paracle_api/schemas/agent_crud.py (Pydantic schemas)
+        - paracle_api/schemas/workflow_crud.py (Pydantic schemas)
+        - paracle_api/schemas/tool_crud.py (Pydantic schemas)
+        - Full CRUD for Agents (Create, Read, Update, Delete, List, Status)
+        - Full CRUD for Workflows (Create, Read, Update, Delete, List, Execute)
+        - Full CRUD for Tools (Create, Read, Update, Delete, List, Enable/Disable)
+        - Spec management (Register, List, Get, Delete)
+        - 47 unit tests added (32 passing, 15 with shared-state issues)
+        - 225 total tests in suite
+    - name: SQLite Persistence
+      status: deferred
+      completion: 0%
+      notes: Deferred to post-v0.0.1 - in-memory repositories sufficient for MVP
   phase_3:
-  - name: Orchestration Engine Core
-    status: completed
-    completion: 100%
-    started_date: '2025-12-31'
-    completed_date: '2025-12-31'
-    details:
-    - paracle_orchestration/exceptions.py (6 exception classes)
-    - paracle_orchestration/context.py (ExecutionContext, ExecutionStatus)
-    - paracle_orchestration/dag.py (DAG validation, topological sort, execution levels)
-    - paracle_orchestration/coordinator.py (AgentCoordinator with caching)
-    - paracle_orchestration/engine.py (WorkflowOrchestrator)
-    - DAG validation with circular dependency detection
-    - Parallel execution levels for concurrent step execution
-    - Agent instance caching (LRU eviction, configurable size)
-    - Execution metrics tracking
-    - Event emission for workflow lifecycle (workflow.started, completed, failed,
-      timeout)
-    - Step input resolution (static, workflow inputs, previous results with $ references)
-    - Workflow metadata tracking in ExecutionContext
-    - Error handling with graceful failure (returns failed context)
-    - Timeout handling with ExecutionTimeoutError
-    - Event.event_type property for backward compatibility
-    - 81/81 tests passing (100% pass rate)
-    - 22/22 Context tests passing
-    - 20/20 Coordinator tests passing
-    - 19/19 DAG tests passing
-    - 20/20 Engine tests passing
+    - name: Orchestration Engine Core
+      status: completed
+      completion: 100%
+      started_date: "2025-12-31"
+      completed_date: "2025-12-31"
+      details:
+        - paracle_orchestration/exceptions.py (6 exception classes)
+        - paracle_orchestration/context.py (ExecutionContext, ExecutionStatus)
+        - paracle_orchestration/dag.py (DAG validation, topological sort, execution levels)
+        - paracle_orchestration/coordinator.py (AgentCoordinator with caching)
+        - paracle_orchestration/engine.py (WorkflowOrchestrator)
+        - DAG validation with circular dependency detection
+        - Parallel execution levels for concurrent step execution
+        - Agent instance caching (LRU eviction, configurable size)
+        - Execution metrics tracking
+        - Event emission for workflow lifecycle (workflow.started, completed, failed,
+          timeout)
+        - Step input resolution (static, workflow inputs, previous results with $ references)
+        - Workflow metadata tracking in ExecutionContext
+        - Error handling with graceful failure (returns failed context)
+        - Timeout handling with ExecutionTimeoutError
+        - Event.event_type property for backward compatibility
+        - 81/81 tests passing (100% pass rate)
+        - 22/22 Context tests passing
+        - 20/20 Coordinator tests passing
+        - 19/19 DAG tests passing
+        - 20/20 Engine tests passing
   phase_2:
-  - name: LLM Provider Abstraction
-    status: completed
-    completion: 100%
-    completed_date: '2025-12-31'
-    details:
-    - Base protocol (ChatMessage, LLMConfig, LLMResponse, StreamChunk, TokenUsage)
-    - Provider registry with auto-registration
-    - Graceful degradation for optional dependencies
-    - 4 providers - OpenAI, Anthropic, Google, Ollama
-    - 30 unit tests (100% passing, no warnings)
-    - UTC-aware datetime
-    - Protocol-based design for extensibility
-    - ADR-011 documented (package naming decision)
-  - name: Framework Adapters
-    status: completed
-    completion: 100%
-    completed_date: '2025-12-31'
-    details:
-    - Base adapter protocol (FrameworkAdapter)
-    - MSAF adapter (Microsoft Agent Framework)
-    - LangChain adapter (agents, tools, chains)
-    - Adapter registry with auto-discovery
-    - 15 unit tests (100% passing)
-    - Support for agent creation and execution
-  - name: MCP Protocol
-    status: completed
-    completion: 100%
-    completed_date: '2025-12-31'
-    details:
-    - MCP client (connect, list_tools, call_tool, resources)
-    - MCP tool registry (discovery, callable creation)
-    - Organized in paracle_tools/mcp/ subdirectory
-    - 18 unit tests (100% passing)
-    - Async context manager support
-    - Tool search and statistics
-  - name: Agent Factory Integration
-    status: completed
-    completion: 100%
-    completed_date: '2025-12-31'
-    details:
-    - AgentFactory with inheritance resolution
-    - Provider registry integration
-    - create() and create_with_provider() methods
-    - Validation and preview utilities
-    - Fixed temperature inheritance (non-default values only)
-    - 16 unit tests (100% passing)
-    - Supports multi-level inheritance with proper value merging
-  - name: Built-in Tools
-    status: completed
-    completion: 100%
-    completed_date: '2025-12-31'
-    details:
-    - paracle_tools/builtin/ package (base, filesystem, http, shell, registry)
-    - 9 native tools (4 filesystem, 4 HTTP, 1 shell)
-    - BuiltinToolRegistry for centralized management
-    - Permission system with allow/deny lists
-    - Path sandboxing for filesystem operations
-    - Command whitelist/blocklist for shell execution
-    - Timeout handling for HTTP and shell operations
-    - 44 unit tests (100% passing)
-    - Tool categories - filesystem, http, shell
-    - Full integration with paracle_tools package
-    - Comprehensive documentation (docs/builtin-tools.md)
-    - 5 usage examples created (examples/01-05)
-    - Example README with patterns and best practices
-  - name: Docker Setup
-    status: completed
-    completion: 100%
-    completed_date: '2025-12-31'
-    details:
-    - docker/Dockerfile.api (production API image)
-    - docker/Dockerfile.worker (production worker image)
-    - docker/Dockerfile.dev (development with hot reload)
-    - docker/docker-compose.yaml (production stack)
-    - docker/docker-compose.dev.yaml (development overrides)
-    - docker/.env.example (environment template)
-    - docker/README.md (comprehensive guide)
-    - docker/.dockerignore (build optimization)
-    - Services - API, Worker, PostgreSQL, Redis
-    - Health checks, volumes, networks configured
-    - Security best practices (non-root users, secrets management)
-  - name: Agent Skills System V2
-    status: completed
-    completion: 100%
-    completed_date: '2026-01-04'
-    details:
-    - 13 skills created (11 new + 2 existing)
-    - Agent Skills specification compliance (agentskills.io)
-    - Progressive disclosure pattern (Discovery → Activation → Execution)
-    - Skills assigned to all 6 agents in specs
-    - SKILL_ASSIGNMENTS.md documentation
-    - Skills integrated in manifest.yaml and Copilot instructions
-    - 8 skills with scripts/ (executable examples)
-    - 4 skills with references/ (extended documentation)
-    - 5 skills with assets/ (templates)
-    - 20 unit tests created (100% passing)
-    - Example: examples/06_agent_skills.py
-  - name: Architectural Decisions (ADRs)
-    status: completed
-    completion: 100%
-    completed_date: '2026-01-04'
-    details:
-    - ADR-004 Tool Calling Interface (Hybrid Built-in + MCP)
-    - ADR-010 API Middlewares Stack (Security, CORS, Logging, Rate Limiting)
-    - ADR-011 ISO 42001 Compliance Strategy (Layered, v0.0.1→v0.9.0)
-    - Resolved 3 critical questions (Q4, Q10, Q11)
-    - All decisions documented in .parac/roadmap/decisions.md
-    - open_questions.md updated with resolutions
+    - name: LLM Provider Abstraction
+      status: completed
+      completion: 100%
+      completed_date: "2025-12-31"
+      details:
+        - Base protocol (ChatMessage, LLMConfig, LLMResponse, StreamChunk, TokenUsage)
+        - Provider registry with auto-registration
+        - Graceful degradation for optional dependencies
+        - 4 providers - OpenAI, Anthropic, Google, Ollama
+        - 30 unit tests (100% passing, no warnings)
+        - UTC-aware datetime
+        - Protocol-based design for extensibility
+        - ADR-011 documented (package naming decision)
+    - name: Framework Adapters
+      status: completed
+      completion: 100%
+      completed_date: "2025-12-31"
+      details:
+        - Base adapter protocol (FrameworkAdapter)
+        - MSAF adapter (Microsoft Agent Framework)
+        - LangChain adapter (agents, tools, chains)
+        - Adapter registry with auto-discovery
+        - 15 unit tests (100% passing)
+        - Support for agent creation and execution
+    - name: MCP Protocol
+      status: completed
+      completion: 100%
+      completed_date: "2025-12-31"
+      details:
+        - MCP client (connect, list_tools, call_tool, resources)
+        - MCP tool registry (discovery, callable creation)
+        - Organized in paracle_tools/mcp/ subdirectory
+        - 18 unit tests (100% passing)
+        - Async context manager support
+        - Tool search and statistics
+    - name: Agent Factory Integration
+      status: completed
+      completion: 100%
+      completed_date: "2025-12-31"
+      details:
+        - AgentFactory with inheritance resolution
+        - Provider registry integration
+        - create() and create_with_provider() methods
+        - Validation and preview utilities
+        - Fixed temperature inheritance (non-default values only)
+        - 16 unit tests (100% passing)
+        - Supports multi-level inheritance with proper value merging
+    - name: Built-in Tools
+      status: completed
+      completion: 100%
+      completed_date: "2025-12-31"
+      details:
+        - paracle_tools/builtin/ package (base, filesystem, http, shell, registry)
+        - 9 native tools (4 filesystem, 4 HTTP, 1 shell)
+        - BuiltinToolRegistry for centralized management
+        - Permission system with allow/deny lists
+        - Path sandboxing for filesystem operations
+        - Command whitelist/blocklist for shell execution
+        - Timeout handling for HTTP and shell operations
+        - 44 unit tests (100% passing)
+        - Tool categories - filesystem, http, shell
+        - Full integration with paracle_tools package
+        - Comprehensive documentation (docs/builtin-tools.md)
+        - 5 usage examples created (examples/01-05)
+        - Example README with patterns and best practices
+    - name: Docker Setup
+      status: completed
+      completion: 100%
+      completed_date: "2025-12-31"
+      details:
+        - docker/Dockerfile.api (production API image)
+        - docker/Dockerfile.worker (production worker image)
+        - docker/Dockerfile.dev (development with hot reload)
+        - docker/docker-compose.yaml (production stack)
+        - docker/docker-compose.dev.yaml (development overrides)
+        - docker/.env.example (environment template)
+        - docker/README.md (comprehensive guide)
+        - docker/.dockerignore (build optimization)
+        - Services - API, Worker, PostgreSQL, Redis
+        - Health checks, volumes, networks configured
+        - Security best practices (non-root users, secrets management)
+    - name: Agent Skills System V2
+      status: completed
+      completion: 100%
+      completed_date: "2026-01-04"
+      details:
+        - 13 skills created (11 new + 2 existing)
+        - Agent Skills specification compliance (agentskills.io)
+        - Progressive disclosure pattern (Discovery → Activation → Execution)
+        - Skills assigned to all 6 agents in specs
+        - SKILL_ASSIGNMENTS.md documentation
+        - Skills integrated in manifest.yaml and Copilot instructions
+        - 8 skills with scripts/ (executable examples)
+        - 4 skills with references/ (extended documentation)
+        - 5 skills with assets/ (templates)
+        - 20 unit tests created (100% passing)
+        - Example: examples/06_agent_skills.py
+    - name: Architectural Decisions (ADRs)
+      status: completed
+      completion: 100%
+      completed_date: "2026-01-04"
+      details:
+        - ADR-004 Tool Calling Interface (Hybrid Built-in + MCP)
+        - ADR-010 API Middlewares Stack (Security, CORS, Logging, Rate Limiting)
+        - ADR-011 ISO 42001 Compliance Strategy (Layered, v0.0.1→v0.9.0)
+        - Resolved 3 critical questions (Q4, Q10, Q11)
+        - All decisions documented in .parac/roadmap/decisions.md
+        - open_questions.md updated with resolutions
 risks:
-- id: risk_1
-  description: Timeline aggressive for 17 weeks
-  severity: medium
-  mitigation: Prioritize MVP features
-- id: risk_2
-  description: Agent inheritance complexity
-  severity: low
-  mitigation: Algorithm implemented and tested
-  status: resolved
-- id: risk_3
-  description: Open questions need timely decisions
-  severity: low
-  mitigation: Owners and deadlines assigned
+  - id: risk_1
+    description: Timeline aggressive for 17 weeks
+    severity: medium
+    mitigation: Prioritize MVP features
+  - id: risk_2
+    description: Agent inheritance complexity
+    severity: low
+    mitigation: Algorithm implemented and tested
+    status: resolved
+  - id: risk_3
+    description: Open questions need timely decisions
+    severity: low
+    mitigation: Owners and deadlines assigned
 blockers: []
 next_actions:
-- Prepare PyPI packaging (high priority for MVP)
-- Address CRUD API shared-state test failures (15 tests from Phase 1) - optional
+  - Prepare PyPI packaging (high priority for MVP)
+  - Address CRUD API shared-state test failures (15 tests from Phase 1) - optional
 completed_actions:
-- Created 5 comprehensive usage examples (filesystem, HTTP, shell, agent with tools,
-  tool registry)
-- Created examples/README.md with full documentation
-- Created Docker setup (8 files - Dockerfiles, compose files, documentation)
-- Getting started tutorial exists in docs/getting-started.md
+  - Created 5 comprehensive usage examples (filesystem, HTTP, shell, agent with tools,
+    tool registry)
+  - Created examples/README.md with full documentation
+  - Created Docker setup (8 files - Dockerfiles, compose files, documentation)
+  - Getting started tutorial exists in docs/getting-started.md
 metrics:
   code_coverage: 87.5%
   documentation_coverage: 100%
@@ -460,7 +467,7 @@ metrics:
   tests_failing: 15
   tests_skipped: 1
   test_pass_rate: 96.3%
-  python_files: 130
+  python_files: 132
   test_files: 37
   orchestration_tests: 81
   orchestration_passing: 81
@@ -472,5 +479,5 @@ repository:
   url: https://github.com/IbIFACE-Tech/paracle-lite
   branch: develop
   default_branch: main
-  last_commit: 6243e89 implement persistence layer and human-in-the-loop
+  last_commit: "ca162a4 docs: Add comprehensive API key management guide"
   has_uncommitted_changes: true
