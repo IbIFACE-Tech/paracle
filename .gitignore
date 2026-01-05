@@ -211,3 +211,11 @@ __marimo__/
 #.parac/
 .roadmap/
 temp_example/
+
+# API Keys and Secrets (IMPORTANT!)
+.env
+.env.local
+.env.*.local
+*.key
+secrets/
+api_keys.txt
