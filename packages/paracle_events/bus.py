@@ -13,14 +13,14 @@ Key features:
 from __future__ import annotations
 
 import asyncio
-import logging
 from collections import defaultdict
 from collections.abc import Awaitable, Callable
-from typing import Any
+
+from paracle_core.logging import get_logger
 
 from paracle_events.events import Event, EventType
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 # Handler type: can be sync or async
 EventHandler = Callable[[Event], None] | Callable[[Event], Awaitable[None]]

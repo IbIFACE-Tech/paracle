@@ -1,0 +1,38 @@
+---
+# Example Agent Specification Template
+# Copy this file and customize for your agent
+
+name: my-agent
+model: gpt-4
+temperature: 0.7
+max_tokens: 2000
+
+system_prompt: |
+  You are a helpful assistant specialized in [DOMAIN].
+
+  Your responsibilities:
+  - [RESPONSIBILITY 1]
+  - [RESPONSIBILITY 2]
+  - [RESPONSIBILITY 3]
+
+  Guidelines:
+  - [GUIDELINE 1]
+  - [GUIDELINE 2]
+
+skills:
+  - code-generation
+  - debugging
+  # Add more skills as needed
+
+tools:
+  - file-read
+  - file-write
+  # Add more tools as needed
+
+metadata:
+  author: your-name
+  version: "1.0.0"
+  description: Brief description of what this agent does
+  tags:
+    - tag1
+    - tag2

@@ -10,6 +10,8 @@ Provides REST endpoints for tool lifecycle management:
 """
 
 from fastapi import APIRouter, HTTPException, Query
+from paracle_domain.models import Tool
+from paracle_store.tool_repository import ToolRepository
 
 from paracle_api.schemas.tool_crud import (
     ToolCreateRequest,
@@ -20,8 +22,6 @@ from paracle_api.schemas.tool_crud import (
     ToolResponse,
     ToolUpdateRequest,
 )
-from paracle_domain.models import Tool
-from paracle_store.tool_repository import ToolRepository
 
 # Global repository instance (in-memory for now)
 # TODO: Replace with dependency injection in Phase 2
@@ -103,7 +103,7 @@ async def list_tools(
         List of tools matching filters
     """
     # Start with all tools
-    tools = _repository.list_all()
+    tools = _repository.list()
 
     # Apply filters
     if enabled is not None:
@@ -216,7 +216,7 @@ async def delete_tool(tool_id: str) -> ToolDeleteResponse:
             detail=f"Tool '{tool_id}' not found",
         )
 
-    success = _repository.remove(tool_id)
+    success = _repository.delete(tool_id)
 
     return ToolDeleteResponse(
         success=success,
@@ -250,10 +250,10 @@ async def enable_disable_tool(
 
     # Update enabled status
     if request.enabled:
-        _repository.enable_tool(tool_id)
+        _repository.enable(tool_id)
         message = f"Tool '{tool.spec.name}' enabled"
     else:
-        _repository.disable_tool(tool_id)
+        _repository.disable(tool_id)
         message = f"Tool '{tool.spec.name}' disabled"
 
     # Get updated tool

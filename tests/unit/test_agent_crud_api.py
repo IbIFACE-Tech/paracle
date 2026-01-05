@@ -1,14 +1,23 @@
 """Unit tests for Agent CRUD API endpoints."""
 
+import uuid
+
 import pytest
 from fastapi.testclient import TestClient
 
 from paracle_api.main import app
+from paracle_api.routers import agent_crud
 from paracle_domain.models import AgentSpec
 
 
 class TestAgentCRUD:
     """Tests for /api/agents CRUD endpoints."""
+
+    @pytest.fixture(autouse=True)
+    def reset_repository(self) -> None:
+        """Reset the agent repository before each test."""
+        agent_crud._repository.clear()
+        agent_crud._repository._specs.clear()
 
     @pytest.fixture
     def client(self) -> TestClient:
@@ -17,9 +26,9 @@ class TestAgentCRUD:
 
     @pytest.fixture
     def sample_spec(self) -> dict:
-        """Sample agent spec for testing."""
+        """Sample agent spec for testing with unique name."""
         return {
-            "name": "test-agent",
+            "name": f"test-agent-{uuid.uuid4().hex[:8]}",
             "description": "Test agent",
             "provider": "openai",
             "model": "gpt-4",
@@ -38,7 +47,7 @@ class TestAgentCRUD:
         assert response.status_code == 201
         data = response.json()
         assert "id" in data
-        assert data["spec_name"] == "test-agent"
+        assert data["spec_name"] == sample_spec["name"]
         assert data["provider"] == "openai"
         assert data["model"] == "gpt-4"
         assert data["status"] == "pending"
@@ -61,12 +70,12 @@ class TestAgentCRUD:
         # Then create agent from it
         response = client.post(
             "/api/agents",
-            json={"spec_name": "test-agent", "resolve_inheritance": False},
+            json={"spec_name": sample_spec["name"], "resolve_inheritance": False},
         )
 
         assert response.status_code == 201
         data = response.json()
-        assert data["spec_name"] == "test-agent"
+        assert data["spec_name"] == sample_spec["name"]
 
     def test_create_agent_spec_not_found(self, client: TestClient) -> None:
         """Test POST /api/agents with non-existent spec_name."""
@@ -145,7 +154,7 @@ class TestAgentCRUD:
         assert response.status_code == 200
         data = response.json()
         assert data["id"] == agent_id
-        assert data["spec_name"] == "test-agent"
+        assert data["spec_name"] == sample_spec["name"]
 
     def test_get_agent_not_found(self, client: TestClient) -> None:
         """Test GET /api/agents/{agent_id} with invalid ID."""
@@ -233,6 +242,12 @@ class TestAgentCRUD:
 class TestSpecManagement:
     """Tests for /api/specs endpoints."""
 
+    @pytest.fixture(autouse=True)
+    def reset_repository(self) -> None:
+        """Reset the agent repository before each test."""
+        agent_crud._repository.clear()
+        agent_crud._repository._specs.clear()
+
     @pytest.fixture
     def client(self) -> TestClient:
         """Create test client."""
@@ -240,9 +255,9 @@ class TestSpecManagement:
 
     @pytest.fixture
     def sample_spec(self) -> dict:
-        """Sample agent spec for testing."""
+        """Sample agent spec for testing with unique name."""
         return {
-            "name": "spec-test",
+            "name": f"spec-test-{uuid.uuid4().hex[:8]}",
             "description": "Test spec",
             "provider": "openai",
             "model": "gpt-4",
@@ -256,7 +271,7 @@ class TestSpecManagement:
 
         assert response.status_code == 201
         data = response.json()
-        assert data["name"] == "spec-test"
+        assert data["name"] == sample_spec["name"]
         assert data["provider"] == "openai"
 
     def test_register_spec_duplicate(
@@ -314,11 +329,11 @@ class TestSpecManagement:
         client.post("/api/specs", json={"spec": sample_spec})
 
         # Get the spec
-        response = client.get("/api/specs/spec-test")
+        response = client.get(f"/api/specs/{sample_spec['name']}")
 
         assert response.status_code == 200
         data = response.json()
-        assert data["name"] == "spec-test"
+        assert data["name"] == sample_spec["name"]
 
     def test_get_spec_not_found(self, client: TestClient) -> None:
         """Test GET /api/specs/{name} with invalid name."""
@@ -334,14 +349,14 @@ class TestSpecManagement:
         client.post("/api/specs", json={"spec": sample_spec})
 
         # Delete it
-        response = client.delete("/api/specs/spec-test")
+        response = client.delete(f"/api/specs/{sample_spec['name']}")
 
         assert response.status_code == 200
         data = response.json()
         assert data["success"] is True
 
         # Verify it's deleted
-        get_response = client.get("/api/specs/spec-test")
+        get_response = client.get(f"/api/specs/{sample_spec['name']}")
         assert get_response.status_code == 404
 
     def test_delete_spec_not_found(self, client: TestClient) -> None:

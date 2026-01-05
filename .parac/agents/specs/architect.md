@@ -27,6 +27,14 @@ System architecture design, module structure, and technical decision making.
 - API specifications
 - Design patterns documentation
 
+## Skills
+
+- framework-architecture
+- api-development
+- performance-optimization
+- security-hardening
+- paracle-development
+
 ## Tools & Capabilities
 
 - Code structure analysis

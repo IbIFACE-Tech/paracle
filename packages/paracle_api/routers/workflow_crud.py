@@ -10,6 +10,8 @@ Provides REST endpoints for workflow lifecycle management:
 """
 
 from fastapi import APIRouter, HTTPException, Query
+from paracle_domain.models import EntityStatus, Workflow
+from paracle_store.workflow_repository import WorkflowRepository
 
 from paracle_api.schemas.workflow_crud import (
     WorkflowCreateRequest,
@@ -20,8 +22,6 @@ from paracle_api.schemas.workflow_crud import (
     WorkflowResponse,
     WorkflowUpdateRequest,
 )
-from paracle_domain.models import EntityStatus, Workflow
-from paracle_store.workflow_repository import WorkflowRepository
 
 # Global repository instance (in-memory for now)
 # TODO: Replace with dependency injection in Phase 2
@@ -96,7 +96,7 @@ async def list_workflows(
         List of workflows matching filters
     """
     # Start with all workflows
-    workflows = _repository.list_all()
+    workflows = _repository.list()
 
     # Apply filters
     if status:
@@ -228,7 +228,7 @@ async def delete_workflow(workflow_id: str) -> WorkflowDeleteResponse:
             detail="Cannot delete a running workflow. Stop it first.",
         )
 
-    success = _repository.remove(workflow_id)
+    success = _repository.delete(workflow_id)
 
     return WorkflowDeleteResponse(
         success=success,

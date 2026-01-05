@@ -11,6 +11,9 @@ Provides REST endpoints for agent introspection and manifest generation:
 from pathlib import Path
 
 from fastapi import APIRouter, HTTPException, Query
+from paracle_core.parac.agent_discovery import AgentDiscovery
+from paracle_core.parac.manifest_generator import ManifestGenerator
+from paracle_core.parac.state import find_parac_root
 
 from paracle_api.schemas.agents import (
     AgentListResponse,
@@ -20,9 +23,6 @@ from paracle_api.schemas.agents import (
     ManifestResponse,
     ManifestWriteResponse,
 )
-from paracle_core.parac.agent_discovery import AgentDiscovery
-from paracle_core.parac.manifest_generator import ManifestGenerator
-from paracle_core.parac.state import find_parac_root
 
 router = APIRouter(prefix="/agents", tags=["agents"])
 

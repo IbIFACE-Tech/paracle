@@ -1,0 +1,41 @@
+# Paracle Worker - Production Dockerfile
+FROM python:3.11-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install uv for fast package management
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+
+# Set Python environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    UV_SYSTEM_PYTHON=1
+
+# Copy dependency files
+COPY pyproject.toml uv.lock ./
+COPY packages/ ./packages/
+
+# Install dependencies
+RUN uv sync --frozen --no-dev
+
+# Copy application code
+COPY . .
+
+# Create non-root user
+RUN useradd -m -u 1000 paracle && \
+    chown -R paracle:paracle /app
+USER paracle
+
+# Health check (placeholder - adjust based on worker implementation)
+HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
+    CMD echo "Worker health check placeholder" || exit 1
+
+# Run background worker
+CMD ["uv", "run", "python", "-m", "paracle_orchestration.worker"]

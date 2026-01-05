@@ -1,2 +1,26 @@
-"""Paracle CLI - Command Line Interface."""
+"""Paracle CLI - Command Line Interface.
+
+This package provides the Click-based CLI for Paracle:
+- Project initialization and governance (init, status, sync, validate)
+- Agent management (agents create, list, show)
+- Workflow management (workflow list, run, status, cancel)
+- Tool management (tools list, info, test, register)
+- Provider management (providers list, add, test)
+- API server (serve)
+- IDE integration (ide generate, sync)
+- Logging (logs recent, agent, clear)
+
+Usage:
+    paracle --help
+    paracle init
+    paracle agents list
+    paracle workflow run my-workflow
+"""
+
+from paracle_cli.main import cli
+
 __version__ = "0.0.1"
+
+__all__ = [
+    "cli",
+]

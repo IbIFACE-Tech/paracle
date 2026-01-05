@@ -253,7 +253,7 @@ def validate_inheritance_chain(
     def get_parent(name: str) -> AgentSpec | None:
         return specs.get(name)
 
-    for name, spec in specs.items():
+    for _name, spec in specs.items():
         try:
             resolve_inheritance(spec, get_parent, max_depth)
         except InheritanceError as e:

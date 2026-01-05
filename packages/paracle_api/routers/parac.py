@@ -9,6 +9,9 @@ Provides REST endpoints for .parac/ workspace governance:
 """
 
 from fastapi import APIRouter, HTTPException
+from paracle_core.parac.state import find_parac_root, load_state, save_state
+from paracle_core.parac.sync import ParacSynchronizer
+from paracle_core.parac.validator import ParacValidator
 
 from paracle_api.schemas.parac import (
     GitInfo,
@@ -24,9 +27,6 @@ from paracle_api.schemas.parac import (
     ValidationIssue,
     ValidationResponse,
 )
-from paracle_core.parac.state import find_parac_root, load_state, save_state
-from paracle_core.parac.sync import ParacSynchronizer
-from paracle_core.parac.validator import ParacValidator
 
 router = APIRouter(prefix="/parac", tags=["parac"])
 

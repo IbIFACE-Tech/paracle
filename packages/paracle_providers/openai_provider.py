@@ -1,7 +1,8 @@
 """OpenAI provider implementation."""
 
 import os
-from typing import Any, AsyncIterator
+from collections.abc import AsyncIterator
+from typing import Any
 
 try:
     from openai import AsyncOpenAI, OpenAIError, RateLimitError

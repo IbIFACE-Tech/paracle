@@ -1,14 +1,184 @@
 # Paracle v0.0.1 - Roadmap Canonique
-# Status: Active | Version: 1.0 | Verrouillable: true
+# Status: Active | Version: 1.1 | Verrouillable: true
 
 version: 0.0.1
-timeline: 17_weeks
+timeline: 32_weeks # Extended from 17 weeks
 status: in_progress
-current_phase: phase_1
-last_update: "2025-12-24"
+current_phase: phase_4
+last_update: "2026-01-05"
 
-# Recent Achievements (Phase 0 Extensions)
+# =============================================================================
+# PERSISTENCE STRATEGY (ADR-015)
+# =============================================================================
+persistence_strategy:
+  description: |
+    Hybrid persistence architecture with three layers:
+    1. YAML/Markdown files - Human-readable configs (source of truth for definitions)
+    2. SQLite/PostgreSQL - Runtime data (executions, events, audit)
+    3. ChromaDB/pgvector - Vector storage (RAG, memory, embeddings)
+
+  layers:
+    - id: file_layer
+      name: "YAML/Markdown Files"
+      scope: "Configuration & Definitions"
+      status: implemented
+      location: ".parac/"
+      contents:
+        - "Agent specifications (.parac/agents/specs/)"
+        - "Workflow definitions (.parac/workflows/)"
+        - "Tool configurations"
+        - "Governance state (roadmap, decisions)"
+        - "Project configuration"
+      benefits:
+        - "Human-readable and editable"
+        - "Git-friendly (version control)"
+        - "Declarative configuration"
+        - "Zero external dependencies"
+
+    - id: relational_layer
+      name: "SQLite → PostgreSQL"
+      scope: "Runtime Data"
+      status: implementing # Phase 4
+      versions:
+        v0.0.1: "SQLite (file-based, zero config)"
+        v0.5.0: "PostgreSQL option (scaling)"
+      contents:
+        - "Agent runtime instances"
+        - "Workflow executions and results"
+        - "Event history"
+        - "Audit logs (ISO 42001)"
+        - "Session data"
+      benefits:
+        - "ACID transactions"
+        - "Queryable history"
+        - "Scalable to production"
+
+    - id: vector_layer
+      name: "ChromaDB → pgvector"
+      scope: "AI-Native Storage"
+      status: planned # Phase 6
+      versions:
+        v0.5.0: "ChromaDB (embedded, simple)"
+        v0.7.0: "pgvector option (unified)"
+      contents:
+        - "Document embeddings (RAG)"
+        - "Agent memory"
+        - "Semantic code search"
+        - "Conversation history"
+      benefits:
+        - "Similarity search"
+        - "Context retrieval"
+        - "Long-term memory"
+
+  migration_path:
+    - version: "v0.0.1"
+      storage: "YAML + SQLite"
+      description: "Config in files, runtime in SQLite"
+    - version: "v0.1.0"
+      storage: "+ Event persistence"
+      description: "Persistent event store"
+    - version: "v0.5.0"
+      storage: "+ ChromaDB"
+      description: "RAG and embeddings"
+    - version: "v0.7.0"
+      storage: "+ PostgreSQL option"
+      description: "Production scaling"
+    - version: "v1.0.0"
+      storage: "+ pgvector"
+      description: "Unified relational + vector"
+
+# CLI Commands Roadmap Summary
+cli_roadmap:
+  total_commands: 75 # Increased from 45
+  implemented: 13
+  planned: 62 # Increased from 32
+
+  # Priority 0 - Essential (Phase 3-4)
+  p0_essential:
+    - command: paracle serve
+      status: implemented
+      phase: phase_3
+      description: "Start API server (FastAPI)"
+    - command: paracle agents create
+      status: planned
+      phase: phase_5
+      description: "Create agent from template"
+    - command: paracle agents run
+      status: planned
+      phase: phase_5
+      description: "Run agent interactively"
+
+  # Priority 1 - Core Features (Phase 2-4)
+  p1_core:
+    - paracle workflow list/run/status/cancel # Implemented
+    - paracle tools list/info/register/test # Implemented
+    - paracle providers list/add/test/default # Implemented
+
+  # Priority 2 - Developer Experience (Phase 4)
+  p2_devex:
+    - paracle dev
+    - paracle logs
+    - paracle events list/replay
+    - paracle config show/set/get/env
+
+  # Priority 3 - Execution Safety (Phase 5)
+  p3_safety:
+    - paracle sandbox create/list/cleanup
+    - paracle review list/approve/reject
+
+  # Priority 4 - Iteration & Profiles (Phase 6)
+  p4_iteration:
+    - paracle workflow retry/continue
+    - paracle profiles list/create
+    - paracle agents switch-model
+
+  # Priority 5 - Git Integration (Phase 7)
+  p5_git:
+    - paracle git init/branches/merge/pr-create/cleanup
+
+  # Priority 6 - Monitoring & Templates (Phase 8)
+  p6_monitoring:
+    - paracle stream/pause/resume
+    - paracle init --template
+    - paracle templates list
+    - paracle history compare
+
+  # Priority 7 - Notifications (Phase 9)
+  p7_notifications:
+    - paracle notify configure
+    - paracle alerts list
+    - paracle replay
+    - paracle compare
+    - paracle cost report
+
+# Recent Achievements
 recent_achievements:
+  - id: phase_4_api_cli
+    name: "Phase 4 API & CLI Enhancement"
+    completed: "2026-01-04"
+    impact: critical
+    description: |
+      Comprehensive API server with security, CLI commands, and MCP integration.
+      613 tests passing, 87.5% coverage.
+    deliverables:
+      - REST API with 47 endpoints
+      - JWT authentication
+      - Rate limiting and security headers
+      - Workflow execution endpoints
+      - CLI commands for workflow, tools, providers
+
+  - id: package_uniformization
+    name: "Package Uniformization"
+    completed: "2026-01-04"
+    impact: medium
+    description: |
+      Standardized all package __init__.py files with proper exports.
+      Unified exception handling with error codes.
+    deliverables:
+      - Consistent __all__ exports
+      - Error codes (PARACLE-XXX-NNN)
+      - Removed empty directories
+
   - id: phase_0_foundation
     name: "Phase 0 Foundation Complete"
     completed: "2025-12-24"
@@ -23,58 +193,79 @@ recent_achievements:
       - Basic documentation
       - Hello world CLI
 
-  - id: agent_skills_system
-    name: "Agent Skills System"
-    completed: "2025-12-24"
-    impact: high
-    description: |
-      Dual format support (YAML + SKILL.md) with Agent Skills standard compliance.
-      5 built-in skills + 2 framework development skills created.
-    deliverables:
-      - templates/.parac-template/agents/skills/ (user skills)
-      - .parac/agents/skills/ (framework skills)
-      - Dual format loader design
-
-  - id: ai_ide_instructions
-    name: "AI IDE Instructions"
-    completed: "2025-12-24"
-    impact: high
-    description: |
-      9 IDE-specific instruction files for Paracle configuration.
-      All files include comprehensive Agent Skills documentation.
-    deliverables:
-      - templates/ai-instructions/ (9 files)
-      - Skills integration across all IDEs
-
-  - id: user_templates
-    name: "User Templates"
-    completed: "2025-12-24"
-    impact: medium
-    description: |
-      Complete .parac-template with 15+ configuration files.
-      Ready-to-use templates for end users.
-    deliverables:
-      - templates/.parac-template/ (complete structure)
-
-  - id: claude_code_config
-    name: "Claude Code Configuration"
-    completed: "2025-12-24"
-    impact: high
-    description: |
-      Production-grade Claude Code configuration with senior architect mode.
-      Multi-perspective analysis, anti-hallucination protocol, session management.
-    deliverables:
-      - .claude/CLAUDE.md (architect mode)
-      - .claude/settings.json (extended permissions)
-      - .claude/rules/ (7 rule files)
-
 # Global Metrics (Aligned with ROADMAP_GLOBALE)
 metrics:
   time_to_first_agent: "<5min"
-  test_coverage: ">90%"
+  test_coverage: ">87%"
   documentation_coverage: "100%"
   api_response_p95: "<500ms"
   breaking_changes: 0
+  tests_passing: 613
+
+# New Capabilities Roadmap (Community Edition)
+new_capabilities:
+  execution_safety:
+    description: "Production-grade execution isolation and safety"
+    features:
+      - Docker-based sandboxing
+      - Resource limits and monitoring
+      - Automatic rollback mechanisms
+      - Artifact review and approval workflow
+    target_version: "v0.1.0"
+
+  iterative_execution:
+    description: "AI-friendly retry and refinement workflows"
+    features:
+      - Follow-up execution with feedback
+      - Human-in-the-loop workflows
+      - Conditional retry logic
+      - Context accumulation across attempts
+    target_version: "v0.1.0"
+
+  agent_profiles:
+    description: "Flexible agent configuration management"
+    features:
+      - Multiple profiles per agent (variants)
+      - Model switching per task type
+      - Permission levels and autonomy settings
+      - Context templates per profile
+    target_version: "v0.1.0"
+
+  git_integration:
+    description: "Version control for AI-generated changes"
+    features:
+      - Branch per execution
+      - Automatic commits and audit trail
+      - PR/MR generation
+      - Conflict resolution
+    target_version: "v0.2.0"
+
+  realtime_monitoring:
+    description: "Live execution visibility and control"
+    features:
+      - WebSocket streaming API
+      - Pause/resume/cancel controls
+      - Progress indicators
+      - Resource monitoring
+    target_version: "v0.2.0"
+
+  templates_quickstart:
+    description: "Accelerated project setup"
+    features:
+      - Pre-built workflow templates
+      - Quick-start wizards
+      - Example gallery
+      - Agent packs
+    target_version: "v0.2.0"
+
+  advanced_features:
+    description: "Enterprise-grade observability"
+    features:
+      - Multi-channel notifications
+      - Time travel debugging
+      - A/B testing for agent configs
+      - Comprehensive cost tracking
+    target_version: "v0.2.0"
 
 # Phases
 phases:
@@ -100,19 +291,20 @@ phases:
   - id: phase_1
     name: "Core Domain"
     duration: 3_weeks
-    status: in_progress
+    status: completed
     started_date: "2025-12-24"
+    completed_date: "2026-01-02"
     priority: critical
-    completion: 0%
+    completion: 100%
     deliverables:
       - domain_models
-      - persistence_layer
+      - in_memory_persistence
       - event_bus
       - agent_inheritance
       - repository_pattern
     focus_areas:
       - "Agent inheritance resolution algorithm"
-      - "Repository pattern + SQLite persistence"
+      - "Repository pattern (in-memory)"
       - "Event bus implementation"
       - "80%+ test coverage"
       - "Full CRUD operations"
@@ -120,8 +312,10 @@ phases:
   - id: phase_2
     name: "Multi-Provider & Multi-Framework"
     duration: 4_weeks
-    status: planned
+    status: completed
+    completed_date: "2026-01-02"
     priority: high
+    completion: 100%
     deliverables:
       - llm_abstraction
       - provider_adapters
@@ -132,38 +326,228 @@ phases:
   - id: phase_3
     name: "Orchestration & API"
     duration: 4_weeks
-    status: planned
+    status: completed
+    completed_date: "2026-01-04"
     priority: high
+    completion: 100%
     deliverables:
       - workflow_orchestrator
       - rest_api
-      - websocket_support
-      - monitoring
       - authentication
+      - state_management_rollback
+      - security_middleware
 
   - id: phase_4
-    name: "Production Scale"
+    name: "Persistence & Production Scale"
+    duration: 3_weeks
+    status: in_progress
+    priority: high
+    completion: 30%
+    deliverables:
+      - sqlite_persistence
+      - database_migrations
+      - storage_configuration
+      - performance_optimization
+      - observability
+      - error_management_hardening
+    focus_areas:
+      - "SQLite persistence layer"
+      - "Alembic migrations"
+      - "Storage configuration system"
+      - "Repository SQLite implementations"
+    cli_commands:
+      planned:
+        - paracle logs # Stream logs
+        - paracle events list # Show recent events
+        - paracle config show # Show configuration
+        - paracle health # Health check
+
+  - id: phase_5
+    name: "Execution Safety & Isolation"
+    duration: 3_weeks
+    status: planned
+    priority: high
+    completion: 0%
+    deliverables:
+      - sandbox_execution
+      - docker_isolation
+      - resource_limits
+      - rollback_mechanisms
+      - artifact_review_system
+    focus_areas:
+      - "Docker-based agent sandboxing"
+      - "Resource limits (CPU, memory, timeout)"
+      - "Filesystem isolation per execution"
+      - "Automatic rollback on failure"
+      - "Artifact review and approval workflow (API)"
+    cli_commands:
+      planned:
+        - paracle sandbox create # Create isolated environment
+        - paracle sandbox list # List active sandboxes
+        - paracle sandbox cleanup # Clean up sandboxes
+        - paracle review list # List pending reviews
+        - paracle review approve # Approve artifact changes
+        - paracle review reject # Reject with feedback
+
+  - id: phase_6
+    name: "Iterative Execution & Agent Profiles"
+    duration: 3_weeks
+    status: planned
+    priority: high
+    completion: 0%
+    deliverables:
+      - execution_chains
+      - follow_up_mechanism
+      - agent_profiles
+      - human_in_the_loop
+      - conditional_retry
+    focus_areas:
+      - "Follow-up execution with feedback loop"
+      - "Agent configuration profiles (variants)"
+      - "Human-in-the-loop workflows (pause/review/continue)"
+      - "Conditional retry based on validation"
+      - "Context accumulation across attempts"
+      - "Model switching per task type"
+    cli_commands:
+      planned:
+        - paracle workflow retry # Retry with feedback
+        - paracle workflow continue # Continue paused workflow
+        - paracle profiles list # List agent profiles
+        - paracle profiles create # Create profile variant
+        - paracle agents switch-model # Switch LLM mid-workflow
+
+  - id: phase_7
+    name: "Git Integration & Change Tracking"
     duration: 3_weeks
     status: planned
     priority: medium
+    completion: 0%
     deliverables:
-      - horizontal_scaling
-      - caching_layer
-      - performance_optimization
-      - observability
-      - deployment_guides
+      - git_workflow_manager
+      - branch_per_execution
+      - automatic_commits
+      - merge_request_generation
+      - conflict_resolution
+    focus_areas:
+      - "Git-backed workflow execution"
+      - "Branch per execution for isolation"
+      - "Automatic commit of agent changes"
+      - "GitHub/GitLab MR/PR generation"
+      - "Conflict resolution for concurrent executions"
+      - "Audit trail via git history"
+    cli_commands:
+      planned:
+        - paracle git init # Initialize git workflow
+        - paracle git branches # List execution branches
+        - paracle git merge # Merge execution branch
+        - paracle git pr-create # Create pull request
+        - paracle git cleanup # Cleanup merged branches
 
-  - id: phase_5
-    name: "Polish & Release"
+  - id: phase_8
+    name: "Real-time Monitoring & Templates"
+    duration: 2_weeks
+    status: planned
+    priority: medium
+    completion: 0%
+    deliverables:
+      - websocket_streaming
+      - process_control
+      - workflow_templates
+      - quick_start_wizards
+      - execution_history
+    focus_areas:
+      - "WebSocket API for live execution streaming"
+      - "Pause/resume/cancel workflow controls"
+      - "Progress indicators and resource monitoring"
+      - "Pre-built workflow templates (RAG, multi-agent, etc.)"
+      - "Quick-start wizards for common patterns"
+      - "Execution versioning and comparison"
+    cli_commands:
+      planned:
+        - paracle stream # Stream live execution logs
+        - paracle pause # Pause running workflow
+        - paracle resume # Resume paused workflow
+        - paracle init --template # Initialize from template
+        - paracle templates list # List available templates
+        - paracle history compare # Compare execution versions
+
+  - id: phase_9
+    name: "Notifications & Advanced Features"
+    duration: 2_weeks
+    status: planned
+    priority: low
+    completion: 0%
+    deliverables:
+      - notification_system
+      - multi_channel_alerts
+      - time_travel_debugging
+      - ab_testing
+      - cost_tracking
+    focus_areas:
+      - "Multi-channel notifications (email, Slack, webhook)"
+      - "Smart alerts (anomaly detection, cost thresholds)"
+      - "Agent escalation on errors"
+      - "Time travel debugging (replay executions)"
+      - "A/B testing for agent configurations"
+      - "Comprehensive cost tracking and reporting"
+    cli_commands:
+      planned:
+        - paracle notify configure # Configure notification channels
+        - paracle alerts list # List active alerts
+        - paracle replay # Replay past execution
+        - paracle compare # A/B test agent configs
+        - paracle cost report # Generate cost report
+
+  - id: phase_10
+    name: "Polish & v0.1.0 Release"
     duration: 2_weeks
     status: planned
     priority: high
     deliverables:
       - comprehensive_docs
-      - video_tutorials
       - migration_guides
       - security_audit
-      - v0_0_1_release
+      - performance_benchmarks
+      - v0_1_0_release
+
+# Persistence Implementation Details (Phase 4)
+persistence_implementation:
+  sqlite:
+    package: "paracle_store"
+    files:
+      - "packages/paracle_store/database.py"
+      - "packages/paracle_store/models.py"
+      - "packages/paracle_store/sqlite_repository.py"
+      - "packages/paracle_store/migrations/"
+    tables:
+      - agents: "Agent instances and status"
+      - workflows: "Workflow definitions"
+      - executions: "Workflow execution history"
+      - events: "Event log"
+      - audit: "Audit trail for ISO 42001"
+      - sessions: "Work session data"
+
+  configuration:
+    file: "packages/paracle_core/storage.py"
+    model: "StorageConfig"
+    options:
+      - workspace_path: "Path to .parac/ (default: .parac)"
+      - database_url: "SQLite or PostgreSQL URL"
+      - vector_store: "none | chroma | pgvector"
+
+# Error Management Roadmap
+error_management:
+  current_state: "production_ready"
+  rating: "8/10"
+
+  # Implemented (Phase 0-4)
+  implemented:
+    - layer_specific_exceptions: "All packages have exceptions.py with error codes"
+    - error_codes: "PARACLE-XXX-NNN format across all packages"
+    - rfc_7807: "Problem Details in API responses"
+    - exception_chaining: "Proper __cause__ usage"
+    - structured_logging: "Correlation IDs, audit trail"
+    - retry_logic: "RetryableProvider with exponential backoff"
 
 # Dependencies
 dependencies:
@@ -172,6 +556,11 @@ dependencies:
   phase_3: [phase_2]
   phase_4: [phase_3]
   phase_5: [phase_4]
+  phase_6: [phase_5]
+  phase_7: [phase_6]
+  phase_8: [phase_5, phase_6] # Can run parallel with phase_7
+  phase_9: [phase_8]
+  phase_10: [phase_7, phase_9]
 
 # Success Criteria
 success_criteria:
@@ -180,9 +569,45 @@ success_criteria:
   - stable_api
   - comprehensive_tests
   - production_ready_architecture
+  - persistent_storage
 
 # Link to Global Roadmap
 global_roadmap:
   reference: ".roadmap/ROADMAP_GLOBALE.yaml"
-  scope: "v0.0.1 (Phases 0-5)"
+  scope: "v0.0.1 - v0.2.0 (Phases 0-10)"
+  community_edition: "Phases 0-10 (no UI/dashboard)"
+  enterprise_edition: "Adds visual dashboard, team collaboration UI"
   future_phases: "v0.5.0 - v1.0.0 defined in global roadmap"
+
+# Edition Differentiation
+editions:
+  community:
+    description: "Full-featured CLI and API for programmatic control"
+    includes:
+      - "All core framework features"
+      - "Execution safety and isolation"
+      - "Iterative workflows and agent profiles"
+      - "Git integration"
+      - "Real-time monitoring (API/WebSocket)"
+      - "Templates and quick-start"
+      - "Notifications and alerts"
+      - "Cost tracking and reporting"
+    excludes:
+      - "Web UI dashboard"
+      - "Visual workflow builder"
+      - "Kanban board interface"
+      - "Graphical code review UI"
+    target_users: "Developers, DevOps, CLI power users"
+
+  enterprise:
+    description: "Community + visual interfaces for team collaboration"
+    additional_features:
+      - "React-based web dashboard"
+      - "Visual workflow builder (drag-and-drop)"
+      - "Kanban board for workflow management"
+      - "Graphical diff viewer"
+      - "Team collaboration features"
+      - "Role-based access control (RBAC)"
+      - "Multi-tenant support"
+    target_users: "Teams, enterprises, non-technical stakeholders"
+    target_version: "v1.0.0+"

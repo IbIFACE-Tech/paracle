@@ -1,6 +1,7 @@
 """Ollama provider for local LLM models."""
 
-from typing import Any, AsyncIterator
+from collections.abc import AsyncIterator
+from typing import Any
 
 try:
     import httpx

@@ -1,10 +1,11 @@
 """Anthropic provider implementation."""
 
 import os
-from typing import Any, AsyncIterator
+from collections.abc import AsyncIterator
+from typing import Any
 
 try:
-    from anthropic import AsyncAnthropic, AnthropicError, RateLimitError
+    from anthropic import AnthropicError, AsyncAnthropic, RateLimitError
 except ImportError:
     raise ImportError(
         "anthropic package is required for Anthropic provider. "

@@ -31,7 +31,10 @@ class TestCLI:
         assert "test-agent" in result.output
 
     def test_workflow_run_placeholder(self) -> None:
-        """Test workflow run placeholder."""
+        """Test workflow run command (requires API, so expects failure without server)."""
         result = self.runner.invoke(cli, ["workflow", "run", "test-workflow"])
-        assert result.exit_code == 0
-        assert "test-workflow" in result.output
+        # Without API server running, the command fails
+        # This is expected behavior - it needs a running API to execute workflows
+        assert result.exit_code == 1
+        # The unavailable message should be shown
+        assert "unavailable" in result.output.lower()

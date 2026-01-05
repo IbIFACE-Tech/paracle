@@ -5,10 +5,8 @@ Request and response models for creating, updating, and deleting agents.
 
 from datetime import datetime
 
+from paracle_domain.models import AgentSpec, EntityStatus
 from pydantic import BaseModel, Field
-
-from paracle_domain.models import AgentSpec, AgentStatus, EntityStatus
-
 
 # =============================================================================
 # Agent Creation

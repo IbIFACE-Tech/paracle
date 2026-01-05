@@ -5,10 +5,8 @@ Request and response models for creating, updating, and deleting tools.
 
 from datetime import datetime
 
-from pydantic import BaseModel, Field
-
 from paracle_domain.models import ToolSpec
-
+from pydantic import BaseModel, Field
 
 # =============================================================================
 # Tool Creation

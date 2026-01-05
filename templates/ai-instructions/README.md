@@ -1,8 +1,8 @@
 # AI IDE Instructions for Paracle
 
-This directory contains **lightweight adapter files** for various AI-powered IDEs. These files are designed to point assistants to `.parac/` as the single source of truth.
+Lightweight adapter files for AI-powered IDEs. All point to `.parac/` as the **single source of truth**.
 
-## 🎯 Architecture Principle
+## Architecture Principle
 
 > **Write agents once in `.parac/`, use everywhere with any IDE.**
 
@@ -11,51 +11,36 @@ This directory contains **lightweight adapter files** for various AI-powered IDE
     ├── pm.md
     ├── architect.md
     ├── coder.md
-    └── ...
+    ├── tester.md
+    ├── reviewer.md
+    └── documenter.md
 
          ↑ referenced by
 
-.cursorrules                  ← Lightweight adapter (Cursor)
-.clinerules                   ← Lightweight adapter (Cline)
-.windsurfrules                ← Lightweight adapter (Windsurf)
-.github-copilot.md           ← Lightweight adapter (Copilot)
-.claude-instructions.md      ← Lightweight adapter (Claude)
+.cursorrules                  ← Adapter (Cursor)
+.clinerules                   ← Adapter (Cline)
+.windsurfrules                ← Adapter (Windsurf)
+.github-copilot.md            ← Adapter (GitHub Copilot)
+.paracle                      ← Universal adapter
 ```
 
-**No duplication.** Change IDE = change adapter file only.
+**No duplication.** Change IDE = copy different adapter file.
 
-## 📋 Available Adapters
+## Available Adapters
 
-### New Lightweight Templates (Recommended)
+| File | IDE/AI | Description |
+|------|--------|-------------|
+| `.cursorrules` | Cursor | Cursor IDE instructions |
+| `.clinerules` | Cline | Cline extension |
+| `.windsurfrules` | Windsurf | Windsurf IDE |
+| `.github-copilot.md` | GitHub Copilot | Copilot Chat |
+| `.google-gemini.md` | Google Gemini | Gemini AI |
+| `.deepseek-coder.md` | DeepSeek | DeepSeek Coder |
+| `.kimi-k2.md` | Kimi K2 | Bilingual CN/EN |
+| `.mistral-codestral.md` | Mistral Codestral | Code-focused |
+| `.paracle` | Universal | Any AI assistant |
 
-- `.cursorrules-new` - Cursor IDE (points to `.parac/`)
-- `.clinerules-new` - Cline (points to `.parac/`)
-- `.windsurfrules-new` - Windsurf (points to `.parac/`)
-- `.claude-instructions-new.md` - Claude (points to `.parac/`)
-
-### Legacy Templates (Framework-Specific)
-
-- `.cursorrules` - Old format with duplicated definitions
-- `.clinerules` - Old format
-- `.windsurfrules` - Old format
-- `.github-copilot.md` - Old format
-- `.deepseek-coder.md` - Old format
-
-**Note**: Legacy templates will be deprecated. Use new templates that reference `.parac/`.
-
-## 🎯 Purpose
-
-These adapter files help AI assistants:
-
-1. **Find `.parac/`** - Know where to read project context
-2. **Load Agents** - Read agent specs from `.parac/agents/specs/`
-3. **Follow Governance** - Apply rules from `.parac/GOVERNANCE.md`
-4. **Access Memory** - Use project memory from `.parac/memory/`
-5. **Log Actions** - Write to `.parac/memory/logs/`
-
-**They do NOT duplicate agent definitions.**
-
-## 🚀 Usage
+## Usage
 
 ### For New Projects
 
@@ -64,16 +49,16 @@ These adapter files help AI assistants:
 
 ```bash
 # For Cursor IDE
-cp templates/ai-instructions/.cursorrules-new .cursorrules
+cp templates/ai-instructions/.cursorrules .cursorrules
 
 # For Cline
-cp templates/ai-instructions/.clinerules-new .clinerules
+cp templates/ai-instructions/.clinerules .clinerules
 
 # For Windsurf
-cp templates/ai-instructions/.windsurfrules-new .windsurfrules
+cp templates/ai-instructions/.windsurfrules .windsurfrules
 
-# For Claude
-cp templates/ai-instructions/.claude-instructions-new.md .claude/instructions.md
+# For GitHub Copilot (place in .github/)
+cp templates/ai-instructions/.github-copilot.md .github/copilot-instructions.md
 ```
 
 3. The AI assistant will automatically read `.parac/` for agents and context
@@ -83,31 +68,51 @@ cp templates/ai-instructions/.claude-instructions-new.md .claude/instructions.md
 **No rewriting needed!** Just copy the new adapter:
 
 ```bash
-# Switch from Cursor to Copilot
+# Switch from Cursor to Cline
 rm .cursorrules
-cp .github/copilot-instructions.md .github/copilot-instructions.md
+cp templates/ai-instructions/.clinerules .clinerules
 
-# .parac/agents/specs/ remains unchanged
+# .parac/agents/specs/ remains unchanged!
 ```
 
-## 💡 Key Benefits
+## What Each Adapter Does
 
-### ✅ Write Once, Use Everywhere
+All adapters instruct the AI to:
 
-Define agents in `.parac/agents/specs/` once:
+1. **Read `.parac/`** - Find project context and state
+2. **Load Agents** - Read specs from `.parac/agents/specs/`
+3. **Follow Governance** - Apply rules from `.parac/GOVERNANCE.md`
+4. **Log Actions** - Use `paracle_core.governance.log_action()`
+5. **Update Memory** - Propose updates to `.parac/` files
 
-- `pm.md` - Project Manager
-- `architect.md` - System Architect
-- `coder.md` - Developer
-- `tester.md` - QA Engineer
-- `reviewer.md` - Code Reviewer
-- `documenter.md` - Technical Writer
+## Governance Logging
 
-**All IDEs use the same definitions.**
+All adapters include instructions for logging actions:
 
-### ✅ Easy Maintenance
+```python
+from paracle_core.governance import log_action, agent_context
 
-Update an agent:
+with agent_context("CoderAgent"):
+    log_action("IMPLEMENTATION", "Added new feature X")
+```
+
+### Action Types
+
+- `IMPLEMENTATION` - New code
+- `TEST` - Tests
+- `BUGFIX` - Bug fixes
+- `REFACTORING` - Code improvements
+- `REVIEW` - Code review
+- `DOCUMENTATION` - Docs
+- `DECISION` - Architecture decisions
+
+## Benefits
+
+### Write Once, Use Everywhere
+
+Define agents in `.parac/agents/specs/` once. All IDEs use the same definitions.
+
+### Easy Maintenance
 
 ```bash
 # Edit agent definition once
@@ -117,18 +122,11 @@ vim .parac/agents/specs/coder.md
 # No sync needed!
 ```
 
-### ✅ Consistent Behavior
+### Consistent Behavior
 
-Same agents + same context = consistent behavior across:
+Same agents + same context = consistent behavior across all IDEs.
 
-- Cursor
-- Cline
-- Windsurf
-- GitHub Copilot
-- Claude
-- Any future IDE
-
-### ✅ Shared Memory
+### Shared Memory
 
 All assistants read from `.parac/`:
 
@@ -137,153 +135,32 @@ All assistants read from `.parac/`:
 - Same decisions
 - Same action history
 
-## 📖 How It Works
+## Dogfooding Context
 
-### Traditional Approach (❌ Bad)
-
-```
-.cursorrules       ← 500 lines with agent definitions
-.copilot.md        ← 500 lines with SAME agent definitions
-.claude.md         ← 500 lines with SAME agent definitions
-
-Result: 3x duplication, hard to maintain
-```
-
-### PARACLE Approach (✅ Good)
+This project uses Paracle to build Paracle:
 
 ```
-.parac/agents/specs/coder.md    ← SINGLE definition (100 lines)
-    ↑
-    Referenced by:
-    - .cursorrules              ← Adapter (50 lines)
-    - .copilot.md              ← Adapter (50 lines)
-    - .claude.md               ← Adapter (50 lines)
-
-Result: No duplication, easy maintenance
+packages/   ← Framework code (product)
+.parac/     ← Project workspace (dogfooding)
 ```
 
-## 🎓 For IDE Adapter Developers
+## Contributing
 
-When creating a new adapter file:
+When creating a new adapter:
 
-### ✅ DO
+**DO:**
 
 - Point to `.parac/` as source of truth
-- Explain how to read `.parac/agents/specs/`
-- Include IDE-specific features (shortcuts, commands)
-- Keep it short (< 200 lines)
-- Reference `.github/copilot-instructions.md` for details
+- Include governance logging instructions
+- Keep it short (< 100 lines ideal)
+- Add IDE-specific features
 
-### ❌ DON'T
+**DON'T:**
 
 - Duplicate agent definitions
 - Copy governance rules
-- Replicate roadmap or memory
-- Create your own standards
-- Make it IDE-agnostic (be specific!)
-
-## 📚 Resources
-
-- **Architecture Guide**: `.github/instructions/ai-instructions-architecture.md`
-- **Dogfooding Context**: `.github/instructions/dogfooding-clarification.md`
-- **Complete Instructions**: `.github/copilot-instructions.md`
-- **Governance**: `.parac/GOVERNANCE.md`
-
-## 🔄 Migration from Old Templates
-
-If you have old-style instructions with duplicated agents:
-
-1. Move agent definitions to `.parac/agents/specs/`
-2. Replace old instructions with new adapter template
-3. Test that AI reads `.parac/` correctly
-4. Delete old duplicated content
-
-See `.github/instructions/ai-instructions-architecture.md` for migration guide.
+- Create custom standards
 
 ---
 
 **Remember**: `.parac/` is the source, adapters are just pointers.
-
-- **Cursor**: Looks for `.cursorrules`
-- **Cline**: Looks for `.clinerules`
-- **Windsurf**: Looks for `.windsurfrules`
-- **GitHub Copilot**: Reference `.github-copilot.md` in your docs
-- **Others**: Use the markdown files as reference documentation
-
-## 📝 What's Included
-
-Each instruction file covers:
-
-### 1. `.parac` Structure Understanding
-- Directory organization
-- File purposes and relationships
-- Schema versions and validation
-
-### 2. Configuration Management
-- Project settings (`project.yaml`)
-- Agent specifications (`agents/`)
-- Workflow definitions (`workflows/`)
-- Tool registry (`tools/`)
-- Security policies (`policies/`)
-
-### 3. Best Practices
-- Naming conventions
-- YAML formatting
-- Security considerations
-- Version control
-
-### 4. Common Operations
-- Creating new agents
-- Defining workflows
-- Configuring providers
-- Managing tools and policies
-
-### 5. Validation Rules
-- Schema compliance
-- Required fields
-- Value constraints
-- Cross-reference validation
-
-## 🔧 Customization
-
-You can customize these files for your specific project:
-
-1. Copy the file to your project root
-2. Edit to add project-specific rules
-3. Add custom conventions or requirements
-4. Reference internal documentation
-
-Example additions:
-
-```yaml
-# In .cursorrules or similar
-custom_rules:
-  - "All agents must have a 'cost_tier' field"
-  - "Use 'gpt-4' for production, 'gpt-3.5-turbo' for development"
-  - "Security policies must be reviewed by @security-team"
-```
-
-## 🎓 Learning Resources
-
-For more information about `.parac` configuration:
-
-- [Template Documentation](../.parac-template/README.md)
-- [Getting Started Guide](../../docs/getting-started.md)
-- [Architecture Documentation](../../docs/architecture.md)
-
-## 🤝 Contributing
-
-Improvements to these AI instructions are welcome:
-
-1. Test with your AI IDE
-2. Identify gaps or issues
-3. Submit improvements via PR
-4. Share your customizations
-
-## 📜 License
-
-These instruction files are part of Paracle and licensed under Apache 2.0.
-
----
-
-**Note**: AI assistants are helpers, not replacements for understanding Paracle's architecture. Always review AI-generated code and configurations.

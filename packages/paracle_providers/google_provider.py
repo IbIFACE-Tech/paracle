@@ -1,7 +1,8 @@
 """Google Gemini provider implementation."""
 
 import os
-from typing import Any, AsyncIterator
+from collections.abc import AsyncIterator
+from typing import Any
 
 try:
     import google.generativeai as genai
@@ -22,7 +23,6 @@ from paracle_providers.base import (
 from paracle_providers.exceptions import (
     LLMProviderError,
     ProviderAuthenticationError,
-    ProviderRateLimitError,
 )
 
 

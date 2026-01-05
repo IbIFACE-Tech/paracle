@@ -3,9 +3,9 @@
 Provides HTTP client helpers for calling the Paracle API.
 """
 
-import httpx
 from typing import Any
 
+import httpx
 
 DEFAULT_API_URL = "http://localhost:8000"
 DEFAULT_TIMEOUT = 5.0  # seconds
@@ -100,7 +100,8 @@ def log_action_via_api(
     if response is None:
         # API not available, try fallback to direct logging
         try:
-            from paracle_core.parac.logger import ActionType, AgentType, log_action as direct_log
+            from paracle_core.parac.logger import ActionType, AgentType
+            from paracle_core.parac.logger import log_action as direct_log
 
             # Convert strings to enums
             action_type = ActionType(action)

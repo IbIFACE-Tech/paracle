@@ -3,7 +3,7 @@
 from abc import ABC, abstractmethod
 from typing import Any
 
-from paracle_domain.models import Agent, AgentSpec, Workflow, WorkflowSpec
+from paracle_domain.models import AgentSpec, WorkflowSpec
 
 
 class FrameworkAdapter(ABC):

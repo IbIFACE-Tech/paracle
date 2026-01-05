@@ -137,7 +137,7 @@ class ParacSynchronizer:
             repo["branch"] = git_info.branch
 
         if repo.get("last_commit") != git_info.last_commit:
-            changes.append(f"last_commit updated")
+            changes.append("last_commit updated")
             repo["last_commit"] = git_info.last_commit
 
         repo["has_uncommitted_changes"] = git_info.has_uncommitted_changes

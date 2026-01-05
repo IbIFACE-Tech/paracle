@@ -4,19 +4,19 @@ This document tracks unresolved questions and decisions pending.
 
 ## Summary
 
-| ID | Question | Owner | Priority | Deadline | Status |
-|----|----------|-------|----------|----------|--------|
-| Q1 | Agent Inheritance Depth Limit | Architect | High | Phase 1 End | Open |
-| Q2 | Event Store Implementation | Architect | Medium | Phase 1 End | Open |
-| Q3 | API Versioning Strategy | Architect | Low | Phase 2 End | Open |
-| Q4 | Tool Calling Interface | Architect | High | Phase 2 End | Open |
-| Q5 | Memory Management Strategy | Architect | Medium | Phase 2 End | Open |
-| Q6 | Deployment Strategy | PM | Low | Phase 4 End | Open |
-| Q7 | Observability Stack | Architect | Medium | Phase 4 End | Open |
-| Q8 | Contribution Guidelines | PM | Low | Phase 1 End | Open |
-| Q9 | Documentation Hosting | Documenter | Low | Phase 5 End | Open |
-| Q10 | API Middlewares Stack | Architect | High | Phase 3 End | Open |
-| Q11 | ISO 42001 Compliance Strategy | Architect | High | Phase 4 End | Open |
+| ID  | Question                      | Owner      | Priority | Deadline    | Status       |
+| --- | ----------------------------- | ---------- | -------- | ----------- | ------------ |
+| Q1  | Agent Inheritance Depth Limit | Architect  | High     | Phase 1 End | Open         |
+| Q2  | Event Store Implementation    | Architect  | Medium   | Phase 1 End | Open         |
+| Q3  | API Versioning Strategy       | Architect  | Low      | Phase 2 End | Open         |
+| Q4  | Tool Calling Interface        | Architect  | High     | Phase 2 End | **Resolved** |
+| Q5  | Memory Management Strategy    | Architect  | Medium   | Phase 2 End | Open         |
+| Q6  | Deployment Strategy           | PM         | Low      | Phase 4 End | Open         |
+| Q7  | Observability Stack           | Architect  | Medium   | Phase 4 End | Open         |
+| Q8  | Contribution Guidelines       | PM         | Low      | Phase 1 End | Open         |
+| Q9  | Documentation Hosting         | Documenter | Low      | Phase 5 End | Open         |
+| Q10 | API Middlewares Stack         | Architect  | High     | Phase 3 End | **Resolved** |
+| Q11 | ISO 42001 Compliance Strategy | Architect  | High     | Phase 4 End | **Resolved** |
 
 ---
 
@@ -104,10 +104,13 @@ This document tracks unresolved questions and decisions pending.
 
 ### Q4: Tool Calling Interface
 
-**Status:** Open
+**Status:** ✅ **Resolved**
 **Priority:** High
 **Owner:** Architect Agent
 **Deadline:** End of Phase 2 (Week 8)
+**Resolved Date:** 2026-01-04
+**Decision:** ADR-004 - Hybrid Built-in + MCP Architecture
+
 **Context:** How should agents call tools?
 **Options:**
 
@@ -124,7 +127,15 @@ This document tracks unresolved questions and decisions pending.
 
 **Recommendation:** Hybrid - Internal tools + MCP for external
 
-**Decision Needed By:** End of Phase 2
+**DECISION (2026-01-04):**
+Implemented **Hybrid Built-in + MCP architecture** with 3 tiers:
+- **Tier 1**: 9 built-in tools (filesystem, HTTP, shell) - zero dependencies
+- **Tier 2**: MCP integration for external tools
+- **Tier 3**: Custom tools via `Tool` protocol
+
+Security: All tools require explicit configuration (no defaults), sandboxing via `allowed_paths`/`allowed_commands`, audit logging.
+
+See: [ADR-004](../../roadmap/decisions.md#adr-004-tool-calling-interface---hybrid-built-in--mcp)
 
 ---
 
@@ -210,23 +221,59 @@ This document tracks unresolved questions and decisions pending.
 
 ### Q10: API Middlewares Stack
 
-**Status:** Open
+**Status:** ✅ **Resolved**
 **Priority:** High
 **Owner:** Architect Agent
 **Deadline:** End of Phase 3 (Week 12)
+**Resolved Date:** 2026-01-04
+**Decision:** ADR-010 - Layered Middleware Stack
+
 **Context:** Production-grade API requires proper middleware chain for observability, security, and compliance.
+
+**DECISION (2026-01-04):**
+Implemented **layered middleware stack** (order matters - first added = last executed):
+
+1. **SecurityHeadersMiddleware** (Outermost)
+   - OWASP security headers: HSTS, CSP, X-Frame-Options, X-XSS-Protection
+   - Referrer-Policy, Permissions-Policy
+   - Production HSTS enforcement
+
+2. **CORSMiddleware**
+   - Configurable origins via `SecurityConfig`
+   - Credential support (environment-specific)
+   - Rate limit headers exposed
+
+3. **RequestLoggingMiddleware** (Innermost)
+   - Correlation ID generation (X-Correlation-ID)
+   - Request/response logging with timing
+   - ISO 42001 audit trail
+   - Error context capture
+
+4. **Rate Limiting** (Dependency Injection, not middleware)
+   - Per-client IP sliding window
+   - Burst protection
+   - Automatic blocking on abuse
+   - Why DI: Selective application, per-endpoint limits, better testing
+
+5. **Authentication** (Dependency Injection)
+   - OAuth2 JWT tokens
+   - Why DI: Selective protection, better FastAPI integration
+
+**Configuration:** Centralized in `paracle_api.security.config.SecurityConfig`
+
+See: [ADR-010](../../roadmap/decisions.md#adr-010-api-middlewares-stack)
 
 **Required Middlewares:**
 
-| Middleware | Purpose | Priority | Phase |
-|------------|---------|----------|-------|
-| RequestID | Correlation ID for tracing | Critical | 3 |
-| Logging | Structured JSON logging | Critical | 3 |
-| Timing | Response time metrics | High | 3 |
-| ErrorHandler | Consistent error format | Critical | 3 |
-| Authentication | JWT/API Key validation | High | 3 |
-| RateLimiting | Abuse protection | High | 3 |
-| AuditLog | ISO 42001 audit trail | Critical | 4 |
+| Middleware     | Purpose                    | Priority | Phase |
+| -------------- | -------------------------- | -------- | ----- |
+| RequestID      | Correlation ID for tracing | Critical | 3     |
+| Logging        | Structured JSON logging    | Critical | 3     |
+| Timing         | Response time metrics      | High     | 3     |
+| ErrorHandler   | Consistent error format    | Critical | 3     |
+| Authentication | JWT/API Key validation     | High     | 3     |
+| RateLimiting   | Abuse protection           | High     | 3     |
+| AuditLog       | ISO 42001 audit trail      | Critical | 4     |
 
 **Request Flow:**
 ```
@@ -251,24 +298,69 @@ Response ← Logging ← Timing ← ErrorHandler ← Router
 
 ### Q11: ISO 42001 Compliance Strategy
 
-**Status:** Open
+**Status:** ✅ **Resolved**
 **Priority:** High
 **Owner:** Architect Agent
 **Deadline:** End of Phase 4 (Week 15)
+**Resolved Date:** 2026-01-04
+**Decision:** ADR-011 - Layered Compliance Architecture
+
 **Context:** Paracle targets ISO/IEC 42001 compliance for AI governance. Need to plan compliance requirements.
+
+**DECISION (2026-01-04):**
+Implemented **layered compliance architecture** with progressive enhancement:
+
+**Phase 1: Foundation (v0.0.1 - ✅ COMPLETE)**
+- **~40% ISO 42001 Coverage**
+- Immutable `AuditEvent` model with 10 categories
+- Correlation ID request tracing
+- JWT authentication with audit logging
+- Tool execution audit trail
+- File-based audit storage (NDJSON, `.parac/logs/audit.log`)
+- Security: sandboxing, permissions, input validation
+
+**Phase 2: Enhanced Governance (v0.5.0 - Q2 2026)**
+- **~65% Coverage**
+- Policy engine (`paracle_governance`) with approval workflows
+- Risk assessment engine (`paracle_risk`)
+- Data governance: classification, lineage, PII detection
+- SQLite audit database with full-text search
+- Retention policies (critical: 7 years, info: 30 days)
+
+**Phase 3: Advanced Compliance (v0.7.0 - Q4 2026)**
+- **~85% Coverage**
+- Automated compliance testing
+- AI explainability & decision tracking
+- Bias detection & mitigation
+- External audit support with evidence collection
+
+**Phase 4: Enterprise Compliance (v0.9.0 - Q2 2027)**
+- **~95% Coverage - Certifiable**
+- Multi-tenant compliance
+- Regulatory packs: GDPR, HIPAA, SOC 2
+- ML-powered risk prediction
+- Board-level reporting
+
+**Current Capabilities (v0.0.1):**
+- ✅ Audit trail for all API calls
+- ✅ Agent execution logging
+- ✅ Tool execution audit
+- ✅ Authentication events audited
+
+See: [ADR-011](../../roadmap/decisions.md#adr-011-iso-42001-compliance-strategy)
 
 **ISO 42001 Key Requirements:**
 
-| Requirement | Description | Implementation |
-|-------------|-------------|----------------|
-| **4.1 Context** | Organization context for AI | `.parac/policies/` |
-| **5.2 AI Policy** | Documented AI policy | `policy-pack.yaml` |
-| **6.1 Risk Assessment** | AI risk identification | `paracle_risk/` (v0.7.0) |
-| **7.2 Competence** | Human oversight | Approval workflows |
-| **8.4 AI Development** | Development lifecycle | Event sourcing, audit trail |
-| **9.1 Monitoring** | Performance monitoring | Observability stack |
-| **9.2 Internal Audit** | Audit processes | `paracle_audit/` (v0.7.0) |
-| **10.1 Nonconformity** | Incident management | Event replay, rollback |
+| Requirement             | Description                 | Implementation              |
+| ----------------------- | --------------------------- | --------------------------- |
+| **4.1 Context**         | Organization context for AI | `.parac/policies/`          |
+| **5.2 AI Policy**       | Documented AI policy        | `policy-pack.yaml`          |
+| **6.1 Risk Assessment** | AI risk identification      | `paracle_risk/` (v0.7.0)    |
+| **7.2 Competence**      | Human oversight             | Approval workflows          |
+| **8.4 AI Development**  | Development lifecycle       | Event sourcing, audit trail |
+| **9.1 Monitoring**      | Performance monitoring      | Observability stack         |
+| **9.2 Internal Audit**  | Audit processes             | `paracle_audit/` (v0.7.0)   |
+| **10.1 Nonconformity**  | Incident management         | Event replay, rollback      |
 
 **Paracle Components for Compliance:**
 

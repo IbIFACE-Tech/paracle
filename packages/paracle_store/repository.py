@@ -8,10 +8,12 @@ Key features:
 - In-memory implementation (Adapter)
 - Type-safe generic implementation
 - Event emission on CRUD operations
+- Thread-safe operations with RLock
 """
 
 from __future__ import annotations
 
+import threading
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Generic, TypeVar
 
@@ -166,8 +168,11 @@ class Repository(ABC, Generic[T]):
 class InMemoryRepository(Repository[T]):
     """In-memory repository implementation.
 
-    Thread-safe implementation using a dictionary.
+    Thread-safe implementation using a dictionary with RLock.
     Suitable for testing and single-process deployments.
+
+    Note:
+        Uses RLock (reentrant lock) to allow nested calls from the same thread.
     """
 
     def __init__(
@@ -184,58 +189,68 @@ class InMemoryRepository(Repository[T]):
         self._entity_type = entity_type
         self._id_getter = id_getter
         self._store: dict[str, T] = {}
+        self._lock = threading.RLock()
 
     def get(self, id: str) -> T | None:
         """Get entity by ID."""
-        return self._store.get(id)
+        with self._lock:
+            return self._store.get(id)
 
     def get_or_raise(self, id: str) -> T:
         """Get entity by ID, raise if not found."""
-        entity = self.get(id)
-        if entity is None:
-            raise NotFoundError(self._entity_type, id)
-        return entity
+        with self._lock:
+            entity = self._store.get(id)
+            if entity is None:
+                raise NotFoundError(self._entity_type, id)
+            return entity
 
     def list(self) -> list[T]:
         """List all entities."""
-        return list(self._store.values())
+        with self._lock:
+            return list(self._store.values())
 
     def add(self, entity: T) -> T:
         """Add a new entity."""
-        entity_id = self._id_getter(entity)
-        if entity_id in self._store:
-            raise DuplicateError(self._entity_type, entity_id)
-        self._store[entity_id] = entity
-        return entity
+        with self._lock:
+            entity_id = self._id_getter(entity)
+            if entity_id in self._store:
+                raise DuplicateError(self._entity_type, entity_id)
+            self._store[entity_id] = entity
+            return entity
 
     def update(self, entity: T) -> T:
         """Update an existing entity."""
-        entity_id = self._id_getter(entity)
-        if entity_id not in self._store:
-            raise NotFoundError(self._entity_type, entity_id)
-        self._store[entity_id] = entity
-        return entity
+        with self._lock:
+            entity_id = self._id_getter(entity)
+            if entity_id not in self._store:
+                raise NotFoundError(self._entity_type, entity_id)
+            self._store[entity_id] = entity
+            return entity
 
     def delete(self, id: str) -> bool:
         """Delete an entity by ID."""
-        if id not in self._store:
-            return False
-        del self._store[id]
-        return True
+        with self._lock:
+            if id not in self._store:
+                return False
+            del self._store[id]
+            return True
 
     def exists(self, id: str) -> bool:
         """Check if entity exists."""
-        return id in self._store
+        with self._lock:
+            return id in self._store
 
     def count(self) -> int:
         """Count all entities."""
-        return len(self._store)
+        with self._lock:
+            return len(self._store)
 
     def clear(self) -> int:
         """Remove all entities."""
-        count = len(self._store)
-        self._store.clear()
-        return count
+        with self._lock:
+            count = len(self._store)
+            self._store.clear()
+            return count
 
     def find_by(self, predicate: Callable[[T], bool]) -> list[T]:
         """Find entities matching predicate.
@@ -246,7 +261,8 @@ class InMemoryRepository(Repository[T]):
         Returns:
             List of matching entities
         """
-        return [e for e in self._store.values() if predicate(e)]
+        with self._lock:
+            return [e for e in self._store.values() if predicate(e)]
 
     def find_one_by(self, predicate: Callable[[T], bool]) -> T | None:
         """Find first entity matching predicate.
@@ -257,7 +273,8 @@ class InMemoryRepository(Repository[T]):
         Returns:
             First matching entity or None
         """
-        for entity in self._store.values():
-            if predicate(entity):
-                return entity
-        return None
+        with self._lock:
+            for entity in self._store.values():
+                if predicate(entity):
+                    return entity
+            return None

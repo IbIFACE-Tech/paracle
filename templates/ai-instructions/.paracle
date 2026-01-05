@@ -1,132 +1,80 @@
-# Paracle .parac Rules
+# Paracle - Universal AI Instructions
 
-## Context
-Paracle multi-agent AI framework. Configuration in `.parac/` directory.
+Using **PARACLE** with `.parac/` as the single source of truth.
 
-## Structure
+## Core Principle
+
+> **`.parac/` is your single source of truth. Read it. Follow it. Log to it.**
+
+## Source Files
+
+| File | Purpose |
+|------|---------|
+| `.parac/agents/specs/*.md` | Agent definitions |
+| `.parac/memory/context/current_state.yaml` | Project state |
+| `.parac/roadmap/roadmap.yaml` | Roadmap |
+| `.parac/GOVERNANCE.md` | Governance rules |
+| `.parac/memory/logs/agent_actions.log` | Action logs |
+
+## Workflow
+
+1. **Read Context**: Load `.parac/memory/context/current_state.yaml`
+2. **Select Agent**: Choose from `.parac/agents/specs/`:
+   - `pm.md` - Project Management
+   - `architect.md` - Architecture
+   - `coder.md` - Implementation
+   - `tester.md` - Testing
+   - `reviewer.md` - Code Review
+   - `documenter.md` - Documentation
+3. **Read Agent Spec**: Load from `.parac/agents/specs/{agent}.md`
+4. **Apply Standards**: Follow agent's responsibilities
+5. **Execute Task**: Complete the work
+6. **Log Action**: Use governance logger:
+
+   ```python
+   from paracle_core.governance import log_action, agent_context
+
+   with agent_context("CoderAgent"):
+       log_action("IMPLEMENTATION", "Added feature X")
+   ```
+
+7. **Update Memory**: Propose updates to `.parac/`
+
+## Action Types
+
+| Action | Use When |
+|--------|----------|
+| `IMPLEMENTATION` | Writing new code |
+| `TEST` | Creating tests |
+| `BUGFIX` | Fixing bugs |
+| `REFACTORING` | Improving code |
+| `REVIEW` | Code review |
+| `DOCUMENTATION` | Writing docs |
+| `DECISION` | Architecture decisions |
+| `PLANNING` | Task planning |
+| `UPDATE` | Updating .parac/ files |
+
+## Dogfooding Context
+
 ```
-.parac/
-├── project.yaml        # Main config
-├── agents/            # Agent defs
-├── workflows/         # Workflows
-├── tools/             # Tools
-├── policies/          # Security
-└── memory/            # Knowledge
+packages/   ← Framework code (product)
+.parac/     ← Project workspace (dogfooding)
 ```
 
 ## Rules
 
-### Files
-- Use `.yaml` not `.yml`
-- Include `schema_version: "1.0"`
-- Validate YAML before saving
-- Use lowercase-with-hyphens
+**DO:**
+- Read `.parac/` for context before acting
+- Select appropriate agent persona
+- Log all significant actions
+- Follow agent specifications
 
-### Security
-- Tools disabled by default
-- Enable content filtering
-- Rate limit all endpoints
-- No secrets in config
-- Use environment variables
-
-### Agents
-```yaml
-name: agent-name       # lowercase-hyphenated
-provider: openai       # openai, anthropic, google
-model: gpt-4          # appropriate model
-temperature: 0.7      # 0.0-1.0
-system_prompt: |      # clear instructions
-  Your role...
-skills:               # assigned capabilities
-  - question-answering
-  - code-generation
-```
-
-### Skills
-Two formats: YAML (quick) or SKILL.md (detailed)
-
-```yaml
-# YAML format: .parac/agents/skills/custom/my-skill.yaml
-name: my-skill
-category: creation    # communication, analysis, creation, transformation, integration, memory
-level: intermediate   # basic, intermediate, advanced, expert
-description: What it does
-tools: [tool1]
-tags: [tag1]
-```
-
-```markdown
-# SKILL.md format: .parac/agents/skills/custom/my-skill/SKILL.md
----
-name: my-skill
-description: Detailed description with use cases
-metadata:
-  category: creation
-  level: intermediate
----
-# Instructions with code examples...
-```
-
-Built-in: question-answering, code-generation, data-analysis, text-summarization, api-integration
-
-### Workflows
-```yaml
-name: workflow-name
-steps:
-  - name: step1
-    agent: existing-agent
-    prompt: "Task"
-    output: var_name
-```
-
-### Temperature
-- 0.0-0.3: Deterministic
-- 0.5-0.7: Balanced
-- 0.8-1.0: Creative
-
-### Validation
-- [ ] Valid YAML
-- [ ] schema_version present
-- [ ] Required fields
-- [ ] No secrets
-- [ ] References valid
-
-### Environment
-```bash
-OPENAI_API_KEY=sk-...
-ANTHROPIC_API_KEY=sk-ant-...
-PARACLE_ENV=development
-```
-
-## Quick Tasks
-
-**New Agent**
-1. Create `agents/specs/name.yaml`
-2. Add to `agents/manifest.yaml`
-
-**New Workflow**
-1. Create `workflows/templates/name.yaml`
-2. Add to `workflows/catalog.yaml`
-
-**Enable Tool**
-1. Review security
-2. Set `enabled: true` in `tools/registry.yaml`
-3. Add permissions in `policies/security.yaml`
-
-## Anti-Patterns
-- ❌ Hardcoded API keys
-- ❌ CamelCase names
-- ❌ Missing schema_version
-- ❌ Tools enabled by default
-- ❌ No content filtering
-
-## Best Practices
-- ✅ Security first
-- ✅ Validate always
-- ✅ Document changes
-- ✅ Use env vars
-- ✅ Test before commit
+**DON'T:**
+- Duplicate agent definitions
+- Create custom governance rules
+- Ignore `.parac/` state
+- Skip logging important actions
 
 ---
 
-Security first. Simple. Validated.
+**Remember**: `.parac/` is your single source of truth. Always read it first.

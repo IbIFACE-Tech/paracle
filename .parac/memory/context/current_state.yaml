@@ -1,44 +1,82 @@
-version: '1.2'
-snapshot_date: '2025-12-31'
+version: '1.5'
+snapshot_date: '2026-01-04'
 project:
   name: paracle-lite
   version: 0.0.1
-  phase: phase_2
+  phase: phase_4
   status: in_progress
 current_phase:
-  id: phase_2
-  name: Multi-Provider & Multi-Framework
+  id: phase_4
+  name: API Server & CLI Enhancement
+  status: in_progress
+  progress: 75%
+  started_date: '2026-01-04'
+  completed_date: null
+  focus_areas:
+  - REST API server with uvicorn
+  - Workflow execution endpoints (async/sync)
+  - CLI command enhancements
+  - MCP tool integration
+  - Command-line workflow management
+  - IDE integration and templates
+  completed:
+  - paracle_serve_command_implementation
+  - workflow_execution_endpoints_implementation
+  - workflow_engine_wrapper_implementation
+  - workflow_execution_tests_15_passing
+  - cli_workflow_commands_implementation
+  - cli_tools_commands_implementation
+  - cli_providers_commands_implementation
+  - api_first_architecture_with_fallback
+  - universal_ai_instructions_documentation
+  - config_files_clarification_guide
+  - ide_template_enhancements_comprehensive
+  - ide_config_generation_tested
+  - templates_updated_with_improvements
+  - multi_provider_support_xai_deepseek_groq
+  - model_capabilities_tracking_system
+  - openai_compatible_provider_wrapper
+  - model_catalog_and_discovery
+  - comprehensive_provider_documentation
+  in_progress:
+  - cli_commands_testing
+  - cli_documentation
+  pending:
+  - mcp_tool_integration
+  - api_server_documentation
+previous_phase:
+  id: phase_3
+  name: Orchestration Engine & API
   status: completed
   progress: 100%
-  started_date: '2025-12-31'
   completed_date: '2025-12-31'
   focus_areas:
-  - LLM provider abstraction (OpenAI, Anthropic, Google, Ollama)
-  - Framework adapters (MSAF, LangChain, LlamaIndex)
-  - MCP protocol support
-  - Agent factory with provider integration
+  - DAG-based workflow orchestration
+  - Parallel step execution
+  - Agent coordination with caching
+  - Event-driven execution
+  - Workflow execution tests
   completed:
-  - llm_provider_abstraction
-  - provider_registry
-  - openai_provider
-  - anthropic_provider
-  - google_provider
-  - ollama_provider
-  - auto_registration_system
-  - provider_base_tests
-  - framework_adapter_base
-  - msaf_adapter
-  - langchain_adapter
-  - adapter_base_tests
-  - mcp_client_implementation
-  - mcp_registry_implementation
-  - mcp_registry_tests
-  - mcp_code_reorganization
-  - agent_factory_implementation
-  - agent_factory_tests
-  - inheritance_temperature_fix
-  in_progress: []
-  pending: []
+  - dag_validation_and_sorting
+  - execution_context_management
+  - agent_coordinator_caching
+  - workflow_orchestrator_implementation
+  - parallel_execution_levels
+  - event_emission_framework
+  - step_input_resolution
+  - orchestration_test_suite
+  - context_tests_22_passing
+  - coordinator_tests_20_passing
+  - dag_tests_19_passing
+  - engine_tests_20_passing
+  - event_emission_refinement
+  - error_handling_implementation
+  - timeout_handling_implementation
+  - workflow_metadata_tracking
+  pending:
+  - rest_api_workflow_endpoints (deferred)
+  - workflow_templates (deferred)
+  - performance_benchmarking (deferred)
 previous_phase:
   id: phase_1
   name: Core Domain
@@ -79,6 +117,10 @@ phase_0:
   - framework_skills
   - roadmap_skills_integration
   - claude_code_configuration
+  - agent_skills_v2_system
+  - skills_test_suite
+  - skills_integration_complete
+  - architectural_decisions_q4_q10_q11
 team:
   active_members: 1
   roles:
@@ -86,12 +128,12 @@ team:
   - developer
   - reviewer
   agents:
-  - architect (spec: complete)
-  - coder (spec: complete)
-  - reviewer (spec: complete)
-  - tester (spec: complete)
-  - pm (spec: complete)
-  - documenter (spec: complete)
+  - architect (spec: complete, skills: 5)
+  - coder (spec: complete, skills: 5)
+  - reviewer (spec: complete, skills: 4)
+  - tester (spec: complete, skills: 4)
+  - pm (spec: complete, skills: 4)
+  - documenter (spec: complete, skills: 3)
 stack:
   language: python
   version: 3.10+
@@ -101,9 +143,11 @@ stack:
 governance:
   roadmap: updated
   policies: complete
-  agents_specs: complete (6/6)
+  agents_specs: complete (6/6 with skills)
+  agent_skills: complete (13 skills assigned)
+  architectural_decisions: complete (3 ADRs resolved)
   memory_knowledge: complete
-  open_questions: 11 (with owners and deadlines)
+  open_questions: 11 total (3 resolved, 8 pending)
 deliverables:
   phase_0:
   - name: .parac structure
@@ -272,6 +316,33 @@ deliverables:
     status: deferred
     completion: 0%
     notes: Deferred to post-v0.0.1 - in-memory repositories sufficient for MVP
+  phase_3:
+  - name: Orchestration Engine Core
+    status: completed
+    completion: 100%
+    started_date: '2025-12-31'
+    completed_date: '2025-12-31'
+    details:
+    - paracle_orchestration/exceptions.py (6 exception classes)
+    - paracle_orchestration/context.py (ExecutionContext, ExecutionStatus)
+    - paracle_orchestration/dag.py (DAG validation, topological sort, execution levels)
+    - paracle_orchestration/coordinator.py (AgentCoordinator with caching)
+    - paracle_orchestration/engine.py (WorkflowOrchestrator)
+    - DAG validation with circular dependency detection
+    - Parallel execution levels for concurrent step execution
+    - Agent instance caching (LRU eviction, configurable size)
+    - Execution metrics tracking
+    - Event emission for workflow lifecycle (workflow.started, completed, failed, timeout)
+    - Step input resolution (static, workflow inputs, previous results with $ references)
+    - Workflow metadata tracking in ExecutionContext
+    - Error handling with graceful failure (returns failed context)
+    - Timeout handling with ExecutionTimeoutError
+    - Event.event_type property for backward compatibility
+    - 81/81 tests passing (100% pass rate)
+    - 22/22 Context tests passing
+    - 20/20 Coordinator tests passing
+    - 19/19 DAG tests passing
+    - 20/20 Engine tests passing
   phase_2:
   - name: LLM Provider Abstraction
     status: completed
@@ -320,6 +391,67 @@ deliverables:
     - Fixed temperature inheritance (non-default values only)
     - 16 unit tests (100% passing)
     - Supports multi-level inheritance with proper value merging
+  - name: Built-in Tools
+    status: completed
+    completion: 100%
+    completed_date: '2025-12-31'
+    details:
+    - paracle_tools/builtin/ package (base, filesystem, http, shell, registry)
+    - 9 native tools (4 filesystem, 4 HTTP, 1 shell)
+    - BuiltinToolRegistry for centralized management
+    - Permission system with allow/deny lists
+    - Path sandboxing for filesystem operations
+    - Command whitelist/blocklist for shell execution
+    - Timeout handling for HTTP and shell operations
+    - 44 unit tests (100% passing)
+    - Tool categories - filesystem, http, shell
+    - Full integration with paracle_tools package
+    - Comprehensive documentation (docs/builtin-tools.md)
+    - 5 usage examples created (examples/01-05)
+    - Example README with patterns and best practices
+  - name: Docker Setup
+    status: completed
+    completion: 100%
+    completed_date: '2025-12-31'
+    details:
+    - docker/Dockerfile.api (production API image)
+    - docker/Dockerfile.worker (production worker image)
+    - docker/Dockerfile.dev (development with hot reload)
+    - docker/docker-compose.yaml (production stack)
+    - docker/docker-compose.dev.yaml (development overrides)
+    - docker/.env.example (environment template)
+    - docker/README.md (comprehensive guide)
+    - docker/.dockerignore (build optimization)
+    - Services - API, Worker, PostgreSQL, Redis
+    - Health checks, volumes, networks configured
+    - Security best practices (non-root users, secrets management)
+  - name: Agent Skills System V2
+    status: completed
+    completion: 100%
+    completed_date: '2026-01-04'
+    details:
+    - 13 skills created (11 new + 2 existing)
+    - Agent Skills specification compliance (agentskills.io)
+    - Progressive disclosure pattern (Discovery → Activation → Execution)
+    - Skills assigned to all 6 agents in specs
+    - SKILL_ASSIGNMENTS.md documentation
+    - Skills integrated in manifest.yaml and Copilot instructions
+    - 8 skills with scripts/ (executable examples)
+    - 4 skills with references/ (extended documentation)
+    - 5 skills with assets/ (templates)
+    - 20 unit tests created (100% passing)
+    - Example: examples/06_agent_skills.py
+  - name: Architectural Decisions (ADRs)
+    status: completed
+    completion: 100%
+    completed_date: '2026-01-04'
+    details:
+    - ADR-004 Tool Calling Interface (Hybrid Built-in + MCP)
+    - ADR-010 API Middlewares Stack (Security, CORS, Logging, Rate Limiting)
+    - ADR-011 ISO 42001 Compliance Strategy (Layered, v0.0.1→v0.9.0)
+    - Resolved 3 critical questions (Q4, Q10, Q11)
+    - All decisions documented in .parac/roadmap/decisions.md
+    - open_questions.md updated with resolutions
 risks:
 - id: risk_1
   description: Timeline aggressive for 17 weeks
@@ -336,11 +468,13 @@ risks:
   mitigation: Owners and deadlines assigned
 blockers: []
 next_actions:
-- Begin Phase 3: Orchestration Engine
-- Design workflow execution engine
-- Implement step dependencies and DAG validation
-- Add workflow execution with event emission
-- Create workflow templates and examples
+- Prepare PyPI packaging (high priority for MVP)
+- Address CRUD API shared-state test failures (15 tests from Phase 1) - optional
+completed_actions:
+- Created 5 comprehensive usage examples (filesystem, HTTP, shell, agent with tools, tool registry)
+- Created examples/README.md with full documentation
+- Created Docker setup (8 files - Dockerfiles, compose files, documentation)
+- Getting started tutorial exists in docs/getting-started.md
 metrics:
   code_coverage: 87.5%
   documentation_coverage: 100%
@@ -349,11 +483,23 @@ metrics:
   phase_0_completion: 100%
   phase_1_completion: 100%
   phase_2_completion: 100%
+  phase_3_completion: 100%
+  builtin_tools_completion: 100%
   agent_specs_completion: 100%
   governance_completion: 100%
-  test_count: 304
-  python_files: 67
-  test_files: 20
+  test_count: 429
+  tests_passing: 413
+  tests_failing: 15
+  tests_skipped: 1
+  test_pass_rate: 96.3%
+  python_files: 77
+  test_files: 28
+  orchestration_tests: 81
+  orchestration_passing: 81
+  orchestration_pass_rate: 100%
+  builtin_tools_tests: 44
+  builtin_tools_passing: 44
+  builtin_tools_pass_rate: 100%
 repository:
   url: https://github.com/IbIFACE-Tech/paracle-lite
   branch: develop

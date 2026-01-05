@@ -6,6 +6,7 @@ Specialized repository for Agent entities with additional query methods.
 from __future__ import annotations
 
 from paracle_domain.models import Agent, AgentSpec, EntityStatus
+
 from paracle_store.repository import InMemoryRepository
 
 

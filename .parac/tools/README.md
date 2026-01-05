@@ -1,34 +1,49 @@
 # Tools Directory
 
-Ce dossier contient les définitions des outils et plugins disponibles pour les agents, ainsi que les outils de maintenance du workspace .parac.
+Ce dossier contient les définitions des outils et plugins disponibles pour les agents, ainsi que les outils de maintenance et automatisation du workspace .parac.
 
 ## Structure
 
-- `registry.yaml` - Registre des outils disponibles
-- `custom/` - Outils personnalisés du projet
-- `builtin/` - Outils intégrés au framework
-- `auto-maintain.py` - **Script de maintenance automatique du .parac** 🔄
-- `hooks/` - Git hooks pour automatisation
+```
+tools/
+├── registry.yaml       # Registre des outils disponibles pour les agents
+├── custom/             # Outils personnalisés du projet
+├── README.md           # Ce fichier
+└── hooks/              # Scripts d'automatisation et git hooks
+    ├── README.md              # Documentation complète des hooks
+    ├── auto-maintain.py       # Maintenance automatique du .parac
+    ├── install-hooks.ps1/sh   # Installation des git hooks
+    ├── pre-commit             # Git pre-commit hook
+    ├── sync-watch.py          # Watcher temps réel
+    ├── agent-logger.py        # Logger d'actions agents
+    ├── validate.py            # Validation .parac
+    └── sync-state.py          # Synchronisation d'état
+```
+
+> **Note**: Les hooks ont été consolidés dans `tools/hooks/` pour une meilleure organisation.
+
 
 ## Maintenance Automatique du .parac
 
-### Script Principal: `auto-maintain.py`
+### Script Principal: `hooks/auto-maintain.py`
 
 **But**: Synchronise automatiquement l'état du workspace `.parac/` avec les changements du projet.
 
 **Utilisation**:
+
 ```bash
 # Exécution manuelle
-python .parac/tools/auto-maintain.py
+python .parac/tools/hooks/auto-maintain.py
 
 # Mode simulation (voir ce qui serait modifié)
-python .parac/tools/auto-maintain.py --dry-run
+python .parac/tools/hooks/auto-maintain.py --dry-run
 
 # Mode verbose
-python .parac/tools/auto-maintain.py --verbose
+python .parac/tools/hooks/auto-maintain.py --verbose
 ```
 
 **Ce qui est mis à jour**:
+
 - `.parac/memory/context/current_state.yaml` - État actuel du projet
 - `.parac/changelog.md` - Historique des changements
 - `.parac/roadmap/roadmap.yaml` - Dernières réalisations
@@ -36,12 +51,13 @@ python .parac/tools/auto-maintain.py --verbose
 ### Git Pre-Commit Hook
 
 **Installation**:
+
 ```bash
 cp .parac/tools/hooks/pre-commit .git/hooks/pre-commit
 chmod +x .git/hooks/pre-commit
 ```
 
-Exécute automatiquement `auto-maintain.py` avant chaque commit.
+Exécute automatiquement `hooks/auto-maintain.py` avant chaque commit.
 
 ### GitHub Action
 

@@ -4,6 +4,13 @@
 
 Project coordination, roadmap management, progress tracking, and stakeholder communication.
 
+## Skills
+
+- workflow-orchestration
+- agent-configuration
+- paracle-development
+- cicd-devops
+
 ## Responsibilities
 
 ### Project Planning
@@ -69,21 +76,21 @@ Phase Lifecycle:
 
 ### Status Reporting
 
-| Status | Meaning | Action |
-|--------|---------|--------|
-| 🟢 On Track | Progressing as planned | Continue |
-| 🟡 At Risk | Potential issues | Monitor closely |
-| 🔴 Blocked | Cannot proceed | Escalate |
-| ✅ Complete | Finished | Archive |
+| Status     | Meaning                | Action          |
+| ---------- | ---------------------- | --------------- |
+| 🟢 On Track | Progressing as planned | Continue        |
+| 🟡 At Risk  | Potential issues       | Monitor closely |
+| 🔴 Blocked  | Cannot proceed         | Escalate        |
+| ✅ Complete | Finished               | Archive         |
 
 ### Priority Levels
 
-| Priority | Description | Response Time |
-|----------|-------------|---------------|
-| Critical | Blocks release | Immediate |
-| High | Core functionality | This phase |
-| Medium | Important feature | Next phase |
-| Low | Nice to have | Backlog |
+| Priority | Description        | Response Time |
+| -------- | ------------------ | ------------- |
+| Critical | Blocks release     | Immediate     |
+| High     | Core functionality | This phase    |
+| Medium   | Important feature  | Next phase    |
+| Low      | Nice to have       | Backlog       |
 
 ## Decision Framework
 
@@ -126,20 +133,20 @@ Phase Lifecycle:
 
 ### Progress Metrics
 
-| Metric | Target | Frequency |
-|--------|--------|-----------|
-| Phase Completion | 100% | Weekly |
-| Task Velocity | Stable | Weekly |
-| Blocker Count | 0 | Daily |
-| Open Questions | <5 | Weekly |
+| Metric           | Target | Frequency |
+| ---------------- | ------ | --------- |
+| Phase Completion | 100%   | Weekly    |
+| Task Velocity    | Stable | Weekly    |
+| Blocker Count    | 0      | Daily     |
+| Open Questions   | <5     | Weekly    |
 
 ### Quality Metrics
 
-| Metric | Target | Frequency |
-|--------|--------|-----------|
-| Test Coverage | >90% | Per PR |
-| Documentation | 100% | Per phase |
-| Breaking Changes | 0 | Per release |
+| Metric           | Target | Frequency   |
+| ---------------- | ------ | ----------- |
+| Test Coverage    | >90%   | Per PR      |
+| Documentation    | 100%   | Per phase   |
+| Breaking Changes | 0      | Per release |
 
 ## Communication Style
 

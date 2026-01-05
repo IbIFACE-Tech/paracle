@@ -13,16 +13,30 @@ cp -r templates/.parac-template/.parac .
 
 Or manually create the `.parac` directory structure in your project root.
 
-### 2. Configure your project
+### 2. Read Essential Documentation
 
-Edit `.parac/project.yaml` and customize:
+**Before configuring, read these files to understand .parac/:**
+
+| File                             | Purpose                       | When to Read         |
+| -------------------------------- | ----------------------------- | -------------------- |
+| **UNIVERSAL_AI_INSTRUCTIONS.md** | IDE-agnostic AI instructions  | Setup, any IDE       |
+| **USING_PARAC.md**               | Complete 20+ section guide    | Deep understanding   |
+| **CONFIG_FILES.md**              | project.yaml vs manifest.yaml | Configuration        |
+| **GOVERNANCE.md**                | Governance rules              | Before ANY action    |
+| **STRUCTURE.md**                 | Complete .parac/ structure    | Understanding layout |
+
+### 3. Configure your project
+
+Edit `.parac/project.yaml` (see CONFIG_FILES.md for details):
 
 - **Basic Info**: `name`, `version`, `description`
 - **Identity**: Organization and repository details
 - **Defaults**: Python version, model provider, default model
 - **Features**: Enable/disable features as needed
 
-### 3. Set up environment variables
+**Note**: `manifest.yaml` is AUTO-GENERATED. Use `paracle sync` to regenerate it.
+
+### 4. Set up environment variables
 
 Create a `.env` file in your project root:
 

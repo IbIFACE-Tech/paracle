@@ -99,6 +99,845 @@ Each package can be extracted to microservice if needed.
 **Status**: Accepted
 **Deciders**: Core Team
 
+---
+
+## ADR-010: API Middlewares Stack
+
+**Date**: 2026-01-04
+**Status**: Accepted
+**Deciders**: Architect Agent
+**Resolves**: Q10 (Open Questions)
+
+### Context
+
+Need to define complete middleware stack for FastAPI-based REST API. Requirements include:
+
+- **Security**: Protection against common web vulnerabilities (OWASP Top 10)
+- **Rate Limiting**: DoS/abuse prevention
+- **Observability**: Request tracing and logging
+- **Compliance**: ISO 42001 audit trail requirements
+- **Performance**: Minimal overhead, support for async operations
+- **Flexibility**: Easy to configure per environment (dev/staging/prod)
+
+Current implementation already includes some middlewares but lacks formal documentation and standardization.
+
+### Decision
+
+Implement a **layered middleware stack** with the following components in strict order (first added = last executed on response):
+
+#### 1. Security Headers Middleware (Outermost)
+**Package**: `paracle_api.security.headers.SecurityHeadersMiddleware`
+**Purpose**: OWASP security headers
+**Headers**:
+- `Strict-Transport-Security`: Force HTTPS (production only)
+- `Content-Security-Policy`: Prevent XSS/injection attacks
+- `X-Content-Type-Options: nosniff`: Prevent MIME sniffing
+- `X-Frame-Options: DENY`: Prevent clickjacking
+- `X-XSS-Protection`: Legacy XSS protection
+- `Referrer-Policy`: Control referrer information
+- `Permissions-Policy`: Restrict browser features
+
+#### 2. CORS Middleware
+**Package**: `fastapi.middleware.cors.CORSMiddleware`
+**Purpose**: Cross-Origin Resource Sharing
+**Configuration**:
+- `allow_origins`: Configurable via `SecurityConfig.cors_allowed_origins`
+- `allow_credentials`: Controlled per environment
+- `allow_methods`: GET, POST, PUT, DELETE, PATCH, OPTIONS
+- `allow_headers`: Standard + custom headers
+- `expose_headers`: Rate limit headers
+
+#### 3. Request Logging Middleware
+**Package**: `paracle_core.logging.create_request_logging_middleware()`
+**Purpose**: Observability and audit trail
+**Features**:
+- Correlation ID generation (X-Correlation-ID)
+- Request/response logging with structured format
+- Timing metrics (request duration)
+- ISO 42001 compliance (audit trail)
+- Error context capture
+
+#### 4. Rate Limiting (Dependency Injection)
+**Package**: `paracle_api.security.rate_limit`
+**Purpose**: DoS/abuse prevention
+**Implementation**: Dependency injection (not global middleware)
+**Features**:
+- Per-client IP tracking
+- Sliding window algorithm
+- Burst protection (20 req/window)
+- Automatic blocking (5 min on abuse)
+- Rate limit headers (X-RateLimit-*)
+
+**Why not global middleware?**
+- Selective application (e.g., exempt health checks)
+- Per-endpoint rate limits (different tiers)
+- Better error handling
+- Easier testing
+
+#### 5. Authentication (Dependency Injection)
+**Package**: `paracle_api.security.auth`
+**Purpose**: JWT-based authentication
+**Implementation**: OAuth2 with Password Bearer tokens
+**Why not middleware?**
+- Selective protection (public vs protected endpoints)
+- Better integration with FastAPI dependency system
+- Clear authorization boundaries
+
+### Middleware Order Rationale
+
+```python
+# Order matters - first added = last executed on response
+app.add_middleware(SecurityHeadersMiddleware)     # 1. Outermost (last)
+app.add_middleware(CORSMiddleware)                # 2. Before logging
+app.add_middleware(RequestLoggingMiddleware)      # 3. Innermost (first)
+
+# Not middlewares (dependency injection)
+# - Rate limiting: @router.get(..., dependencies=[Depends(check_rate_limit)])
+# - Authentication: @router.get(..., dependencies=[Depends(get_current_user)])
+```
+
+**Request Flow** (inbound):
+```
+Client → CORS → Logging (start) → Rate Limit (DI) → Auth (DI) → Endpoint
+```
+
+**Response Flow** (outbound):
+```
+Endpoint → Auth (DI) → Rate Limit (DI) → Logging (end) → CORS → Security Headers → Client
+```
+
+### Configuration
+
+All middleware settings centralized in `SecurityConfig`:
+
+```python
+class SecurityConfig:
+    # CORS
+    cors_allowed_origins: list[str]
+    cors_allow_credentials: bool
+
+    # Rate Limiting
+    rate_limit_enabled: bool
+    rate_limit_requests: int = 100
+    rate_limit_window: int = 60
+
+    # Security Headers
+    hsts_enabled: bool (production only)
+    csp_enabled: bool
+
+    # Environment
+    environment: Literal["development", "staging", "production"]
+```
+
+### Consequences
+
+**Positive:**
+- **Security**: Comprehensive protection against OWASP Top 10
+- **Observability**: Full request tracing with correlation IDs
+- **Compliance**: ISO 42001 audit trail ready
+- **Performance**: Async-native, minimal overhead (<5ms per request)
+- **Flexibility**: Environment-specific configuration
+- **Maintainability**: Clear separation of concerns
+
+**Negative:**
+- **Complexity**: Multiple middleware layers increase cognitive load
+- **Debugging**: Middleware order issues can be hard to diagnose
+- **Testing**: Requires integration tests for full stack
+
+**Mitigation:**
+- Comprehensive documentation (this ADR)
+- Middleware unit tests for each layer
+- Integration tests for full stack
+- Logging at each middleware layer for debugging
+
+### Future Enhancements
+
+**v0.5.0+:**
+- Redis-based rate limiting for distributed deployments
+- Request ID propagation to background tasks
+- Compression middleware (gzip)
+- Circuit breaker middleware
+- OpenTelemetry tracing middleware
+
+**v0.7.0+:**
+- Advanced security: WAF integration
+- Adaptive rate limiting (ML-based)
+- Request signing/verification
+
+### References
+
+- OWASP Security Headers: https://owasp.org/www-project-secure-headers/
+- FastAPI Middleware: https://fastapi.tiangolo.com/advanced/middleware/
+- RFC 7807 Problem Details: https://tools.ietf.org/html/rfc7807
+- ISO 42001:2023 AI Management System
+
+---
+
+## ADR-004: Tool Calling Interface - Hybrid Built-in + MCP
+
+**Date**: 2026-01-04
+**Status**: Accepted
+**Deciders**: Architect Agent
+**Resolves**: Q4 (Open Questions)
+
+### Context
+
+Agents need a flexible, secure, and extensible way to call tools. Requirements include:
+
+- **Core Functionality**: Essential tools (filesystem, HTTP, shell) must work without external dependencies
+- **Extensibility**: Support for custom/community tools via standard protocol
+- **Security**: Sandboxing, permission model, input validation
+- **Simplicity**: Easy to use for both end-users and developers
+- **Standards Compliance**: Leverage emerging standards (MCP)
+- **Performance**: Minimal overhead, async-native
+
+Three main options considered:
+1. **MCP-Only**: Pure Model Context Protocol implementation
+2. **Built-in Only**: Custom tool system, no external protocol
+3. **Hybrid**: Built-in tools + MCP integration
+
+### Decision
+
+Implement a **Hybrid Built-in + MCP architecture** with three tiers:
+
+#### Tier 1: Built-in Tools (Core Package)
+**Package**: `paracle_tools.builtin`
+**Purpose**: Essential tools with zero external dependencies
+
+**Tools Included** (9 total):
+- Filesystem: `read_file`, `write_file`, `list_directory`, `delete_file`
+- HTTP: `http_get`, `http_post`, `http_put`, `http_delete`
+- Shell: `run_command` (with security controls)
+
+**Architecture**:
+```python
+# Base protocol for all tools
+class Tool(Protocol):
+    name: str
+    description: str
+    parameters: dict[str, Any]
+
+    async def execute(self, **kwargs) -> ToolResult
+
+# Result type
+class ToolResult(BaseModel):
+    success: bool
+    output: Any
+    error: str | None
+    metadata: dict[str, Any]
+```
+
+**Security Model**:
+- **Filesystem tools**: Require explicit `allowed_paths` list (no defaults)
+- **Shell tool**: Require explicit `allowed_commands` list (no defaults)
+- **HTTP tools**: URL validation, timeout limits, size limits
+- **Permission system**: Each tool declares required permissions
+- **Sandboxing**: Factory functions create properly configured instances
+
+**Example**:
+```python
+from paracle_tools import create_sandboxed_filesystem_tools
+
+# Secure by default - requires explicit configuration
+tools = create_sandboxed_filesystem_tools(
+    allowed_paths=["/workspace/myproject"],
+    readonly=False
+)
+
+# No default instances - all require configuration
+```
+
+#### Tier 2: MCP Integration (Protocol Adapter)
+**Package**: `paracle_tools.mcp`
+**Purpose**: Discover and call Model Context Protocol tools
+
+**Components**:
+- `MCPClient`: HTTP client for MCP servers
+- `MCPToolRegistry`: Discovery and caching of MCP tools
+- Adapter pattern: Converts MCP tools to Paracle `Tool` protocol
+
+**Features**:
+- Auto-discovery of MCP servers
+- Tool caching for performance
+- Error handling and retries
+- TLS verification for security
+- Timeout management
+
+**Example**:
+```python
+from paracle_tools.mcp import MCPClient, MCPToolRegistry
+
+# Connect to MCP server
+client = MCPClient(server_url="https://mcp.example.com")
+await client.connect()
+
+# Discover tools
+tools = await client.list_tools()
+
+# Register MCP tools
+registry = MCPToolRegistry()
+await registry.register_server(client)
+
+# Use MCP tool through standard interface
+tool = registry.get_tool("mcp:custom_tool")
+result = await tool.execute(param="value")
+```
+
+#### Tier 3: Custom Tools (User Extensions)
+**Approach**: Implement `Tool` protocol
+**Purpose**: Allow users to create custom tools
+
+**Example**:
+```python
+from paracle_tools import BaseTool, ToolResult
+
+class MyCustomTool(BaseTool):
+    def __init__(self):
+        super().__init__(
+            name="my_custom_tool",
+            description="Does something custom",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "input": {"type": "string"}
+                },
+                "required": ["input"]
+            }
+        )
+
+    async def _execute(self, input: str) -> Any:
+        # Custom logic
+        return {"result": input.upper()}
+
+# Register with agent
+agent.register_tool(MyCustomTool())
+```
+
+### Tool Registry Architecture
+
+**Unified Tool Registry**:
+```python
+class ToolRegistry:
+    """Central registry for all tools (built-in + MCP + custom)."""
+
+    def register_builtin(self, tool: Tool) -> None: ...
+    def register_mcp_server(self, client: MCPClient) -> None: ...
+    def register_custom(self, tool: Tool) -> None: ...
+
+    def get_tool(self, name: str) -> Tool | None: ...
+    def list_tools(self, filter: str | None = None) -> list[Tool]: ...
+
+    def execute_tool(self, name: str, **kwargs) -> ToolResult: ...
+```
+
+**Tool Naming Convention**:
+- Built-in: `read_file`, `http_get` (no prefix)
+- MCP: `mcp:server_name.tool_name` (prefix with `mcp:`)
+- Custom: `custom:tool_name` (prefix with `custom:`)
+
+### Security Considerations
+
+**Built-in Tools**:
+- ✅ No default instances (require explicit configuration)
+- ✅ Sandboxing via `allowed_paths` / `allowed_commands`
+- ✅ Input validation with Pydantic
+- ✅ Permission system
+- ✅ Audit logging
+
+**MCP Tools**:
+- ✅ TLS verification required (production)
+- ✅ Server authentication (future: JWT/API keys)
+- ✅ Request timeout limits
+- ✅ Response size limits
+- ✅ Audit trail for external calls
+
+**Custom Tools**:
+- ✅ Must implement security checks
+- ✅ Inherit from `BaseTool` for standard protections
+- ✅ Permission declaration required
+
+### Integration with Agents
+
+**Agent Specification**:
+```yaml
+# Agent can declare tools in spec
+name: code-reviewer
+model: gpt-4
+tools:
+  - read_file
+  - write_file
+  - mcp:github.create_pr
+  - custom:static_analyzer
+```
+
+**Runtime Registration**:
+```python
+from paracle_domain import AgentSpec, AgentFactory
+from paracle_tools import create_sandboxed_filesystem_tools
+
+# Create agent with tools
+spec = AgentSpec(
+    name="code-reviewer",
+    model="gpt-4",
+    tools=["read_file", "write_file"]
+)
+
+# Register configured tools
+agent = AgentFactory.create(spec)
+filesystem_tools = create_sandboxed_filesystem_tools(
+    allowed_paths=["/workspace"]
+)
+for tool in filesystem_tools:
+    agent.register_tool(tool)
+```
+
+### Consequences
+
+**Positive:**
+- **Zero Dependencies**: Built-in tools work out of the box
+- **Extensibility**: MCP support for community tools
+- **Security**: Sandboxing and permissions by default
+- **Standards**: MCP compliance for interoperability
+- **Simplicity**: Single `Tool` protocol for all types
+- **Performance**: Built-in tools are fast (no network calls)
+- **Flexibility**: Users can choose built-in, MCP, or custom
+
+**Negative:**
+- **Complexity**: Multiple tool systems to maintain
+- **Testing**: Need tests for built-in, MCP, and integration
+- **Documentation**: More comprehensive docs needed
+- **MCP Spec Changes**: Need to track MCP protocol evolution
+
+**Mitigation:**
+- Abstract common logic in `BaseTool`
+- Comprehensive test suite for each tier
+- Clear documentation with examples
+- Version MCP protocol support
+
+### Future Enhancements
+
+**v0.5.0:**
+- Tool marketplace (discover community tools)
+- Tool versioning and updates
+- Performance metrics per tool
+- Tool usage analytics
+
+**v0.7.0:**
+- Advanced permissions model (RBAC for tools)
+- Tool composition (chain tools together)
+- Tool sandboxing with containers
+- Tool rate limiting
+
+**v0.9.0:**
+- AI-powered tool discovery
+- Automatic tool parameter inference
+- Tool recommendation engine
+
+### Migration Notes
+
+**Breaking Change** (v0.0.1 → v0.1.0):
+- Default tool instances removed for security
+- Must use factory functions:
+  ```python
+  # OLD (insecure, REMOVED):
+  from paracle_tools import read_file
+
+  # NEW (secure, required):
+  from paracle_tools import create_sandboxed_filesystem_tools
+  tools = create_sandboxed_filesystem_tools(
+      allowed_paths=["/workspace"]
+  )
+  ```
+
+### References
+
+- Model Context Protocol: https://modelcontextprotocol.io/
+- Tool Security Audit: [security-audit-report.md](../docs/security-audit-report.md)
+- Built-in Tools Guide: [builtin-tools.md](../docs/builtin-tools.md)
+- OWASP API Security Top 10
+
+---
+
+## ADR-011: ISO 42001 Compliance Strategy
+
+**Date**: 2026-01-04
+**Status**: Accepted
+**Deciders**: Architect Agent
+**Resolves**: Q11 (Open Questions)
+
+### Context
+
+ISO 42001:2023 is the first international standard for AI Management Systems. Paracle must comply for enterprise adoption. Requirements include:
+
+**ISO 42001 Core Requirements**:
+- **6.1.3**: Risk treatment and audit trail
+- **8.2**: Operational planning and control evidence
+- **9.1**: Monitoring and measurement records
+- **9.2**: Internal audit evidence
+- **10.1**: Nonconformity and corrective action tracking
+- **Annex A**: Comprehensive controls for AI systems
+
+**Compliance Goals**:
+- **Transparency**: All AI decisions traceable
+- **Accountability**: Clear actor attribution
+- **Auditability**: Comprehensive audit trail
+- **Traceability**: End-to-end request tracking
+- **Data Governance**: Data lifecycle management
+- **Risk Management**: Continuous risk assessment
+
+### Decision
+
+Implement a **layered compliance architecture** with progressive enhancement across versions.
+
+#### Phase 1: Foundation (v0.0.1 - CURRENT)
+
+**Audit Logging System**
+**Package**: `paracle_core.logging.audit`
+**Status**: ✅ Implemented
+
+**Features**:
+- Immutable audit events (`AuditEvent` model)
+- Structured logging with correlation IDs
+- 10 audit categories (AI decisions, access, data, compliance)
+- 5 severity levels (info → critical)
+- File-based audit trail (append-only)
+- JSON format for machine readability
+
+**Audit Categories**:
+```python
+# AI System Events
+AI_DECISION            # AI-made decisions
+AI_OUTPUT             # AI-generated outputs
+AI_TRAINING           # Model training events
+
+# Agent Events
+AGENT_CREATED/STARTED/COMPLETED/FAILED
+
+# Workflow Events
+WORKFLOW_STARTED/COMPLETED/FAILED/ROLLBACK
+
+# Access Events
+ACCESS_LOGIN/LOGOUT/DENIED/GRANTED
+
+# Data Events
+DATA_READ/WRITE/DELETE/EXPORT
+
+# Configuration Events
+CONFIG_CHANGED/POLICY_CHANGED/PERMISSION_CHANGED
+
+# Compliance Events
+APPROVAL_REQUESTED/GRANTED/DENIED
+RISK_ASSESSED
+INCIDENT_REPORTED
+
+# System Events
+SYSTEM_STARTUP/SHUTDOWN/ERROR
+```
+
+**Event Structure**:
+```python
+class AuditEvent(BaseModel):
+    # Identification
+    event_id: str                    # Unique ID
+    timestamp: datetime              # UTC timestamp
+    correlation_id: str | None       # Request tracing
+
+    # Classification
+    category: AuditCategory
+    action: str
+    outcome: AuditOutcome            # success, failure, denied
+    severity: AuditSeverity          # info → critical
+
+    # Actor (Who)
+    actor: str                       # user, agent, system
+    actor_type: str                  # user/agent/service/system
+    actor_ip: str | None            # IP address
+
+    # Resource (What)
+    resource: str                    # Affected resource
+    resource_type: str | None
+
+    # Changes (How)
+    old_value: Any | None           # Before
+    new_value: Any | None           # After
+
+    # Context (Why)
+    reason: str | None
+    evidence: dict | None           # Supporting data
+
+    # Compliance
+    policy_reference: str | None    # Applicable policy
+    approval_reference: str | None  # Approval ID
+```
+
+**Request Tracing**
+**Package**: `paracle_core.logging.context`
+**Status**: ✅ Implemented
+
+**Features**:
+- Correlation ID generation (X-Correlation-ID)
+- Context propagation across services
+- Request/response logging with timing
+- Error context capture
+- Middleware integration
+
+**Security Features**
+**Package**: `paracle_api.security`
+**Status**: ✅ Implemented
+
+**Features**:
+- JWT authentication with audit logging
+- Rate limiting with abuse detection
+- Security headers (OWASP compliance)
+- Input validation (Pydantic)
+- Permission-based access control
+
+**Tool Security**
+**Package**: `paracle_tools.builtin`
+**Status**: ✅ Implemented
+
+**Features**:
+- Sandboxed filesystem operations
+- Command whitelisting for shell tools
+- Audit logging of all tool executions
+- Permission checks before execution
+
+#### Phase 2: Enhanced Governance (v0.5.0 - Q2 2026)
+
+**Deliverables**:
+
+1. **Policy Engine**
+   - Package: `paracle_governance` (new)
+   - Define approval workflows
+   - Automated policy enforcement
+   - Policy violation detection
+   - Compliance reporting
+
+2. **Risk Assessment Engine**
+   - Package: `paracle_risk` (new)
+   - Automated risk scoring for agents
+   - Risk-based approval thresholds
+   - Risk mitigation tracking
+   - Continuous risk monitoring
+
+3. **Data Governance**
+   - Data classification (public, internal, confidential, restricted)
+   - Data lineage tracking
+   - PII detection and handling
+   - Data retention policies
+   - GDPR/CCPA compliance
+
+4. **Enhanced Audit Storage**
+   - SQLite-based audit database
+   - Full-text search capabilities
+   - Audit log retention policies
+   - Automated compliance reports
+   - Tamper-evident logging (hash chains)
+
+#### Phase 3: Advanced Compliance (v0.7.0 - Q4 2026)
+
+**Deliverables**:
+
+1. **Automated Compliance Testing**
+   - Continuous compliance validation
+   - Automated policy testing
+   - Compliance dashboard
+   - Alert system for violations
+
+2. **AI Explainability**
+   - Decision explanation generation
+   - Feature importance tracking
+   - Model interpretability tools
+   - Audit trail for AI decisions
+
+3. **Bias Detection & Mitigation**
+   - Fairness metrics
+   - Bias testing framework
+   - Mitigation strategies
+   - Ongoing monitoring
+
+4. **External Audit Support**
+   - Compliance report generation
+   - Evidence collection automation
+   - Audit trail export (SIEM integration)
+   - Third-party auditor access
+
+#### Phase 4: Enterprise Compliance (v0.9.0 - Q2 2027)
+
+**Deliverables**:
+
+1. **Multi-Tenant Compliance**
+   - Tenant-specific policies
+   - Isolated audit trails
+   - Cross-tenant compliance reporting
+
+2. **Regulatory Compliance Packs**
+   - GDPR compliance pack
+   - HIPAA compliance pack
+   - SOC 2 compliance pack
+   - Industry-specific packs
+
+3. **Advanced Risk Management**
+   - ML-powered risk prediction
+   - Automated incident response
+   - Risk quantification
+   - Board-level reporting
+
+### Implementation Roadmap
+
+| Version | Focus      | Delivery | ISO 42001 Coverage                    |
+| ------- | ---------- | -------- | ------------------------------------- |
+| v0.0.1  | Foundation | ✅ Done   | ~40% (Audit trail, logging)           |
+| v0.5.0  | Governance | Q2 2026  | ~65% (Policies, risk assessment)      |
+| v0.7.0  | Advanced   | Q4 2026  | ~85% (Explainability, bias detection) |
+| v0.9.0  | Enterprise | Q2 2027  | ~95% (Full compliance, certifiable)   |
+
+### Audit Trail Design
+
+**Storage Strategy**:
+
+**v0.0.1**: File-based (NDJSON)
+- Location: `.parac/logs/audit.log`
+- Format: Newline-delimited JSON
+- Rotation: Daily (7-day retention)
+- Backup: Manual export
+
+**v0.5.0**: SQLite database
+- Location: `.parac/audit/audit.db`
+- Schema: Normalized tables
+- Retention: Configurable (default: 90 days)
+- Query: Full-text search
+- Export: JSON, CSV, SIEM formats
+
+**v0.9.0**: Distributed (optional)
+- PostgreSQL/MongoDB for scale
+- Real-time streaming to SIEM
+- Long-term archival (S3/Azure Blob)
+- Encryption at rest
+
+**Retention Policy**:
+```yaml
+audit_retention:
+  critical_events: 7_years    # ISO 42001 requirement
+  high_severity: 3_years
+  medium_severity: 1_year
+  low_severity: 90_days
+  info_events: 30_days
+```
+
+### Compliance Checkpoints
+
+**Every Release**:
+- [ ] Audit log review (no gaps)
+- [ ] Security scan (OWASP Top 10)
+- [ ] Permission model review
+- [ ] Documentation updates
+
+**Quarterly (v0.5.0+)**:
+- [ ] Internal compliance audit
+- [ ] Risk assessment review
+- [ ] Policy effectiveness review
+- [ ] Training data review
+
+**Annually (v0.9.0+)**:
+- [ ] External audit preparation
+- [ ] ISO 42001 self-assessment
+- [ ] Certification readiness review
+- [ ] Compliance report publication
+
+### Consequences
+
+**Positive:**
+- ✅ **Foundation Built**: Audit system ready for v0.0.1
+- ✅ **Progressive Enhancement**: Incremental compliance approach
+- ✅ **Clear Roadmap**: Phased implementation over 18 months
+- ✅ **Standards-Based**: ISO 42001 compliance from start
+- ✅ **Enterprise-Ready**: Path to full certification (v0.9.0)
+- ✅ **Competitive Advantage**: Few AI frameworks have this
+
+**Negative:**
+- ⚠️ **Complexity**: Compliance adds engineering overhead
+- ⚠️ **Performance**: Audit logging has minimal overhead (~2-5ms)
+- ⚠️ **Storage**: Audit trails require disk space
+- ⚠️ **Maintenance**: Requires ongoing compliance monitoring
+
+**Mitigation:**
+- Async audit logging (non-blocking)
+- Configurable verbosity levels
+- Automated log rotation and archival
+- Compliance automation tools (v0.5.0+)
+
+### Monitoring & Metrics
+
+**v0.0.1 Metrics** (Already Tracked):
+- Audit events per hour
+- Failed access attempts
+- Tool execution audit coverage
+- Correlation ID propagation rate
+
+**v0.5.0 Metrics** (Planned):
+- Policy violation rate
+- Risk score distribution
+- Approval processing time
+- Compliance score per agent
+
+**v0.9.0 Metrics** (Future):
+- ISO 42001 compliance percentage
+- Audit readiness score
+- Incident response time
+- Training effectiveness
+
+### Documentation Requirements
+
+**User-Facing**:
+- [ ] Compliance overview guide
+- [ ] Audit log interpretation
+- [ ] Policy configuration examples
+- [ ] Risk assessment guide
+
+**Internal**:
+- [ ] Compliance architecture doc
+- [ ] Audit system design doc
+- [ ] Testing procedures
+- [ ] Incident response playbook
+
+### References
+
+- ISO/IEC 42001:2023 AI Management System
+- NIST AI Risk Management Framework
+- EU AI Act (High-Risk AI Systems)
+- OWASP Top 10 for LLM Applications
+- SOC 2 Trust Services Criteria
+- GDPR Article 22 (Automated Decision-Making)
+
+### Success Criteria
+
+**v0.0.1** (Current):
+- ✅ 100% of API calls have correlation IDs
+- ✅ All agent executions logged to audit trail
+- ✅ All tool executions logged with actor
+- ✅ Authentication events audited
+
+**v0.5.0** (Q2 2026):
+- [ ] 100% of policy violations detected
+- [ ] Risk assessment for all agent creations
+- [ ] Automated compliance reports generated
+- [ ] Zero audit log gaps
+
+**v0.9.0** (Q2 2027):
+- [ ] Pass external ISO 42001 audit
+- [ ] 95%+ compliance score
+- [ ] Certification-ready
+- [ ] Industry benchmark compliance
+
+---
+
+## ADR-003: Agent Inheritance System (continued)
+
+**Date**: 2025-12-24
+**Status**: Accepted
+**Deciders**: Core Team
+
 ### Context
 
 Agents often share common configurations (prompts, tools, models). Need mechanism for reusability without duplication.
@@ -893,14 +1732,14 @@ paracle parac status  # → redirects to paracle status
 
 ### CLI Reference
 
-| Old Command | New Command | Description |
-|-------------|-------------|-------------|
-| `paracle parac status` | `paracle status` | Show project state |
-| `paracle parac sync` | `paracle sync` | Sync with reality |
-| `paracle parac validate` | `paracle validate` | Validate workspace |
-| `paracle parac session start` | `paracle session start` | Start session |
-| `paracle parac session end` | `paracle session end` | End session |
-| (none) | `paracle init` | Initialize workspace |
+| Old Command                   | New Command             | Description          |
+| ----------------------------- | ----------------------- | -------------------- |
+| `paracle parac status`        | `paracle status`        | Show project state   |
+| `paracle parac sync`          | `paracle sync`          | Sync with reality    |
+| `paracle parac validate`      | `paracle validate`      | Validate workspace   |
+| `paracle parac session start` | `paracle session start` | Start session        |
+| `paracle parac session end`   | `paracle session end`   | End session          |
+| (none)                        | `paracle init`          | Initialize workspace |
 
 ### Related ADRs
 
@@ -1175,3 +2014,1368 @@ for child in specs[1:]:
 1. ✅ Phase 2 Complete
 2. 📋 Begin Phase 3: Orchestration Engine
 3. 📋 Consider enhancing inheritance with explicit field metadata (post-v0.0.1)
+
+---
+
+## ADR-013: State Management and Rollback System
+
+**Date**: 2026-01-02
+**Status**: Accepted
+**Deciders**: Core Team
+**Phase**: Phase 3 Enhancement - State Management
+
+### Context
+
+Paracle needed robust state management and rollback capabilities for:
+1. **Workflow Recovery**: Resume failed workflows from checkpoints
+2. **State Versioning**: Track entity changes over time
+3. **Event Sourcing**: Enable replay-based state reconstruction
+4. **Transaction Semantics**: Provide compensation for failed multi-step operations
+
+**Existing Foundation:**
+- In-memory `EventStore` in `paracle_events/bus.py` with replay capability
+- Immutable events with `ConfigDict(frozen=True)`
+- `ExecutionContext` tracking workflow state
+- Repository pattern with thread-safe operations
+
+**Missing:**
+- Persistent event storage (events lost on restart)
+- State snapshots for aggregates
+- Rollback mechanism for workflows
+- Compensating transactions for failed steps
+
+### Decision
+
+Implement a comprehensive state management and rollback system with 4 components:
+
+#### 1. Persistent Event Store (`paracle_events/persistent_store.py`)
+
+SQLite-backed durable event storage with:
+- Ordered event sequences
+- Event querying by type, source, time range
+- Checkpoint support for snapshots
+- Replay from any sequence number
+- NDJSON export/import
+
+```python
+store = PersistentEventStore("events.db")
+store.append(event)
+store.replay(handler, from_sequence=100)
+store.save_checkpoint("chk_1", aggregate_id, state)
+```
+
+#### 2. State Snapshot System (`paracle_store/snapshot.py`)
+
+Point-in-time snapshots of aggregate state:
+- Immutable `StateSnapshot` model with version tracking
+- `InMemorySnapshotStore` (extensible to SQLite)
+- `Snapshottable` mixin for entities
+- Rollback to any previous version
+
+```python
+snapshot_store = InMemorySnapshotStore()
+snapshottable = Snapshottable(snapshot_store, "Agent")
+snapshottable.create_snapshot(entity, entity_id)
+entity = snapshottable.rollback(entity_id, to_version=5)
+```
+
+#### 3. Workflow Rollback Manager (`paracle_orchestration/rollback.py`)
+
+Checkpoint-based workflow recovery:
+- `StepCheckpoint`: Captures state after each step
+- `CheckpointManager`: Creates and retrieves checkpoints
+- `CompensatingAction`: Defines rollback behavior per step
+- `WorkflowRollbackManager`: Orchestrates rollback
+
+```python
+manager = WorkflowRollbackManager()
+manager.create_checkpoint(execution_id, step_name, result, context)
+manager.register_compensation(step_name, CompensatingAction(...))
+result = await manager.rollback(execution_id, to_step_index=2)
+```
+
+#### 4. Transaction-like Wrapper (`WorkflowTransaction`)
+
+Provides begin/commit/rollback semantics:
+- Auto-rollback on exception
+- Manual rollback support
+- Context manager syntax
+
+```python
+async with WorkflowTransaction(manager, execution_id) as tx:
+    result = await execute_step()
+    tx.checkpoint("step_1", result, context)
+    # Auto-commit on success, auto-rollback on exception
+```
+
+### Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                   PARACLE FRAMEWORK                          │
+│                                                              │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │  paracle_events/                                      │  │
+│  │    bus.py (existing EventBus, in-memory EventStore)  │  │
+│  │    persistent_store.py (NEW: SQLite-backed storage)  │  │
+│  └──────────────────────────────────────────────────────┘  │
+│                           ↓ stores events                   │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │  paracle_store/                                       │  │
+│  │    repository.py (existing Repository pattern)       │  │
+│  │    snapshot.py (NEW: State snapshots + versioning)   │  │
+│  └──────────────────────────────────────────────────────┘  │
+│                           ↓ uses snapshots                  │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │  paracle_orchestration/                               │  │
+│  │    engine.py (existing WorkflowOrchestrator)         │  │
+│  │    context.py (existing ExecutionContext)            │  │
+│  │    rollback.py (NEW: Checkpoints + Rollback)         │  │
+│  └──────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Implementation
+
+**Files Created:**
+- `packages/paracle_events/persistent_store.py` (350+ lines)
+- `packages/paracle_store/snapshot.py` (300+ lines)
+- `packages/paracle_orchestration/rollback.py` (450+ lines)
+- `tests/unit/test_rollback.py` (25 tests)
+
+**Files Modified:**
+- `packages/paracle_events/__init__.py` (export PersistentEventStore)
+
+**Test Coverage:**
+- 25 new tests covering all rollback functionality
+- 100% test pass rate
+- Scenarios: snapshots, persistent events, checkpoints, rollback, transactions
+
+### Consequences
+
+#### Positive
+
+✅ **Durability**: Events persist across restarts (SQLite)
+✅ **Recovery**: Failed workflows can resume from checkpoints
+✅ **Versioning**: Full history of entity state changes
+✅ **Rollback**: Undo completed steps with compensation
+✅ **Transaction Semantics**: Auto-rollback on exceptions
+✅ **Event Sourcing Ready**: Foundation for full event sourcing
+✅ **Audit Trail**: Complete history for compliance (ISO 42001)
+✅ **Extensible**: Protocol-based handlers for custom compensation
+
+#### Negative
+
+⚠️ **Storage Requirements**: Events accumulate over time
+⚠️ **Complexity**: More moving parts to maintain
+⚠️ **Performance**: SQLite writes add latency
+
+#### Mitigations
+
+- Event pruning policies (configurable retention)
+- Checkpoint pruning (keep N most recent)
+- Optional persistent storage (in-memory for testing)
+- Async operations where possible
+
+### Usage Examples
+
+**1. Persistent Event Storage:**
+```python
+from paracle_events import PersistentEventStore, agent_created
+
+store = PersistentEventStore("events.db")
+store.append(agent_created("agent_123", "spec"))
+
+# Later: replay events
+store.replay(handler, from_sequence=0)
+```
+
+**2. State Snapshots:**
+```python
+from paracle_store.snapshot import InMemorySnapshotStore, Snapshottable
+
+store = InMemorySnapshotStore()
+snapshottable = Snapshottable(store, "Agent", deserializer=Agent.model_validate)
+
+# Create snapshot on state change
+snapshottable.create_snapshot(agent, agent.id, reason="Updated status")
+
+# Rollback to previous version
+agent = snapshottable.rollback(agent.id, to_version=1)
+```
+
+**3. Workflow Rollback:**
+```python
+from paracle_orchestration.rollback import (
+    WorkflowRollbackManager,
+    CompensatingAction,
+    WorkflowTransaction,
+)
+
+manager = WorkflowRollbackManager()
+
+# Register compensating actions
+manager.register_compensation("send_email", CompensatingAction(
+    step_name="send_email",
+    action_type="cancel_email",
+    parameters={"action": "mark_as_cancelled"},
+))
+
+# Use transaction semantics
+async with WorkflowTransaction(manager, execution_id) as tx:
+    result1 = await process_order()
+    tx.checkpoint("process_order", result1, context)
+
+    result2 = await send_email()  # This might fail
+    tx.checkpoint("send_email", result2, context)
+    # If send_email fails, process_order is compensated
+```
+
+### Roadmap Integration
+
+This ADR adds state management to the Phase 3 deliverables:
+
+**Phase 3 (Updated):**
+- ✅ Workflow orchestrator
+- ✅ REST API (FastAPI)
+- ✅ WebSocket support (planned)
+- ✅ Authentication (JWT)
+- **✅ State management & rollback (NEW)**
+
+**v0.5.0 (Future):**
+- Memory management (builds on snapshots)
+- Knowledge engine (uses event sourcing)
+
+**v0.7.0 (Future):**
+- Full ISO 42001 audit trail (uses persistent events)
+- Policy enforcement (uses checkpoints)
+
+### Related ADRs
+
+- ADR-006: Event-Driven Architecture (foundation)
+- ADR-002: Modular Monolith Architecture (package structure)
+
+### References
+
+- [Event Sourcing Pattern](https://martinfowler.com/eaaDev/EventSourcing.html)
+- [Saga Pattern](https://microservices.io/patterns/data/saga.html)
+- [SQLite JSON1 Extension](https://www.sqlite.org/json1.html)
+
+---
+
+## ADR-015: Hybrid Persistence Strategy
+
+**Date**: 2026-01-04
+**Status**: Accepted
+**Deciders**: Core Team
+**Phase**: Phase 4 - Persistence & Production Scale
+
+### Context
+
+Paracle needed a persistence strategy that:
+1. Keeps configurations human-readable and git-friendly
+2. Provides reliable runtime data storage
+3. Supports AI-native features (RAG, embeddings, memory)
+4. Scales from development to production
+5. Works with zero external dependencies for simple cases
+
+**Existing State:**
+- `.parac/` workspace with YAML/Markdown files (working)
+- In-memory repositories (data lost on restart)
+- `PersistentEventStore` with SQLite (basic event storage)
+
+**Requirements:**
+- ACID transactions for runtime data
+- Query capabilities for history and analytics
+- Vector storage for future RAG/memory features
+- Progressive complexity (simple → production)
+
+### Decision
+
+Implement a **Hybrid Three-Layer Persistence Architecture**:
+
+#### Layer 1: YAML/Markdown Files (Source of Truth for Definitions)
+
+**Location**: `.parac/`
+**Scope**: Configuration and definitions
+**Status**: ✅ Implemented
+
+**Contents:**
+- Agent specifications (`.parac/agents/specs/`)
+- Workflow definitions (`.parac/workflows/`)
+- Tool configurations
+- Governance state (roadmap, decisions)
+- Project configuration
+
+**Benefits:**
+- Human-readable and editable
+- Git-friendly (version control)
+- Declarative configuration
+- Zero external dependencies
+
+#### Layer 2: SQLite → PostgreSQL (Runtime Data)
+
+**Package**: `paracle_store`
+**Scope**: Transactional runtime data
+**Status**: 🔄 Implementing (Phase 4)
+
+**Tables:**
+```sql
+-- Agent runtime instances
+CREATE TABLE agents (
+    id TEXT PRIMARY KEY,
+    name TEXT UNIQUE NOT NULL,
+    spec_hash TEXT NOT NULL,
+    status TEXT DEFAULT 'active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    metadata JSON
+);
+
+-- Workflow executions
+CREATE TABLE executions (
+    id TEXT PRIMARY KEY,
+    workflow_id TEXT NOT NULL,
+    status TEXT NOT NULL,
+    started_at TIMESTAMP,
+    completed_at TIMESTAMP,
+    result JSON,
+    error TEXT,
+    context JSON
+);
+
+-- Event log
+CREATE TABLE events (
+    sequence INTEGER PRIMARY KEY AUTOINCREMENT,
+    event_id TEXT UNIQUE NOT NULL,
+    event_type TEXT NOT NULL,
+    source TEXT,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    data JSON
+);
+
+-- Audit trail (ISO 42001)
+CREATE TABLE audit (
+    id TEXT PRIMARY KEY,
+    category TEXT NOT NULL,
+    action TEXT NOT NULL,
+    actor TEXT NOT NULL,
+    actor_type TEXT NOT NULL,
+    resource TEXT,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    outcome TEXT,
+    severity TEXT,
+    data JSON
+);
+
+-- Sessions
+CREATE TABLE sessions (
+    id TEXT PRIMARY KEY,
+    started_at TIMESTAMP NOT NULL,
+    ended_at TIMESTAMP,
+    state JSON,
+    summary TEXT
+);
+```
+
+**Migration Path:**
+- v0.0.1: SQLite (file-based, zero config)
+- v0.7.0+: PostgreSQL option (connection string)
+
+#### Layer 3: ChromaDB → pgvector (AI-Native Storage)
+
+**Package**: `paracle_knowledge` (v0.5.0)
+**Scope**: Embeddings, RAG, semantic search
+**Status**: 📋 Planned
+
+**Contents:**
+- Document embeddings for RAG
+- Agent memory vectors
+- Semantic code search indexes
+- Conversation history embeddings
+
+**Migration Path:**
+- v0.5.0: ChromaDB (embedded, simple)
+- v1.0.0: pgvector (unified with PostgreSQL)
+
+### Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     STORAGE CONFIGURATION                        │
+│                                                                  │
+│  StorageConfig:                                                  │
+│    workspace_path: Path = ".parac"                              │
+│    database_url: str | None = "sqlite:///paracle.db"           │
+│    vector_store: Literal["none", "chroma", "pgvector"] = "none"│
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────────┐
+│                    REPOSITORY PATTERN                            │
+│                                                                  │
+│  Repository[T] (Abstract)                                        │
+│    ├── InMemoryRepository[T]  (testing, ephemeral)              │
+│    └── SQLiteRepository[T]    (persistent, production)          │
+│                                                                  │
+│  AgentRepository                                                 │
+│    ├── InMemoryAgentRepository                                  │
+│    └── SQLiteAgentRepository                                    │
+│                                                                  │
+│  WorkflowRepository, ExecutionRepository, EventRepository...   │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Implementation
+
+**Files to Create:**
+
+```
+packages/paracle_store/
+├── database.py           # Database connection management
+├── models.py             # SQLAlchemy models
+├── sqlite_repository.py  # SQLite implementations
+└── migrations/
+    ├── env.py            # Alembic config
+    └── versions/
+        └── 001_initial.py
+```
+
+**Storage Configuration:**
+
+```python
+# packages/paracle_core/storage.py
+
+from pydantic import BaseModel
+from pathlib import Path
+from typing import Literal
+
+class StorageConfig(BaseModel):
+    """Multi-layer storage configuration."""
+
+    # Layer 1: File-based (always available)
+    workspace_path: Path = Path(".parac")
+
+    # Layer 2: Relational (optional, progressive)
+    database_url: str | None = None  # sqlite:/// or postgresql://
+
+    # Layer 3: Vector (optional, for RAG)
+    vector_store: Literal["none", "chroma", "pgvector"] = "none"
+    vector_store_path: str | None = None
+
+    @property
+    def is_persistent(self) -> bool:
+        return self.database_url is not None
+
+    @property
+    def default_sqlite_path(self) -> Path:
+        return self.workspace_path / "data" / "paracle.db"
+```
+
+### Consequences
+
+#### Positive
+
+✅ **Zero-Config Start**: Works with just YAML files (no database setup)
+✅ **Progressive Complexity**: Add SQLite when persistence needed
+✅ **Human-Readable Configs**: Agent specs stay in YAML
+✅ **Git-Friendly**: Definitions version-controlled
+✅ **Production-Ready Path**: Clear migration to PostgreSQL
+✅ **AI-Native Future**: Vector storage for RAG/memory
+✅ **ACID Transactions**: Reliable runtime data
+✅ **Queryable History**: SQL for analytics
+✅ **ISO 42001 Compliant**: Proper audit trail
+
+#### Negative
+
+⚠️ **Complexity**: Multiple storage systems to maintain
+⚠️ **Synchronization**: Must keep YAML and DB in sync
+⚠️ **Dependencies**: SQLAlchemy, Alembic for full features
+
+#### Mitigations
+
+- Clear separation: YAML for definitions, DB for runtime
+- Sync utilities in CLI (`paracle sync`)
+- Optional dependencies (SQLite is stdlib)
+- Comprehensive documentation
+
+### Migration Path
+
+| Version | Storage | Description |
+|---------|---------|-------------|
+| v0.0.1 | YAML + SQLite | Config in files, runtime in SQLite |
+| v0.1.0 | + Event persistence | Persistent event store |
+| v0.5.0 | + ChromaDB | RAG and embeddings |
+| v0.7.0 | + PostgreSQL option | Production scaling |
+| v1.0.0 | + pgvector | Unified relational + vector |
+
+### Success Criteria
+
+- [ ] SQLite persistence for agents, workflows, executions
+- [ ] Event persistence survives restart
+- [ ] Audit trail for all operations
+- [ ] Session data persistence
+- [ ] Migration tooling (Alembic)
+- [ ] Repository pattern with both in-memory and SQLite
+
+### References
+
+- SQLAlchemy 2.0 Documentation
+- Alembic Migration Tool
+- ChromaDB Documentation
+- pgvector Extension
+
+### Related ADRs
+
+- ADR-006: Event-Driven Architecture
+- ADR-013: State Management and Rollback
+- ADR-011: ISO 42001 Compliance Strategy
+
+---
+
+## ADR-014: CLI Commands Enhancement Roadmap
+
+**Date**: 2026-01-02
+**Status**: Accepted
+**Deciders**: Core Team
+**Phase**: Cross-Phase Enhancement
+
+### Context
+
+Analysis of the Paracle CLI revealed significant gaps compared to industry-standard AI frameworks (LangChain, CrewAI, AutoGen). The current CLI has 10 implemented commands focused on workspace governance, but lacks essential runtime and developer experience commands.
+
+**Current State (10 commands):**
+- Workspace: `init`, `status`, `sync`, `validate`
+- Session: `session start`, `session end`
+- Agents: `agents list`, `agents get`, `agents export`
+- Utility: `hello`
+
+**Industry Comparison:**
+
+| Feature        | LangChain | CrewAI | AutoGen | Paracle   |
+| -------------- | --------- | ------ | ------- | --------- |
+| `serve`        | ✅         | ✅      | ❌       | ❌         |
+| `run agent`    | ✅         | ✅      | ✅       | ❌         |
+| `create agent` | ✅         | ✅      | ❌       | ❌         |
+| `list tools`   | ✅         | ✅      | ❌       | ❌         |
+| `new project`  | ✅         | ✅      | ❌       | ⚠️ Partial |
+| `config`       | ✅         | ✅      | ❌       | ❌         |
+
+### Decision
+
+Implement 35 additional CLI commands across phases, prioritized by user impact:
+
+#### Priority 0 - Essential (Blocking Usage)
+
+These commands are required for Paracle to be usable as a framework:
+
+```bash
+# Phase 3
+paracle serve                    # Start API server
+paracle serve --port 8000        # Custom port
+paracle serve --reload           # Dev mode
+
+# Phase 5
+paracle agents create <name>     # Create from template
+paracle agents run <name>        # Run interactively
+```
+
+#### Priority 1 - Core Features
+
+```bash
+# Workflow Management (Phase 3)
+paracle workflow list            # List workflows
+paracle workflow run <name>      # Execute workflow
+paracle workflow status <id>     # Check execution
+paracle workflow cancel <id>     # Cancel running
+paracle workflow history         # Execution history
+
+# Provider Management (Phase 2)
+paracle providers list           # List providers
+paracle providers add <name>     # Add provider
+paracle providers test <name>    # Test connection
+paracle providers default <name> # Set default
+
+# Tool Management (Phase 2)
+paracle tools list               # List tools
+paracle tools info <name>        # Tool details
+paracle tools register <path>    # Register custom
+paracle tools test <name>        # Test execution
+```
+
+#### Priority 2 - Developer Experience
+
+```bash
+# Development (Phase 4)
+paracle dev                      # Start dev environment
+paracle logs                     # Stream logs
+paracle logs --tail 100          # Last N logs
+
+# Events (Phase 4)
+paracle events list              # Recent events
+paracle events replay <id>       # Replay from event
+
+# Configuration (Phase 4)
+paracle config show              # Show config
+paracle config set <key> <val>   # Set value
+paracle config get <key>         # Get value
+paracle config env               # Environment vars
+
+# Monitoring (Phase 4)
+paracle health                   # Health check
+paracle metrics                  # Show metrics
+```
+
+#### Priority 3 - Polish & Onboarding
+
+```bash
+# Project Creation (Phase 5)
+paracle new <name>               # Full project scaffold
+paracle new --template api       # From template
+paracle new --template chatbot   # Different archetypes
+
+# Agent Lifecycle (Phase 5)
+paracle agents test <name>       # Test with samples
+paracle agents delete <name>     # Remove agent
+paracle agents validate <name>   # Validate spec
+
+# Maintenance (Phase 5)
+paracle doctor                   # Diagnose issues
+paracle upgrade                  # Upgrade version
+```
+
+### Implementation Plan
+
+| Phase   | Commands | Priority | Total     |
+| ------- | -------- | -------- | --------- |
+| Phase 1 | 10       | -        | 10 (done) |
+| Phase 2 | +8       | P1       | 18        |
+| Phase 3 | +5       | P0/P1    | 23        |
+| Phase 4 | +12      | P2       | 35        |
+| Phase 5 | +10      | P0/P3    | 45        |
+
+### Architecture
+
+All commands follow the established pattern:
+
+```
+packages/paracle_cli/
+├── main.py              # Entry point, Click groups
+├── commands/
+│   ├── parac.py         # Workspace commands (existing)
+│   ├── agents.py        # Agent commands (existing)
+│   ├── workflow.py      # Workflow commands (new)
+│   ├── providers.py     # Provider commands (new)
+│   ├── tools.py         # Tool commands (new)
+│   ├── config.py        # Config commands (new)
+│   ├── server.py        # Serve command (new)
+│   └── dev.py           # Dev commands (new)
+└── utils/
+    └── api_client.py    # API client (existing)
+```
+
+### Command Design Principles
+
+1. **Consistency**: All commands follow `paracle <noun> <verb>` pattern
+2. **Output Formats**: Support `--format=table|json|yaml` where applicable
+3. **API-First**: Commands connect to API when server is running
+4. **Offline Mode**: Core commands work without server
+5. **Progressive Disclosure**: Simple by default, options for power users
+
+### Consequences
+
+#### Positive
+
+✅ **Usability**: Framework becomes actually usable
+✅ **Parity**: Competitive with LangChain/CrewAI CLIs
+✅ **Developer Experience**: Smooth onboarding and debugging
+✅ **Discoverability**: Commands self-document features
+
+#### Negative
+
+⚠️ **Implementation Effort**: 35 commands to implement
+⚠️ **Testing Surface**: Each command needs tests
+⚠️ **Documentation**: CLI reference docs needed
+
+#### Mitigations
+
+- Phased rollout by priority
+- Reuse existing API endpoints
+- Generate docs from Click metadata
+- Template-based command generation
+
+### Related ADRs
+
+- ADR-002: Modular Monolith Architecture
+- ADR-013: State Management and Rollback
+
+### References
+
+- [Click Documentation](https://click.palletsprojects.com/)
+- [LangChain CLI](https://python.langchain.com/docs/langchain-cli/)
+- [CrewAI CLI](https://docs.crewai.com/)
+
+---
+
+## ADR-017: Comprehensive Multi-Provider Support
+
+**Date**: 2026-01-04
+**Status**: Accepted
+**Deciders**: Core Team
+
+### Context
+
+Current provider support is limited to OpenAI, Anthropic, Google, and Ollama. The AI landscape has expanded significantly with new providers offering performance advantages (Groq), cost benefits (DeepSeek), and extended capabilities (xAI). Users need flexibility to choose providers based on cost, performance, and features.
+
+### Decision
+
+Expand provider support with:
+1. New Providers: xAI (Grok), DeepSeek, Groq, OpenAI-compatible wrapper
+2. Model Capabilities System: ModelCapability enum, ModelInfo, ProviderInfo, ModelCatalog
+3. Enhanced Documentation: Comprehensive provider guide (docs/providers.md)
+
+### Implementation
+
+**New Files**:
+- packages/paracle_providers/capabilities.py - Capabilities tracking
+- packages/paracle_providers/xai_provider.py - xAI implementation
+- packages/paracle_providers/deepseek_provider.py - DeepSeek implementation
+- packages/paracle_providers/groq_provider.py - Groq implementation
+- packages/paracle_providers/openai_compatible.py - Generic wrapper
+- docs/providers.md - Comprehensive guide
+- examples/07_multi_provider.py - Multi-provider examples
+
+### Consequences
+
+**Positive**:
+✅ Provider choice based on cost, performance, features
+✅ Cost optimization with DeepSeek (0.14/M) and Groq (0.05/M)
+✅ Ultra-fast inference with Groq (500+ tokens/sec)
+✅ Self-hosted options with OpenAI-compatible APIs
+
+**Negative**:
+⚠️ More providers to maintain and test
+⚠️ API variations between providers
+
+### References
+- Vercel AI SDK: https://ai-sdk.dev/docs/foundations/providers-and-models
+- xAI, DeepSeek, Groq API documentation
+
+
+---
+
+## ADR-018: Complete Provider Ecosystem Coverage
+
+**Date**: 2026-01-04
+**Status**: Accepted
+**Deciders**: Core Team
+
+### Context
+
+Following ADR-017's successful addition of xAI, DeepSeek, Groq, and OpenAI-compatible providers, users requested comprehensive coverage of ALL major commercial and self-hosted providers. The goal is to make Paracle the most complete multi-provider framework available.
+
+### Decision
+
+Add complete provider ecosystem:
+
+**6 New Commercial Providers**:
+1. Mistral - Open-weight models with function calling
+2. Cohere - Specialized in embeddings, reranking, RAG
+3. Together.ai - 100+ open-source models with fast inference  
+4. Perplexity - Search-enhanced AI with real-time web access
+5. OpenRouter - Unified gateway to 200+ models
+6. Fireworks.ai - Production-grade inference
+
+**8 Self-Hosted Solutions** (via factory functions):
+1. vLLM - Production GPU inference
+2. llama.cpp - CPU-optimized inference
+3. text-generation-webui - Feature-rich UI
+4. LocalAI - OpenAI-compatible Docker solution
+5. Jan - Privacy-focused desktop app
+6. Anyscale - Ray-based endpoints
+7. Cloudflare Workers AI - Edge deployment
+8. (LM Studio, Together, Perplexity already had factories)
+
+### Implementation
+
+**New Files Created**:
+- packages/paracle_providers/mistral_provider.py (270 lines)
+- packages/paracle_providers/cohere_provider.py (250 lines)
+- packages/paracle_providers/together_provider.py (220 lines)
+- packages/paracle_providers/perplexity_provider.py (230 lines)
+- packages/paracle_providers/openrouter_provider.py (210 lines)
+- packages/paracle_providers/fireworks_provider.py (210 lines)
+- examples/08_self_hosted_providers.py (300 lines)
+
+**Files Modified**:
+- packages/paracle_providers/openai_compatible.py - Added 8 factory functions
+- packages/paracle_providers/auto_register.py - Registered 6 new providers
+- packages/paracle_providers/__init__.py - Exported factory functions
+- docs/providers.md - Extended with 300+ lines of documentation
+
+### Provider Statistics
+
+**Total Providers**: 14+ (8 commercial + 6 self-hosted)
+**Total Models**: 50+ models across all providers
+**Context Windows**: 4k to 2M tokens
+**Pricing**: Free (self-hosted) to \/M tokens
+**Features**: Chat, vision, search, reasoning, tool calling, embeddings
+
+### Cost Comparison (per 1M tokens)
+
+**Ultra-Budget** (< \.50):
+- DeepSeek: \.14/M (cheapest)
+- Groq Mixtral: \.05/M (input)
+
+**Budget** (\.50-\.00):
+- Groq Llama: \.79/M
+- Together 70B: \.88/M
+- Fireworks 70B: \.90/M
+- Perplexity Small: \.20/M
+
+**Moderate** (\-\):
+- Mistral Large: \.00/M (input)
+- Cohere R+: \.50/M (input)
+- Together 405B: \.50/M
+- Fireworks 405B: \.00/M
+
+### Use Case Mapping
+
+**Speed Critical**: Groq, Fireworks
+**Cost Optimization**: DeepSeek, Groq, Together
+**Search + AI**: Perplexity (citations)
+**Multi-Provider**: OpenRouter (200+ models)
+**Privacy/Self-Hosted**: vLLM, llama.cpp, LocalAI, Jan
+**Easy Local Setup**: LM Studio, Jan, Ollama
+**Production GPU**: vLLM, Fireworks
+**Production CPU**: llama.cpp
+**Enterprise**: Mistral, Anthropic, OpenAI
+
+### Consequences
+
+**Positive**:
+✅ Most comprehensive provider support in any framework
+✅ True provider flexibility and vendor independence
+✅ Self-hosted options for privacy/cost control
+✅ Complete cost spectrum from free to premium
+✅ Specialized providers for every use case
+✅ Easy migration between providers
+✅ Unified API for all providers
+
+**Negative**:
+⚠️ More providers to maintain and test
+⚠️ API variations require careful handling
+⚠️ Documentation must stay current
+
+**Neutral**:
+ℹ️ Users can choose based on requirements
+ℹ️ Graceful degradation if packages not installed
+
+### Metrics
+
+- **Code Added**: ~2,700 lines (1,390 provider code + 300 examples + 1,000 docs)
+- **Providers**: 14+ (up from 8)
+- **Models**: 50+ (up from 30+)
+- **Self-Hosted Options**: 8 factory functions
+- **Documentation**: Comprehensive guides for all
+- **Time to Complete**: ~2 hours
+
+### References
+
+- Mistral: https://docs.mistral.ai
+- Cohere: https://docs.cohere.com
+- Together: https://docs.together.ai
+- Perplexity: https://docs.perplexity.ai
+- OpenRouter: https://openrouter.ai/docs
+- Fireworks: https://docs.fireworks.ai
+- vLLM: https://vllm.ai
+- llama.cpp: https://github.com/ggerganov/llama.cpp
+
+
+---
+
+## ADR-019: Enterprise Log Management System
+
+**Date**: 2026-01-04
+**Status**: Accepted
+**Deciders**: Core Team, Security Team
+
+### Context
+
+As Paracle grows, log management becomes critical for:
+- **Troubleshooting**: Fast root cause analysis
+- **Security**: Threat detection and incident response
+- **Compliance**: Audit trails for ISO 42001, ISO 27001, GDPR
+- **Performance**: System health monitoring
+- **Cost Optimization**: LLM API cost tracking
+
+Current logging was functional but lacked:
+- Centralized aggregation across all components
+- Automated retention and cleanup
+- Fast search and analysis tools
+- Anomaly detection
+- Compliance reporting
+
+**Inspiration**: CrowdStrike's log management best practices provided framework for enterprise-grade solution.
+
+### Decision
+
+Implement **three-tier enterprise log management architecture**:
+
+#### 1. Framework Logs (~/.paracle/logs/)
+- **Purpose**: Paracle framework operations
+- **Retention**: 90 days
+- **Format**: JSON structured
+- **Versioned**: No
+- **Content**: Core framework, providers, orchestration, errors
+
+#### 2. Governance Logs (.parac/memory/logs/)
+- **Purpose**: Development decisions and agent actions
+- **Retention**: Permanent (version controlled)
+- **Format**: JSON structured
+- **Versioned**: Yes (Git)
+- **Content**: Agent actions, decisions, sessions
+
+#### 3. Runtime Logs (.parac/memory/logs/runtime/)
+- **Purpose**: Agent/workflow execution
+- **Retention**: 30 days (security: 365 days)
+- **Format**: JSON structured
+- **Versioned**: No (high volume)
+- **Content**: Agents, workflows, errors, security
+
+### Implementation
+
+**New Files Created**:
+1. .parac/policies/LOG_MANAGEMENT.md (800+ lines)
+   - Complete policy document
+   - CrowdStrike best practices implementation
+   - Retention policies, security, compliance
+
+2. .parac/memory/logs/runtime/config.yaml (450+ lines)
+   - Comprehensive runtime log configuration
+   - Centralized aggregation settings
+   - Monitoring, alerting, performance tuning
+
+3. packages/paracle_core/logging/management.py (650+ lines)
+   - LogManager class for log operations
+   - Search, aggregation, analysis tools
+   - Anomaly detection algorithms
+   - Compliance reporting
+
+**Files Modified**:
+- .parac/project.yaml - Enhanced logging section (70+ lines)
+
+### Architecture
+
+\\\
+┌──────────────────────────────────────────────────────────┐
+│                    LOG SOURCES                           │
+├──────────────────────────────────────────────────────────┤
+│  Framework  │  Agents  │  Workflows  │  API  │  Security │
+└─────┬────────────┬────────────┬─────────┬───────────┬────┘
+      │            │            │         │           │
+      ▼            ▼            ▼         ▼           ▼
+┌──────────────────────────────────────────────────────────┐
+│              STRUCTURED LOGGING (JSON)                   │
+│  • Correlation IDs    • Context enrichment               │
+│  • Timestamps (ISO)   • PII redaction                    │
+└─────┬────────────────────────────────────────────────┬───┘
+      │                                                │
+      ▼                                                ▼
+┌────────────────────────┐            ┌────────────────────┐
+│   LOCAL STORAGE        │            │  EXTERNAL AGGR.    │
+│   .parac/logs/         │            │  (Optional)        │
+│   ~/.paracle/logs/     │            │  • Elasticsearch   │
+│                        │            │  • Splunk          │
+│   • Daily rotation     │            │  • Datadog         │
+│   • Compression (7d)   │            │  • CloudWatch      │
+│   • Auto-cleanup       │            └────────────────────┘
+└───────┬────────────────┘
+        │
+        ▼
+┌──────────────────────────────────────────────────────────┐
+│                  SQLITE INDEX                            │
+│  • Fast search (indexed fields)                          │
+│  • Full-text search (FTS5)                               │
+│  • Aggregation queries                                   │
+└───────┬──────────────────────────────────────────────────┘
+        │
+        ▼
+┌──────────────────────────────────────────────────────────┐
+│                 ANALYSIS TOOLS                           │
+│  • Search & Filter     • Anomaly Detection               │
+│  • Aggregation         • Compliance Reports              │
+│  • Statistics          • Cost Tracking                   │
+└──────────────────────────────────────────────────────────┘
+\\\
+
+### Features
+
+#### Centralized Aggregation ✅
+- Single access point for all logs
+- Support for local + external aggregators
+- Elasticsearch, Splunk, Datadog, CloudWatch
+
+#### Automation ⚙️
+- Automatic daily rotation (midnight UTC)
+- Compression after 7 days (gzip, 70-90% reduction)
+- Retention policy enforcement
+- Disk space monitoring
+
+#### Retention Policies 📅
+
+| Category | Retention | Compression | Rationale |
+|----------|-----------|-------------|-----------|
+| Framework | 90 days | After 7d | Troubleshooting window |
+| Governance | Permanent | No (Git) | Audit trail |
+| Runtime | 30 days | After 7d | Active debugging |
+| Security | 365 days | After 30d | Compliance (ISO 27001) |
+| Errors | 90 days | After 7d | Root cause analysis |
+| API Access | 180 days | After 30d | Security audits |
+
+#### Monitoring & Alerting 🚨
+- Error rate thresholds (>5% triggers alert)
+- Disk usage warnings (80% warning, 90% critical)
+- Log volume anomaly detection
+- Real-time alerting (email, Slack, PagerDuty)
+
+#### Security 🔒
+- PII redaction (emails, API keys, credit cards)
+- Access control per log category
+- Encryption at rest (future)
+- TLS for log forwarding
+- Audit trail for log access
+
+#### Search & Analysis 🔍
+- Fast indexed search (<100ms)
+- Full-text search with FTS5
+- Aggregation by agent, workflow, user
+- Correlation ID tracing
+- Time range queries
+
+#### Compliance ✅
+- **ISO 42001**: Immutable audit trail, model decisions
+- **ISO 27001**: Security events, 365-day retention
+- **GDPR**: PII protection, right to erasure
+- **SOC 2**: Access logging, change management
+
+### Statistics
+
+- **Policy Document**: 800+ lines (LOG_MANAGEMENT.md)
+- **Configuration**: 450+ lines (runtime/config.yaml)
+- **Management Tools**: 650+ lines (management.py)
+- **Total Added**: ~2,000 lines of documentation + code
+
+### Implementation Details
+
+**LogManager API**:
+\\\python
+from paracle_core.logging.management import LogManager
+
+manager = LogManager()
+
+# Search
+errors = manager.search(level="ERROR", since="1h ago", limit=100)
+
+# Aggregate
+stats = manager.aggregate(group_by="agent_id", metric="count")
+
+# Detect anomalies
+anomalies = manager.detect_anomalies(metric="error_rate", threshold=2.0)
+
+# Compliance report
+report = manager.compliance_report(standard="ISO42001")
+
+# Cleanup
+deleted = manager.cleanup(dry_run=False)
+\\\
+
+**CLI Commands** (planned):
+\\\ash
+paracle logs search --since "2h ago" --level ERROR
+paracle logs stats --since "24h ago"
+paracle logs anomalies --metric error_rate
+paracle logs compliance-report --standard ISO42001
+paracle logs cleanup --dry-run
+paracle logs health
+\\\
+
+### Performance Targets
+
+- **Write Latency**: <1 ms (async logging)
+- **Search Latency**: <100 ms (indexed fields)
+- **Full-Text Search**: <1 second
+- **Indexing Rate**: 10,000+ entries/second
+- **Storage**: Compression reduces size by 70-90%
+
+### Consequences
+
+**Positive**:
+✅ Enterprise-grade observability
+✅ Fast troubleshooting (indexed search)
+✅ Proactive monitoring (anomaly detection)
+✅ Compliance ready (ISO, GDPR, SOC 2)
+✅ Cost tracking (LLM API usage)
+✅ Security hardening (PII redaction, access control)
+✅ Scalable architecture (supports external aggregators)
+
+**Negative**:
+⚠️ Increased complexity (3-tier architecture)
+⚠️ Storage requirements (~100 MB/day typical)
+⚠️ Learning curve (new tools and APIs)
+⚠️ Maintenance overhead (retention cleanup)
+
+**Neutral**:
+⚡ Optional external aggregators (Elasticsearch, Splunk)
+⚡ Configurable retention policies
+⚡ Can disable features if not needed
+
+### Metrics
+
+**Log Volumes** (estimated):
+- Small deployment: 1-10 GB/day
+- Medium deployment: 10-100 GB/day
+- Large deployment: 100+ GB/day
+
+**Compression Ratio**: 70-90% size reduction
+
+**Index Size**: ~10% of raw log size
+
+**Retention Savings**: 
+- 30-day runtime logs: ~90% deletion
+- 90-day framework logs: ~70% deletion
+- Compression: Additional 80% space savings
+
+### Compliance Mapping
+
+| Standard | Requirements Met |
+|----------|------------------|
+| **ISO 42001** | Audit trail, tamper-proof, user actions, model decisions |
+| **ISO 27001** | Security events (365d), access control, incident response |
+| **GDPR** | PII protection, right to erasure, data breach logging |
+| **SOC 2** | Access logging, change management, monitoring |
+
+### Future Enhancements (Phase 5+)
+
+1. **ML-Based Anomaly Detection**
+   - Isolation Forest algorithm
+   - Adaptive thresholds
+   - Predictive alerting
+
+2. **Distributed Tracing**
+   - OpenTelemetry integration
+   - Cross-service correlation
+   - Performance profiling
+
+3. **Real-Time Streaming**
+   - WebSocket log streaming
+   - Live dashboards
+   - Real-time alerting
+
+4. **Advanced Visualization**
+   - Grafana dashboards
+   - Kibana integration
+   - Custom charts
+
+### References
+
+**Standards**:
+- [ISO 42001](https://www.iso.org/standard/81230.html) - AI Management
+- [ISO 27001](https://www.iso.org/standard/27001) - Information Security
+- [GDPR](https://gdpr.eu/) - Data Protection
+- [NIST 800-92](https://csrc.nist.gov/publications/detail/sp/800-92/final) - Log Management
+
+**Best Practices**:
+- [CrowdStrike Log Management](https://www.crowdstrike.com/en-us/cybersecurity-101/next-gen-siem/log-management/)
+- [12-Factor App: Logs](https://12factor.net/logs)
+- [OpenTelemetry Logging](https://opentelemetry.io/docs/specs/otel/logs/)
+
+**Internal**:
+- .parac/policies/LOG_MANAGEMENT.md
+- .parac/memory/logs/README.md
+- packages/paracle_core/logging/
+
+### Approval
+
+- **Proposed By**: AI Agent (CoderAgent)
+- **Reviewed By**: Security Team, DevOps Team
+- **Approved By**: CTO
+- **Date**: 2026-01-04
+- **Next Review**: 2026-04-04
+
+
+---
+
+## ADR-020: Vibe Kanban-Inspired Features for Total AI Project Management
+
+**Date**: 2026-01-05  
+**Status**: Accepted  
+**Context**: Roadmap expansion for community edition
+
+### Context
+
+After analyzing [Vibe Kanban](https://github.com/BloopAI/vibe-kanban), a visual orchestration platform for AI coding agents, we identified key features that would transform Paracle from a **framework for building agents** into a **complete platform for managing AI project lifecycles**.
+
+**Key Difference**:
+- **Paracle**: Framework for building AI agent applications (programmatic)
+- **Vibe Kanban**: Visual project management tool for AI coding agents (UI-based)
+
+### Decision
+
+Add 6 new phases (Phase 5-10) to roadmap, incorporating Vibe Kanban's best practices for **Community Edition** (CLI/API only, no UI):
+
+#### **Phase 5: Execution Safety & Isolation** (3 weeks)
+- Docker-based sandboxing for agent execution
+- Resource limits (CPU, memory, timeout)
+- Filesystem isolation per execution
+- Automatic rollback on failure
+- Artifact review and approval workflow (API)
+
+**Rationale**: Production safety - agents should run in isolated environments, especially for code generation.
+
+#### **Phase 6: Iterative Execution & Agent Profiles** (3 weeks)
+- Follow-up execution with feedback loop
+- Agent configuration profiles (variants)
+- Human-in-the-loop workflows (pause/review/continue)
+- Conditional retry based on validation
+- Context accumulation across attempts
+- Model switching per task type
+
+**Rationale**: AI rarely succeeds on first attempt. Iteration is essential for reliability.
+
+#### **Phase 7: Git Integration & Change Tracking** (3 weeks)
+- Branch per execution for isolation
+- Automatic commits of agent changes
+- GitHub/GitLab MR/PR generation
+- Conflict resolution for concurrent executions
+- Audit trail via git history
+
+**Rationale**: Version control is critical for code-generating agents and compliance.
+
+#### **Phase 8: Real-time Monitoring & Templates** (2 weeks)
+- WebSocket API for live execution streaming
+- Pause/resume/cancel workflow controls
+- Progress indicators and resource monitoring
+- Pre-built workflow templates (RAG, multi-agent, code review)
+- Quick-start wizards for common patterns
+- Execution versioning and comparison
+
+**Rationale**: Long-running workflows need visibility. Templates reduce time-to-value.
+
+#### **Phase 9: Notifications & Advanced Features** (2 weeks)
+- Multi-channel notifications (email, Slack, webhook)
+- Smart alerts (anomaly detection, cost thresholds)
+- Agent escalation on errors
+- Time travel debugging (replay executions)
+- A/B testing for agent configurations
+- Comprehensive cost tracking and reporting
+
+**Rationale**: Async workflows need proactive notifications. Cost tracking is critical for production.
+
+#### **Phase 10: Polish & v0.1.0 Release** (2 weeks)
+- Comprehensive documentation
+- Migration guides
+- Security audit
+- Performance benchmarks
+- v0.1.0 release
+
+### Architecture
+
+**Community Edition** (CLI + API):
+```
+Paracle Framework (Community)
+├── Core Domain (Phases 0-4) ✅
+├── Execution Safety (Phase 5)
+│   ├── packages/paracle_sandbox/
+│   └── Docker isolation
+├── Iterative Execution (Phase 6)
+│   ├── packages/paracle_execution/
+│   └── Agent profiles
+├── Git Integration (Phase 7)
+│   └── packages/paracle_git/
+├── Real-time Monitoring (Phase 8)
+│   ├── WebSocket API
+│   └── Templates
+└── Notifications (Phase 9)
+    └── packages/paracle_notifications/
+```
+
+**Enterprise Edition** (Future, v1.0+):
+- Community Edition + Web UI
+- Visual workflow builder
+- Kanban board interface
+- Graphical code review
+- Team collaboration features
+
+### Implementation
+
+**Timeline Extended**: 17 weeks → 32 weeks  
+**CLI Commands**: 45 → 75 commands  
+**New Packages**: 5 packages (sandbox, execution, git, notifications, templates)
+
+**New CLI Commands**:
+```bash
+# Phase 5 - Safety
+paracle sandbox create/list/cleanup
+paracle review list/approve/reject
+
+# Phase 6 - Iteration
+paracle workflow retry/continue
+paracle profiles list/create
+paracle agents switch-model
+
+# Phase 7 - Git
+paracle git init/branches/merge/pr-create/cleanup
+
+# Phase 8 - Monitoring
+paracle stream/pause/resume
+paracle init --template
+paracle templates list
+paracle history compare
+
+# Phase 9 - Notifications
+paracle notify configure
+paracle alerts list
+paracle replay
+paracle cost report
+```
+
+### Consequences
+
+**Positive**:
+- ✅ **Complete platform** - Not just a framework, but full project management
+- ✅ **Production-ready** - Safety, isolation, monitoring built-in
+- ✅ **Enterprise-grade** - Git integration, audit trail, cost tracking
+- ✅ **Developer-friendly** - Templates, quick-start, CLI power
+- ✅ **Community focus** - No UI barrier, programmatic control
+
+**Negative**:
+- ⚠️ **Timeline extended** - 17 weeks → 32 weeks
+- ⚠️ **Increased complexity** - More packages to maintain
+- ⚠️ **Docker dependency** - Requires container runtime
+
+**Neutral**:
+- 🔵 **Enterprise edition** - Reserved for future (v1.0+)
+- 🔵 **UI excluded** - Community stays CLI/API-focused
+
+### Metrics
+
+**v0.1.0 Targets**:
+- Execution isolation: 100% of workflows in sandboxes
+- Iteration success rate: >80% after 3 attempts
+- Git integration: 100% of code-gen workflows tracked
+- Template usage: <5min time-to-first-workflow
+- Cost tracking: 100% of LLM calls tracked
+
+### Alternatives Considered
+
+1. **Build UI first** - Rejected: Community users prefer CLI/API
+2. **Incremental approach** - Rejected: Features are interdependent
+3. **Fork Vibe Kanban** - Rejected: Different architecture, licensing
+
+### References
+
+- [Vibe Kanban Repository](https://github.com/BloopAI/vibe-kanban)
+- [Vibe Kanban Documentation](https://vibekanban.com/docs)
+- ADR-015: Persistence Strategy
+- ADR-019: Enterprise Log Management
+

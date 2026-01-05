@@ -1,6 +1,7 @@
 """MCP Tool Registry for managing discovered tools."""
 
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from paracle_tools.mcp.client import MCPClient
 
@@ -229,7 +230,7 @@ class MCPToolRegistry:
             >>> stats = registry.get_statistics()
             >>> print(f"Total tools: {stats['total_tools']}")
         """
-        servers = set(tool["server"] for tool in self._tools.values())
+        servers = {tool["server"] for tool in self._tools.values()}
 
         return {
             "total_tools": len(self._tools),

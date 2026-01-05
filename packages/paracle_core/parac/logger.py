@@ -6,7 +6,6 @@ Centralized logging for agent and system actions in .parac/memory/logs/.
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Literal
 
 from pydantic import BaseModel, Field
 
@@ -172,7 +171,7 @@ class AgentLogger:
         if not self.actions_log.exists():
             return []
 
-        with open(self.actions_log, "r", encoding="utf-8") as f:
+        with open(self.actions_log, encoding="utf-8") as f:
             lines = f.readlines()
 
         return lines[-count:]
@@ -189,7 +188,7 @@ class AgentLogger:
         if not self.actions_log.exists():
             return []
 
-        with open(self.actions_log, "r", encoding="utf-8") as f:
+        with open(self.actions_log, encoding="utf-8") as f:
             lines = f.readlines()
 
         return [line for line in lines if f"[{agent.value}]" in line]
@@ -205,7 +204,7 @@ class AgentLogger:
 
         today = datetime.now().strftime("%Y-%m-%d")
 
-        with open(self.actions_log, "r", encoding="utf-8") as f:
+        with open(self.actions_log, encoding="utf-8") as f:
             lines = f.readlines()
 
         return [line for line in lines if line.startswith(f"[{today}")]

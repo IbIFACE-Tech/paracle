@@ -80,6 +80,11 @@ class Event(BaseModel):
     payload: dict[str, Any] = Field(default_factory=dict)
     metadata: dict[str, Any] = Field(default_factory=dict)
 
+    @property
+    def event_type(self) -> str:
+        """Get event type as string (convenience property)."""
+        return self.type.value
+
     def to_dict(self) -> dict[str, Any]:
         """Convert event to dictionary."""
         return self.model_dump(mode="json")

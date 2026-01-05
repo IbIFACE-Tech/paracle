@@ -4,6 +4,13 @@
 
 Test design, implementation, and quality validation ensuring comprehensive coverage and reliability.
 
+## Skills
+
+- testing-qa
+- security-hardening
+- performance-optimization
+- paracle-development
+
 ## Responsibilities
 
 ### Test Design
@@ -133,13 +140,13 @@ async def test_agent_execution():
 
 ## Coverage Targets
 
-| Category | Target | Current |
-|----------|--------|---------|
-| Domain Layer | >95% | - |
-| Application Layer | >90% | - |
-| Infrastructure Layer | >85% | - |
-| API Layer | >90% | - |
-| Overall | >90% | - |
+| Category             | Target | Current |
+| -------------------- | ------ | ------- |
+| Domain Layer         | >95%   | -       |
+| Application Layer    | >90%   | -       |
+| Infrastructure Layer | >85%   | -       |
+| API Layer            | >90%   | -       |
+| Overall              | >90%   | -       |
 
 ## Test Naming Convention
 

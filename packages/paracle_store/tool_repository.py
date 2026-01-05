@@ -6,6 +6,7 @@ Specialized repository for Tool entities.
 from __future__ import annotations
 
 from paracle_domain.models import Tool, ToolSpec
+
 from paracle_store.repository import InMemoryRepository
 
 

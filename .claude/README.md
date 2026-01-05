@@ -53,15 +53,15 @@ Extended permissions for framework development:
 
 Modular instructions imported via `@.claude/rules/`:
 
-| File | Purpose |
-| ---- | ------- |
-| code-style.md | Type hints, Pydantic, formatting |
-| testing.md | pytest patterns, coverage targets |
-| architecture.md | Hexagonal architecture, DDD |
-| framework-design.md | Long-lived framework principles |
+| File                  | Purpose                            |
+| --------------------- | ---------------------------------- |
+| code-style.md         | Type hints, Pydantic, formatting   |
+| testing.md            | pytest patterns, coverage targets  |
+| architecture.md       | Hexagonal architecture, DDD        |
+| framework-design.md   | Long-lived framework principles    |
 | anti-hallucination.md | Uncertainty handling, verification |
-| multi-perspective.md | 3-role analysis protocol |
-| session-protocol.md | Session start/end rituals |
+| multi-perspective.md  | 3-role analysis protocol           |
+| session-protocol.md   | Session start/end rituals          |
 
 ## Cognitive Framework
 
@@ -117,20 +117,20 @@ Produce summary with:
 
 ## Integration with .parac/
 
-| Directory | Purpose |
-| --------- | ------- |
-| .parac/ | Project governance (roadmap, policies, memory) |
-| .roadmap/ | Complete roadmap v0.0.1 to v1.0.0 |
-| .claude/ | Claude Code configuration |
+| Directory | Purpose                                        |
+| --------- | ---------------------------------------------- |
+| .parac/   | Project governance (roadmap, policies, memory) |
+| .roadmap/ | Complete roadmap v0.0.1 to v1.0.0              |
+| .claude/  | Claude Code configuration                      |
 
 ## Authoritative Sources
 
-| File | Purpose |
-| ---- | ------- |
-| .roadmap/ROADMAP_GLOBALE.yaml | Complete 50-week roadmap |
-| .parac/roadmap/decisions.md | Architecture Decision Records |
-| .parac/policies/policy-pack.yaml | Active policies |
-| .parac/memory/context/current_state.yaml | Current state |
+| File                                     | Purpose                       |
+| ---------------------------------------- | ----------------------------- |
+| .roadmap/ROADMAP_GLOBALE.yaml            | Complete 50-week roadmap      |
+| .parac/roadmap/decisions.md              | Architecture Decision Records |
+| .parac/policies/policy-pack.yaml         | Active policies               |
+| .parac/memory/context/current_state.yaml | Current state                 |
 
 ## Quality Standards
 

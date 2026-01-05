@@ -5,63 +5,23 @@ Commands:
 - get: Get specific agent details
 - export: Export agents to various formats
 
-Note: These commands consume the Paracle REST API.
-Ensure the API is running (uvicorn paracle_api.main:app).
+Architecture: CLI -> API -> Core (API-first design)
+Falls back to direct core access if API is unavailable.
 """
 
 from pathlib import Path
 
 import click
-import httpx
 from rich.console import Console
 from rich.table import Table
 
+from paracle_cli.api_client import APIClient, APIError, get_client
+
 console = Console()
-
-# API configuration
-API_BASE_URL = "http://localhost:8000"
-
-# Error messages
-ERR_API_CONNECT = "[red]Error:[/red] Cannot connect to Paracle API."
-ERR_API_INSTRUCTION = "Ensure API is running: uvicorn paracle_api.main:app"
-
-
-def get_api_client() -> httpx.Client:
-    """Get HTTP client for API calls.
-
-    Returns:
-        Configured httpx.Client instance.
-    """
-    return httpx.Client(base_url=API_BASE_URL, timeout=10.0)
-
-
-def handle_api_error(response: httpx.Response, default_message: str) -> None:
-    """Handle API error responses.
-
-    Args:
-        response: HTTP response object.
-        default_message: Default error message if detail not available.
-    """
-    if response.status_code == 404:
-        detail = response.json().get("detail", default_message)
-        console.print(f"[red]Error:[/red] {detail}")
-    elif response.status_code == 500:
-        detail = response.json().get("detail", "Internal server error")
-        console.print(f"[red]Error:[/red] {detail}")
-    else:
-        console.print(
-            f"[red]Error:[/red] API returned status {response.status_code}"
-        )
-        console.print(response.text)
-    raise SystemExit(1)
 
 
 def get_parac_root_or_exit() -> Path:
-    """Get .parac/ root or exit with error.
-
-    This function is deprecated - API handles .parac/ discovery.
-    Kept for backward compatibility.
-    """
+    """Get .parac/ root or exit with error."""
     from paracle_core.parac.state import find_parac_root
 
     parac_root = find_parac_root()
@@ -74,10 +34,166 @@ def get_parac_root_or_exit() -> Path:
     return parac_root
 
 
+def get_api_client() -> APIClient | None:
+    """Get API client if API is available.
+
+    Returns:
+        APIClient if API responds, None otherwise
+    """
+    client = get_client()
+    if client.is_available():
+        return client
+    return None
+
+
+def use_api_or_fallback(api_func, fallback_func, *args, **kwargs):
+    """Try API first, fall back to direct core access.
+
+    Args:
+        api_func: Function to call via API
+        fallback_func: Function to call directly if API unavailable
+        *args, **kwargs: Arguments to pass
+
+    Returns:
+        Result from either function
+    """
+    client = get_api_client()
+    if client:
+        try:
+            return api_func(client, *args, **kwargs)
+        except APIError as e:
+            if e.status_code == 404:
+                # .parac/ not found - let fallback handle gracefully
+                pass
+            else:
+                console.print(f"[yellow]API error:[/yellow] {e.detail}")
+                console.print("[dim]Falling back to direct access...[/dim]")
+        except Exception as e:
+            console.print(f"[yellow]API unavailable:[/yellow] {e}")
+            console.print("[dim]Falling back to direct access...[/dim]")
+
+    return fallback_func(*args, **kwargs)
+
+
 @click.group()
 def agents() -> None:
     """Manage and discover agents in .parac/ workspace."""
     pass
+
+
+# =============================================================================
+# LIST Command
+# =============================================================================
+
+
+def _list_via_api(client: APIClient, output_format: str) -> None:
+    """List agents via API."""
+    result = client.agents_list()
+    agents_list = result.get("agents", [])
+
+    if not agents_list:
+        console.print(
+            "[yellow]No agents found in .parac/agents/specs/[/yellow]"
+        )
+        return
+
+    if output_format == "json":
+        import json
+        console.print(json.dumps(agents_list, indent=2))
+
+    elif output_format == "yaml":
+        import yaml
+        console.print(
+            yaml.dump(agents_list, default_flow_style=False, sort_keys=False)
+        )
+
+    else:  # table
+        table = Table(title=f"Agents ({len(agents_list)} found)")
+        table.add_column("ID", style="cyan", no_wrap=True)
+        table.add_column("Name", style="bold")
+        table.add_column("Role", style="green")
+        table.add_column("Capabilities", style="yellow")
+
+        for agent in agents_list:
+            capabilities = ", ".join(agent.get("capabilities", [])[:3])
+            if len(agent.get("capabilities", [])) > 3:
+                capabilities += f" +{len(agent['capabilities']) - 3} more"
+
+            table.add_row(
+                agent.get("id", ""),
+                agent.get("name", ""),
+                agent.get("role", ""),
+                capabilities,
+            )
+
+        console.print(table)
+
+
+def _list_direct(output_format: str) -> None:
+    """List agents via direct core access."""
+    parac_root = get_parac_root_or_exit()
+    specs_dir = parac_root / "agents" / "specs"
+
+    if not specs_dir.exists():
+        console.print(
+            "[yellow]No agents found in .parac/agents/specs/[/yellow]"
+        )
+        return
+
+    # Load agent specs from YAML files
+    import yaml
+
+    agents_list = []
+    for spec_file in specs_dir.glob("*.yaml"):
+        try:
+            content = yaml.safe_load(spec_file.read_text(encoding="utf-8"))
+            if content:
+                agents_list.append({
+                    "id": content.get("id", spec_file.stem),
+                    "name": content.get("name", spec_file.stem),
+                    "role": content.get("role", ""),
+                    "description": content.get("description", ""),
+                    "capabilities": content.get("capabilities", []),
+                    "spec_file": str(spec_file.relative_to(parac_root.parent)),
+                })
+        except Exception as e:
+            console.print(f"[yellow]Warning:[/yellow] Failed to load {spec_file.name}: {e}")
+
+    if not agents_list:
+        console.print(
+            "[yellow]No agents found in .parac/agents/specs/[/yellow]"
+        )
+        return
+
+    if output_format == "json":
+        import json
+        console.print(json.dumps(agents_list, indent=2))
+
+    elif output_format == "yaml":
+        console.print(
+            yaml.dump(agents_list, default_flow_style=False, sort_keys=False)
+        )
+
+    else:  # table
+        table = Table(title=f"Agents ({len(agents_list)} found)")
+        table.add_column("ID", style="cyan", no_wrap=True)
+        table.add_column("Name", style="bold")
+        table.add_column("Role", style="green")
+        table.add_column("Capabilities", style="yellow")
+
+        for agent in agents_list:
+            capabilities = ", ".join(agent.get("capabilities", [])[:3])
+            if len(agent.get("capabilities", [])) > 3:
+                capabilities += f" +{len(agent['capabilities']) - 3} more"
+
+            table.add_row(
+                agent.get("id", ""),
+                agent.get("name", ""),
+                agent.get("role", ""),
+                capabilities,
+            )
+
+        console.print(table)
 
 
 @agents.command("list")
@@ -95,61 +211,121 @@ def list_agents(output_format: str) -> None:
         paracle agents list --format=json
         paracle agents list --format=yaml
     """
-    try:
-        with get_api_client() as client:
-            response = client.get("/agents")
+    use_api_or_fallback(_list_via_api, _list_direct, output_format)
 
-        if response.status_code != 200:
-            handle_api_error(response, "Failed to list agents")
 
-        data = response.json()
-        agents = data["agents"]
+# =============================================================================
+# GET Command
+# =============================================================================
 
-        if not agents:
-            console.print(
-                "[yellow]No agents found in .parac/agents/specs/[/yellow]"
-            )
-            return
 
-        if output_format == "json":
-            import json
+def _get_via_api(
+    client: APIClient,
+    agent_id: str,
+    output_format: str,
+    spec: bool,
+) -> None:
+    """Get agent via API."""
+    if spec:
+        # Get full specification
+        result = client.agents_get_spec(agent_id)
+        console.print(result.get("content", ""))
+        return
 
-            console.print(json.dumps(agents, indent=2))
+    # Get metadata
+    agent = client.agents_get(agent_id)
 
-        elif output_format == "yaml":
+    if output_format == "json":
+        import json
+        console.print(json.dumps(agent, indent=2))
+
+    elif output_format == "yaml":
+        import yaml
+        console.print(
+            yaml.dump(agent, default_flow_style=False, sort_keys=False)
+        )
+
+    else:  # markdown
+        console.print(f"# {agent.get('name', agent_id)}\n")
+        console.print(f"**ID**: {agent.get('id', '')}")
+        console.print(f"**Role**: {agent.get('role', '')}")
+        console.print(f"**Spec File**: {agent.get('spec_file', '')}")
+        console.print(f"\n**Description**: {agent.get('description', '')}\n")
+
+        if agent.get("capabilities"):
+            console.print("**Capabilities**:")
+            for cap in agent["capabilities"]:
+                console.print(f"  - {cap}")
+
+
+def _get_direct(agent_id: str, output_format: str, spec: bool) -> None:
+    """Get agent via direct core access."""
+    parac_root = get_parac_root_or_exit()
+    specs_dir = parac_root / "agents" / "specs"
+
+    # Find the agent spec file
+    spec_file = specs_dir / f"{agent_id}.yaml"
+    if not spec_file.exists():
+        # Try to find by ID in files
+        found = False
+        for f in specs_dir.glob("*.yaml"):
             import yaml
+            try:
+                content = yaml.safe_load(f.read_text(encoding="utf-8"))
+                if content and content.get("id") == agent_id:
+                    spec_file = f
+                    found = True
+                    break
+            except Exception:
+                continue
 
-            console.print(
-                yaml.dump(
-                    agents, default_flow_style=False, sort_keys=False
-                )
-            )
+        if not found:
+            console.print(f"[red]Error:[/red] Agent '{agent_id}' not found")
+            raise SystemExit(1)
 
-        else:  # table
-            table = Table(title=f"🤖 Agents ({len(agents)} found)")
-            table.add_column("ID", style="cyan", no_wrap=True)
-            table.add_column("Name", style="bold")
-            table.add_column("Role", style="green")
-            table.add_column("Capabilities", style="yellow")
+    import yaml
 
-            for agent in agents:
-                capabilities = ", ".join(agent["capabilities"][:3])
-                if len(agent["capabilities"]) > 3:
-                    capabilities += f" +{len(agent['capabilities']) - 3} more"
+    if spec:
+        # Show raw file content
+        console.print(spec_file.read_text(encoding="utf-8"))
+        return
 
-                table.add_row(
-                    agent["id"],
-                    agent["name"],
-                    agent["role"],
-                    capabilities,
-                )
-
-            console.print(table)
-
-    except httpx.ConnectError:
-        console.print(ERR_API_CONNECT)
-        console.print(ERR_API_INSTRUCTION)
+    # Parse and display
+    try:
+        content = yaml.safe_load(spec_file.read_text(encoding="utf-8"))
+    except Exception as e:
+        console.print(f"[red]Error:[/red] Failed to parse spec: {e}")
         raise SystemExit(1)
+
+    agent = {
+        "id": content.get("id", spec_file.stem),
+        "name": content.get("name", spec_file.stem),
+        "role": content.get("role", ""),
+        "description": content.get("description", ""),
+        "capabilities": content.get("capabilities", []),
+        "spec_file": str(spec_file.relative_to(parac_root.parent)),
+    }
+
+    if output_format == "json":
+        import json
+        console.print(json.dumps(agent, indent=2))
+
+    elif output_format == "yaml":
+        console.print(
+            yaml.dump(agent, default_flow_style=False, sort_keys=False)
+        )
+
+    else:  # markdown
+        console.print(f"# {agent['name']}\n")
+        console.print(f"**ID**: {agent['id']}")
+        console.print(f"**Role**: {agent['role']}")
+        console.print(f"**Spec File**: {agent['spec_file']}")
+        console.print(f"\n**Description**: {agent['description']}\n")
+
+        if agent["capabilities"]:
+            console.print("**Capabilities**:")
+            for cap in agent["capabilities"]:
+                console.print(f"  - {cap}")
 
 
 @agents.command("get")
@@ -169,57 +345,80 @@ def get_agent(agent_id: str, output_format: str, spec: bool) -> None:
         paracle agents get coder --spec
         paracle agents get architect --format=json
     """
-    try:
-        with get_api_client() as client:
-            if spec:
-                # Get full specification
-                response = client.get(f"/agents/{agent_id}/spec")
-                if response.status_code != 200:
-                    handle_api_error(
-                        response, f"Agent '{agent_id}' not found"
-                    )
+    use_api_or_fallback(_get_via_api, _get_direct, agent_id, output_format, spec)
 
-                data = response.json()
-                console.print(data["content"])
-                return
 
-            # Get metadata
-            response = client.get(f"/agents/{agent_id}")
-            if response.status_code != 200:
-                handle_api_error(response, f"Agent '{agent_id}' not found")
+# =============================================================================
+# EXPORT Command
+# =============================================================================
 
-            agent = response.json()
 
-            if output_format == "json":
-                import json
+def _export_via_api(
+    client: APIClient,
+    output_format: str,
+    output: str | None,
+) -> None:
+    """Export agents via API."""
+    result = client.agents_list()
+    agents_list = result.get("agents", [])
 
-                console.print(json.dumps(agent, indent=2))
+    if output_format == "json":
+        import json
+        content = json.dumps(agents_list, indent=2)
+    else:  # yaml
+        import yaml
+        content = yaml.dump(
+            agents_list, default_flow_style=False, sort_keys=False
+        )
 
-            elif output_format == "yaml":
-                import yaml
+    if output:
+        Path(output).write_text(content, encoding="utf-8")
+        console.print(
+            f"[green]OK[/green] Exported {len(agents_list)} agents to {output}"
+        )
+    else:
+        console.print(content)
 
-                console.print(
-                    yaml.dump(
-                        agent, default_flow_style=False, sort_keys=False
-                    )
-                )
 
-            else:  # markdown
-                console.print(f"# {agent['name']}\n")
-                console.print(f"**ID**: {agent['id']}")
-                console.print(f"**Role**: {agent['role']}")
-                console.print(f"**Spec File**: {agent['spec_file']}")
-                console.print(f"\n**Description**: {agent['description']}\n")
+def _export_direct(output_format: str, output: str | None) -> None:
+    """Export agents via direct core access."""
+    parac_root = get_parac_root_or_exit()
+    specs_dir = parac_root / "agents" / "specs"
 
-                if agent["capabilities"]:
-                    console.print("**Capabilities**:")
-                    for cap in agent["capabilities"]:
-                        console.print(f"  • {cap}")
+    import yaml
 
-    except httpx.ConnectError:
-        console.print(ERR_API_CONNECT)
-        console.print(ERR_API_INSTRUCTION)
-        raise SystemExit(1)
+    agents_list = []
+    if specs_dir.exists():
+        for spec_file in specs_dir.glob("*.yaml"):
+            try:
+                content = yaml.safe_load(spec_file.read_text(encoding="utf-8"))
+                if content:
+                    agents_list.append({
+                        "id": content.get("id", spec_file.stem),
+                        "name": content.get("name", spec_file.stem),
+                        "role": content.get("role", ""),
+                        "description": content.get("description", ""),
+                        "capabilities": content.get("capabilities", []),
+                        "spec_file": str(spec_file.relative_to(parac_root.parent)),
+                    })
+            except Exception:
+                continue
+
+    if output_format == "json":
+        import json
+        content = json.dumps(agents_list, indent=2)
+    else:  # yaml
+        content = yaml.dump(
+            agents_list, default_flow_style=False, sort_keys=False
+        )
+
+    if output:
+        Path(output).write_text(content, encoding="utf-8")
+        console.print(
+            f"[green]OK[/green] Exported {len(agents_list)} agents to {output}"
+        )
+    else:
+        console.print(content)
 
 
 @agents.command("export")
@@ -237,36 +436,4 @@ def export_agents(output_format: str, output: str | None) -> None:
         paracle agents export > agents.json
         paracle agents export --format=yaml --output=agents.yaml
     """
-    try:
-        with get_api_client() as client:
-            response = client.get("/agents")
-
-        if response.status_code != 200:
-            handle_api_error(response, "Failed to export agents")
-
-        data = response.json()
-        agents = data["agents"]
-
-        if output_format == "json":
-            import json
-
-            content = json.dumps(agents, indent=2)
-        else:  # yaml
-            import yaml
-
-            content = yaml.dump(
-                agents, default_flow_style=False, sort_keys=False
-            )
-
-        if output:
-            Path(output).write_text(content, encoding="utf-8")
-            console.print(
-                f"[green]Exported {len(agents)} agents to {output}[/green]"
-            )
-        else:
-            console.print(content)
-
-    except httpx.ConnectError:
-        console.print(ERR_API_CONNECT)
-        console.print(ERR_API_INSTRUCTION)
-        raise SystemExit(1)
+    use_api_or_fallback(_export_via_api, _export_direct, output_format, output)

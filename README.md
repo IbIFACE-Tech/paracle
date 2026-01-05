@@ -13,7 +13,7 @@
 Paracle is a powerful framework for building **multi-agent AI applications** with unique features:
 
 - **🧬 Agent Inheritance**: Reuse and specialize agents like classes
-- **🔌 Multi-Provider**: OpenAI, Anthropic, Google, Local models
+- **🔌 Multi-Provider**: 14+ providers - Commercial (OpenAI, Anthropic, Google, xAI, DeepSeek, Groq, Mistral, Cohere, Together, Perplexity, OpenRouter, Fireworks) + Self-hosted (Ollama, LM Studio, vLLM, llama.cpp, LocalAI, Jan)
 - **🎨 Multi-Framework**: MSAF, LangChain, LlamaIndex support
 - **🌐 API-First**: RESTful API with FastAPI
 - **📡 MCP Native**: Model Context Protocol support

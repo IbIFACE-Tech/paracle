@@ -94,6 +94,7 @@ agents:
     name: Documentation Writer
     role: documentation
     description: Creates and maintains project documentation
+    spec_file: specs/documenter.md
     tools:
       - markdown_generation
       - api_doc_generation

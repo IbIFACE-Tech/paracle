@@ -18,6 +18,10 @@ from paracle_domain.models import (
     Agent,
     AgentSpec,
     AgentStatus,
+    ApprovalConfig,
+    ApprovalPriority,
+    ApprovalRequest,
+    ApprovalStatus,
     EntityStatus,
     Tool,
     ToolSpec,
@@ -41,6 +45,11 @@ __all__ = [
     "WorkflowSpec",
     "WorkflowStatus",
     "WorkflowStep",
+    # Approval (Human-in-the-Loop)
+    "ApprovalConfig",
+    "ApprovalPriority",
+    "ApprovalRequest",
+    "ApprovalStatus",
     # Factory
     "AgentFactory",
     "AgentFactoryError",

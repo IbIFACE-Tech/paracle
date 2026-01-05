@@ -4,6 +4,14 @@
 
 Implementation of features, writing production-quality code following project standards and best practices.
 
+## Skills
+
+- paracle-development
+- api-development
+- tool-integration
+- provider-integration
+- testing-qa
+
 ## Responsibilities
 
 ### Code Implementation

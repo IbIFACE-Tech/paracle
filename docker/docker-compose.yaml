@@ -1,0 +1,115 @@
+version: '3.8'
+
+services:
+  # Redis for event bus and caching
+  redis:
+    image: redis:7-alpine
+    container_name: paracle-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  # PostgreSQL database (production)
+  postgres:
+    image: postgres:15-alpine
+    container_name: paracle-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-paracle}
+      POSTGRES_USER: ${POSTGRES_USER:-paracle}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-paracle_dev_password}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-paracle}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Paracle API server
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.api
+    container_name: paracle-api
+    environment:
+      # Database
+      PARACLE_DATABASE_URL: postgresql://${POSTGRES_USER:-paracle}:${POSTGRES_PASSWORD:-paracle_dev_password}@postgres:5432/${POSTGRES_DB:-paracle}
+
+      # Redis
+      PARACLE_REDIS_URL: redis://redis:6379/0
+
+      # API configuration
+      PARACLE_API_HOST: 0.0.0.0
+      PARACLE_API_PORT: 8000
+      PARACLE_LOG_LEVEL: ${LOG_LEVEL:-INFO}
+
+      # LLM Provider Keys (load from .env)
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+
+      # Security
+      PARACLE_SECRET_KEY: ${PARACLE_SECRET_KEY:-change-me-in-production}
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      # Mount data directory for persistence
+      - paracle-data:/app/data
+    restart: unless-stopped
+
+  # Paracle background worker
+  worker:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.worker
+    container_name: paracle-worker
+    environment:
+      # Database
+      PARACLE_DATABASE_URL: postgresql://${POSTGRES_USER:-paracle}:${POSTGRES_PASSWORD:-paracle_dev_password}@postgres:5432/${POSTGRES_DB:-paracle}
+
+      # Redis
+      PARACLE_REDIS_URL: redis://redis:6379/0
+
+      # Worker configuration
+      PARACLE_LOG_LEVEL: ${LOG_LEVEL:-INFO}
+
+      # LLM Provider Keys
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - paracle-data:/app/data
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+  paracle-data:
+    driver: local
+
+networks:
+  default:
+    name: paracle-network

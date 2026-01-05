@@ -4,6 +4,8 @@ import click
 from rich.console import Console
 
 from paracle_cli.commands.agents import agents
+from paracle_cli.commands.ide import ide
+from paracle_cli.commands.logs import logs
 from paracle_cli.commands.parac import (
     init,
     parac,
@@ -12,6 +14,10 @@ from paracle_cli.commands.parac import (
     sync,
     validate,
 )
+from paracle_cli.commands.providers import providers
+from paracle_cli.commands.serve import serve
+from paracle_cli.commands.tools import tools
+from paracle_cli.commands.workflow import workflow
 
 console = Console()
 
@@ -30,8 +36,18 @@ cli.add_command(sync)
 cli.add_command(validate)
 cli.add_command(session)
 
+# Register server command (Priority 0 - Essential)
+cli.add_command(serve)
+
 # Register domain command groups
 cli.add_command(agents)
+cli.add_command(ide)
+cli.add_command(logs)
+
+# Priority 1 CLI commands - Phase 4
+cli.add_command(workflow)   # Workflow management (list, run, status, cancel)
+cli.add_command(tools)      # Tool management (list, info, test, register)
+cli.add_command(providers)  # Provider management (list, add, test, default)
 
 # Legacy compatibility (hidden, deprecated)
 cli.add_command(parac)
@@ -61,20 +77,6 @@ def agent_create(name: str) -> None:
     """Create a new agent."""
     console.print(f"[green]Creating agent: {name}[/green]")
     console.print("[yellow]⚠️  Use 'paracle agents create' instead[/yellow]")
-
-
-@cli.group()
-def workflow() -> None:
-    """Manage workflows."""
-    pass
-
-
-@workflow.command("run")
-@click.argument("name")
-def workflow_run(name: str) -> None:
-    """Run a workflow."""
-    console.print(f"[green]Running workflow: {name}[/green]")
-    console.print("[yellow]⚠️  Workflow execution coming in Phase 3[/yellow]")
 
 
 if __name__ == "__main__":

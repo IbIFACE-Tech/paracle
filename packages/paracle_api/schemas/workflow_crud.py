@@ -5,10 +5,8 @@ Request and response models for creating, updating, and deleting workflows.
 
 from datetime import datetime
 
-from pydantic import BaseModel, Field
-
 from paracle_domain.models import EntityStatus, WorkflowSpec, WorkflowStep
-
+from pydantic import BaseModel, Field
 
 # =============================================================================
 # Workflow Creation

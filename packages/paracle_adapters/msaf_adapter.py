@@ -10,9 +10,10 @@ except ImportError:
         "Install with: pip install azure-ai-projects"
     )
 
+from paracle_domain.models import AgentSpec, WorkflowSpec
+
 from paracle_adapters.base import FrameworkAdapter
 from paracle_adapters.exceptions import AdapterExecutionError
-from paracle_domain.models import AgentSpec, WorkflowSpec
 
 
 class MSAFAdapter(FrameworkAdapter):
@@ -100,7 +101,7 @@ class MSAFAdapter(FrameworkAdapter):
             message_content = input_data.get("prompt") or input_data.get("message", "")
 
             # Create message in thread
-            message = self.client.agents.create_message(
+            self.client.agents.create_message(
                 thread_id=thread.id,
                 role="user",
                 content=message_content,

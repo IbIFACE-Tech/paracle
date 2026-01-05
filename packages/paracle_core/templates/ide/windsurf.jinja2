@@ -1,0 +1,43 @@
+{% extends "base.jinja2" %}
+
+{% block header %}
+# Paracle AI Instructions for Windsurf
+# Auto-generated from .parac/ - DO NOT EDIT MANUALLY
+# Regenerate with: paracle ide sync --copy
+# Generated: {{ generated_at }}
+{% endblock %}
+
+{% block ide_specific %}
+
+## Windsurf-Specific Features
+
+### Cascade Mode
+
+Use Cascade for complex, multi-file tasks:
+1. Reference `.parac/agents/specs/` for agent guidance
+2. Include `.parac/memory/context/current_state.yaml` for context
+3. Follow the workflow defined in agent specifications
+
+### Flow Mode
+
+For focused single-file work:
+1. Read relevant agent spec first
+2. Apply agent's coding standards
+3. Log actions when completing significant work
+
+### Command Palette
+
+Use command palette for Paracle integration:
+- Run `paracle status` to check project state
+- Run `paracle ide sync --copy` to update configs
+- Run `paracle validate` to check workspace
+
+### Recommended Workflow
+
+1. Start Cascade with project context
+2. Read `.parac/` files for current state
+3. Apply agent persona to the task
+4. Complete work following guidelines
+5. Update `.parac/` state if needed
+
+{% endblock %}

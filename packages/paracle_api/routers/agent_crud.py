@@ -14,11 +14,13 @@ Provides REST endpoints for full agent lifecycle management:
 """
 
 from fastapi import APIRouter, HTTPException, Query
+from paracle_domain.inheritance import resolve_inheritance
+from paracle_domain.models import Agent, AgentSpec
+from paracle_store.agent_repository import AgentRepository
 
 from paracle_api.schemas.agent_crud import (
     AgentCreateRequest,
     AgentDeleteResponse,
-    AgentListRequest,
     AgentListResponse,
     AgentResponse,
     AgentStatusUpdateRequest,
@@ -27,9 +29,6 @@ from paracle_api.schemas.agent_crud import (
     SpecRegisterRequest,
     SpecResponse,
 )
-from paracle_domain.inheritance import resolve_inheritance
-from paracle_domain.models import Agent, AgentSpec
-from paracle_store.agent_repository import AgentRepository
 
 # Global repository instance (in-memory for now)
 # TODO: Replace with dependency injection in Phase 2
@@ -149,7 +148,7 @@ async def list_agents(
         List of agents matching filters
     """
     # Start with all agents
-    agents = _repository.list_all()
+    agents = _repository.list()
 
     # Apply filters
     if status:
@@ -281,7 +280,7 @@ async def delete_agent(agent_id: str) -> AgentDeleteResponse:
             detail=f"Agent '{agent_id}' not found",
         )
 
-    success = _repository.remove(agent_id)
+    success = _repository.delete(agent_id)
 
     return AgentDeleteResponse(
         success=success,

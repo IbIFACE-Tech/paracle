@@ -13,12 +13,13 @@ except ImportError:
         "Install with: pip install langchain langchain-core"
     )
 
+from paracle_domain.models import AgentSpec, WorkflowSpec
+
 from paracle_adapters.base import FrameworkAdapter
 from paracle_adapters.exceptions import (
     AdapterExecutionError,
     FeatureNotSupportedError,
 )
-from paracle_domain.models import AgentSpec, WorkflowSpec
 
 
 class LangChainAdapter(FrameworkAdapter):
@@ -175,9 +176,10 @@ class LangChainAdapter(FrameworkAdapter):
         for tool_spec in tool_specs:
             if isinstance(tool_spec, str):
                 # Simple tool name - create placeholder
+                # Capture tool_spec in default argument to avoid late binding
                 tool = Tool(
                     name=tool_spec,
-                    func=lambda x: f"Tool {tool_spec} called with: {x}",
+                    func=lambda x, ts=tool_spec: f"Tool {ts} called with: {x}",
                     description=f"Tool: {tool_spec}",
                 )
                 tools.append(tool)

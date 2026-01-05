@@ -7,8 +7,6 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-import yaml
-
 
 @dataclass
 class AgentMetadata:
@@ -47,7 +45,7 @@ class AgentMetadata:
         in_role_section = False
         in_responsibilities_section = False
 
-        for i, line in enumerate(lines):
+        for line in lines:
             # Extract name from H1
             if line.startswith("# ") and not name:
                 name = line[2:].strip()

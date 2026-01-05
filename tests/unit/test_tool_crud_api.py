@@ -1,13 +1,21 @@
 """Unit tests for Tool CRUD API endpoints."""
 
+import uuid
+
 import pytest
 from fastapi.testclient import TestClient
 
 from paracle_api.main import app
+from paracle_api.routers import tool_crud
 
 
 class TestToolCRUD:
     """Tests for /api/tools CRUD endpoints."""
+
+    @pytest.fixture(autouse=True)
+    def reset_repository(self) -> None:
+        """Reset the tool repository before each test."""
+        tool_crud._repository.clear()
 
     @pytest.fixture
     def client(self) -> TestClient:
@@ -16,9 +24,9 @@ class TestToolCRUD:
 
     @pytest.fixture
     def sample_tool_spec(self) -> dict:
-        """Sample tool spec for testing."""
+        """Sample tool spec for testing with unique name."""
         return {
-            "name": "test-tool",
+            "name": f"test-tool-{uuid.uuid4().hex[:8]}",
             "description": "Test tool for unit testing",
             "parameters": {
                 "type": "object",
@@ -42,7 +50,7 @@ class TestToolCRUD:
         assert response.status_code == 201
         data = response.json()
         assert "id" in data
-        assert data["name"] == "test-tool"
+        assert data["name"] == sample_tool_spec["name"]
         assert data["enabled"] is True
         assert data["is_mcp"] is False
 
@@ -141,7 +149,7 @@ class TestToolCRUD:
         assert response.status_code == 200
         data = response.json()
         assert data["id"] == tool_id
-        assert data["name"] == "test-tool"
+        assert data["name"] == sample_tool_spec["name"]
 
     def test_get_tool_not_found(self, client: TestClient) -> None:
         """Test GET /api/tools/{tool_id} with invalid ID."""

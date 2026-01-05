@@ -1,13 +1,21 @@
 """Unit tests for Workflow CRUD API endpoints."""
 
+import uuid
+
 import pytest
 from fastapi.testclient import TestClient
 
 from paracle_api.main import app
+from paracle_api.routers import workflow_crud
 
 
 class TestWorkflowCRUD:
     """Tests for /api/workflows CRUD endpoints."""
+
+    @pytest.fixture(autouse=True)
+    def reset_repository(self) -> None:
+        """Reset the workflow repository before each test."""
+        workflow_crud._repository.clear()
 
     @pytest.fixture
     def client(self) -> TestClient:
@@ -16,9 +24,9 @@ class TestWorkflowCRUD:
 
     @pytest.fixture
     def sample_workflow_spec(self) -> dict:
-        """Sample workflow spec for testing."""
+        """Sample workflow spec for testing with unique name."""
         return {
-            "name": "test-workflow",
+            "name": f"test-workflow-{uuid.uuid4().hex[:8]}",
             "description": "Test workflow",
             "steps": [
                 {
@@ -47,7 +55,7 @@ class TestWorkflowCRUD:
         assert response.status_code == 201
         data = response.json()
         assert "id" in data
-        assert data["name"] == "test-workflow"
+        assert data["name"] == sample_workflow_spec["name"]
         assert data["status"] == "pending"
         assert data["steps_count"] == 2
 
@@ -84,7 +92,7 @@ class TestWorkflowCRUD:
         assert response.status_code == 200
         data = response.json()
         assert data["id"] == workflow_id
-        assert data["name"] == "test-workflow"
+        assert data["name"] == sample_workflow_spec["name"]
 
     def test_get_workflow_not_found(self, client: TestClient) -> None:
         """Test GET /api/workflows/{workflow_id} with invalid ID."""

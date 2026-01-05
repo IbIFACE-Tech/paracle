@@ -1,7 +1,5 @@
 """Model Context Protocol (MCP) client implementation."""
 
-import asyncio
-import json
 from typing import Any
 
 try:

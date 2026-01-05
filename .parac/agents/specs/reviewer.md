@@ -4,6 +4,13 @@
 
 Code review, quality assurance, and ensuring adherence to project standards and best practices.
 
+## Skills
+
+- security-hardening
+- performance-optimization
+- testing-qa
+- paracle-development
+
 ## Responsibilities
 
 ### Code Review

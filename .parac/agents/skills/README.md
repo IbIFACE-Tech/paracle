@@ -1,23 +1,133 @@
 # Paracle Framework Development Skills
 
-This directory contains skills specifically for developing the Paracle framework itself.
+This directory contains specialized skills for developing the Paracle framework itself, following the Agent Skills specification from agentskills.io.
 
-## Skills for Framework Development
+## Available Skills
 
-### framework-architecture/
+### Architecture & Design
+
+#### framework-architecture/
 Expert-level skill for designing and evolving the Paracle architecture:
 - System design and component structure
 - Architecture decision records (ADRs)
 - Design patterns and best practices
 - Integration planning and scalability
+- Hexagonal architecture implementation
 
-### paracle-development/
+#### paracle-development/
 Advanced skill for implementing and maintaining Paracle code:
 - Feature implementation
 - Bug fixing and debugging
 - Test-driven development
-- Code quality standards
+- Code quality standards (PEP 8, Black, type hints)
 - Conventional commits
+
+### Implementation Skills
+
+#### api-development/
+Comprehensive skill for building REST APIs with FastAPI:
+- Endpoint design and implementation
+- Request/response schema validation with Pydantic
+- Error handling and status codes
+- Middleware and dependency injection
+- OpenAPI documentation
+- API testing with TestClient
+
+#### workflow-orchestration/
+Advanced skill for building multi-step agent workflows:
+- DAG-based workflow design
+- Parallel execution patterns
+- Error handling and retries
+- Workflow monitoring
+- Context management
+- Conditional execution
+
+### Quality & Testing
+
+#### testing-qa/
+Expert-level skill for comprehensive testing:
+- pytest patterns (Arrange-Act-Assert)
+- Fixtures and parametrization
+- Mocking with AsyncMock
+- Test coverage configuration (>90% target)
+- Integration testing
+- TDD workflow
+
+#### technical-documentation/
+Specialized skill for creating clear documentation:
+- README structure and best practices
+- Tutorial and guide patterns
+- API reference documentation
+- Architecture documentation
+- Google-style docstrings
+- Progressive disclosure
+
+### Operations & Deployment
+
+#### cicd-devops/
+Advanced skill for CI/CD and containerization:
+- GitHub Actions workflows
+- Docker multi-stage builds
+- docker-compose orchestration
+- Health checks and monitoring
+- Deployment strategies
+- Structured logging
+
+#### performance-optimization/
+Expert-level skill for system performance:
+- Profiling and bottleneck identification
+- Database query optimization
+- Caching strategies (in-memory, Redis)
+- Async optimization patterns
+- API response optimization
+- Monitoring and metrics (<500ms p95 target)
+
+#### security-hardening/
+Critical skill for securing the platform:
+- JWT authentication implementation
+- Role-based access control (RBAC)
+- Input validation and SQL injection prevention
+- Rate limiting
+- Secret management
+- CORS and security headers
+- Security testing
+
+### Configuration & Integration
+
+#### agent-configuration/
+Intermediate skill for configuring agents:
+- Agent spec structure
+- Inheritance setup
+- Skill assignment
+- Tool configuration
+- Configuration best practices
+
+#### tool-integration/
+Advanced skill for extending agent capabilities:
+- Custom tool creation
+- External API integration
+- MCP server integration
+- Tool registry management
+- Tool testing
+
+#### provider-integration/
+Intermediate skill for managing LLM providers:
+- Provider configuration (OpenAI, Anthropic, Azure, Ollama)
+- Provider switching
+- API key management
+- Custom provider implementation
+- Multi-provider support
+
+### Maintenance & Evolution
+
+#### migration-upgrading/
+Critical skill for version management:
+- Database schema migrations (Alembic)
+- Data migration strategies
+- Configuration file conversion
+- Breaking change handling
+- Version compatibility checking
+- Rollback procedures
 
 ## Usage
 
@@ -38,6 +148,52 @@ When working on Paracle:
    - Writing tests
    - Fixing bugs
    - Code reviews
+
+3. **API Development**: Use `api-development` skill
+   - Creating new endpoints
+   - Schema validation
+   - Error handling
+   - Testing APIs
+
+4. **Workflow Design**: Use `workflow-orchestration` skill
+   - Building agent workflows
+   - DAG implementation
+   - Parallel execution
+
+5. **Quality Assurance**: Use `testing-qa` skill
+   - Writing comprehensive tests
+   - Achieving coverage targets
+   - Integration testing
+
+6. **Documentation**: Use `technical-documentation` skill
+   - Writing clear docs
+   - API references
+   - Tutorials
+
+7. **Deployment**: Use `cicd-devops` skill
+   - CI/CD pipelines
+   - Docker configuration
+   - Deployment automation
+
+8. **Performance**: Use `performance-optimization` skill
+   - Profiling code
+   - Optimizing queries
+   - Implementing caching
+
+9. **Security**: Use `security-hardening` skill
+   - Authentication/authorization
+   - Input validation
+   - Security testing
+
+10. **Configuration**: Use `agent-configuration`, `tool-integration`, `provider-integration`
+    - Configuring agents
+    - Adding tools
+    - Managing providers
+
+11. **Upgrades**: Use `migration-upgrading` skill
+    - Version migrations
+    - Schema changes
+    - Breaking changes
 
 ### Loading Skills
 

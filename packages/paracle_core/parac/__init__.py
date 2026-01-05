@@ -7,9 +7,6 @@ This module provides core functionality for managing .parac/ workspaces:
 - Action logging
 """
 
-from paracle_core.parac.state import ParacState, load_state, save_state
-from paracle_core.parac.validator import ParacValidator, ValidationResult
-from paracle_core.parac.sync import ParacSynchronizer
 from paracle_core.parac.logger import (
     ActionType,
     AgentLogger,
@@ -17,6 +14,9 @@ from paracle_core.parac.logger import (
     get_logger,
     log_action,
 )
+from paracle_core.parac.state import ParacState, load_state, save_state
+from paracle_core.parac.sync import ParacSynchronizer
+from paracle_core.parac.validator import ParacValidator, ValidationResult
 
 __all__ = [
     "ParacState",

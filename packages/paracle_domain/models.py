@@ -164,6 +164,14 @@ class WorkflowStep(BaseModel):
     config: dict[str, Any] = Field(
         default_factory=dict, description="Step configuration"
     )
+    # Human-in-the-Loop approval (ISO 42001)
+    requires_approval: bool = Field(
+        default=False, description="Require human approval after step execution"
+    )
+    approval_config: dict[str, Any] = Field(
+        default_factory=dict,
+        description="Approval configuration (approvers, timeout, priority)",
+    )
 
 
 class WorkflowSpec(BaseModel):
@@ -264,3 +272,142 @@ class Tool(BaseModel):
     spec: ToolSpec
     enabled: bool = Field(default=True)
     created_at: datetime = Field(default_factory=utc_now)
+
+
+# =============================================================================
+# Human-in-the-Loop Approval Models (ISO 42001 Compliance)
+# =============================================================================
+
+
+class ApprovalStatus(str, Enum):
+    """Status of an approval request."""
+
+    PENDING = "pending"
+    APPROVED = "approved"
+    REJECTED = "rejected"
+    EXPIRED = "expired"
+    CANCELLED = "cancelled"
+
+
+class ApprovalPriority(str, Enum):
+    """Priority level for approval requests."""
+
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    CRITICAL = "critical"
+
+
+class ApprovalConfig(BaseModel):
+    """Configuration for step approval requirements.
+
+    Defines when and how human approval is needed for a workflow step.
+    Supports ISO 42001 requirements for human oversight of AI decisions.
+    """
+
+    required: bool = Field(
+        default=False, description="Whether approval is required for this step"
+    )
+    approvers: list[str] = Field(
+        default_factory=list,
+        description="List of user/role IDs who can approve (empty = any)",
+    )
+    timeout_seconds: int = Field(
+        default=3600, ge=60, description="Approval timeout (default 1 hour)"
+    )
+    priority: ApprovalPriority = Field(
+        default=ApprovalPriority.MEDIUM, description="Priority for approval queue"
+    )
+    auto_reject_on_timeout: bool = Field(
+        default=False, description="Auto-reject if timeout expires"
+    )
+    reason_required: bool = Field(
+        default=False, description="Require reason for approval/rejection"
+    )
+    notify_channels: list[str] = Field(
+        default_factory=list,
+        description="Notification channels (email, slack, webhook)",
+    )
+
+
+class ApprovalRequest(BaseModel):
+    """Request for human approval of a workflow step.
+
+    Created when a workflow reaches a step that requires approval.
+    The workflow pauses until approval is granted or denied.
+
+    Example:
+        >>> request = ApprovalRequest(
+        ...     workflow_id="wf_123",
+        ...     execution_id="exec_456",
+        ...     step_id="review",
+        ...     step_name="Code Review",
+        ...     context={"code": "def hello(): pass", "analysis": "No issues found"},
+        ... )
+    """
+
+    model_config = ConfigDict(json_encoders={datetime: lambda v: v.isoformat()})
+
+    id: str = Field(default_factory=lambda: generate_id("approval"))
+    workflow_id: str = Field(..., description="Workflow requesting approval")
+    execution_id: str = Field(..., description="Execution ID within workflow")
+    step_id: str = Field(..., description="Step ID requiring approval")
+    step_name: str = Field(..., description="Human-readable step name")
+    agent_name: str = Field(..., description="Agent that produced the output")
+    context: dict[str, Any] = Field(
+        default_factory=dict,
+        description="Context for approval decision (step output, inputs)",
+    )
+    status: ApprovalStatus = Field(default=ApprovalStatus.PENDING)
+    priority: ApprovalPriority = Field(default=ApprovalPriority.MEDIUM)
+    config: ApprovalConfig = Field(default_factory=ApprovalConfig)
+    created_at: datetime = Field(default_factory=utc_now)
+    expires_at: datetime | None = Field(None, description="When approval expires")
+    decided_at: datetime | None = Field(None, description="When decision was made")
+    decided_by: str | None = Field(None, description="Who approved/rejected")
+    decision_reason: str | None = Field(None, description="Reason for decision")
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    def approve(self, approver: str, reason: str | None = None) -> None:
+        """Approve the request."""
+        self.status = ApprovalStatus.APPROVED
+        self.decided_at = utc_now()
+        self.decided_by = approver
+        self.decision_reason = reason
+
+    def reject(self, approver: str, reason: str | None = None) -> None:
+        """Reject the request."""
+        self.status = ApprovalStatus.REJECTED
+        self.decided_at = utc_now()
+        self.decided_by = approver
+        self.decision_reason = reason
+
+    def expire(self) -> None:
+        """Mark as expired due to timeout."""
+        self.status = ApprovalStatus.EXPIRED
+        self.decided_at = utc_now()
+
+    def cancel(self) -> None:
+        """Cancel the approval request (workflow cancelled)."""
+        self.status = ApprovalStatus.CANCELLED
+        self.decided_at = utc_now()
+
+    @property
+    def is_pending(self) -> bool:
+        """Check if still awaiting decision."""
+        return self.status == ApprovalStatus.PENDING
+
+    @property
+    def is_decided(self) -> bool:
+        """Check if decision has been made."""
+        return self.status in {
+            ApprovalStatus.APPROVED,
+            ApprovalStatus.REJECTED,
+            ApprovalStatus.EXPIRED,
+            ApprovalStatus.CANCELLED,
+        }
+
+    @property
+    def is_approved(self) -> bool:
+        """Check if approved."""
+        return self.status == ApprovalStatus.APPROVED

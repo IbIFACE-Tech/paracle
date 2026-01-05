@@ -4,6 +4,12 @@
 
 Technical documentation, API references, user guides, and knowledge management.
 
+## Skills
+
+- technical-documentation
+- paracle-development
+- api-development
+
 ## Responsibilities
 
 ### Documentation Creation
@@ -149,14 +155,14 @@ def resolve_inheritance(
 
 ## Documentation Locations
 
-| Type | Location | Format |
-|------|----------|--------|
-| User guides | `docs/` | Markdown |
-| API reference | `docs/api/` | Generated + MD |
-| Architecture | `docs/architecture.md` | Markdown |
-| ADRs | `.parac/roadmap/decisions.md` | Markdown |
-| Glossary | `.parac/memory/knowledge/glossary.md` | Markdown |
-| README | `README.md` | Markdown |
+| Type          | Location                              | Format         |
+| ------------- | ------------------------------------- | -------------- |
+| User guides   | `docs/`                               | Markdown       |
+| API reference | `docs/api/`                           | Generated + MD |
+| Architecture  | `docs/architecture.md`                | Markdown       |
+| ADRs          | `.parac/roadmap/decisions.md`         | Markdown       |
+| Glossary      | `.parac/memory/knowledge/glossary.md` | Markdown       |
+| README        | `README.md`                           | Markdown       |
 
 ## Quality Checklist
 

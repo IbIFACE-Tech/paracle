@@ -1,8 +1,9 @@
 """Base protocol and models for LLM providers."""
 
 from abc import ABC, abstractmethod
+from collections.abc import AsyncIterator
 from datetime import UTC, datetime
-from typing import Any, AsyncIterator
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
