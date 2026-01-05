@@ -243,17 +243,45 @@ def _sync_via_api(
         raise SystemExit(1)
 
 
-def _sync_direct(git: bool, metrics: bool, manifest: bool) -> None:
+def _sync_direct(
+    git: bool,
+    metrics: bool,
+    manifest: bool,
+    roadmap: bool,
+    auto_fix: bool,
+) -> None:
     """Sync via direct core access."""
     parac_root = get_parac_root_or_exit()
 
     console.print("[bold]Synchronizing .parac/ state...[/bold]\n")
 
     from paracle_core.parac.manifest_generator import write_manifest
+    from paracle_core.parac.roadmap_sync import sync_roadmap_and_state
     from paracle_core.parac.sync import ParacSynchronizer
 
     synchronizer = ParacSynchronizer(parac_root)
     result = synchronizer.sync(update_git=git, update_metrics=metrics)
+
+    # Check roadmap alignment if requested
+    if roadmap:
+        roadmap_result = sync_roadmap_and_state(
+            parac_root, dry_run=not auto_fix, auto_fix=auto_fix
+        )
+        result.changes.extend(roadmap_result.changes)
+
+        # Display warnings and suggestions
+        if roadmap_result.warnings:
+            console.print("\n[yellow]Roadmap Alignment Warnings:[/yellow]")
+            for warning in roadmap_result.warnings:
+                console.print(f"  [yellow]⚠[/yellow]  {warning}")
+
+        if roadmap_result.suggestions:
+            console.print("\n[cyan]Suggestions:[/cyan]")
+            for suggestion in roadmap_result.suggestions:
+                console.print(f"  [cyan]💡[/cyan] {suggestion}")
+
+        if roadmap_result.errors:
+            result.errors.extend(roadmap_result.errors)
 
     # Also regenerate manifest if requested
     if manifest:
@@ -286,9 +314,12 @@ def _sync_direct(git: bool, metrics: bool, manifest: bool) -> None:
 @click.option("--git/--no-git", default=True, help="Sync git information")
 @click.option("--metrics/--no-metrics", default=True, help="Sync file metrics")
 @click.option("--manifest/--no-manifest", default=True, help="Regenerate agent manifest")
-def sync(git: bool, metrics: bool, manifest: bool) -> None:
-    """Synchronize .parac/ state with project reality."""
-    use_api_or_fallback(_sync_via_api, _sync_direct, git, metrics, manifest)
+@click.option("--roadmap/--no-roadmap", default=True, help="Check roadmap alignment")
+@click.option("--auto-fix", is_flag=True, help="Automatically fix safe mismatches")
+def sync(git: bool, metrics: bool, manifest: bool, roadmap: bool, auto_fix: bool) -> None:
+    """Synchronize .parac/ state with project reality and roadmap."""
+    use_api_or_fallback(_sync_via_api, _sync_direct, git,
+                        metrics, manifest, roadmap, auto_fix)
 
 
 # =============================================================================
@@ -644,7 +675,8 @@ def init(path: str, name: str | None, force: bool) -> None:
 
     project_name = name or target.name
 
-    console.print(f"[bold]Initializing .parac/ workspace for: {project_name}[/bold]\n")
+    console.print(
+        f"[bold]Initializing .parac/ workspace for: {project_name}[/bold]\n")
 
     # Create directory structure
     dirs_to_create = [
@@ -732,9 +764,11 @@ This directory is the single source of truth for the project.
 """
     governance_file = parac_dir / "GOVERNANCE.md"
     governance_file.write_text(governance_content, encoding="utf-8")
-    console.print(f"  [dim]Created[/dim] {governance_file.relative_to(target)}")
+    console.print(
+        f"  [dim]Created[/dim] {governance_file.relative_to(target)}")
 
-    console.print(f"\n[green]OK[/green] .parac/ workspace initialized at {target}")
+    console.print(
+        f"\n[green]OK[/green] .parac/ workspace initialized at {target}")
     console.print("\nNext steps:")
     console.print("  - paracle status     - View project state")
     console.print("  - paracle sync       - Sync with reality")
