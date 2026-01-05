@@ -29,6 +29,8 @@ from paracle_events.events import (
 
 from paracle_orchestration.approval import (
     ApprovalManager,
+)
+from paracle_orchestration.approval import (
     ApprovalTimeoutError as ApprovalTimeout,
 )
 from paracle_orchestration.context import ExecutionContext
@@ -40,7 +42,7 @@ from paracle_orchestration.exceptions import (
 )
 
 if TYPE_CHECKING:
-    from paracle_domain.models import ApprovalRequest
+    pass
 
 
 class WorkflowOrchestrator:
@@ -148,6 +150,9 @@ class WorkflowOrchestrator:
                 )
             else:
                 await self._execute_workflow(workflow, context, dag)
+
+            # Collect final outputs from workflow specification
+            self._collect_outputs(workflow, context)
 
             # Mark as completed
             context.complete()
@@ -393,7 +398,8 @@ class WorkflowOrchestrator:
             if approval_config.auto_reject_on_timeout:
                 raise StepExecutionError(
                     step.name,
-                    Exception(f"Approval timed out after {e.timeout_seconds}s"),
+                    Exception(
+                        f"Approval timed out after {e.timeout_seconds}s"),
                 )
 
             # Re-raise the timeout error
@@ -442,11 +448,62 @@ class WorkflowOrchestrator:
                 if step_name in step_results:
                     resolved[key] = step_results[step_name]
                 else:
-                    resolved[key] = value  # Step not executed yet, keep original
+                    # Step not executed yet, keep original
+                    resolved[key] = value
             else:
                 resolved[key] = value
 
         return resolved
+
+    def _collect_outputs(
+        self,
+        workflow: Workflow,
+        context: ExecutionContext,
+    ) -> None:
+        """Collect final outputs from workflow specification.
+
+        Maps workflow outputs from step results according to the
+        workflow spec's outputs definition.
+
+        Args:
+            workflow: Workflow specification
+            context: Execution context with step_results
+        """
+        if not workflow.spec.outputs:
+            # No outputs defined, use all step results
+            context.outputs = context.step_results.copy()
+            return
+
+        # Collect specified outputs
+        for output_name, output_spec in workflow.spec.outputs.items():
+            if isinstance(output_spec, dict) and "source" in output_spec:
+                # Extract source reference
+                source = output_spec["source"]
+
+                # Parse source: "steps.step_id.outputs.output_key"
+                if source.startswith("steps."):
+                    parts = source.split(".")
+                    if len(parts) >= 4:
+                        step_id = parts[1]
+                        output_key = parts[3]
+
+                        # Get from step results
+                        if step_id in context.step_results:
+                            step_result = context.step_results[step_id]
+                            if isinstance(step_result, dict):
+                                if "outputs" in step_result:
+                                    outputs_dict = step_result["outputs"]
+                                    if output_key in outputs_dict:
+                                        context.outputs[output_name] = (
+                                            outputs_dict[output_key]
+                                        )
+                                elif output_key in step_result:
+                                    context.outputs[output_name] = (
+                                        step_result[output_key]
+                                    )
+            else:
+                # Direct reference or simple mapping
+                context.outputs[output_name] = output_spec
 
     async def _emit_event(
         self,
@@ -465,7 +522,9 @@ class WorkflowOrchestrator:
         if event_type == "workflow.started":
             event = workflow_started(context.workflow_id)
         elif event_type == "workflow.completed":
-            event = workflow_completed(context.workflow_id, results=context.outputs)
+            event = workflow_completed(
+                context.workflow_id, results=context.outputs
+            )
         elif event_type == "workflow.failed":
             error = context.errors[0] if context.errors else "Unknown error"
             event = workflow_failed(context.workflow_id, error=error)

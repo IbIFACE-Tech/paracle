@@ -9,6 +9,28 @@ workflows:
     category: examples
     status: active
 
+  - name: paracle_build
+    description: |
+      Complete dogfooding workflow for building Paracle platform features.
+      Orchestrates all agents (Architect, Coder, Tester, Reviewer, Documenter, PM)
+      following .parac/ governance and Pre-Flight Checklist.
+    file: definitions/paracle_build.yaml
+    category: dogfooding
+    status: active
+    tags: [dogfooding, multi-agent, governance, platform]
+    priority: P0
+    features:
+      - Multi-agent orchestration
+      - Pre-Flight Checklist validation
+      - Architecture design (Architect)
+      - Code implementation (Coder)
+      - Test suite creation (Tester)
+      - Code review & QA (Reviewer)
+      - Documentation (Documenter)
+      - Governance updates (PM)
+      - Integration validation
+      - ISO 42001 compliance
+
   - name: code_review
     description: Automated code review process
     file: templates/code_review.yaml
@@ -23,6 +45,8 @@ workflows:
 
 # Workflow Categories
 categories:
+  dogfooding:
+    description: Workflows for building Paracle using Paracle (dogfooding strategy)
   examples:
     description: Example workflows for learning
   development:

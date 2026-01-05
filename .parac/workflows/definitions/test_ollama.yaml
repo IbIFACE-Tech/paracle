@@ -1,0 +1,39 @@
+# Test Ollama Workflow
+# Uses local Ollama for agent execution
+
+name: test_ollama
+version: 1.0.0
+description: Test workflow using Ollama local LLM
+
+metadata:
+  category: examples
+  tags: [test, ollama, self-hosted]
+
+inputs:
+  message:
+    type: string
+    description: Message to process
+    default: "Hello Paracle!"
+
+steps:
+  - id: step_1
+    name: process_message
+    description: Process message with local Ollama
+    agent: assistant
+    config:
+      provider: ollama
+      model: llama2
+      temperature: 0.7
+    inputs:
+      user_message: "{{ inputs.message }}"
+    outputs:
+      - response
+
+outputs:
+  final_response:
+    source: steps.step_1.outputs.response
+    description: Response from Ollama
+
+settings:
+  timeout: 30
+  log_level: INFO

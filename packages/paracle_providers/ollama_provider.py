@@ -1,4 +1,4 @@
-"""Ollama provider for local LLM models."""
+"""Ollama provider for local LLM models with retry support."""
 
 from collections.abc import AsyncIterator
 from typing import Any
@@ -21,20 +21,24 @@ from paracle_providers.base import (
 )
 from paracle_providers.exceptions import (
     LLMProviderError,
+    ProviderConnectionError,
     ProviderTimeoutError,
 )
+from paracle_providers.retry import RetryableProvider, RetryConfig
 
 
-class OllamaProvider(LLMProvider):
+class OllamaProvider(LLMProvider, RetryableProvider):
     """
-    Ollama LLM provider for local models.
+    Ollama LLM provider for local models with automatic retry support.
 
     Supports Llama, Mistral, CodeLlama, and other models via Ollama.
+    Includes exponential backoff with jitter for transient failures.
     """
 
     def __init__(
         self,
         base_url: str = "http://localhost:11434",
+        retry_config: RetryConfig | None = None,
         **kwargs,
     ):
         """
@@ -42,11 +46,16 @@ class OllamaProvider(LLMProvider):
 
         Args:
             base_url: Ollama API base URL (default: http://localhost:11434)
+            retry_config: Configuration for retry behavior (optional)
             **kwargs: Additional configuration
         """
         super().__init__(api_key=None, **kwargs)
         self.base_url = base_url.rstrip("/")
         self.client = httpx.AsyncClient(base_url=self.base_url)
+
+        # Initialize retry configuration
+        if retry_config:
+            self.configure_retry(retry_config)
 
     async def chat_completion(
         self,
@@ -56,7 +65,9 @@ class OllamaProvider(LLMProvider):
         **kwargs,
     ) -> LLMResponse:
         """
-        Generate a chat completion using Ollama.
+        Generate a chat completion using Ollama with automatic retry.
+
+        Uses exponential backoff with jitter for transient failures.
 
         Args:
             messages: List of chat messages
@@ -68,9 +79,26 @@ class OllamaProvider(LLMProvider):
             LLMResponse with generated content
 
         Raises:
-            LLMProviderError: On Ollama API errors
-            ProviderTimeoutError: On timeout
+            LLMProviderError: On Ollama API errors after retries exhausted
+            ProviderTimeoutError: On timeout after retries
         """
+
+        async def _make_request() -> LLMResponse:
+            return await self._raw_chat_completion(
+                messages, config, model, **kwargs
+            )
+
+        operation_name = f"ollama.chat_completion({model})"
+        return await self.with_retry(_make_request, operation_name)
+
+    async def _raw_chat_completion(
+        self,
+        messages: list[ChatMessage],
+        config: LLMConfig,
+        model: str,
+        **kwargs,
+    ) -> LLMResponse:
+        """Raw chat completion without retry wrapper."""
         try:
             # Convert messages to Ollama format
             ollama_messages = [
@@ -130,6 +158,10 @@ class OllamaProvider(LLMProvider):
         except httpx.TimeoutException as e:
             raise ProviderTimeoutError(
                 str(e), provider="ollama", timeout=config.timeout
+            ) from e
+        except httpx.ConnectError as e:
+            raise ProviderConnectionError(
+                str(e), provider="ollama"
             ) from e
         except httpx.HTTPError as e:
             raise LLMProviderError(

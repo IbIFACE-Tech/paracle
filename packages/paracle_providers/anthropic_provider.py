@@ -1,4 +1,4 @@
-"""Anthropic provider implementation."""
+"""Anthropic provider implementation with retry support."""
 
 import os
 from collections.abc import AsyncIterator
@@ -26,18 +26,21 @@ from paracle_providers.exceptions import (
     ProviderRateLimitError,
     ProviderTimeoutError,
 )
+from paracle_providers.retry import RetryableProvider, RetryConfig
 
 
-class AnthropicProvider(LLMProvider):
+class AnthropicProvider(LLMProvider, RetryableProvider):
     """
-    Anthropic LLM provider.
+    Anthropic LLM provider with automatic retry support.
 
-    Supports Claude 3.5 Sonnet, Claude 3 Opus, Claude 3 Haiku, and other Claude models.
+    Supports Claude 3.5 Sonnet, Claude 3 Opus, Claude 3 Haiku, and more.
+    Includes exponential backoff with jitter for transient failures.
     """
 
     def __init__(
         self,
         api_key: str | None = None,
+        retry_config: RetryConfig | None = None,
         **kwargs,
     ):
         """
@@ -45,6 +48,7 @@ class AnthropicProvider(LLMProvider):
 
         Args:
             api_key: Anthropic API key (defaults to ANTHROPIC_API_KEY env var)
+            retry_config: Configuration for retry behavior (optional)
             **kwargs: Additional Anthropic client configuration
         """
         super().__init__(api_key=api_key, **kwargs)
@@ -54,6 +58,10 @@ class AnthropicProvider(LLMProvider):
             **kwargs,
         )
 
+        # Initialize retry configuration
+        if retry_config:
+            self.configure_retry(retry_config)
+
     async def chat_completion(
         self,
         messages: list[ChatMessage],
@@ -62,7 +70,9 @@ class AnthropicProvider(LLMProvider):
         **kwargs,
     ) -> LLMResponse:
         """
-        Generate a chat completion using Anthropic Claude.
+        Generate a chat completion using Anthropic Claude with retry.
+
+        Uses exponential backoff with jitter for transient failures.
 
         Args:
             messages: List of chat messages
@@ -74,9 +84,26 @@ class AnthropicProvider(LLMProvider):
             LLMResponse with generated content
 
         Raises:
-            LLMProviderError: On Anthropic API errors
-            ProviderRateLimitError: On rate limit exceeded
+            LLMProviderError: On Anthropic API errors after retries
+            ProviderRateLimitError: On rate limit exceeded after retries
         """
+
+        async def _make_request() -> LLMResponse:
+            return await self._raw_chat_completion(
+                messages, config, model, **kwargs
+            )
+
+        operation_name = f"anthropic.chat_completion({model})"
+        return await self.with_retry(_make_request, operation_name)
+
+    async def _raw_chat_completion(
+        self,
+        messages: list[ChatMessage],
+        config: LLMConfig,
+        model: str,
+        **kwargs,
+    ) -> LLMResponse:
+        """Raw chat completion without retry wrapper."""
         try:
             # Separate system message from conversation
             system_message = None

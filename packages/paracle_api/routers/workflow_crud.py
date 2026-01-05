@@ -7,10 +7,13 @@ Provides REST endpoints for workflow lifecycle management:
 - PUT /api/workflows/{workflow_id} - Update workflow
 - DELETE /api/workflows/{workflow_id} - Delete workflow
 - POST /api/workflows/{workflow_id}/execute - Execute workflow
+
+Note: GET /api/workflows now loads from .parac/workflows/ YAML files
 """
 
 from fastapi import APIRouter, HTTPException, Query
 from paracle_domain.models import EntityStatus, Workflow
+from paracle_orchestration.workflow_loader import WorkflowLoader, WorkflowLoadError
 from paracle_store.workflow_repository import WorkflowRepository
 
 from paracle_api.schemas.workflow_crud import (
@@ -26,6 +29,22 @@ from paracle_api.schemas.workflow_crud import (
 # Global repository instance (in-memory for now)
 # TODO: Replace with dependency injection in Phase 2
 _repository = WorkflowRepository()
+
+# Workflow loader for YAML definitions
+_loader = None
+
+
+def _get_loader() -> WorkflowLoader:
+    """Get or initialize workflow loader."""
+    global _loader
+    if _loader is None:
+        try:
+            _loader = WorkflowLoader()
+        except WorkflowLoadError:
+            # If .parac/ not found, loader unavailable
+            pass
+    return _loader
+
 
 router = APIRouter(prefix="/api/workflows", tags=["workflow_crud"])
 
@@ -82,20 +101,73 @@ async def create_workflow(
 @router.get("", response_model=WorkflowListResponse)
 async def list_workflows(
     status: str | None = Query(None, description="Filter by status"),
+    category: str | None = Query(None, description="Filter by category"),
     limit: int = Query(100, ge=1, le=1000, description="Max results"),
     offset: int = Query(0, ge=0, description="Offset for pagination"),
 ) -> WorkflowListResponse:
     """List workflows with optional filters.
 
+    Loads workflows from .parac/workflows/ YAML files if available,
+    otherwise falls back to in-memory repository.
+
     Args:
-        status: Filter by status (optional)
+        status: Filter by status (active/inactive) (optional)
+        category: Filter by category (optional)
         limit: Maximum results to return
         offset: Offset for pagination
 
     Returns:
         List of workflows matching filters
     """
-    # Start with all workflows
+    loader = _get_loader()
+
+    # Try loading from YAML files first
+    if loader is not None:
+        try:
+            # List from catalog
+            workflows_meta = loader.list_workflows(
+                status=status,
+                category=category
+            )
+
+            # Load specs and convert to response format
+            workflow_responses = []
+            for meta in workflows_meta:
+                try:
+                    spec = loader.load_workflow_spec(meta["name"])
+                    workflow_responses.append(
+                        WorkflowResponse(
+                            id=meta["name"],
+                            name=meta["name"],
+                            description=meta.get("description", ""),
+                            status=meta.get("status", "active"),
+                            steps_count=len(spec.steps),
+                            progress=0,  # Static definitions have no progress
+                            created_at=None,
+                            updated_at=None,
+                        )
+                    )
+                except Exception:
+                    # Skip workflows that fail to load
+                    continue
+
+            total = len(workflow_responses)
+
+            # Apply pagination
+            workflow_responses = workflow_responses[offset:offset + limit]
+
+            return WorkflowListResponse(
+                workflows=workflow_responses,
+                total=total,
+                limit=limit,
+                offset=offset,
+            )
+
+        except Exception:
+            # Fall through to repository-based listing
+            pass
+
+    # Fallback: Use in-memory repository
     workflows = _repository.list()
 
     # Apply filters
@@ -112,7 +184,7 @@ async def list_workflows(
     total = len(workflows)
 
     # Apply pagination
-    workflows = workflows[offset : offset + limit]
+    workflows = workflows[offset:offset + limit]
 
     return WorkflowListResponse(
         workflows=[_workflow_to_response(w) for w in workflows],
@@ -124,10 +196,13 @@ async def list_workflows(
 
 @router.get("/{workflow_id}", response_model=WorkflowResponse)
 async def get_workflow(workflow_id: str) -> WorkflowResponse:
-    """Get workflow details by ID.
+    """Get workflow details by ID or name.
+
+    Tries to load from .parac/workflows/ YAML files first,
+    then falls back to in-memory repository.
 
     Args:
-        workflow_id: Workflow identifier
+        workflow_id: Workflow identifier or name
 
     Returns:
         Workflow details
@@ -135,6 +210,35 @@ async def get_workflow(workflow_id: str) -> WorkflowResponse:
     Raises:
         HTTPException: 404 if workflow not found
     """
+    loader = _get_loader()
+
+    # Try loading from YAML files first
+    if loader is not None:
+        try:
+            spec = loader.load_workflow_spec(workflow_id)
+            # Get metadata from catalog
+            catalog = loader.load_catalog()
+            meta = next(
+                (w for w in catalog.get("workflows", [])
+                 if w.get("name") == workflow_id),
+                {}
+            )
+
+            return WorkflowResponse(
+                id=workflow_id,
+                name=spec.name,
+                description=spec.description or "",
+                status=meta.get("status", "active"),
+                steps_count=len(spec.steps),
+                progress=0,
+                created_at=None,
+                updated_at=None,
+            )
+        except WorkflowLoadError:
+            # Fall through to repository
+            pass
+
+    # Fallback: Use in-memory repository
     workflow = _repository.get(workflow_id)
     if workflow is None:
         raise HTTPException(

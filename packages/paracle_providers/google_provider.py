@@ -1,4 +1,4 @@
-"""Google Gemini provider implementation."""
+"""Google Gemini provider implementation with retry support."""
 
 import os
 from collections.abc import AsyncIterator
@@ -24,18 +24,21 @@ from paracle_providers.exceptions import (
     LLMProviderError,
     ProviderAuthenticationError,
 )
+from paracle_providers.retry import RetryableProvider, RetryConfig
 
 
-class GoogleProvider(LLMProvider):
+class GoogleProvider(LLMProvider, RetryableProvider):
     """
-    Google Gemini LLM provider.
+    Google Gemini LLM provider with automatic retry support.
 
     Supports Gemini Pro, Gemini Pro Vision, and other Google models.
+    Includes exponential backoff with jitter for transient failures.
     """
 
     def __init__(
         self,
         api_key: str | None = None,
+        retry_config: RetryConfig | None = None,
         **kwargs,
     ):
         """
@@ -43,6 +46,7 @@ class GoogleProvider(LLMProvider):
 
         Args:
             api_key: Google API key (defaults to GOOGLE_API_KEY env var)
+            retry_config: Configuration for retry behavior (optional)
             **kwargs: Additional configuration
         """
         super().__init__(api_key=api_key, **kwargs)
@@ -50,6 +54,10 @@ class GoogleProvider(LLMProvider):
         api_key = api_key or os.getenv("GOOGLE_API_KEY")
         if api_key:
             genai.configure(api_key=api_key)
+
+        # Initialize retry configuration
+        if retry_config:
+            self.configure_retry(retry_config)
 
     async def chat_completion(
         self,
@@ -59,7 +67,9 @@ class GoogleProvider(LLMProvider):
         **kwargs,
     ) -> LLMResponse:
         """
-        Generate a chat completion using Google Gemini.
+        Generate a chat completion using Google Gemini with automatic retry.
+
+        Uses exponential backoff with jitter for transient failures.
 
         Args:
             messages: List of chat messages
@@ -71,8 +81,25 @@ class GoogleProvider(LLMProvider):
             LLMResponse with generated content
 
         Raises:
-            LLMProviderError: On Google API errors
+            LLMProviderError: On Google API errors after retries exhausted
         """
+
+        async def _make_request() -> LLMResponse:
+            return await self._raw_chat_completion(
+                messages, config, model, **kwargs
+            )
+
+        operation_name = f"google.chat_completion({model})"
+        return await self.with_retry(_make_request, operation_name)
+
+    async def _raw_chat_completion(
+        self,
+        messages: list[ChatMessage],
+        config: LLMConfig,
+        model: str,
+        **kwargs,
+    ) -> LLMResponse:
+        """Raw chat completion without retry wrapper."""
         try:
             # Create model instance
             gen_model = genai.GenerativeModel(model)

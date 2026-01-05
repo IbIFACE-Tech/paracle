@@ -20,8 +20,7 @@ from paracle_cli.api_client import APIError, get_client
 
 # Local fallback imports
 try:
-    from paracle_orchestration.engine import WorkflowEngine
-    from paracle_store.workflow_repository import WorkflowRepository
+    from paracle_orchestration.workflow_loader import WorkflowLoader
 
     LOCAL_EXECUTION_AVAILABLE = True
 except ImportError:
@@ -508,48 +507,123 @@ def _run_workflow_local(
     """
     import asyncio
 
-    try:
-        # Load workflow from repository
-        repo = WorkflowRepository()
-        workflow = repo.get(workflow_id)
+    from paracle_domain.models import Workflow, generate_id
+    from paracle_events import EventBus
+    from paracle_orchestration.engine import WorkflowOrchestrator
+    from paracle_orchestration.workflow_loader import (
+        WorkflowLoader,
+        WorkflowLoadError,
+    )
 
-        if not workflow:
+    try:
+        # Load workflow spec from YAML
+        loader = WorkflowLoader()
+
+        try:
+            spec = loader.load_workflow_spec(workflow_id)
+        except WorkflowLoadError as e:
             console.print(f"[red]✗ Workflow not found:[/red] {workflow_id}")
+            console.print(f"[dim]Error: {e}[/dim]")
             console.print(
                 "[dim]Available workflows: paracle workflow list[/dim]"
             )
             raise click.Abort()
 
-        # Execute with local engine
-        engine = WorkflowEngine()
+        # Create workflow instance
+        workflow = Workflow(
+            id=generate_id("workflow"),
+            spec=spec
+        )
+
+        # Generate execution ID
+        execution_id = f"local_{workflow_id}_{int(time.time())}"
 
         if output_json:
             # Simple JSON output for local execution
             result = {
-                "execution_id": f"local_{workflow_id}_{int(time.time())}",
+                "execution_id": execution_id,
                 "status": "running" if not sync else "pending",
                 "message": "Executing locally (API unavailable)",
                 "mode": "sync" if sync else "async",
+                "workflow": workflow_id,
             }
             console.print_json(json.dumps(result))
 
         if sync:
-            console.print("[cyan]Executing workflow locally...[/cyan]")
-            result = asyncio.run(engine.execute(workflow, inputs))
+            console.print(f"[cyan]Executing workflow:[/cyan] {spec.name}")
+            console.print(f"[dim]Execution ID:[/dim] {execution_id}")
+            console.print(f"[dim]Steps:[/dim] {len(spec.steps)}")
+            console.print()
 
-            if result.get("status") == "completed":
-                console.print("[green]✓ Workflow completed[/green]")
-                if result.get("outputs"):
-                    console.print(
-                        f"[dim]Outputs:[/dim] {json.dumps(result['outputs'], indent=2)}"
+            # Initialize orchestration components
+            event_bus = EventBus()
+
+            # Create real agent executor
+            from paracle_orchestration.agent_executor import AgentExecutor
+
+            agent_executor = AgentExecutor()
+
+            # Create orchestrator and execute
+            orchestrator = WorkflowOrchestrator(
+                event_bus=event_bus,
+                step_executor=agent_executor.execute_step,
+            )
+
+            context = asyncio.run(orchestrator.execute(workflow, inputs))
+
+            console.print()
+            if context.status.value == "completed":
+                console.print(
+                    "[green]✓ Workflow completed successfully[/green]"
+                )
+
+                from rich.table import Table
+
+                # Display outputs in a rich table format
+                if context.outputs:
+                    console.print("\n[bold]📦 Workflow Outputs:[/bold]")
+                    table = Table(
+                        show_header=True,
+                        header_style="bold cyan"
                     )
+                    table.add_column("Output", style="cyan")
+                    table.add_column("Value", style="white")
+
+                    for key, value in context.outputs.items():
+                        if isinstance(value, (dict, list)):
+                            value_str = json.dumps(value, indent=2)
+                        else:
+                            value_str = str(value)
+
+                        # Truncate long values
+                        if len(value_str) > 200:
+                            value_str = value_str[:197] + "..."
+
+                        table.add_row(key, value_str)
+
+                    console.print(table)
+
+                # Display execution metadata
+                if hasattr(context, "metadata") and context.metadata:
+                    console.print("\n[bold]ℹ️  Execution Details:[/bold]")
+                    meta_table = Table(show_header=False)
+                    meta_table.add_column("Property", style="dim")
+                    meta_table.add_column("Value", style="white")
+
+                    for key, value in context.metadata.items():
+                        meta_table.add_row(key, str(value))
+
+                    console.print(meta_table)
             else:
                 console.print(
-                    f"[red]✗ Workflow failed:[/red] {result.get('error')}"
+                    f"[red]✗ Workflow {context.status.value}[/red]"
                 )
+                if context.error:
+                    console.print(f"[dim]Error:[/dim] {context.error}")
         else:
             console.print(
-                "[yellow]⚠️  Async local execution not fully supported[/yellow]"
+                "[yellow]⚠️  Async local execution "
+                "not fully supported[/yellow]"
             )
             console.print(
                 "[dim]Use --sync for complete local execution[/dim]"
@@ -557,6 +631,9 @@ def _run_workflow_local(
 
     except Exception as e:
         console.print(f"[red]✗ Local execution error:[/red] {e}")
+        if not output_json:
+            import traceback
+            console.print(f"[dim]{traceback.format_exc()}[/dim]")
         raise click.Abort()
 
 
@@ -568,21 +645,44 @@ def _list_workflows_local(
 ) -> None:
     """List workflows locally (fallback when API unavailable).
 
+    Loads workflows from .parac/workflows/ directory using WorkflowLoader.
+
     Args:
-        status_filter: Optional status filter
+        status_filter: Optional status filter (active/inactive/all)
         limit: Max workflows to return
         offset: Pagination offset
         output_json: Whether to output JSON
     """
     try:
-        repo = WorkflowRepository()
-        workflows = repo.list_all()
+        # Use WorkflowLoader to read workflows from YAML files
+        loader = WorkflowLoader()
 
-        # Apply filters
-        if status_filter:
-            workflows = [
-                wf for wf in workflows if wf.get("status") == status_filter
-            ]
+        # List workflows from catalog
+        workflows_metadata = loader.list_workflows(status=status_filter)
+
+        # Load full specs for display
+        workflows = []
+        for meta in workflows_metadata:
+            try:
+                spec = loader.load_workflow_spec(meta["name"])
+                workflows.append({
+                    "id": meta["name"],  # Use name as ID for YAML workflows
+                    "name": meta["name"],
+                    "description": meta.get("description", ""),
+                    "category": meta.get("category", "general"),
+                    "status": meta.get("status", "active"),
+                    "spec": {
+                        "name": spec.name,
+                        "description": spec.description,
+                        "steps": [{"name": s.name} for s in spec.steps],
+                    },
+                })
+            except Exception as e:
+                console.print(
+                    f"[yellow]⚠️  Warning: Could not load workflow "
+                    f"{meta['name']}: {e}[/yellow]"
+                )
+                continue
 
         # Pagination
         total = len(workflows)
@@ -595,41 +695,62 @@ def _list_workflows_local(
             return
 
         if not workflows:
-            console.print("[dim]No workflows found.[/dim]")
+            console.print("[dim]No workflows found in .parac/workflows/[/dim]")
             console.print(
-                "[dim]Create workflows with workflow YAML files[/dim]"
+                "[dim]Create workflows with YAML files in "
+                ".parac/workflows/definitions/[/dim]"
             )
             return
 
         # Create table
         table = Table(
-            title="Workflows (Local)",
+            title="Workflows (Local - from .parac/)",
             show_header=True,
             header_style="bold cyan",
         )
-        table.add_column("ID", style="dim", width=20)
-        table.add_column("Name", style="cyan")
+        table.add_column("Name", style="cyan", width=25)
         table.add_column("Description")
         table.add_column("Steps", justify="right")
+        table.add_column("Category", justify="center")
+        table.add_column("Status", justify="center")
 
         for wf in workflows:
-            workflow_id = wf.get("id", "")
-            name = wf.get("spec", {}).get("name", "Unnamed")
-            desc = wf.get("spec", {}).get("description", "")
+            name = wf.get("name", "Unnamed")
+            desc = wf.get("description", "")
             steps = len(wf.get("spec", {}).get("steps", []))
+            category = wf.get("category", "general")
+            wf_status = wf.get("status", "active")
+
+            # Color status
+            status_display = wf_status
+            if wf_status == "active":
+                status_display = f"[green]{wf_status}[/green]"
+            elif wf_status == "inactive":
+                status_display = f"[dim]{wf_status}[/dim]"
 
             table.add_row(
-                workflow_id,
                 name,
-                desc[:50] + "..." if len(desc) > 50 else desc,
+                desc[:40] + "..." if len(desc) > 40 else desc,
                 str(steps),
+                category,
+                status_display,
             )
 
         console.print(table)
         console.print(
             f"\n[dim]Showing {len(workflows)} of {total} workflows[/dim]"
         )
+        console.print(
+            "[dim]Source: .parac/workflows/catalog.yaml "
+            "and .parac/workflows/definitions/[/dim]"
+        )
 
     except Exception as e:
-        console.print(f"[red]✗ Local listing error:[/red] {e}")
+        console.print(
+            f"[red]✗ Local listing error:[/red] {e}"
+        )
+        console.print(
+            "[dim]Ensure .parac/workflows/ directory exists with "
+            "catalog.yaml[/dim]"
+        )
         raise click.Abort()

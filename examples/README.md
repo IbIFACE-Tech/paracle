@@ -145,6 +145,50 @@ uv run python examples/05_tool_registry.py
 
 ---
 
+### 6. Agent Skills (`06_agent_skills.py`)
+
+Demonstrates the Agent Skills system (see existing example).
+
+---
+
+### 7. Human-in-the-Loop Approvals (`07_human_in_the_loop.py`)
+
+Demonstrates Paracle's Human-in-the-Loop approval system for AI governance (ISO 42001):
+
+- **Approval Gates**: Steps that require human approval before proceeding
+- **Approval Manager**: Create, approve, reject, cancel approval requests
+- **Workflow Integration**: Automatic pause/resume based on approval status
+- **REST API**: Full API endpoints for approval management
+- **Priority Levels**: LOW, MEDIUM, HIGH, CRITICAL
+- **Timeout Handling**: Auto-reject or manual handling on timeout
+
+**Scenario**: CI/CD deployment pipeline where:
+
+1. AI analyzes code changes (automatic)
+2. AI performs security review (automatic)
+3. Human reviews and approves deployment (REQUIRES APPROVAL)
+
+**Run**:
+```bash
+uv run python examples/07_human_in_the_loop.py
+```
+
+**Key concepts**:
+
+- `requires_approval=True` on WorkflowStep
+- `approval_config` for timeout, priority, approvers
+- ApprovalManager for approval lifecycle
+- ExecutionStatus.AWAITING_APPROVAL state
+- API endpoints: `/approvals/pending`, `/approvals/{id}/approve`
+
+**ISO 42001 Compliance**:
+
+- Human oversight for critical AI decisions
+- Audit trail of all approvals/rejections
+- Configurable approval policies
+
+---
+
 ## Example Output
 
 ### Filesystem Tools

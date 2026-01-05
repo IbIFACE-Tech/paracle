@@ -1,4 +1,4 @@
-"""OpenAI provider implementation."""
+"""OpenAI provider implementation with retry support."""
 
 import os
 from collections.abc import AsyncIterator
@@ -26,13 +26,21 @@ from paracle_providers.exceptions import (
     ProviderRateLimitError,
     ProviderTimeoutError,
 )
+from paracle_providers.retry import RetryableProvider, RetryConfig
 
 
-class OpenAIProvider(LLMProvider):
+class OpenAIProvider(LLMProvider, RetryableProvider):
     """
-    OpenAI LLM provider.
+    OpenAI LLM provider with automatic retry support.
 
     Supports GPT-4, GPT-3.5, and other OpenAI models.
+    Includes exponential backoff with jitter for transient failures.
+
+    Example:
+        >>> provider = OpenAIProvider(api_key="sk-...")
+        >>> # Configure retry behavior
+        >>> provider.configure_retry(RetryConfig(max_attempts=5))
+        >>> response = await provider.chat_completion(msgs, cfg, "gpt-4")
     """
 
     def __init__(
@@ -40,6 +48,7 @@ class OpenAIProvider(LLMProvider):
         api_key: str | None = None,
         base_url: str | None = None,
         organization: str | None = None,
+        retry_config: RetryConfig | None = None,
         **kwargs,
     ):
         """
@@ -49,6 +58,7 @@ class OpenAIProvider(LLMProvider):
             api_key: OpenAI API key (defaults to OPENAI_API_KEY env var)
             base_url: Optional custom base URL
             organization: Optional organization ID
+            retry_config: Configuration for retry behavior (optional)
             **kwargs: Additional OpenAI client configuration
         """
         super().__init__(api_key=api_key, **kwargs)
@@ -60,6 +70,10 @@ class OpenAIProvider(LLMProvider):
             **kwargs,
         )
 
+        # Initialize retry configuration
+        if retry_config:
+            self.configure_retry(retry_config)
+
     async def chat_completion(
         self,
         messages: list[ChatMessage],
@@ -68,7 +82,10 @@ class OpenAIProvider(LLMProvider):
         **kwargs,
     ) -> LLMResponse:
         """
-        Generate a chat completion using OpenAI.
+        Generate a chat completion using OpenAI with automatic retry.
+
+        Uses exponential backoff with jitter for transient failures
+        (rate limits, timeouts, connection errors).
 
         Args:
             messages: List of chat messages
@@ -80,10 +97,27 @@ class OpenAIProvider(LLMProvider):
             LLMResponse with generated content
 
         Raises:
-            LLMProviderError: On OpenAI API errors
-            ProviderRateLimitError: On rate limit exceeded
-            ProviderTimeoutError: On timeout
+            LLMProviderError: On OpenAI API errors after retries exhausted
+            ProviderRateLimitError: On rate limit exceeded after retries
+            ProviderTimeoutError: On timeout after retries
         """
+
+        async def _make_request() -> LLMResponse:
+            return await self._raw_chat_completion(
+                messages, config, model, **kwargs
+            )
+
+        operation_name = f"openai.chat_completion({model})"
+        return await self.with_retry(_make_request, operation_name)
+
+    async def _raw_chat_completion(
+        self,
+        messages: list[ChatMessage],
+        config: LLMConfig,
+        model: str,
+        **kwargs,
+    ) -> LLMResponse:
+        """Raw chat completion without retry wrapper."""
         try:
             # Convert ChatMessage to OpenAI format
             openai_messages = [
@@ -120,7 +154,9 @@ class OpenAIProvider(LLMProvider):
             params.update(kwargs)
 
             # Make API call
-            response = await self.client.chat.completions.create(**params)
+            response = await self.client.chat.completions.create(
+                **params
+            )
 
             # Extract response
             choice = response.choices[0]
@@ -135,11 +171,17 @@ class OpenAIProvider(LLMProvider):
                     total_tokens=usage.total_tokens if usage else 0,
                 ),
                 model=response.model,
-                tool_calls=choice.message.tool_calls if hasattr(choice.message, "tool_calls") else None,
+                tool_calls=(
+                    choice.message.tool_calls
+                    if hasattr(choice.message, "tool_calls")
+                    else None
+                ),
                 metadata={
                     "id": response.id,
                     "created": response.created,
-                    "system_fingerprint": getattr(response, "system_fingerprint", None),
+                    "system_fingerprint": getattr(
+                        response, "system_fingerprint", None
+                    ),
                 },
             )
 
@@ -218,10 +260,13 @@ class OpenAIProvider(LLMProvider):
                 delta = chunk.choices[0].delta
                 finish_reason = chunk.choices[0].finish_reason
 
+                tool_calls = (
+                    delta.tool_calls if hasattr(delta, "tool_calls") else None
+                )
                 yield StreamChunk(
                     content=delta.content or "",
                     finish_reason=finish_reason,
-                    tool_calls=delta.tool_calls if hasattr(delta, "tool_calls") else None,
+                    tool_calls=tool_calls,
                     metadata={"id": chunk.id, "model": chunk.model},
                 )
 

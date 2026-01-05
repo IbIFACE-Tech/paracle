@@ -33,7 +33,7 @@ class DAG:
         Args:
             steps: List of workflow steps with dependencies
         """
-        self.steps = {step.name: step for step in steps}
+        self.steps = {step.id: step for step in steps}
         self.graph = self._build_graph()
         self.reverse_graph = self._build_reverse_graph()
 
@@ -41,23 +41,23 @@ class DAG:
         """Build adjacency list representation of the graph.
 
         Returns:
-            Dictionary mapping step names to their dependencies
+            Dictionary mapping step IDs to their dependencies
         """
         graph: dict[str, list[str]] = defaultdict(list)
         for step in self.steps.values():
-            graph[step.name] = list(step.depends_on) if step.depends_on else []
+            graph[step.id] = list(step.depends_on) if step.depends_on else []
         return dict(graph)
 
     def _build_reverse_graph(self) -> dict[str, list[str]]:
         """Build reverse adjacency list (dependents).
 
         Returns:
-            Dictionary mapping step names to steps that depend on them
+            Dictionary mapping step IDs to steps that depend on them
         """
         reverse: dict[str, list[str]] = defaultdict(list)
-        for step_name, deps in self.graph.items():
+        for step_id, deps in self.graph.items():
             for dep in deps:
-                reverse[dep].append(step_name)
+                reverse[dep].append(step_id)
         return dict(reverse)
 
     def validate(self) -> None:
@@ -72,11 +72,12 @@ class DAG:
             CircularDependencyError: If circular dependency is detected
         """
         # Check all dependencies exist
-        for step_name, deps in self.graph.items():
+        for step_id, deps in self.graph.items():
             for dep in deps:
                 if dep not in self.steps:
                     raise InvalidWorkflowError(
-                        f"Step '{step_name}' depends on non-existent step '{dep}'"
+                        f"Step '{step_id}' depends on "
+                        f"non-existent step '{dep}'"
                     )
 
         # Check for cycles using DFS
@@ -121,7 +122,8 @@ class DAG:
         in_degree = {step: len(self.graph[step]) for step in self.steps}
 
         # Queue of nodes with in-degree 0 (no dependencies)
-        queue = deque([step for step, degree in in_degree.items() if degree == 0])
+        queue = deque(
+            [step for step, degree in in_degree.items() if degree == 0])
         result = []
 
         while queue:
