@@ -1,8 +1,8 @@
 schema_version: '1.0'
-generated_at: '2026-01-05T12:41:33.393625'
+generated_at: '2026-01-05T12:44:05.575227'
 workspace:
-  name: unknown
-  version: 0.0.0
+  name: paracle-lite
+  version: 0.0.1
   parac_version: 0.0.1
   root: C:\Projets\paracle\paracle-lite\.parac
 agents:
