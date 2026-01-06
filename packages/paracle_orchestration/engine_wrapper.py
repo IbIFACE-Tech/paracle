@@ -38,8 +38,8 @@ class WorkflowEngine:
         """Initialize WorkflowEngine.
 
         Args:
-            event_bus: Event bus for publishing events (optional, creates default)
-            step_executor: Step executor function (optional, uses default)
+            event_bus: Event bus for publishing events (optional)
+            step_executor: Step executor (optional, uses AgentExecutor)
         """
         # Create default event bus if not provided
         if event_bus is None:
@@ -47,12 +47,11 @@ class WorkflowEngine:
 
         # Create default step executor if not provided
         if step_executor is None:
+            # Use AgentExecutor for real LLM execution
+            from paracle_orchestration.agent_executor import AgentExecutor
 
-            async def default_executor(step, inputs):
-                """Default no-op executor for testing."""
-                return {"step": step.name, "inputs": inputs}
-
-            step_executor = default_executor
+            agent_executor = AgentExecutor()
+            step_executor = agent_executor.execute_step
 
         self.orchestrator = WorkflowOrchestrator(
             event_bus=event_bus, step_executor=step_executor
@@ -101,36 +100,70 @@ class WorkflowEngine:
         Returns:
             execution_id for status polling
         """
-        # Start execution as background task
-        task = asyncio.create_task(self._background_execute(workflow, inputs))
-
-        # Generate execution ID immediately (before execution starts)
+        # Generate execution ID upfront so we can return it immediately
         from paracle_domain.models import generate_id
 
         execution_id = generate_id("execution")
 
-        # Store task metadata (we can't get ID from context yet)
+        # Create initial context with pending status
+        from datetime import datetime
+        initial_context = ExecutionContext(
+            execution_id=execution_id,
+            workflow_id=workflow.id,
+            workflow_name=workflow.spec.name,  # Fixed: access via spec
+            inputs=inputs,
+            status=ExecutionStatus.PENDING,
+            started_at=datetime.now(),
+        )
+
+        # Store initial context immediately (so status can be queried)
+        self.orchestrator.active_executions[execution_id] = initial_context
+
+        # Start execution as background task
+        task = asyncio.create_task(
+            self._background_execute(execution_id, workflow, inputs)
+        )
+
+        # Store task for potential cancellation
         self._pending_tasks = getattr(self, "_pending_tasks", {})
         self._pending_tasks[execution_id] = task
 
         return execution_id
 
     async def _background_execute(
-        self, workflow: Workflow, inputs: dict[str, Any]
+        self, execution_id: str, workflow: Workflow, inputs: dict[str, Any]
     ) -> None:
         """Background task for async execution.
 
         Args:
+            execution_id: Pre-generated execution ID
             workflow: Workflow to execute
             inputs: Workflow inputs
         """
         try:
-            context = await self.orchestrator.execute(workflow, inputs)
-            self.execution_history[context.execution_id] = context
+            # Execute workflow with pre-generated execution_id
+            # Pass execution_id to orchestrator so it uses this one
+            context = await self.orchestrator.execute(
+                workflow, inputs, execution_id=execution_id
+            )
 
-        except Exception:
-            # Log error but don't raise (background task)
-            pass
+            # Move to history after completion
+            self.execution_history[execution_id] = context
+
+            # Clean up task tracking
+            if hasattr(self, "_pending_tasks") and execution_id in self._pending_tasks:
+                del self._pending_tasks[execution_id]
+
+        except Exception as e:
+            # Log error and update context with failure status
+            try:
+                context = self.orchestrator.get_execution(execution_id)
+                if context:
+                    context.status = ExecutionStatus.FAILED
+                    context.error = str(e)
+                    self.execution_history[execution_id] = context
+            except Exception:
+                pass  # Best effort error tracking
 
     async def get_execution_status(self, execution_id: str) -> ExecutionStatus:
         """Get execution status (for polling).

@@ -1,0 +1,20 @@
+name: test_openai_workflow
+version: '1.0'
+description: Test workflow using real OpenAI GPT-4
+
+steps:
+  - id: generate_greeting
+    agent: greeter
+    provider: openai
+    model: gpt-4
+    prompt: "Generate a creative and friendly greeting message. Be concise (max 20 words)."
+    output_key: greeting
+
+  - id: analyze_greeting
+    agent: analyzer
+    provider: openai
+    model: gpt-4
+    prompt: "Analyze this greeting and rate its friendliness from 1-10: {greeting}"
+    output_key: analysis
+    depends_on:
+      - generate_greeting

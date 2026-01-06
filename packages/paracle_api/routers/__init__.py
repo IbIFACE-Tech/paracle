@@ -7,6 +7,7 @@ from paracle_api.routers.health import router as health_router
 from paracle_api.routers.ide import router as ide_router
 from paracle_api.routers.logs import router as logs_router
 from paracle_api.routers.parac import router as parac_router
+from paracle_api.routers.reviews import router as reviews_router
 from paracle_api.routers.tool_crud import router as tool_crud_router
 from paracle_api.routers.workflow_crud import router as workflow_crud_router
 from paracle_api.routers.workflow_execution import (
@@ -20,6 +21,7 @@ __all__ = [
     "ide_router",
     "logs_router",
     "parac_router",
+    "reviews_router",
     "agent_crud_router",
     "workflow_crud_router",
     "tool_crud_router",

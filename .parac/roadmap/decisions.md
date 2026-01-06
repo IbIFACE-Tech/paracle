@@ -3461,3 +3461,249 @@ paracle cost report
 - ADR-015: Persistence Strategy
 - ADR-019: Enterprise Log Management
 
+---
+
+## ADR-021: Kanban Task Management System
+
+**Date**: 2026-01-05
+**Status**: Accepted
+**Context**: User request for Kanban-style task status tracking
+
+### Context
+
+Paracle currently uses simple linear status models (`PENDING → RUNNING → COMPLETED/FAILED`). Users requested Kanban-style task management with stages like:
+- **To Do** - Tasks queued for execution
+- **In Progress** - Currently executing
+- **In Review** - Awaiting human review/approval
+- **Done** - Successfully completed
+- **Cancelled** - Manually cancelled
+
+This aligns with common project management workflows and integrates with the Human-in-the-Loop approval system (ADR-013, ISO 42001).
+
+### Decision
+
+Add **Kanban task management** as a **core domain feature** (not just Enterprise UI):
+
+#### 1. New TaskStatus Enum
+
+```python
+# packages/paracle_domain/models.py
+class TaskStatus(str, Enum):
+    """Kanban-style task status."""
+
+    BACKLOG = "backlog"           # In backlog, not scheduled
+    TODO = "todo"                 # Scheduled, ready to start
+    IN_PROGRESS = "in_progress"   # Currently executing
+    IN_REVIEW = "in_review"       # Awaiting human review
+    BLOCKED = "blocked"           # Blocked by dependency/issue
+    DONE = "done"                 # Successfully completed
+    CANCELLED = "cancelled"       # Manually cancelled
+```
+
+#### 2. Task Model
+
+```python
+class Task(BaseModel):
+    """Kanban task for tracking work items."""
+
+    id: str
+    title: str
+    description: str | None
+    status: TaskStatus = TaskStatus.BACKLOG
+    priority: TaskPriority  # P0, P1, P2, P3
+    assignee: str | None    # Agent ID or human
+    workflow_id: str | None # Associated workflow
+    step_id: str | None     # Associated workflow step
+    labels: list[str]       # Tags/categories
+    due_date: datetime | None
+    created_at: datetime
+    updated_at: datetime
+
+    # Kanban metadata
+    column_order: int       # Order within column
+    swimlane: str | None    # Agent, priority, etc.
+```
+
+#### 3. CLI Commands (Phase 6)
+
+```bash
+# Task management
+paracle task list [--status STATUS] [--assignee AGENT]
+paracle task create "Title" [--priority P1] [--assignee coder]
+paracle task move TASK_ID STATUS
+paracle task assign TASK_ID AGENT_ID
+paracle task view TASK_ID
+
+# Board view (text-based)
+paracle board show [--swimlane agent|priority]
+paracle board stats
+```
+
+#### 4. API Endpoints
+
+```
+GET    /tasks                    # List tasks
+POST   /tasks                    # Create task
+GET    /tasks/{id}               # Get task
+PUT    /tasks/{id}               # Update task
+DELETE /tasks/{id}               # Delete task
+POST   /tasks/{id}/move          # Move to status
+POST   /tasks/{id}/assign        # Assign to agent
+
+GET    /board                    # Get board view
+GET    /board/stats              # Board statistics
+```
+
+#### 5. Integration with Workflows
+
+```python
+# Workflow steps can create/update tasks
+WorkflowStep(
+    id="review",
+    agent="reviewer",
+    creates_task=True,           # Auto-create task
+    task_status="in_review",     # Initial status
+    requires_approval=True,      # Human approval gate
+)
+
+# Task completion triggers workflow continuation
+task.complete() → workflow.resume()
+```
+
+### Implementation Plan
+
+**Phase 6** (Iterative Execution & Agent Profiles):
+- Add `TaskStatus` enum to `paracle_domain/models.py`
+- Add `Task` model to `paracle_domain/models.py`
+- Add `TaskRepository` to `paracle_store/`
+- Add CLI commands (`paracle task`, `paracle board`)
+- Add API endpoints (`/tasks`, `/board`)
+- Integrate with workflow execution
+
+**Phase 8** (Real-time Monitoring):
+- WebSocket updates for task status changes
+- Real-time board synchronization
+
+### Consequences
+
+**Positive**:
+- ✅ **Familiar workflow** - Developers know Kanban
+- ✅ **Visual progress** - Even in CLI with `paracle board show`
+- ✅ **Human integration** - IN_REVIEW maps to approval gates
+- ✅ **Prioritization** - Tasks can be prioritized and ordered
+- ✅ **Multi-agent coordination** - Swimlanes by agent
+- ✅ **Enterprise-ready** - Foundation for UI board in v1.0+
+
+**Negative**:
+- ⚠️ **Complexity** - New domain model to maintain
+- ⚠️ **State management** - Tasks + workflows need synchronization
+
+### Alternatives Considered
+
+1. **Keep simple statuses** - Rejected: User explicitly requested Kanban
+2. **Enterprise-only feature** - Rejected: Core domain value, CLI-friendly
+3. **External tool integration** - Rejected: Tight workflow integration needed
+
+### Related Decisions
+
+- ADR-013: State Management and Rollback System
+- ADR-015: Hybrid Persistence Strategy
+- ADR-020: Vibe Kanban-Inspired Features
+
+
+---
+
+## ADR-022: Execution Modes Architecture
+
+**Date**: 2026-01-05
+**Status**: Accepted
+**Deciders**: Core Team
+
+### Context
+
+Paracle workflows can execute in various modes depending on requirements:
+- **Development**: Interactive debugging, step-by-step execution
+- **Testing**: Dry-run without real API calls, cost-free validation  
+- **CI/CD**: Automated execution without human approvals (YOLO mode)
+- **Production**: Full execution with proper approvals
+- **Planning**: Preview execution plan without running
+
+Users requested two high-value modes after reviewing execution-modes.md analysis:
+1. **Plan Mode**: Analyze and preview workflow execution before running
+2. **Dry-Run Mode**: Execute workflow with mocked LLM responses for testing
+
+This ADR documents the architecture for execution modes and implements Plan and Dry-Run modes.
+
+### Decision
+
+Implement **execution modes as orchestration-level parameters** (not agent capabilities):
+
+#### Architecture Principles
+
+1. **Modes are Orchestration Parameters**: Controlled at workflow execution level
+2. **Not Agent Capabilities**: Agents don't need mode awareness
+3. **Composable**: Modes can combine (e.g., `--dry-run --yolo`)
+4. **Graceful Degradation**: Modes fail gracefully if not supported
+
+#### Currently Implemented Modes
+
+| Mode          | Parameter              | Description                        | Phase |
+|---------------|------------------------|------------------------------------|-------|
+| **Async**     | (default)              | Background execution               | 3     |
+| **Sync**      | `sync=True`          | Blocking execution                 | 3     |
+| **Watch**     | `watch=True`         | Live streaming of execution        | 3     |
+| **YOLO**      | `auto_approve=True`  | Auto-approve all approval gates    | 4     |
+| **Interactive** | (default with approvals) | Human-in-the-loop approvals     | 3     |
+| **Sandbox**   | (filesystem tools)     | Restricted filesystem access       | 2     |
+
+#### New Modes (This ADR)
+
+**7. Plan Mode** (⭐⭐⭐ High Value):
+- **Purpose**: Preview execution plan without running
+- **Implementation**: Analyzes workflow DAG, estimates costs/time
+- **CLI**: `paracle workflow plan <name>`
+- **API**: `POST /workflows/plan`
+- **Output**:
+  - Topological execution order
+  - Parallel execution groups
+  - Approval gates identified
+  - Cost estimation (tokens × price)
+  - Time estimation (parallel groups)
+- **Phase**: 4 (API Server & CLI Enhancement)
+
+**8. Dry-Run Mode** (⭐⭐ Medium Value):
+- **Purpose**: Execute with mocked LLM responses
+- **Implementation**: Intercepts LLM calls, returns fixed/random responses
+- **CLI**: `paracle workflow run <name> --dry-run`
+- **API**: `POST /workflows/execute {"dry_run": true}`
+- **Benefits**:
+  - Cost-free testing
+  - Predictable responses
+  - No external dependencies
+- **Phase**: 4 (API Server & CLI Enhancement)
+
+### Consequences
+
+#### Positive
+
+✅ **Plan Mode**: Preview before execution, cost estimation, identify parallelization
+✅ **Dry-Run Mode**: Cost-free testing, predictable behavior, no external deps
+✅ **Architecture**: Clean separation (modes ≠ agent capabilities), composable, extensible
+
+#### Negative
+
+⚠️ **Plan Mode**: Estimates may be inaccurate, doesn't account for dynamic branching
+⚠️ **Dry-Run Mode**: Mock responses may not match real behavior
+
+### Roadmap Integration
+
+**Phase 4** (API Server & CLI Enhancement):
+- ✅ plan_mode # IMPLEMENTED
+- ✅ dry_run_mode # IMPLEMENTED
+
+### References
+
+- ADR-020: Vibe Kanban Features
+- docs/execution-modes.md
+- examples/08_yolo_mode.py
+

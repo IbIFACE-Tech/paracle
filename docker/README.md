@@ -65,24 +65,30 @@ This directory contains Docker configuration for running Paracle in containerize
 
 ### Services
 
-| Service | Description | Port |
-|---------|-------------|------|
-| **api** | FastAPI server | 8000 |
-| **worker** | Background task worker | - |
-| **postgres** | PostgreSQL database | 5432 |
-| **redis** | Event bus & cache | 6379 |
+| Service      | Description                         | Port |
+| ------------ | ----------------------------------- | ---- |
+| **api**      | FastAPI server with sandbox support | 8000 |
+| **worker**   | Background task worker              | -    |
+| **postgres** | PostgreSQL database                 | 5432 |
+| **redis**    | Event bus & cache                   | 6379 |
+
+**Note**: Sandbox containers are created dynamically by the API service for secure code execution.
 
 ### Volumes
 
-| Volume | Purpose |
-|--------|---------|
-| `postgres-data` | PostgreSQL persistent storage |
-| `redis-data` | Redis persistent storage |
-| `paracle-data` | Paracle application data (agents, workflows) |
+| Volume          | Purpose                                      |
+| --------------- | -------------------------------------------- |
+| `postgres-data` | PostgreSQL persistent storage                |
+| `redis-data`    | Redis persistent storage                     |
+| `paracle-data`  | Paracle application data (agents, workflows) |
+| `sandbox-cache` | Sandbox Docker images cache                  |
 
 ### Networks
 
-All services run on the `paracle-network` bridge network.
+| Network                   | Purpose                                 |
+| ------------------------- | --------------------------------------- |
+| `paracle-network`         | Main application network (default)      |
+| `paracle-sandbox-network` | Isolated network for sandbox containers |
 
 ## Configuration
 
@@ -107,13 +113,13 @@ GOOGLE_API_KEY=...
 
 ### Development vs Production
 
-| Feature | Development | Production |
-|---------|-------------|------------|
-| Database | SQLite (file-based) | PostgreSQL |
-| Hot Reload | Enabled | Disabled |
-| Code Mounting | Source code mounted | Code baked into image |
-| Logging | DEBUG level | INFO level |
-| User | Root (for dev tools) | Non-root user |
+| Feature       | Development          | Production            |
+| ------------- | -------------------- | --------------------- |
+| Database      | SQLite (file-based)  | PostgreSQL            |
+| Hot Reload    | Enabled              | Disabled              |
+| Code Mounting | Source code mounted  | Code baked into image |
+| Logging       | DEBUG level          | INFO level            |
+| User          | Root (for dev tools) | Non-root user         |
 
 ## Common Operations
 
@@ -383,6 +389,61 @@ secrets:
 ```
 
 ## Advanced Configuration
+
+### Phase 5: Sandbox Execution (Docker-in-Docker)
+
+The API service has access to the host Docker daemon to create isolated sandbox containers for secure code execution.
+
+**Prerequisites**:
+1. Docker socket mounted: `/var/run/docker.sock`
+2. API container in `docker` group (set `DOCKER_GROUP_ID` in `.env`)
+3. Sandbox image built: `paracle/sandbox:latest`
+
+**Build sandbox image**:
+
+```bash
+docker build -f docker/Dockerfile.sandbox -t paracle/sandbox:latest .
+```
+
+**Security considerations**:
+- Sandbox containers run with minimal privileges
+- Network isolation by default (`network_mode=none`)
+- Read-only filesystem
+- All capabilities dropped
+- Resource limits enforced (CPU, memory, disk)
+- Automatic cleanup after execution
+
+**Configuration** (`.env`):
+
+```bash
+# Docker socket access
+DOCKER_GROUP_ID=999  # Run: getent group docker | cut -d: -f3
+
+# Sandbox defaults
+PARACLE_SANDBOX_DEFAULT_TIMEOUT=300
+PARACLE_SANDBOX_DEFAULT_MEMORY_MB=512
+PARACLE_SANDBOX_DEFAULT_CPU_CORES=1.0
+
+# Security
+PARACLE_SANDBOX_NETWORK_MODE=none
+PARACLE_SANDBOX_READ_ONLY_FS=true
+PARACLE_SANDBOX_DROP_CAPABILITIES=true
+```
+
+**Testing sandbox**:
+
+```bash
+# API endpoint
+curl -X POST http://localhost:8000/api/sandboxes \
+  -H "Content-Type: application/json" \
+  -d '{
+    "code": "print(\"Hello from sandbox!\")",
+    "language": "python"
+  }'
+
+# CLI
+docker-compose exec api uv run paracle sandbox create --code "print('test')"
+```
 
 ### Using External Database
 

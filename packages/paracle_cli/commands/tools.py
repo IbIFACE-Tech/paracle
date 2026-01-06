@@ -4,14 +4,19 @@ Commands for managing and testing tools (built-in and MCP).
 Phase 4 - Priority 1 CLI Commands.
 """
 
+import asyncio
 import json
 
 import click
 from paracle_tools import BuiltinToolRegistry
+from paracle_tools.mcp import MCPClient, MCPToolRegistry
 from rich.console import Console
 from rich.table import Table
 
 console = Console()
+
+# Global MCP registry for CLI session
+_mcp_registry = MCPToolRegistry()
 
 
 @click.group()
@@ -64,8 +69,18 @@ def list_tools(category: str | None, output_json: bool) -> None:
                 t for t in builtin_tools if t.get("category") == category
             ]
 
-        # TODO: Get MCP tools when MCP integration is ready
+        # Get MCP tools from registry
+        mcp_tool_ids = _mcp_registry.list_tools()
         mcp_tools = []
+        for tool_id in mcp_tool_ids:
+            tool = _mcp_registry.get_tool(tool_id)
+            if tool:
+                mcp_tools.append({
+                    "name": tool_id,
+                    "category": "mcp",
+                    "description": tool.get("description", ""),
+                    "server": tool.get("server", ""),
+                })
 
         all_tools = builtin_tools + mcp_tools
 
@@ -297,3 +312,130 @@ def register_tool(tool_spec_path: str, name: str | None, category: str | None) -
         console.print(f"[dim]Category:[/dim] {category}")
     console.print(
         "\n[dim]Use built-in tools for now with 'paracle tools list'[/dim]")
+
+
+@tools.command("mcp-connect")
+@click.argument("server_url")
+@click.option("--name", default="default", help="Server name")
+def mcp_connect(server_url: str, name: str) -> None:
+    """Connect to an MCP server and discover tools.
+
+    Args:
+        server_url: MCP server URL (e.g., http://localhost:3000)
+        name: Server identifier
+
+    Examples:
+        $ paracle tools mcp-connect http://localhost:3000
+        $ paracle tools mcp-connect http://localhost:3001 --name docs
+
+    Discovers tools from the MCP server and adds them to the registry.
+    """
+    try:
+        async def connect():
+            client = MCPClient(server_url=server_url)
+            await client.connect()
+            count = await _mcp_registry.discover_from_server(name, client)
+            return count
+
+        count = asyncio.run(connect())
+        console.print(
+            f"[green]✓[/green] Connected to MCP server '{name}'"
+        )
+        console.print(f"[dim]Discovered {count} tools[/dim]")
+
+    except Exception as e:
+        console.print(f"[red]✗ Failed to connect:[/red] {e}")
+
+
+@tools.command("mcp-list")
+@click.option("--server", help="Filter by server name")
+@click.option("--json", "output_json", is_flag=True, help="JSON output")
+def mcp_list(server: str | None, output_json: bool) -> None:
+    """List MCP tools from registered servers.
+
+    Examples:
+        $ paracle tools mcp-list
+        $ paracle tools mcp-list --server default
+        $ paracle tools mcp-list --json
+    """
+    try:
+        tool_ids = _mcp_registry.list_tools(server_name=server)
+
+        if output_json:
+            tools_data = []
+            for tool_id in tool_ids:
+                tool = _mcp_registry.get_tool(tool_id)
+                if tool:
+                    tools_data.append({
+                        "id": tool_id,
+                        "name": tool["name"],
+                        "server": tool["server"],
+                        "description": tool.get("description", ""),
+                    })
+            console.print_json(json.dumps({"tools": tools_data}))
+            return
+
+        if not tool_ids:
+            console.print(
+                "[dim]No MCP tools registered. "
+                "Use 'paracle tools mcp-connect' first.[/dim]"
+            )
+            return
+
+        table = Table(
+            title="MCP Tools", show_header=True, header_style="bold blue"
+        )
+        table.add_column("Tool ID", style="cyan")
+        table.add_column("Server")
+        table.add_column("Description")
+
+        for tool_id in tool_ids:
+            tool = _mcp_registry.get_tool(tool_id)
+            if tool:
+                desc = tool.get("description", "")
+                desc_short = desc[:50] + "..." if len(desc) > 50 else desc
+                table.add_row(
+                    tool_id,
+                    tool.get("server", ""),
+                    desc_short,
+                )
+
+        console.print(table)
+        console.print(f"\n[dim]Total: {len(tool_ids)} MCP tools[/dim]")
+
+    except Exception as e:
+        console.print(f"[red]Error:[/red] {e}")
+
+
+@tools.command("mcp-search")
+@click.argument("query")
+def mcp_search(query: str) -> None:
+    """Search MCP tools by name or description.
+
+    Args:
+        query: Search query
+
+    Examples:
+        $ paracle tools mcp-search search
+        $ paracle tools mcp-search "file system"
+    """
+    try:
+        matches = _mcp_registry.search_tools(query)
+
+        if not matches:
+            console.print(f"[dim]No tools found matching '{query}'[/dim]")
+            return
+
+        console.print(f"[bold]Found {len(matches)} matching tools:[/bold]\n")
+
+        for tool_id in matches:
+            tool = _mcp_registry.get_tool(tool_id)
+            if tool:
+                console.print(f"  [cyan]{tool_id}[/cyan]")
+                console.print(f"    {tool.get('description', '')}")
+                console.print(
+                    f"    [dim]Server: {tool.get('server', '')}[/dim]\n"
+                )
+
+    except Exception as e:
+        console.print(f"[red]Error:[/red] {e}")

@@ -159,18 +159,27 @@ workflow = Workflow(
 ## 📖 Documentation
 
 ### Getting Started
+
 - [Getting Started Guide](docs/getting-started.md) - Quick start in 5 minutes
 - [API Keys Configuration](docs/api-keys.md) - Set up LLM provider API keys
 - [Providers Guide](docs/providers.md) - All 14+ supported providers
 
 ### Architecture & Design
+
 - [Architecture Overview](docs/architecture.md) - System design and patterns
 - [Synchronization Guide](docs/synchronization-guide.md) - Sync/async patterns
+- [API-First CLI](docs/api-first-cli.md) - CLI architecture with API fallback
 
-### Advanced
-- [API Reference](docs/api.md) - REST API documentation
-- [Examples](examples/) - Code examples and tutorials
-- [Roadmap](.roadmap/) - Development roadmap
+### Features
+
+- [Built-in Tools](docs/builtin-tools.md) - 9 native tools (filesystem, HTTP, shell)
+- [Security Audit Report](docs/security-audit-report.md) - Security assessment
+- [Examples](examples/) - 11 code examples and tutorials
+
+### Reference
+
+- [Roadmap](.parac/roadmap/roadmap.yaml) - Development roadmap
+- [Architecture Decisions](.parac/roadmap/decisions.md) - ADRs
 
 ## 🛠️ Development
 
@@ -213,16 +222,21 @@ make format
 
 ## 🗺️ Roadmap
 
-Paracle is being developed in **5 phases** over **17 weeks**:
+Paracle is being developed in **10 phases** over **32 weeks**:
 
-- ✅ **Phase 0** (1 week): Foundation & Setup
-- 🔄 **Phase 1** (3 weeks): Core Domain
-- 📅 **Phase 2** (4 weeks): Multi-Provider & Multi-Framework
-- 📅 **Phase 3** (4 weeks): Orchestration & API
-- 📅 **Phase 4** (3 weeks): Production Scale
-- 📅 **Phase 5** (2 weeks): Polish & Release
+- ✅ **Phase 0** (1 week): Foundation & Setup - Complete
+- ✅ **Phase 1** (3 weeks): Core Domain - Complete
+- ✅ **Phase 2** (4 weeks): Multi-Provider & Multi-Framework - Complete
+- ✅ **Phase 3** (4 weeks): Orchestration & API - Complete
+- 🔄 **Phase 4** (3 weeks): Persistence & Production Scale - 95% Complete
+- 📅 **Phase 5** (3 weeks): Execution Safety & Isolation
+- 📅 **Phase 6** (3 weeks): Iterative Execution & Agent Profiles
+- 📅 **Phase 7** (3 weeks): Git Integration & Change Tracking
+- 📅 **Phase 8** (2 weeks): Real-time Monitoring & Templates
+- 📅 **Phase 9** (2 weeks): Notifications & Advanced Features
+- 📅 **Phase 10** (2 weeks): Polish & v0.1.0 Release
 
-See [detailed roadmap](.roadmap/ROADMAP_V0.0.1.md) for more information.
+See [detailed roadmap](.parac/roadmap/roadmap.yaml) for more information.
 
 ## 🤝 Contributing
 
@@ -255,4 +269,4 @@ Paracle is licensed under the [Apache License 2.0](LICENSE).
 
 **Built with ❤️ by IbIFACE-Tech**
 
-_Paracle v0.0.1 - Phase 0: Foundation ✅_
+_Paracle v0.0.1 - Phase 4: Persistence & Production Scale (95% complete) - 672 tests passing_

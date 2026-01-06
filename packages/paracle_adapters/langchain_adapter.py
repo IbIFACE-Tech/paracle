@@ -1,22 +1,46 @@
-"""LangChain framework adapter."""
+"""LangChain framework adapter.
 
-from typing import Any
+Updated for LangChain 1.x / LangGraph compatibility.
+Supports both legacy LangChain agents and modern LangGraph agents.
+"""
 
+from typing import Any, Callable
+
+# Try modern imports first (LangChain 1.x + LangGraph)
 try:
-    from langchain.agents import AgentExecutor, create_react_agent
-    from langchain.prompts import PromptTemplate
-    from langchain_core.language_models import BaseLanguageModel
-    from langchain_core.tools import Tool
+    from langchain_core.language_models import BaseChatModel
+    from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
+    from langchain_core.tools import BaseTool, tool
+    from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+
+    LANGCHAIN_AVAILABLE = True
+    LANGCHAIN_VERSION = "1.x"
 except ImportError:
+    LANGCHAIN_AVAILABLE = False
+    LANGCHAIN_VERSION = None
+    BaseChatModel = None
+
+# Try LangGraph for modern agent support
+try:
+    from langgraph.prebuilt import create_react_agent
+    from langgraph.graph import StateGraph
+
+    LANGGRAPH_AVAILABLE = True
+except ImportError:
+    LANGGRAPH_AVAILABLE = False
+    create_react_agent = None
+
+if not LANGCHAIN_AVAILABLE:
     raise ImportError(
         "langchain packages are required for LangChain adapter. "
-        "Install with: pip install langchain langchain-core"
+        "Install with: pip install langchain-core langchain-openai langgraph"
     )
 
 from paracle_domain.models import AgentSpec, WorkflowSpec
 
 from paracle_adapters.base import FrameworkAdapter
 from paracle_adapters.exceptions import (
+    AdapterConfigurationError,
     AdapterExecutionError,
     FeatureNotSupportedError,
 )
@@ -27,63 +51,105 @@ class LangChainAdapter(FrameworkAdapter):
     LangChain framework adapter.
 
     Integrates Paracle agents with the LangChain ecosystem,
-    enabling use of LangChain tools, chains, and agents.
+    supporting both LangChain 1.x and LangGraph for modern agent patterns.
+
+    Features:
+    - Agent creation from Paracle AgentSpec
+    - Tool integration
+    - Chat model support (OpenAI, Anthropic, etc.)
+    - LangGraph ReAct agents (recommended)
+    - Legacy chain support
+
+    Example:
+        >>> from langchain_openai import ChatOpenAI
+        >>> llm = ChatOpenAI(model="gpt-4")
+        >>> adapter = LangChainAdapter(llm=llm)
+        >>> agent = await adapter.create_agent(agent_spec)
+        >>> result = await adapter.execute_agent(agent, {"input": "Hello"})
     """
 
-    def __init__(self, llm: BaseLanguageModel | None = None, **config: Any):
+    def __init__(self, llm: BaseChatModel | None = None, **config: Any):
         """
         Initialize LangChain adapter.
 
         Args:
-            llm: LangChain language model instance (e.g., ChatOpenAI)
+            llm: LangChain chat model instance (e.g., ChatOpenAI, ChatAnthropic)
             **config: Additional configuration
+                - use_langgraph: bool - Use LangGraph agents (default: True if available)
+                - verbose: bool - Enable verbose output
+                - max_iterations: int - Max agent iterations (default: 15)
+                - tools: list - Pre-configured LangChain tools
         """
         super().__init__(**config)
         self.llm = llm
+        self.use_langgraph = config.get("use_langgraph", LANGGRAPH_AVAILABLE)
+        self._tools_registry: dict[str, BaseTool] = {}
 
-    async def create_agent(self, agent_spec: AgentSpec) -> AgentExecutor:
+        # Register any pre-configured tools
+        if "tools" in config:
+            for t in config["tools"]:
+                if isinstance(t, BaseTool):
+                    self._tools_registry[t.name] = t
+
+    async def create_agent(self, agent_spec: AgentSpec) -> Any:
         """
-        Create a LangChain agent from Paracle AgentSpec.
+        Create a LangChain/LangGraph agent from Paracle AgentSpec.
 
         Args:
             agent_spec: Paracle agent specification
 
         Returns:
-            LangChain AgentExecutor
+            LangGraph agent (if available) or LangChain runnable
 
         Raises:
             AdapterExecutionError: If agent creation fails
         """
         try:
             if self.llm is None:
-                raise ValueError(
+                raise AdapterConfigurationError(
                     "LLM must be provided to create agents. "
-                    "Pass llm parameter when initializing adapter."
+                    "Pass llm parameter when initializing adapter.",
+                    framework="langchain",
                 )
 
             # Create tools from agent spec
             tools = self._create_tools(agent_spec)
 
-            # Create prompt template
-            prompt = self._create_prompt(agent_spec)
+            # Create system message from spec
+            system_message = agent_spec.system_prompt or "You are a helpful AI assistant."
 
-            # Create agent
-            agent = create_react_agent(
-                llm=self.llm,
-                tools=tools,
-                prompt=prompt,
-            )
-
-            # Return executor
-            return AgentExecutor(
-                agent=agent,
-                tools=tools,
-                verbose=self.config.get("verbose", False),
-                handle_parsing_errors=True,
-                max_iterations=self.config.get("max_iterations", 15),
-            )
+            if self.use_langgraph and LANGGRAPH_AVAILABLE:
+                # Modern LangGraph ReAct agent
+                agent = create_react_agent(
+                    model=self.llm,
+                    tools=tools,
+                    prompt=system_message,
+                )
+                return {
+                    "type": "langgraph",
+                    "agent": agent,
+                    "tools": tools,
+                    "system_message": system_message,
+                    "spec": agent_spec,
+                }
+            else:
+                # Fallback: Simple LLM chain without ReAct
+                prompt = ChatPromptTemplate.from_messages([
+                    ("system", system_message),
+                    MessagesPlaceholder(variable_name="messages"),
+                ])
+                chain = prompt | self.llm
+                return {
+                    "type": "chain",
+                    "chain": chain,
+                    "tools": tools,
+                    "system_message": system_message,
+                    "spec": agent_spec,
+                }
 
         except Exception as e:
+            if isinstance(e, (AdapterConfigurationError, AdapterExecutionError)):
+                raise
             raise AdapterExecutionError(
                 f"Failed to create LangChain agent: {e}",
                 framework="langchain",
@@ -92,16 +158,16 @@ class LangChainAdapter(FrameworkAdapter):
 
     async def execute_agent(
         self,
-        agent_instance: AgentExecutor,
+        agent_instance: Any,
         input_data: dict[str, Any],
         **kwargs: Any,
     ) -> dict[str, Any]:
         """
-        Execute a LangChain agent.
+        Execute a LangChain/LangGraph agent.
 
         Args:
-            agent_instance: LangChain AgentExecutor
-            input_data: Input data (must contain "input" key)
+            agent_instance: Agent dict from create_agent()
+            input_data: Input data with "input" or "prompt" key
             **kwargs: Additional execution parameters
 
         Returns:
@@ -111,20 +177,64 @@ class LangChainAdapter(FrameworkAdapter):
             AdapterExecutionError: If execution fails
         """
         try:
-            # LangChain expects "input" key
-            if "input" not in input_data and "prompt" in input_data:
-                input_data = {"input": input_data["prompt"]}
+            # Normalize input
+            user_input = input_data.get("input") or input_data.get("prompt", "")
 
-            # Execute
-            result = await agent_instance.ainvoke(input_data, **kwargs)
+            agent_type = agent_instance.get("type", "chain")
 
-            return {
-                "response": result.get("output", ""),
-                "metadata": {
-                    "intermediate_steps": result.get("intermediate_steps", []),
-                    "framework": "langchain",
-                },
-            }
+            if agent_type == "langgraph":
+                # Execute LangGraph agent
+                agent = agent_instance["agent"]
+                result = await agent.ainvoke(
+                    {"messages": [HumanMessage(content=user_input)]},
+                    **kwargs,
+                )
+
+                # Extract final response from messages
+                messages = result.get("messages", [])
+                response = ""
+                tool_calls = []
+
+                for msg in messages:
+                    if isinstance(msg, AIMessage):
+                        if msg.content:
+                            response = msg.content
+                        if hasattr(msg, "tool_calls") and msg.tool_calls:
+                            tool_calls.extend(msg.tool_calls)
+
+                model_str = str(self.llm) if self.llm else "unknown"
+                return {
+                    "response": response,
+                    "metadata": {
+                        "framework": "langchain",
+                        "agent_type": "langgraph_react",
+                        "messages_count": len(messages),
+                        "tool_calls": tool_calls,
+                        "model": model_str,
+                    },
+                }
+            else:
+                # Execute simple chain
+                chain = agent_instance["chain"]
+                result = await chain.ainvoke(
+                    {"messages": [HumanMessage(content=user_input)]},
+                    **kwargs,
+                )
+
+                if hasattr(result, "content"):
+                    response = result.content
+                else:
+                    response = str(result)
+
+                model_str = str(self.llm) if self.llm else "unknown"
+                return {
+                    "response": response,
+                    "metadata": {
+                        "framework": "langchain",
+                        "agent_type": "chain",
+                        "model": model_str,
+                    },
+                }
 
         except Exception as e:
             raise AdapterExecutionError(
@@ -135,19 +245,93 @@ class LangChainAdapter(FrameworkAdapter):
 
     async def create_workflow(self, workflow_spec: WorkflowSpec) -> Any:
         """
-        Create a LangChain workflow (chain).
+        Create a LangGraph workflow from Paracle WorkflowSpec.
 
         Args:
             workflow_spec: Paracle workflow specification
 
         Returns:
-            LangChain chain instance
+            LangGraph StateGraph workflow
 
-        Note:
-            Workflow support in LangChain adapter is limited.
-            For complex workflows, use Paracle's native orchestration.
+        Raises:
+            FeatureNotSupportedError: If LangGraph not available
         """
-        raise FeatureNotSupportedError("langchain", "workflows")
+        if not LANGGRAPH_AVAILABLE:
+            raise FeatureNotSupportedError(
+                "langchain",
+                "workflows",
+                "LangGraph is required for workflow support. Install with: pip install langgraph",
+            )
+
+        try:
+            from langgraph.graph import StateGraph, END
+            from typing import TypedDict, Annotated
+            from operator import add
+
+            # Define state schema
+            class WorkflowState(TypedDict):
+                messages: Annotated[list, add]
+                current_step: str
+                results: dict
+
+            # Create graph
+            graph = StateGraph(WorkflowState)
+
+            # Add nodes for each step
+            for step in workflow_spec.steps:
+                node_name = step.id
+
+                async def step_node(
+                    state: WorkflowState, step_id=step.id, step_spec=step
+                ):
+                    # Execute step using LLM
+                    if self.llm:
+                        default_prompt = f"Execute step: {step_spec.name}"
+                        prompt = step_spec.inputs.get("prompt", default_prompt)
+                        result = await self.llm.ainvoke([HumanMessage(content=prompt)])
+                        return {
+                            "results": {step_id: result.content},
+                            "current_step": step_id,
+                        }
+                    return {"results": {step_id: "No LLM configured"}}
+
+                graph.add_node(node_name, step_node)
+
+            # Add edges based on dependencies
+            entry_point = None
+            for step in workflow_spec.steps:
+                if not step.depends_on:
+                    if entry_point is None:
+                        entry_point = step.id
+                        graph.set_entry_point(step.id)
+                else:
+                    for dep in step.depends_on:
+                        graph.add_edge(dep, step.id)
+
+            # Find terminal nodes and connect to END
+            terminal_nodes = set(s.id for s in workflow_spec.steps)
+            for step in workflow_spec.steps:
+                for dep in step.depends_on or []:
+                    terminal_nodes.discard(dep)
+
+            for terminal in terminal_nodes:
+                graph.add_edge(terminal, END)
+
+            # Compile graph
+            compiled = graph.compile()
+
+            return {
+                "type": "langgraph_workflow",
+                "graph": compiled,
+                "spec": workflow_spec,
+            }
+
+        except Exception as e:
+            raise AdapterExecutionError(
+                f"Failed to create LangGraph workflow: {e}",
+                framework="langchain",
+                original_error=e,
+            ) from e
 
     async def execute_workflow(
         self,
@@ -155,10 +339,55 @@ class LangChainAdapter(FrameworkAdapter):
         inputs: dict[str, Any],
         **kwargs: Any,
     ) -> dict[str, Any]:
-        """Execute a LangChain workflow."""
-        raise FeatureNotSupportedError("langchain", "workflows")
+        """
+        Execute a LangGraph workflow.
 
-    def _create_tools(self, agent_spec: AgentSpec) -> list[Tool]:
+        Args:
+            workflow_instance: Workflow dict from create_workflow()
+            inputs: Input data for the workflow
+            **kwargs: Additional execution parameters
+
+        Returns:
+            Execution result dictionary
+        """
+        if not LANGGRAPH_AVAILABLE:
+            raise FeatureNotSupportedError(
+                "langchain",
+                "workflows",
+                "LangGraph is required for workflow execution.",
+            )
+
+        try:
+            graph = workflow_instance["graph"]
+
+            # Initialize state
+            initial_state = {
+                "messages": [],
+                "current_step": "",
+                "results": {},
+                **inputs,
+            }
+
+            # Execute workflow
+            final_state = await graph.ainvoke(initial_state, **kwargs)
+
+            return {
+                "response": final_state.get("results", {}),
+                "metadata": {
+                    "framework": "langchain",
+                    "workflow_type": "langgraph",
+                    "steps_executed": list(final_state.get("results", {}).keys()),
+                },
+            }
+
+        except Exception as e:
+            raise AdapterExecutionError(
+                f"Failed to execute LangGraph workflow: {e}",
+                framework="langchain",
+                original_error=e,
+            ) from e
+
+    def _create_tools(self, agent_spec: AgentSpec) -> list[BaseTool]:
         """
         Create LangChain tools from agent spec.
 
@@ -166,87 +395,58 @@ class LangChainAdapter(FrameworkAdapter):
             agent_spec: Agent specification
 
         Returns:
-            List of LangChain Tool instances
+            List of LangChain BaseTool instances
         """
         tools = []
 
-        # Get tool specs from agent config
-        tool_specs = agent_spec.config.get("tools", [])
+        # Get tool names from agent config
+        tool_names = agent_spec.config.get("tools", [])
 
-        for tool_spec in tool_specs:
-            if isinstance(tool_spec, str):
-                # Simple tool name - create placeholder
-                # Capture tool_spec in default argument to avoid late binding
-                tool = Tool(
-                    name=tool_spec,
-                    func=lambda x, ts=tool_spec: f"Tool {ts} called with: {x}",
-                    description=f"Tool: {tool_spec}",
-                )
-                tools.append(tool)
-            elif isinstance(tool_spec, dict):
-                # Detailed tool spec
-                tool = Tool(
-                    name=tool_spec.get("name", "unknown"),
-                    func=tool_spec.get("func", lambda x: "Not implemented"),
-                    description=tool_spec.get("description", ""),
-                )
-                tools.append(tool)
+        for tool_item in tool_names:
+            if isinstance(tool_item, str):
+                # Check if tool is in registry
+                if tool_item in self._tools_registry:
+                    tools.append(self._tools_registry[tool_item])
+                else:
+                    # Create a placeholder tool
+                    @tool
+                    def placeholder_tool(query: str, tool_name: str = tool_item) -> str:
+                        """Placeholder tool that echoes input."""
+                        return f"Tool '{tool_name}' called with: {query}"
+
+                    placeholder_tool.name = tool_item
+                    placeholder_tool.description = f"Tool: {tool_item}"
+                    tools.append(placeholder_tool)
+
+            elif isinstance(tool_item, dict):
+                # Create tool from dict spec
+                name = tool_item.get("name", "unknown")
+                description = tool_item.get("description", f"Tool: {name}")
+                func = tool_item.get("func")
+
+                if func and callable(func):
+                    @tool
+                    def custom_tool(query: str, fn: Callable = func) -> str:
+                        """Custom tool wrapper."""
+                        return fn(query)
+
+                    custom_tool.name = name
+                    custom_tool.description = description
+                    tools.append(custom_tool)
+
+            elif isinstance(tool_item, BaseTool):
+                tools.append(tool_item)
 
         return tools
 
-    def _create_prompt(self, agent_spec: AgentSpec) -> PromptTemplate:
+    def register_tool(self, tool_instance: BaseTool) -> None:
         """
-        Create LangChain prompt from agent spec.
+        Register a LangChain tool for use in agents.
 
         Args:
-            agent_spec: Agent specification
-
-        Returns:
-            PromptTemplate instance
+            tool_instance: LangChain BaseTool instance
         """
-        # Use system prompt if available, otherwise default
-        system_prompt = agent_spec.system_prompt or "You are a helpful AI assistant."
-
-        # LangChain ReAct agent template
-        template = f"""{system_prompt}
-
-TOOLS:
-------
-
-You have access to the following tools:
-
-{{tools}}
-
-To use a tool, please use the following format:
-
-```
-Thought: Do I need to use a tool? Yes
-Action: the action to take, should be one of [{{tool_names}}]
-Action Input: the input to the action
-Observation: the result of the action
-```
-
-When you have a response to say to the Human, or if you do not need to use a tool, you MUST use the format:
-
-```
-Thought: Do I need to use a tool? No
-Final Answer: [your response here]
-```
-
-Begin!
-
-Previous conversation history:
-{{chat_history}}
-
-New input: {{input}}
-{{agent_scratchpad}}
-"""
-
-        return PromptTemplate(
-            template=template,
-            input_variables=["input", "chat_history", "agent_scratchpad"],
-            partial_variables={"tools": "", "tool_names": ""},
-        )
+        self._tools_registry[tool_instance.name] = tool_instance
 
     @property
     def framework_name(self) -> str:
@@ -256,13 +456,21 @@ New input: {{input}}
     @property
     def supported_features(self) -> list[str]:
         """Return list of supported features."""
-        return [
+        features = [
             "agents",
             "tools",
-            "memory",
             "async",
-            "streaming",
+            "chat_models",
         ]
+
+        if LANGGRAPH_AVAILABLE:
+            features.extend([
+                "workflows",
+                "react_agents",
+                "state_graphs",
+            ])
+
+        return features
 
     def validate_config(self, config: dict[str, Any]) -> bool:
         """
@@ -277,14 +485,48 @@ New input: {{input}}
         Raises:
             ValueError: If configuration is invalid
         """
-        if "llm" in config and not isinstance(config["llm"], BaseLanguageModel):
-            raise ValueError(
-                "llm must be an instance of langchain BaseLanguageModel"
-            )
+        if "llm" in config:
+            if not isinstance(config["llm"], BaseChatModel):
+                raise ValueError(
+                    "llm must be an instance of langchain BaseChatModel "
+                    "(e.g., ChatOpenAI, ChatAnthropic)"
+                )
 
         if "max_iterations" in config:
             max_iter = config["max_iterations"]
             if not isinstance(max_iter, int) or max_iter < 1:
                 raise ValueError("max_iterations must be a positive integer")
 
+        if "tools" in config:
+            for t in config["tools"]:
+                if not isinstance(t, BaseTool):
+                    raise ValueError("All tools must be BaseTool instances")
+
         return True
+
+    @staticmethod
+    def get_version_info() -> dict[str, Any]:
+        """Get LangChain version information."""
+        info = {
+            "langchain_available": LANGCHAIN_AVAILABLE,
+            "langchain_version": LANGCHAIN_VERSION,
+            "langgraph_available": LANGGRAPH_AVAILABLE,
+        }
+
+        if LANGCHAIN_AVAILABLE:
+            try:
+                import langchain_core
+
+                info["langchain_core_version"] = langchain_core.__version__
+            except (ImportError, AttributeError):
+                pass
+
+        if LANGGRAPH_AVAILABLE:
+            try:
+                import langgraph
+
+                info["langgraph_version"] = langgraph.__version__
+            except (ImportError, AttributeError):
+                pass
+
+        return info

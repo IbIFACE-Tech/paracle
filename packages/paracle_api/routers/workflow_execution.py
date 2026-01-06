@@ -13,10 +13,17 @@ Endpoints:
 from typing import Any
 
 from fastapi import APIRouter, HTTPException, Query
+from paracle_domain.models import Workflow
+from paracle_orchestration.dry_run import DryRunConfig, DryRunExecutor, MockStrategy
 from paracle_orchestration.engine_wrapper import WorkflowEngine
 from paracle_orchestration.exceptions import (
     OrchestrationError,
     WorkflowNotFoundError,
+)
+from paracle_orchestration.planner import WorkflowPlanner
+from paracle_orchestration.workflow_loader import (
+    WorkflowLoader,
+    WorkflowLoadError,
 )
 from paracle_store.workflow_repository import WorkflowRepository
 from pydantic import BaseModel, Field
@@ -24,6 +31,19 @@ from pydantic import BaseModel, Field
 # Global instances
 _repository = WorkflowRepository()
 _engine = WorkflowEngine()
+_loader: WorkflowLoader | None = None
+
+
+def _get_loader() -> WorkflowLoader | None:
+    """Get or create workflow loader singleton."""
+    global _loader
+    if _loader is None:
+        try:
+            _loader = WorkflowLoader()
+        except WorkflowLoadError:
+            return None
+    return _loader
+
 
 router = APIRouter(prefix="/api/workflows", tags=["workflow_execution"])
 
@@ -43,6 +63,18 @@ class WorkflowExecuteRequest(BaseModel):
     )
     async_execution: bool = Field(
         default=True, description="Run asynchronously (background)"
+    )
+    auto_approve: bool = Field(
+        default=False,
+        description="YOLO mode: auto-approve all approval gates"
+    )
+    dry_run: bool = Field(
+        default=False,
+        description="Dry-run mode: mock LLM calls for cost-free testing"
+    )
+    mock_strategy: str = Field(
+        default="fixed",
+        description="Mock strategy for dry-run (fixed/random/file/echo)"
     )
 
 
@@ -135,18 +167,54 @@ async def execute_workflow(request: WorkflowExecuteRequest) -> WorkflowExecuteRe
         ```
     """
     try:
-        # Validate workflow exists
-        workflow = _repository.get(request.workflow_id)
+        loader = _get_loader()
+        workflow = None
+
+        # Try loading from YAML files first
+        if loader is not None:
+            try:
+                spec = loader.load_workflow_spec(request.workflow_id)
+                workflow = Workflow(spec=spec)
+            except WorkflowLoadError:
+                pass
+
+        # Fallback to repository
         if workflow is None:
-            raise HTTPException(
-                status_code=404, detail=f"Workflow '{request.workflow_id}' not found"
+            workflow = _repository.get(request.workflow_id)
+            if workflow is None:
+                raise HTTPException(
+                    status_code=404,
+                    detail=f"Workflow '{request.workflow_id}' not found",
+                )
+
+        # Handle dry-run mode
+        if request.dry_run:
+            config = DryRunConfig(
+                strategy=MockStrategy(request.mock_strategy),
+            )
+            executor = DryRunExecutor(config)
+
+            # Execute with mocked LLM calls
+            result = await executor.execute_workflow(
+                workflow=workflow,
+                inputs=request.inputs,
+            )
+
+            return WorkflowExecuteResponse(
+                execution_id=result["execution_id"],
+                workflow_id=workflow.id,
+                status="completed",
+                message="Dry-run execution completed (no real LLM calls)",
+                async_execution=False,
             )
 
         # Execute workflow
         if request.async_execution:
             # Asynchronous execution (background task)
             execution_id = await _engine.execute_async(
-                workflow=workflow, inputs=request.inputs
+                workflow=workflow,
+                inputs=request.inputs,
+                auto_approve=request.auto_approve,
             )
 
             return WorkflowExecuteResponse(
@@ -158,12 +226,16 @@ async def execute_workflow(request: WorkflowExecuteRequest) -> WorkflowExecuteRe
             )
         else:
             # Synchronous execution (wait for completion)
-            result = await _engine.execute(workflow=workflow, inputs=request.inputs)
+            result = await _engine.execute(
+                workflow=workflow,
+                inputs=request.inputs,
+                auto_approve=request.auto_approve,
+            )
 
             return WorkflowExecuteResponse(
                 execution_id=result.execution_id,
                 workflow_id=workflow.id,
-                status="completed" if result.success else "failed",
+                status=result.status.value,
                 message="Workflow execution completed",
                 async_execution=False,
             )
@@ -171,6 +243,93 @@ async def execute_workflow(request: WorkflowExecuteRequest) -> WorkflowExecuteRe
     except WorkflowNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except OrchestrationError as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/{workflow_id}/plan", response_model=dict)
+async def plan_workflow(workflow_id: str) -> dict:
+    """Analyze workflow and generate execution plan.
+
+    Returns execution plan with cost/time estimates, dependency analysis,
+    and optimization suggestions without executing the workflow.
+
+    Args:
+        workflow_id: Workflow identifier
+
+    Returns:
+        Execution plan with analysis
+
+    Raises:
+        HTTPException: 404 if workflow not found
+
+    Example:
+        ```
+        POST /api/workflows/wf_01234567/plan
+
+        Returns:
+        {
+            "total_steps": 5,
+            "execution_groups": [...],
+            "estimated_cost_usd": 0.015,
+            "estimated_time_seconds": 45,
+            "approval_gates": [...],
+            "optimization_suggestions": [...]
+        }
+        ```
+    """
+    try:
+        loader = _get_loader()
+        workflow = None
+
+        # Try loading from YAML files first
+        if loader is not None:
+            try:
+                spec = loader.load_workflow_spec(workflow_id)
+                workflow = Workflow(spec=spec)
+            except WorkflowLoadError:
+                pass
+
+        # Fallback to repository
+        if workflow is None:
+            workflow = _repository.get(workflow_id)
+            if workflow is None:
+                raise HTTPException(
+                    status_code=404,
+                    detail=f"Workflow '{workflow_id}' not found",
+                )
+
+        # Generate execution plan
+        planner = WorkflowPlanner()
+        plan = planner.plan(workflow)
+
+        return {
+            "workflow_id": workflow_id,
+            "workflow_name": workflow.name or workflow_id,
+            "total_steps": plan.total_steps,
+            "execution_groups": [
+                {
+                    "group_number": g.group_number,
+                    "steps": g.steps,
+                    "can_parallelize": g.can_parallelize,
+                }
+                for g in plan.execution_groups
+            ],
+            "estimated_cost_usd": plan.estimated_cost_usd,
+            "estimated_time_seconds": plan.estimated_time_seconds,
+            "approval_gates": [
+                {
+                    "step_id": gate.step_id,
+                    "approver": gate.approver,
+                    "timeout_seconds": gate.timeout_seconds,
+                }
+                for gate in plan.approval_gates
+            ],
+            "optimization_suggestions": plan.optimization_suggestions,
+        }
+
+    except WorkflowNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 

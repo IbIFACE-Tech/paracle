@@ -437,3 +437,86 @@ def export_agents(output_format: str, output: str | None) -> None:
         paracle agents export --format=yaml --output=agents.yaml
     """
     use_api_or_fallback(_export_via_api, _export_direct, output_format, output)
+
+
+# =============================================================================
+# SKILLS Command
+# =============================================================================
+
+
+@agents.command("skills")
+@click.argument("agent_id", required=False)
+@click.option(
+    "--list-all", "-l", is_flag=True, help="List all available skills"
+)
+def show_skills(agent_id: str | None, list_all: bool) -> None:
+    """Show skills for an agent or list all available skills.
+
+    Examples:
+        paracle agents skills --list-all
+        paracle agents skills coder
+        paracle agents skills architect
+    """
+    from paracle_orchestration.skill_loader import SkillLoader
+
+    skill_loader = SkillLoader()
+
+    if list_all:
+        # List all available skills
+        available = skill_loader.discover_skills()
+        if not available:
+            console.print(
+                "[yellow]No skills found in .parac/agents/skills/[/yellow]"
+            )
+            return
+
+        table = Table(title=f"Available Skills ({len(available)} found)")
+        table.add_column("Skill ID", style="cyan", no_wrap=True)
+        table.add_column("Status", style="green")
+
+        for skill_id in sorted(available):
+            try:
+                skill = skill_loader.load_skill(skill_id)
+                status = "✓ Loaded" if skill else "✗ Error"
+                table.add_row(skill_id, status)
+            except Exception:
+                table.add_row(skill_id, "✗ Error")
+
+        console.print(table)
+
+    elif agent_id:
+        # Show skills for specific agent
+        try:
+            skills = skill_loader.load_agent_skills(agent_id)
+            if not skills:
+                console.print(
+                    f"[yellow]No skills assigned to agent "
+                    f"'{agent_id}'[/yellow]"
+                )
+                console.print(
+                    "\nCheck .parac/agents/SKILL_ASSIGNMENTS.md "
+                    "for skill mappings."
+                )
+                return
+
+            console.print(
+                f"\n[bold]Skills for agent '{agent_id}':[/bold] "
+                f"({len(skills)} skills)\n"
+            )
+
+            for skill in skills:
+                console.print(
+                    f"[cyan]• {skill.name}[/cyan] ({skill.skill_id})"
+                )
+                console.print(f"  {skill.description}\n")
+
+        except Exception as e:
+            console.print(f"[red]Error loading skills:[/red] {e}")
+
+    else:
+        console.print(
+            "[yellow]Provide --list-all or specify an agent ID[/yellow]"
+        )
+        console.print("\nExamples:")
+        console.print("  paracle agents skills --list-all")
+        console.print("  paracle agents skills coder")

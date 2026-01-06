@@ -1,11 +1,14 @@
 """Agent coordinator for caching and execution management."""
 
 import asyncio
+import logging
 from datetime import UTC, datetime
 from typing import Any
 
 from paracle_domain.factory import AgentFactory
 from paracle_domain.models import Agent
+
+logger = logging.getLogger(__name__)
 
 
 def _utcnow() -> datetime:
@@ -34,6 +37,9 @@ class AgentCoordinator:
         agent_factory: AgentFactory,
         cache_enabled: bool = True,
         max_cache_size: int = 100,
+        enable_skills: bool = True,
+        skill_injection_mode: str = "full",
+        parac_dir: str | None = None,
     ) -> None:
         """Initialize the agent coordinator.
 
@@ -41,18 +47,50 @@ class AgentCoordinator:
             agent_factory: Factory for creating agent instances
             cache_enabled: Whether to cache agent instances
             max_cache_size: Maximum number of cached agents
+            enable_skills: Enable skill loading and injection
+            skill_injection_mode: How to inject skills (modes below)
+            parac_dir: Path to .parac directory (defaults to ./.parac)
+
+        Skill Injection Modes:
+            - full: Include full skill content
+            - summary: Include only descriptions
+            - references: Include references only
+            - minimal: Just skill names
         """
         self.agent_factory = agent_factory
         self.cache_enabled = cache_enabled
         self.max_cache_size = max_cache_size
         self.agent_cache: dict[str, Any] = {}
         self.execution_metrics: dict[str, dict[str, Any]] = {}
+        self.enable_skills = enable_skills
+
+        # Initialize skill system (lazy import to avoid circular deps)
+        if self.enable_skills:
+            from pathlib import Path
+
+            from paracle_orchestration.skill_injector import SkillInjector
+            from paracle_orchestration.skill_loader import SkillLoader
+
+            parac_path = Path(parac_dir) if parac_dir else None
+            self.skill_loader = SkillLoader(parac_path)
+            self.skill_injector = SkillInjector(
+                injection_mode=skill_injection_mode
+            )
+            logger.info(
+                f"Skill system enabled (mode: {skill_injection_mode}, "
+                f"parac_dir: {self.skill_loader.parac_dir})"
+            )
+        else:
+            self.skill_loader = None
+            self.skill_injector = None
+            logger.info("Skill system disabled")
 
     async def execute_agent(
         self,
         agent: Agent,
         inputs: dict[str, Any],
         context: dict[str, Any] | None = None,
+        load_skills: bool = True,
     ) -> dict[str, Any]:
         """Execute an agent with given inputs.
 
@@ -60,28 +98,71 @@ class AgentCoordinator:
             agent: Agent to execute
             inputs: Input data for the agent
             context: Optional execution context
+            load_skills: Whether to load and inject skills (default: True)
 
         Returns:
             Dictionary with execution results:
             - result: Agent output
             - execution_time: Duration in seconds
             - metadata: Additional execution metadata
+            - skills: Loaded skills (if enabled)
         """
         start_time = _utcnow()
+
+        # Load skills if enabled
+        skills = []
+        enhanced_prompt = agent.spec.system_prompt
+        skill_context = {}
+
+        if (
+            self.enable_skills
+            and load_skills
+            and self.skill_loader
+            and self.skill_injector
+        ):
+            try:
+                # Load skills assigned to this agent
+                skills = self.skill_loader.load_agent_skills(agent.spec.name)
+
+                if skills:
+                    # Enhance system prompt with skill knowledge
+                    enhanced_prompt = self.skill_injector.inject_skills(
+                        agent.spec.system_prompt, skills
+                    )
+
+                    # Create skill context for provider
+                    skill_context = (
+                        self.skill_injector.create_skill_context(skills)
+                    )
+
+                    skill_ids = [s.skill_id for s in skills]
+                    logger.info(
+                        f"Loaded {len(skills)} skills for "
+                        f"agent {agent.spec.name}: {skill_ids}"
+                    )
+            except Exception as e:
+                logger.warning(
+                    f"Failed to load skills for "
+                    f"agent {agent.spec.name}: {e}"
+                )
 
         # Get or create agent instance
         agent_instance = await self._get_agent_instance(agent)
 
-        # Prepare inputs with context
+        # Prepare inputs with context and skills
         full_inputs = dict(inputs)
         if context:
             full_inputs["_context"] = context
+        if skill_context:
+            full_inputs["_skills"] = skill_context
+        if enhanced_prompt:
+            full_inputs["_enhanced_prompt"] = enhanced_prompt
 
-        # Execute agent (this would call the actual LLM provider)
-        # For now, we return a placeholder - actual execution would be implemented
-        # by the framework adapter layer
+        # Execute agent (actual provider call happens here)
         try:
-            result = await self._execute_agent_instance(agent_instance, full_inputs)
+            result = await self._execute_agent_instance(
+                agent_instance, full_inputs
+            )
 
             execution_time = (_utcnow() - start_time).total_seconds()
 
@@ -92,10 +173,13 @@ class AgentCoordinator:
                 "agent_id": agent.id,
                 "result": result,
                 "execution_time": execution_time,
+                "skills": [skill.to_dict() for skill in skills],
                 "metadata": {
                     "agent_name": agent.spec.name,
                     "model": agent.spec.model,
                     "provider": agent.spec.provider,
+                    "skills_loaded": len(skills),
+                    "skill_ids": [s.skill_id for s in skills],
                 },
             }
 

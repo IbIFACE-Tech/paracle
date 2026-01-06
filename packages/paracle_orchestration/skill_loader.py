@@ -1,0 +1,262 @@
+"""Skill loader for agent execution enhancement.
+
+This module loads skills from .parac/agents/skills/ and makes them
+available during agent execution.
+"""
+
+import logging
+from pathlib import Path
+from typing import Any
+
+logger = logging.getLogger(__name__)
+
+
+class Skill:
+    """Represents a loaded skill."""
+
+    def __init__(
+        self,
+        skill_id: str,
+        name: str,
+        description: str,
+        content: str,
+        assets: dict[str, str] | None = None,
+        scripts: dict[str, str] | None = None,
+        references: dict[str, str] | None = None,
+    ):
+        """Initialize skill.
+
+        Args:
+            skill_id: Unique skill identifier
+            name: Skill name
+            description: Skill description
+            content: Main skill content (from SKILL.md)
+            assets: Optional assets (templates, examples)
+            scripts: Optional executable scripts
+            references: Optional reference documentation
+        """
+        self.skill_id = skill_id
+        self.name = name
+        self.description = description
+        self.content = content
+        self.assets = assets or {}
+        self.scripts = scripts or {}
+        self.references = references or {}
+
+    def to_dict(self) -> dict[str, Any]:
+        """Convert to dictionary."""
+        return {
+            "skill_id": self.skill_id,
+            "name": self.name,
+            "description": self.description,
+            "content": self.content,
+            "has_assets": bool(self.assets),
+            "has_scripts": bool(self.scripts),
+            "has_references": bool(self.references),
+        }
+
+
+class SkillLoader:
+    """Loads skills from .parac/agents/skills/ directory."""
+
+    def __init__(self, parac_dir: Path | None = None):
+        """Initialize skill loader.
+
+        Args:
+            parac_dir: Path to .parac directory (defaults to ./.parac)
+        """
+        self.parac_dir = parac_dir or Path.cwd() / ".parac"
+        self.skills_dir = self.parac_dir / "agents" / "skills"
+        self.assignments_file = self.parac_dir / "agents" / "SKILL_ASSIGNMENTS.md"
+        self._skill_cache: dict[str, Skill] = {}
+        self._assignments_cache: dict[str, list[str]] = {}
+
+    def discover_skills(self) -> list[str]:
+        """Discover all available skills.
+
+        Returns:
+            List of skill IDs
+        """
+        if not self.skills_dir.exists():
+            logger.warning(f"Skills directory not found: {self.skills_dir}")
+            return []
+
+        skills = []
+        for skill_dir in self.skills_dir.iterdir():
+            if skill_dir.is_dir() and (skill_dir / "SKILL.md").exists():
+                skills.append(skill_dir.name)
+
+        logger.info(f"Discovered {len(skills)} skills: {skills}")
+        return skills
+
+    def load_skill(self, skill_id: str) -> Skill | None:
+        """Load a specific skill.
+
+        Args:
+            skill_id: Skill identifier (directory name)
+
+        Returns:
+            Skill object or None if not found
+        """
+        # Check cache
+        if skill_id in self._skill_cache:
+            return self._skill_cache[skill_id]
+
+        skill_path = self.skills_dir / skill_id
+        if not skill_path.exists():
+            logger.warning(f"Skill not found: {skill_id}")
+            return None
+
+        skill_file = skill_path / "SKILL.md"
+        if not skill_file.exists():
+            logger.warning(f"SKILL.md not found for: {skill_id}")
+            return None
+
+        # Load main content
+        content = skill_file.read_text(encoding="utf-8")
+
+        # Extract name and description from frontmatter or content
+        name = skill_id.replace("-", " ").title()
+        description = f"Skill: {name}"
+
+        # Load assets
+        assets = self._load_directory_files(skill_path / "assets")
+
+        # Load scripts
+        scripts = self._load_directory_files(skill_path / "scripts")
+
+        # Load references
+        references = self._load_directory_files(skill_path / "references")
+
+        skill = Skill(
+            skill_id=skill_id,
+            name=name,
+            description=description,
+            content=content,
+            assets=assets,
+            scripts=scripts,
+            references=references,
+        )
+
+        # Cache it
+        self._skill_cache[skill_id] = skill
+        logger.debug(f"Loaded skill: {skill_id}")
+
+        return skill
+
+    def load_agent_skills(self, agent_name: str) -> list[Skill]:
+        """Load all skills assigned to an agent.
+
+        Args:
+            agent_name: Agent name (e.g., "coder", "architect")
+
+        Returns:
+            List of Skill objects
+        """
+        skill_ids = self.get_agent_skill_ids(agent_name)
+        skills = []
+
+        for skill_id in skill_ids:
+            skill = self.load_skill(skill_id)
+            if skill:
+                skills.append(skill)
+            else:
+                logger.warning(
+                    f"Could not load skill {skill_id} for agent {agent_name}")
+
+        logger.info(f"Loaded {len(skills)} skills for agent: {agent_name}")
+        return skills
+
+    def get_agent_skill_ids(self, agent_name: str) -> list[str]:
+        """Get skill IDs assigned to an agent.
+
+        Args:
+            agent_name: Agent name
+
+        Returns:
+            List of skill IDs
+        """
+        # Check cache
+        if agent_name in self._assignments_cache:
+            return self._assignments_cache[agent_name]
+
+        if not self.assignments_file.exists():
+            logger.warning(
+                f"Assignments file not found: {self.assignments_file}")
+            return []
+
+        # Parse SKILL_ASSIGNMENTS.md
+        content = self.assignments_file.read_text(encoding="utf-8")
+        skills = self._parse_assignments(content, agent_name)
+
+        # Cache it
+        self._assignments_cache[agent_name] = skills
+        return skills
+
+    def _parse_assignments(self, content: str, agent_name: str) -> list[str]:
+        """Parse SKILL_ASSIGNMENTS.md to extract skills for an agent.
+
+        Args:
+            content: File content
+            agent_name: Agent name to find
+
+        Returns:
+            List of skill IDs
+        """
+        skills = []
+        in_agent_section = False
+        agent_header = f"### {agent_name.title()} Agent"
+        agent_header_alt = f"### 💻 {agent_name.title()} Agent"
+        agent_header_alt2 = f"### 🔧 {agent_name.title()} Agent"
+
+        lines = content.split("\n")
+        for line in lines:
+            # Check if we're entering the agent's section
+            if (
+                agent_header.lower() in line.lower()
+                or agent_header_alt.lower() in line.lower()
+                or agent_header_alt2.lower() in line.lower()
+            ):
+                in_agent_section = True
+                continue
+
+            # Check if we're leaving the section (next agent)
+            if in_agent_section and line.startswith("### "):
+                break
+
+            # Extract skill IDs (lines starting with -)
+            if in_agent_section and line.strip().startswith("- `"):
+                # Extract skill-id from: - `skill-id` - Description
+                skill_id = line.split("`")[1] if "`" in line else None
+                if skill_id:
+                    skills.append(skill_id)
+
+        return skills
+
+    def _load_directory_files(self, directory: Path) -> dict[str, str]:
+        """Load all files from a directory.
+
+        Args:
+            directory: Directory path
+
+        Returns:
+            Dictionary mapping filename to content
+        """
+        files = {}
+        if not directory.exists():
+            return files
+
+        for file_path in directory.iterdir():
+            if file_path.is_file():
+                try:
+                    content = file_path.read_text(encoding="utf-8")
+                    files[file_path.name] = content
+                except Exception as e:
+                    logger.warning(f"Could not read {file_path}: {e}")
+
+        return files
+
+    def clear_cache(self) -> None:
+        """Clear all caches."""
+        self._skill_cache.clear()
+        self._assignments_cache.clear()

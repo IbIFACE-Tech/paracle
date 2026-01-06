@@ -189,6 +189,127 @@ uv run python examples/07_human_in_the_loop.py
 
 ---
 
+### 8. Multi-Provider Support (`07_multi_provider.py`)
+
+Demonstrates using multiple LLM providers (see existing example).
+
+---
+
+### 9. Sandbox Execution (`09_sandbox_execution.py`)
+
+**NEW - Phase 5**: Docker-based isolated execution with resource limits:
+
+- **SandboxManager**: Create and orchestrate sandboxes
+- **Resource Limits**: CPU, memory, disk, timeout constraints
+- **SandboxMonitor**: Real-time resource monitoring
+- **Automatic Cleanup**: Context managers for resource safety
+- **Statistics**: CPU/memory usage, network I/O tracking
+
+**Run**:
+```bash
+uv run python examples/09_sandbox_execution.py
+```
+
+**Key concepts**:
+- Isolated Docker containers for safe execution
+- Resource limit enforcement
+- Real-time monitoring and alerts
+- Automatic cleanup on exit
+
+---
+
+### 10. Network Isolation (`10_network_isolation.py`)
+
+**NEW - Phase 5**: Network isolation and security policies:
+
+- **NetworkIsolator**: Create isolated Docker networks
+- **Network Policies**: Control internet/intra-network access
+- **Container Attachment**: Connect containers to networks
+- **Port Control**: Allow/block specific ports
+- **IP Blocking**: Block dangerous IP ranges
+
+**Run**:
+```bash
+uv run python examples/10_network_isolation.py
+```
+
+**Key concepts**:
+- Docker network creation and management
+- Policy-based network access control
+- Inter-container communication
+- External access restrictions
+
+---
+
+### 11. Rollback on Failure (`11_rollback_on_failure.py`)
+
+**NEW - Phase 5**: Automatic snapshot-based recovery:
+
+- **RollbackManager**: Snapshot and restore filesystem state
+- **Automatic Rollback**: Policy-triggered recovery on errors
+- **Snapshot Management**: Retention policies, cleanup
+- **Manual Rollback**: Restore to specific checkpoints
+- **Tarball Strategy**: Compressed snapshots
+
+**Run**:
+```bash
+uv run python examples/11_rollback_on_failure.py
+```
+
+**Key concepts**:
+- Filesystem snapshot creation
+- Automatic recovery on failure
+- Snapshot retention policies
+- Manual checkpoint restoration
+
+---
+
+### 12. Artifact Review (`12_artifact_review.py`)
+
+**NEW - Phase 5**: Human-in-the-loop artifact approval:
+
+- **ReviewManager**: Create and manage artifact reviews
+- **Risk Assessment**: Automatic pattern-based risk detection
+- **Approval Workflow**: Multi-reviewer approval process
+- **Auto-Approval**: Low-risk artifacts bypass review
+- **Review Statistics**: Track approval metrics
+
+**Run**:
+```bash
+uv run python examples/12_artifact_review.py
+```
+
+**Key concepts**:
+- Pattern-based risk assessment
+- Multi-approval workflow
+- Auto-approval for low-risk changes
+- Rejection and timeout handling
+
+---
+
+### 13. Phase 5 Integration (`13_phase5_integration.py`)
+
+**NEW - Phase 5**: Complete safety stack integration:
+
+- **Full Stack**: Sandbox + Network + Rollback + Review
+- **Safety Pipeline**: Comprehensive execution protection
+- **Error Recovery**: Automatic rollback on failures
+- **Approval Gates**: Review workflow integration
+- **Statistics**: End-to-end metrics
+
+**Run**:
+```bash
+uv run python examples/13_phase5_integration.py
+```
+
+**Key concepts**:
+- Complete Phase 5 feature integration
+- Multi-layer security and safety
+- Coordinated resource management
+- Production-ready patterns
+
+---
+
 ## Example Output
 
 ### Filesystem Tools

@@ -3,7 +3,9 @@
 import click
 from rich.console import Console
 
+from paracle_cli.commands.adr import adr
 from paracle_cli.commands.agents import agents
+from paracle_cli.commands.cost import cost
 from paracle_cli.commands.ide import ide
 from paracle_cli.commands.logs import logs
 from paracle_cli.commands.parac import (
@@ -15,6 +17,7 @@ from paracle_cli.commands.parac import (
 )
 from paracle_cli.commands.parac import validate as parac_validate
 from paracle_cli.commands.providers import providers
+from paracle_cli.commands.roadmap import roadmap
 from paracle_cli.commands.serve import serve
 from paracle_cli.commands.tools import tools
 from paracle_cli.commands.validate import validate as governance_validate
@@ -52,6 +55,11 @@ cli.add_command(logs)
 cli.add_command(workflow)   # Workflow management (list, run, status, cancel)
 cli.add_command(tools)      # Tool management (list, info, test, register)
 cli.add_command(providers)  # Provider management (list, add, test, default)
+cli.add_command(cost)       # Cost tracking and budget management
+
+# File management commands
+cli.add_command(adr)        # ADR management (list, create, get, status, migrate)
+cli.add_command(roadmap)    # Roadmap management (list, show, add, validate, sync)
 
 # Legacy compatibility (hidden, deprecated)
 cli.add_command(parac)
@@ -60,13 +68,13 @@ cli.add_command(parac)
 @cli.command()
 def hello() -> None:
     """Hello World command - Phase 0 validation."""
-    console.print("[bold green]🎉 Paracle v0.0.1 - Hello World![/bold green]")
+    console.print("[bold green]Paracle v0.0.1 - Hello World![/bold green]")
     console.print("\n[cyan]Framework successfully installed![/cyan]")
-    console.print("\n[yellow]Phase 0: Foundation ✅[/yellow]")
+    console.print("\n[yellow]Phase 0: Foundation - Complete[/yellow]")
     console.print("\nNext steps:")
-    console.print("  • paracle agents create   - Create a new agent")
-    console.print("  • paracle status          - View project state")
-    console.print("  • paracle --help          - Show all commands")
+    console.print("  - paracle agents create   - Create a new agent")
+    console.print("  - paracle status          - View project state")
+    console.print("  - paracle --help          - Show all commands")
 
 
 @cli.group()

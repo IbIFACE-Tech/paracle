@@ -283,30 +283,30 @@ paracle session end
 
 ## Essential .parac/ Files
 
-| File | Purpose | When to Read |
-| --- | --- | --- |
-| **`.parac/GOVERNANCE.md`** | Governance rules, dogfooding context | ALWAYS first |
-| **`.parac/PRE_FLIGHT_CHECKLIST.md`** | **NEW: Mandatory task validation** | **Before ANY implementation** |
-| **`.parac/UNIVERSAL_AI_INSTRUCTIONS.md`** | Universal instructions (any IDE) | Setup / reference |
-| **`.parac/USING_PARAC.md`** | Complete 20+ section guide | Deep understanding |
-| **`.parac/CONFIG_FILES.md`** | project.yaml vs manifest.yaml | When confused about config |
-| **`.parac/STRUCTURE.md`** | Complete .parac/ structure | Understanding organization |
-| **`.parac/agents/manifest.yaml`** | Agent registry | Before selecting agent |
-| **`.parac/agents/specs/{agent}.md`** | Agent detailed specs | After selecting agent |
-| **`.parac/agents/SKILL_ASSIGNMENTS.md`** | Skills per agent | Understanding capabilities |
-| **`.parac/memory/context/current_state.yaml`** | Project state | ALWAYS (before action) |
-| **`.parac/memory/context/open_questions.md`** | Open questions | When blocked |
-| **`.parac/memory/knowledge/architecture.md`** | Architecture knowledge | Design decisions |
-| **`.parac/memory/knowledge/glossary.md`** | Project glossary | Term clarification |
-| **`.parac/memory/logs/agent_actions.log`** | Action history | Understanding changes |
-| **`.parac/memory/logs/decisions.log`** | Important decisions | Context for choices |
-| **`.parac/roadmap/roadmap.yaml`** | Roadmap and phases | Understanding priorities |
-| **`.parac/roadmap/decisions.md`** | ADRs (Architecture Decision Records) | Design rationale |
-| **`.parac/policies/CODE_STYLE.md`** | Code style guide | Before coding |
-| **`.parac/policies/TESTING.md`** | Testing policy | Before writing tests |
-| **`.parac/policies/SECURITY.md`** | Security policy | Security-sensitive code |
-| **`docs/api-keys.md`** | **NEW: API key management guide** | **Setting up LLM providers** |
-| **`docs/roadmap-state-sync.md`** | **NEW: Roadmap sync guide** | **Understanding governance automation** |
+| File                                           | Purpose                              | When to Read                            |
+| ---------------------------------------------- | ------------------------------------ | --------------------------------------- |
+| **`.parac/GOVERNANCE.md`**                     | Governance rules, dogfooding context | ALWAYS first                            |
+| **`.parac/PRE_FLIGHT_CHECKLIST.md`**           | **NEW: Mandatory task validation**   | **Before ANY implementation**           |
+| **`.parac/UNIVERSAL_AI_INSTRUCTIONS.md`**      | Universal instructions (any IDE)     | Setup / reference                       |
+| **`.parac/USING_PARAC.md`**                    | Complete 20+ section guide           | Deep understanding                      |
+| **`.parac/CONFIG_FILES.md`**                   | project.yaml vs manifest.yaml        | When confused about config              |
+| **`.parac/STRUCTURE.md`**                      | Complete .parac/ structure           | Understanding organization              |
+| **`.parac/agents/manifest.yaml`**              | Agent registry                       | Before selecting agent                  |
+| **`.parac/agents/specs/{agent}.md`**           | Agent detailed specs                 | After selecting agent                   |
+| **`.parac/agents/SKILL_ASSIGNMENTS.md`**       | Skills per agent                     | Understanding capabilities              |
+| **`.parac/memory/context/current_state.yaml`** | Project state                        | ALWAYS (before action)                  |
+| **`.parac/memory/context/open_questions.md`**  | Open questions                       | When blocked                            |
+| **`.parac/memory/knowledge/architecture.md`**  | Architecture knowledge               | Design decisions                        |
+| **`.parac/memory/knowledge/glossary.md`**      | Project glossary                     | Term clarification                      |
+| **`.parac/memory/logs/agent_actions.log`**     | Action history                       | Understanding changes                   |
+| **`.parac/memory/logs/decisions.log`**         | Important decisions                  | Context for choices                     |
+| **`.parac/roadmap/roadmap.yaml`**              | Roadmap and phases                   | Understanding priorities                |
+| **`.parac/roadmap/decisions.md`**              | ADRs (Architecture Decision Records) | Design rationale                        |
+| **`.parac/policies/CODE_STYLE.md`**            | Code style guide                     | Before coding                           |
+| **`.parac/policies/TESTING.md`**               | Testing policy                       | Before writing tests                    |
+| **`.parac/policies/SECURITY.md`**              | Security policy                      | Security-sensitive code                 |
+| **`docs/api-keys.md`**                         | **NEW: API key management guide**    | **Setting up LLM providers**            |
+| **`docs/roadmap-state-sync.md`**               | **NEW: Roadmap sync guide**          | **Understanding governance automation** |
 
 
 

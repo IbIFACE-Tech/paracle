@@ -28,11 +28,16 @@ paracle hello
 You should see:
 
 ```
-🎉 Paracle v0.0.1 - Hello World!
+Paracle v0.0.1 - Hello World!
 
 Framework successfully installed!
 
-Phase 0: Foundation ✅
+Phase 0: Foundation - Complete
+
+Next steps:
+  - paracle agents create   - Create a new agent
+  - paracle status          - View project state
+  - paracle --help          - Show all commands
 ```
 
 ## First Steps
@@ -100,11 +105,17 @@ Paracle provides a CLI for common tasks:
 # Show help
 paracle --help
 
-# Create an agent (coming in Phase 1)
-paracle agent create my-agent
+# Start the API server
+paracle serve
 
-# Run a workflow (coming in Phase 3)
+# List agents from .parac/
+paracle agents list
+
+# Run a workflow
 paracle workflow run my-workflow
+
+# Check providers
+paracle providers list
 ```
 
 ## Project Structure

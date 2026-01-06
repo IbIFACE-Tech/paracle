@@ -6,17 +6,18 @@ This document tracks unresolved questions and decisions pending.
 
 | ID  | Question                      | Owner      | Priority | Deadline    | Status       |
 | --- | ----------------------------- | ---------- | -------- | ----------- | ------------ |
-| Q1  | Agent Inheritance Depth Limit | Architect  | High     | Phase 1 End | Open         |
-| Q2  | Event Store Implementation    | Architect  | Medium   | Phase 1 End | Open         |
+| Q1  | Agent Inheritance Depth Limit | Architect  | High     | Phase 1 End | **Resolved** |
+| Q2  | Event Store Implementation    | Architect  | Medium   | Phase 1 End | **Resolved** |
 | Q3  | API Versioning Strategy       | Architect  | Low      | Phase 2 End | Open         |
 | Q4  | Tool Calling Interface        | Architect  | High     | Phase 2 End | **Resolved** |
-| Q5  | Memory Management Strategy    | Architect  | Medium   | Phase 2 End | Open         |
-| Q6  | Deployment Strategy           | PM         | Low      | Phase 4 End | Open         |
+| Q5  | Memory Management Strategy    | Architect  | Medium   | Phase 2 End | **Resolved** |
+| Q6  | Deployment Strategy           | PM         | Low      | Phase 4 End | **Resolved** |
 | Q7  | Observability Stack           | Architect  | Medium   | Phase 4 End | Open         |
 | Q8  | Contribution Guidelines       | PM         | Low      | Phase 1 End | Open         |
 | Q9  | Documentation Hosting         | Documenter | Low      | Phase 5 End | Open         |
 | Q10 | API Middlewares Stack         | Architect  | High     | Phase 3 End | **Resolved** |
 | Q11 | ISO 42001 Compliance Strategy | Architect  | High     | Phase 4 End | **Resolved** |
+| Q12 | Kanban Task Management        | Architect  | High     | Phase 6 End | **Resolved** |
 
 ---
 
@@ -24,54 +25,47 @@ This document tracks unresolved questions and decisions pending.
 
 ### Q1: Agent Inheritance Depth Limit
 
-**Status:** Open
+**Status:** ✅ **Resolved**
 **Priority:** High
 **Owner:** Architect Agent
 **Deadline:** End of Phase 1 (Week 4)
+**Resolved Date:** 2025-12-25
+**Decision:** 5 levels max with warning at 3+
+
 **Context:** Need to decide max inheritance depth for agents
-**Options:**
 
-- No limit (flexible but risky)
-- 5 levels (balanced)
-- 3 levels (restrictive but safe)
+**DECISION (2025-12-25):**
+Implemented in `paracle_domain/inheritance.py`:
+- Max depth: 5 levels (configurable via `MAX_INHERITANCE_DEPTH`)
+- Warning at 3+ levels for maintainability
+- Circular dependency detection with `CircularInheritanceError`
+- `validate_inheritance_chain()` for batch validation
 
-**Discussion:**
-
-- Deep inheritance can be hard to debug
-- Most use cases need 2-3 levels
-- Can always increase later
-- ISO 42001 may require explainability (shallow = easier)
-
-**Recommendation:** 5 levels with warning at 3+
-
-**Decision Needed By:** End of Phase 1
+See: [inheritance.py](../../../packages/paracle_domain/inheritance.py)
 
 ---
 
 ### Q2: Event Store Implementation
 
-**Status:** Open
+**Status:** ✅ **Resolved**
 **Priority:** Medium
 **Owner:** Architect Agent
 **Deadline:** End of Phase 1 (Week 4)
+**Resolved Date:** 2025-12-25
+**Decision:** In-memory EventBus with SQLite persistence option
+
 **Context:** Which event store to use for audit trail
-**Options:**
 
-- NDJSON files (simple, no dependencies)
-- SQLite (queryable, integrated)
-- Redis Streams (fast, requires infra)
-- EventStoreDB (powerful, overkill for v0.0.1)
+**DECISION (2025-12-25):**
+Implemented hybrid approach in `paracle_events/`:
 
-**Discussion:**
+- `paracle_events/bus.py` - In-memory EventBus with pub/sub
+- `paracle_events/persistent_store.py` - SQLite persistence layer
+- Wildcard subscriptions (e.g., `agent.*`)
+- Event history for replay/debugging
+- 33 unit tests (100% passing)
 
-- NDJSON is simplest for v0.0.1
-- Can migrate later with adapter pattern
-- SQLite good for queries
-- ISO 42001 requires audit trail - must be reliable
-
-**Recommendation:** SQLite for v0.0.1, abstract behind EventStore interface
-
-**Decision Needed By:** End of Phase 1
+See: [paracle_events](../../../packages/paracle_events/)
 
 ---
 
@@ -456,6 +450,43 @@ v0.7.0 (Governance):
 **Recommendation:** GitHub Pages with MkDocs
 
 **Decision Needed By:** Phase 5
+
+---
+
+### Q12: Kanban Task Management
+
+**Status:** ✅ **Resolved**
+**Priority:** High
+**Owner:** Architect Agent
+**Deadline:** End of Phase 6 (Week 22)
+**Resolved Date:** 2026-01-05
+**Decision:** ADR-021 - Kanban Task Management System
+
+**Context:** User requested Kanban-style task management with stages: To Do, In Progress, In Review, Done, Cancelled.
+
+**DECISION (2026-01-05):**
+Implemented **Kanban task management as core domain feature** (not Enterprise-only):
+
+**TaskStatus Enum:**
+```python
+class TaskStatus(str, Enum):
+    BACKLOG = "backlog"           # In backlog, not scheduled
+    TODO = "todo"                 # Scheduled, ready to start
+    IN_PROGRESS = "in_progress"   # Currently executing
+    IN_REVIEW = "in_review"       # Awaiting human review
+    BLOCKED = "blocked"           # Blocked by dependency/issue
+    DONE = "done"                 # Successfully completed
+    CANCELLED = "cancelled"       # Manually cancelled
+```
+
+**Implementation (Phase 6):**
+- Task model with Kanban metadata (column_order, swimlane)
+- CLI commands: `paracle task list/create/move/assign/view`
+- CLI board: `paracle board show/stats`
+- API endpoints: `/tasks`, `/board`
+- Integration with workflow steps and approval system
+
+See: [ADR-021](../../roadmap/decisions.md#adr-021-kanban-task-management-system)
 
 ---
 

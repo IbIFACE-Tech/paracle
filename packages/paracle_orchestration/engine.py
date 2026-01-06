@@ -100,6 +100,8 @@ class WorkflowOrchestrator:
         workflow: Workflow,
         inputs: dict[str, Any],
         timeout_seconds: float | None = None,
+        execution_id: str | None = None,
+        auto_approve: bool = False,
     ) -> ExecutionContext:
         """Execute a workflow with given inputs.
 
@@ -107,6 +109,8 @@ class WorkflowOrchestrator:
             workflow: Workflow to execute
             inputs: Input data for the workflow
             timeout_seconds: Optional execution timeout
+            execution_id: Optional pre-generated execution ID (for async tracking)
+            auto_approve: If True, automatically approve all approval gates (YOLO mode)
 
         Returns:
             ExecutionContext with results and status
@@ -122,20 +126,42 @@ class WorkflowOrchestrator:
         dag = DAG(workflow.spec.steps)
         dag.validate()
 
-        # Create execution context
-        execution_id = generate_id("execution")
-        context = ExecutionContext(
-            workflow_id=workflow.id,
-            execution_id=execution_id,
-            inputs=inputs,
-            metadata={
+        # Use provided execution_id or generate new one
+        if execution_id is None:
+            execution_id = generate_id("execution")
+
+        # Create approval manager with YOLO setting if requested
+        if auto_approve:
+            self.approval_manager = ApprovalManager(
+                self.event_bus,
+                auto_approve=True,
+                auto_approver="system:orchestrator",
+            )
+
+        # Check if context already exists (from async execution)
+        context = self.active_executions.get(execution_id)
+
+        if context is None:
+            # Create new execution context
+            context = ExecutionContext(
+                workflow_id=workflow.id,
+                execution_id=execution_id,
+                inputs=inputs,
+                metadata={
+                    "workflow_name": workflow.spec.name,
+                    "total_steps": len(workflow.spec.steps),
+                },
+            )
+            # Store in active executions
+            self.active_executions[execution_id] = context
+        else:
+            # Update existing context (from async init)
+            context.workflow_id = workflow.id
+            context.inputs = inputs
+            context.metadata.update({
                 "workflow_name": workflow.spec.name,
                 "total_steps": len(workflow.spec.steps),
-            },
-        )
-
-        # Store in active executions
-        self.active_executions[execution_id] = context
+            })
 
         try:
             # Start execution

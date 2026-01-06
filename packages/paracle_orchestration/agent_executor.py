@@ -1,9 +1,11 @@
 """Agent execution utilities for workflow orchestration.
 
-Provides helpers for executing workflow steps with real agents and LLM providers.
+Provides helpers for executing workflow steps with real agents
+and LLM providers.
 """
 
 import asyncio
+import logging
 from pathlib import Path
 from typing import Any
 
@@ -12,6 +14,7 @@ from paracle_providers.registry import ProviderRegistry
 from rich.console import Console
 
 console = Console()
+logger = logging.getLogger("paracle.orchestration.executor")
 
 
 class AgentExecutor:
@@ -21,28 +24,112 @@ class AgentExecutor:
     - Loads agent specs from .parac/agents/specs/
     - Resolves agent configuration and prompts
     - Calls LLM providers with appropriate parameters
+    - Tracks token usage and costs
     - Handles errors gracefully with fallbacks
 
     Example:
         >>> executor = AgentExecutor()
         >>> result = await executor.execute_step(step, {"input": "data"})
         >>> print(result["outputs"])
+        >>> print(result["cost"])  # Cost information
     """
 
     def __init__(
         self,
         parac_root: Path | None = None,
         provider_registry: ProviderRegistry | None = None,
+        cost_tracker: Any | None = None,
     ) -> None:
         """Initialize the agent executor.
 
         Args:
             parac_root: Path to .parac/ directory (auto-discovered if None)
             provider_registry: LLM provider registry (created if None)
+            cost_tracker: Optional CostTracker for cost management
         """
         self.parac_root = parac_root or self._find_parac_root()
         self.provider_registry = provider_registry or ProviderRegistry()
         self.agent_specs_cache: dict[str, dict[str, Any]] = {}
+        self._cost_tracker = cost_tracker
+        self._init_cost_tracker()
+
+    def _init_cost_tracker(self) -> None:
+        """Initialize cost tracker if not provided."""
+        if self._cost_tracker is None:
+            try:
+                from paracle_core.cost import CostTracker
+                self._cost_tracker = CostTracker()
+            except ImportError:
+                logger.debug("Cost tracking not available")
+
+    def _calculate_step_cost(
+        self,
+        provider: str,
+        model: str,
+        prompt_tokens: int,
+        completion_tokens: int,
+        step_id: str | None = None,
+        agent_id: str | None = None,
+        workflow_id: str | None = None,
+        execution_id: str | None = None,
+    ) -> dict[str, Any]:
+        """Calculate and track cost for a step.
+
+        Args:
+            provider: Provider name
+            model: Model name
+            prompt_tokens: Number of prompt tokens
+            completion_tokens: Number of completion tokens
+            step_id: Optional step ID
+            agent_id: Optional agent ID
+            workflow_id: Optional workflow ID
+            execution_id: Optional execution ID
+
+        Returns:
+            Cost information dictionary
+        """
+        if self._cost_tracker is None:
+            # Return zero costs if tracker not available
+            return {
+                "prompt_tokens": prompt_tokens,
+                "completion_tokens": completion_tokens,
+                "total_tokens": prompt_tokens + completion_tokens,
+                "prompt_cost": 0.0,
+                "completion_cost": 0.0,
+                "total_cost": 0.0,
+                "provider": provider,
+                "model": model,
+            }
+
+        # Calculate costs
+        prompt_cost, completion_cost, total_cost = (
+            self._cost_tracker.calculate_cost(
+                provider, model, prompt_tokens, completion_tokens
+            )
+        )
+
+        # Track usage
+        self._cost_tracker.track_usage(
+            provider=provider,
+            model=model,
+            prompt_tokens=prompt_tokens,
+            completion_tokens=completion_tokens,
+            step_id=step_id,
+            agent_id=agent_id,
+            workflow_id=workflow_id,
+            execution_id=execution_id,
+        )
+
+        return {
+            "prompt_tokens": prompt_tokens,
+            "completion_tokens": completion_tokens,
+            "total_tokens": prompt_tokens + completion_tokens,
+            "prompt_cost": prompt_cost,
+            "completion_cost": completion_cost,
+            "total_cost": total_cost,
+            "provider": provider,
+            "model": model,
+        }
 
     def _find_parac_root(self) -> Path:
         """Find .parac/ directory by searching upward from cwd.
@@ -229,7 +316,22 @@ class AgentExecutor:
                     else:
                         outputs[output_key] = f"{output_key}_value"
 
+                # Calculate cost
+                cost_info = self._calculate_step_cost(
+                    provider_name,
+                    model_name,
+                    response.usage.prompt_tokens,
+                    response.usage.completion_tokens,
+                    step.id,
+                    step.agent,
+                )
+
                 console.print("[green]  ✓ Completed[/green]")
+                if cost_info["total_cost"] > 0:
+                    console.print(
+                        f"[dim]  Cost: ${cost_info['total_cost']:.6f} "
+                        f"({cost_info['total_tokens']} tokens)[/dim]"
+                    )
 
                 return {
                     "step_id": step.id,
@@ -240,6 +342,7 @@ class AgentExecutor:
                         "model": model_name,
                         "tokens": response.usage.total_tokens,
                     },
+                    "cost": cost_info,
                 }
 
             except Exception as provider_error:

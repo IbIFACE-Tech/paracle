@@ -36,6 +36,7 @@ from paracle_api.routers import (
     ide_router,
     logs_router,
     parac_router,
+    reviews_router,
     tool_crud_router,
     workflow_crud_router,
     workflow_execution_router,
@@ -191,6 +192,8 @@ def create_app(config: SecurityConfig | None = None) -> FastAPI:
     app.include_router(tool_crud_router)
     # Human-in-the-Loop approvals (ISO 42001)
     app.include_router(approvals_router)
+    # Phase 5: Artifact reviews
+    app.include_router(reviews_router)
 
     # Auth router
     from paracle_api.routers.auth import router as auth_router

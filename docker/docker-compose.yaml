@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   # Redis for event bus and caching
@@ -71,6 +71,11 @@ services:
     volumes:
       # Mount data directory for persistence
       - paracle-data:/app/data
+      # Mount Docker socket for sandbox execution (Phase 5)
+      - /var/run/docker.sock:/var/run/docker.sock
+    # Grant access to Docker socket
+    group_add:
+      - "${DOCKER_GROUP_ID:-999}"
     restart: unless-stopped
 
   # Paracle background worker
@@ -109,7 +114,15 @@ volumes:
     driver: local
   paracle-data:
     driver: local
+  sandbox-cache:
+    driver: local
 
 networks:
   default:
     name: paracle-network
+  sandbox-network:
+    name: paracle-sandbox-network
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

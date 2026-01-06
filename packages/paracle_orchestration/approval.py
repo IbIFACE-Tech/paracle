@@ -131,6 +131,8 @@ class ApprovalManager:
         event_bus: EventBus | None = None,
         on_approval_created: Callable[[ApprovalRequest], None] | None = None,
         on_approval_decided: Callable[[ApprovalRequest], None] | None = None,
+        auto_approve: bool = False,
+        auto_approver: str = "system:auto",
     ) -> None:
         """Initialize the approval manager.
 
@@ -138,10 +140,14 @@ class ApprovalManager:
             event_bus: Optional event bus for publishing approval events.
             on_approval_created: Callback when approval is created.
             on_approval_decided: Callback when approval is decided.
+            auto_approve: If True, automatically approve all requests (YOLO mode).
+            auto_approver: Approver name for auto-approvals.
         """
         self._event_bus = event_bus
         self._on_approval_created = on_approval_created
         self._on_approval_decided = on_approval_decided
+        self.auto_approve = auto_approve
+        self.auto_approver = auto_approver
 
         # In-memory storage (can be replaced with repository)
         self._pending_approvals: dict[str, ApprovalRequest] = {}
@@ -210,6 +216,10 @@ class ApprovalManager:
         if self._on_approval_created:
             self._on_approval_created(request)
 
+        # Auto-approve if YOLO mode enabled
+        if self.auto_approve:
+            await self._auto_approve_request(request)
+
         return request
 
     async def approve(
@@ -262,6 +272,31 @@ class ApprovalManager:
             self._on_approval_decided(request)
 
         return request
+
+    async def _auto_approve_request(self, request: ApprovalRequest) -> None:
+        """Automatically approve a request in YOLO mode.
+
+        Args:
+            request: Approval request to auto-approve.
+        """
+        # Approve the request
+        request.approve(
+            approver=self.auto_approver,
+            reason="Auto-approved: YOLO mode enabled",
+        )
+
+        # Move to decided
+        self._move_to_decided(request)
+
+        # Emit special event for audit trail
+        await self._emit_event("approval.auto_approved", request)
+
+        # Signal waiting coroutines
+        self._signal_decision(request.id)
+
+        # Call callback
+        if self._on_approval_decided:
+            self._on_approval_decided(request)
 
     async def reject(
         self,

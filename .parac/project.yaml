@@ -114,3 +114,440 @@ logging:
     iso27001: true # Information Security
     gdpr: true # Data Protection
     soc2: false # SOC 2 Type II
+
+# Cost Management Configuration
+# See: docs/cost-management.md for full documentation
+cost:
+  # Cost Tracking Settings
+  tracking:
+    enabled: true # Enable cost tracking
+    persist_to_db: true # Persist cost records to database
+    db_path: memory/data/costs.db # Path to cost database (relative to .parac/)
+    retention_days: 90 # Days to retain cost records
+
+  # Budget Configuration
+  budget:
+    enabled: false # Enable budget enforcement (set to true to activate)
+    daily_limit: null # Daily budget limit in USD (e.g., 10.0)
+    monthly_limit: null # Monthly budget limit in USD (e.g., 100.0)
+    workflow_limit: null # Per-workflow budget limit in USD
+    total_limit: null # Total budget limit in USD
+    warning_threshold: 0.8 # Warning alert at 80% of budget
+    critical_threshold: 0.95 # Critical alert at 95% of budget
+    block_on_exceed: false # Block execution when budget exceeded
+
+  # Alert Configuration
+  alerts:
+    enabled: true # Enable cost alerts
+    log_alerts: true # Log alerts to console/file
+    webhook_url: null # Webhook URL for alert notifications
+    email: null # Email for alert notifications
+    min_interval_minutes: 15 # Minimum interval between alerts
+
+  # Default Model Pricing (per million tokens in USD)
+  # Override or extend with your organization's negotiated rates
+  default_pricing:
+    openai:
+      gpt-4:
+        input: 30.0
+        output: 60.0
+      gpt-4-turbo:
+        input: 10.0
+        output: 30.0
+      gpt-4o:
+        input: 2.5
+        output: 10.0
+      gpt-4o-mini:
+        input: 0.15
+        output: 0.60
+      gpt-3.5-turbo:
+        input: 0.5
+        output: 1.5
+    anthropic:
+      claude-3-opus:
+        input: 15.0
+        output: 75.0
+      claude-3-sonnet:
+        input: 3.0
+        output: 15.0
+      claude-3-haiku:
+        input: 0.25
+        output: 1.25
+      claude-3.5-sonnet:
+        input: 3.0
+        output: 15.0
+    together:
+      meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo:
+        input: 3.5
+        output: 3.5
+      meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo:
+        input: 0.88
+        output: 0.88
+
+  # Display Settings
+  currency: USD # Currency for display
+  decimal_places: 4 # Decimal places for cost display
+
+# File Management Configuration
+# Comprehensive configuration for logs, ADRs, and roadmaps
+# All paths are relative to .parac/ unless otherwise specified
+file_management:
+
+  # ===========================================================================
+  # LOG FILES CONFIGURATION
+  # ===========================================================================
+  logs:
+    base_path: memory/logs  # Relative to .parac/
+
+    # Global log settings
+    global:
+      # Line/entry limits
+      max_line_length: 2000          # Max characters per log line (truncate if exceeded)
+      max_message_length: 1000       # Max characters for message field
+      max_description_length: 500    # Max characters for description field
+      max_file_size_mb: 100          # Max log file size before rotation (MB)
+      max_total_size_mb: 1000        # Max total size of all logs (MB)
+
+      # Timestamp settings
+      timestamp_format: "%Y-%m-%d %H:%M:%S"  # ISO 8601 compatible
+      timezone: UTC                  # UTC, local, or specific timezone
+
+      # Rotation settings (defaults for all logs)
+      default_rotation: none         # none, daily, weekly, monthly, size
+      default_retention_days: null   # null = permanent, number = days to keep
+      compress_rotated: true         # Compress rotated log files (.gz)
+      backup_count: 10               # Number of rotated files to keep
+
+      # Performance
+      buffer_size: 8192              # Write buffer size in bytes
+      flush_interval_seconds: 5      # Auto-flush interval (0 = immediate)
+      async_logging: true            # Use async writes for performance
+
+    # Pre-defined log categories
+    predefined:
+      actions:
+        enabled: true
+        path: agent_actions.log
+        format: "[{timestamp}] [{agent}] [{action}] {description}"
+        description: "Agent actions and activities"
+        # Limits
+        max_entries: null            # null = unlimited, number = max entries
+        max_file_size_mb: 50         # Override global setting
+        # Rotation
+        rotation: none               # Governance logs are versioned in git
+        retention_days: null         # Permanent
+        # Fields
+        required_fields: [timestamp, agent, action, description]
+        optional_fields: [details, context, duration_ms]
+
+      decisions:
+        enabled: true
+        path: decisions.log
+        format: "[{timestamp}] [{agent}] [DECISION] {decision} | {rationale} | {impact}"
+        description: "Important decisions made by agents"
+        max_file_size_mb: 20
+        rotation: none
+        retention_days: null         # Permanent - decisions are historical record
+        required_fields: [timestamp, agent, decision]
+        optional_fields: [rationale, impact, alternatives, references]
+
+      security:
+        enabled: false
+        path: security/security.log
+        format: structured_json      # JSON format for security analysis
+        description: "Security events and audit trail"
+        max_file_size_mb: 100
+        rotation: daily
+        retention_days: 365          # 1 year for compliance
+        compress_rotated: true
+        required_fields: [timestamp, level, event_type, actor]
+        optional_fields: [resource, action, outcome, ip_address, user_agent]
+        # Security-specific settings
+        include_stack_trace: false   # Include stack traces in errors
+        redact_sensitive: true       # Auto-redact PII/secrets
+
+      performance:
+        enabled: false
+        path: performance/metrics.log
+        format: structured_json
+        description: "Performance metrics and timing data"
+        max_file_size_mb: 200
+        rotation: daily
+        retention_days: 30
+        compress_rotated: true
+        required_fields: [timestamp, metric_name, value]
+        optional_fields: [unit, tags, percentiles, histogram]
+        # Performance-specific settings
+        sample_rate: 1.0             # 1.0 = 100%, 0.1 = 10% sampling
+        include_percentiles: true    # Calculate p50, p95, p99
+
+      risk:
+        enabled: false
+        path: risk/risk_log.log
+        format: "[{timestamp}] [{level}] [{category}] {message}"
+        description: "Risk assessments and warnings"
+        max_file_size_mb: 50
+        rotation: daily
+        retention_days: 90
+        required_fields: [timestamp, level, message]
+        optional_fields: [category, severity, mitigation, owner]
+        # Risk levels: INFO, LOW, MEDIUM, HIGH, CRITICAL
+        min_level: LOW               # Minimum level to log
+
+      errors:
+        enabled: true
+        path: errors/error.log
+        format: structured_json
+        description: "Error and exception logging"
+        max_file_size_mb: 100
+        rotation: daily
+        retention_days: 90
+        compress_rotated: true
+        required_fields: [timestamp, level, message, error_type]
+        optional_fields: [stack_trace, context, request_id, user_id]
+        include_stack_trace: true
+
+    # Custom log files (user-defined)
+    custom: []
+    # Example custom log configuration:
+    # - name: my_custom_log
+    #   path: custom/my_log.log
+    #   format: "[{timestamp}] [{level}] {message}"
+    #   description: "My custom application log"
+    #   enabled: true
+    #   max_file_size_mb: 50
+    #   max_line_length: 1000
+    #   rotation: weekly
+    #   retention_days: 60
+    #   compress_rotated: true
+    #   required_fields: [timestamp, message]
+    #   optional_fields: [level, context]
+
+  # ===========================================================================
+  # ADR (ARCHITECTURE DECISION RECORDS) CONFIGURATION
+  # ===========================================================================
+  adr:
+    base_path: roadmap/adr           # Relative to .parac/
+    enabled: true
+    format: markdown                 # markdown or yaml
+
+    # File settings
+    index_file: index.md             # Summary/index of all ADRs
+    file_extension: .md              # .md or .yaml
+    encoding: utf-8
+
+    # Content limits
+    limits:
+      max_title_length: 200          # Max characters for title
+      max_context_length: 5000       # Max characters for context section
+      max_decision_length: 3000      # Max characters for decision section
+      max_consequences_length: 3000  # Max characters for consequences
+      max_implementation_length: 5000 # Max characters for implementation
+      max_related_length: 1000       # Max characters for related decisions
+      max_total_length: 20000        # Max total ADR file size in characters
+      max_adrs: null                 # null = unlimited, number = max ADRs
+
+    # Auto-numbering configuration
+    auto_number: true
+    number_format: "ADR-{:03d}"      # ADR-001, ADR-002, etc.
+    number_start: 1                  # Starting number for new projects
+    number_padding: 3                # Zero-padding width (3 = 001, 4 = 0001)
+
+    # Status management
+    statuses:
+      - name: Proposed
+        description: "Under discussion, not yet decided"
+        color: yellow
+        transitions: [Accepted, Rejected, Withdrawn]
+      - name: Accepted
+        description: "Approved and should be followed"
+        color: green
+        transitions: [Deprecated, Superseded]
+      - name: Deprecated
+        description: "No longer valid, kept for history"
+        color: gray
+        transitions: []
+      - name: Superseded
+        description: "Replaced by another ADR"
+        color: blue
+        transitions: []
+      - name: Rejected
+        description: "Considered but not accepted"
+        color: red
+        transitions: []
+      - name: Withdrawn
+        description: "Withdrawn before decision"
+        color: gray
+        transitions: []
+    default_status: Proposed
+
+    # Default values
+    defaults:
+      deciders: "Core Team"
+      implementation: "TBD"
+      related: "None"
+
+    # Template (Markdown format)
+    template: |
+      # {id}: {title}
+
+      **Date**: {date}
+      **Status**: {status}
+      **Deciders**: {deciders}
+
+      ## Context
+
+      {context}
+
+      ## Decision
+
+      {decision}
+
+      ## Consequences
+
+      {consequences}
+
+      ## Implementation
+
+      {implementation}
+
+      ## Related Decisions
+
+      {related}
+
+    # Index file template
+    index_template: |
+      # Architecture Decision Records
+
+      This directory contains Architecture Decision Records (ADRs) for the project.
+
+      ## ADR Index
+
+      | ID | Title | Status | Date |
+      |---|---|---|---|
+      {adr_table}
+
+      ## Statuses
+
+      - **Proposed**: Under discussion
+      - **Accepted**: Approved and implemented
+      - **Deprecated**: No longer valid
+      - **Superseded**: Replaced by another ADR
+      - **Rejected**: Considered but not accepted
+
+      *Last updated: {last_updated}*
+
+    # Migration settings
+    legacy_file: roadmap/decisions.md  # Original single-file location
+    migrate_on_init: false           # Auto-migrate on initialization
+    backup_before_migrate: true      # Create backup before migration
+
+    # Validation
+    validation:
+      require_context: true          # Context section required
+      require_decision: true         # Decision section required
+      require_consequences: true     # Consequences section required
+      require_deciders: false        # Deciders field required
+      validate_links: true           # Validate related ADR links exist
+      warn_empty_sections: true      # Warn on empty optional sections
+
+  # ===========================================================================
+  # ROADMAP CONFIGURATION
+  # ===========================================================================
+  roadmap:
+    base_path: roadmap               # Relative to .parac/
+
+    # Primary roadmap (required)
+    primary: roadmap.yaml
+    primary_description: "Main project roadmap"
+
+    # Content limits
+    limits:
+      max_phase_name_length: 100     # Max characters for phase name
+      max_phase_description_length: 2000  # Max characters for phase description
+      max_deliverable_name_length: 200    # Max characters for deliverable name
+      max_phases: 50                 # Max phases per roadmap
+      max_deliverables_per_phase: 100    # Max deliverables per phase
+      max_roadmaps: 20               # Max total roadmaps
+
+    # Phase configuration
+    phases:
+      # Valid statuses for phases
+      statuses:
+        - name: pending
+          description: "Not yet started"
+          color: gray
+        - name: in_progress
+          description: "Currently being worked on"
+          color: yellow
+        - name: completed
+          description: "Successfully finished"
+          color: green
+        - name: blocked
+          description: "Cannot proceed due to blockers"
+          color: red
+        - name: on_hold
+          description: "Temporarily paused"
+          color: orange
+        - name: cancelled
+          description: "Will not be completed"
+          color: gray
+      default_status: pending
+
+      # Progress tracking
+      progress:
+        min: 0                       # Minimum progress value
+        max: 100                     # Maximum progress value
+        unit: "%"                    # Display unit
+        auto_calculate: false        # Auto-calculate from deliverables
+
+    # Deliverable configuration
+    deliverables:
+      statuses: [pending, in_progress, completed, blocked, cancelled]
+      default_status: pending
+      track_completion_date: true    # Record when completed
+      require_owner: false           # Require owner assignment
+
+    # Additional roadmaps (optional, user-defined)
+    additional: []
+    # Examples:
+    # - name: strategic
+    #   path: strategic-roadmap.yaml
+    #   description: "Long-term vision (1-2 years)"
+    #   enabled: true
+    # - name: tech-debt
+    #   path: tech-debt-roadmap.yaml
+    #   description: "Technical debt tracking"
+    #   enabled: true
+    # - name: research
+    #   path: research-roadmap.yaml
+    #   description: "Research initiatives"
+    #   enabled: true
+    # - name: security
+    #   path: security-roadmap.yaml
+    #   description: "Security improvements"
+    #   enabled: false
+
+    # Synchronization settings
+    sync:
+      enabled: true
+      validate_on_sync: true         # Validate before syncing
+      auto_update_state: true        # Update current_state.yaml on sync
+      sync_interval_minutes: null    # null = manual only, number = auto-sync
+      conflict_resolution: roadmap   # roadmap or state (which wins on conflict)
+
+    # Validation
+    validation:
+      require_phase_id: true         # Phase ID required
+      require_phase_name: true       # Phase name required
+      unique_phase_ids: true         # Phase IDs must be unique
+      validate_progress_range: true  # Progress must be 0-100
+      validate_date_order: true      # start_date must be before end_date
+      warn_no_current_phase: true    # Warn if no phase is in_progress
+      warn_multiple_in_progress: true  # Warn if multiple phases in_progress
+
+    # Export settings
+    export:
+      formats: [yaml, json, markdown, html]
+      default_format: yaml
+      include_metadata: true         # Include timestamps, version info

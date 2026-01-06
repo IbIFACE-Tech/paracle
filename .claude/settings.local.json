@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(uv run pytest:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(set:*)"
     ]
   }
 }

@@ -421,6 +421,7 @@ class APIClient:
         workflow_id: str,
         inputs: dict[str, Any] | None = None,
         async_execution: bool = True,
+        auto_approve: bool = False,
     ) -> dict[str, Any]:
         """Execute a workflow.
 
@@ -428,6 +429,7 @@ class APIClient:
             workflow_id: Workflow identifier
             inputs: Workflow inputs
             async_execution: Run asynchronously (returns immediately)
+            auto_approve: YOLO mode - auto-approve all approval gates
 
         Returns:
             WorkflowExecuteResponse as dict with execution_id
@@ -437,6 +439,7 @@ class APIClient:
                 "workflow_id": workflow_id,
                 "inputs": inputs or {},
                 "async_execution": async_execution,
+                "auto_approve": auto_approve,
             }
             response = client.post(
                 f"{self.base_url}/api/workflows/execute",

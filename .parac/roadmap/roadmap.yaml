@@ -4,7 +4,7 @@
 version: 0.0.1
 timeline: 32_weeks # Extended from 17 weeks
 status: in_progress
-current_phase: phase_4
+current_phase: phase_5
 last_update: "2026-01-05"
 
 # =============================================================================
@@ -89,9 +89,9 @@ persistence_strategy:
 
 # CLI Commands Roadmap Summary
 cli_roadmap:
-  total_commands: 75 # Increased from 45
-  implemented: 13
-  planned: 62 # Increased from 32
+  total_commands: 81 # +6 task/board commands (ADR-021)
+  implemented: 31 # Updated: +6 cost commands
+  planned: 50 # Updated after cost implementation
 
   # Priority 0 - Essential (Phase 3-4)
   p0_essential:
@@ -131,6 +131,8 @@ cli_roadmap:
     - paracle workflow retry/continue
     - paracle profiles list/create
     - paracle agents switch-model
+    - paracle task list/create/move/assign/view # ADR-021 Kanban
+    - paracle board show/stats # ADR-021 Kanban
 
   # Priority 5 - Git Integration (Phase 7)
   p5_git:
@@ -149,10 +151,42 @@ cli_roadmap:
     - paracle alerts list
     - paracle replay
     - paracle compare
-    - paracle cost report
 
 # Recent Achievements
 recent_achievements:
+  - id: cost_management_system
+    name: "Comprehensive Cost Management System"
+    completed: "2026-01-05"
+    impact: high
+    description: |
+      Full cost tracking, budget enforcement, and reporting system:
+      - Cost calculation from model pricing (per million tokens)
+      - Budget enforcement with daily/monthly/workflow/total limits
+      - Alert thresholds (warning at 80%, critical at 95%)
+      - SQLite persistence for cost records
+      - Integration with workflow execution via ExecutionCost
+    deliverables:
+      - CostTracker with budget enforcement
+      - CostConfig with project.yaml integration
+      - BudgetExceededError for blocking mode
+      - ExecutionCost in workflow context
+      - CLI commands: paracle cost report/usage/budget/estimate/pricing/cleanup
+      - 22 unit tests with full coverage
+
+  - id: log_management_implementation
+    name: "Enterprise Log Management System"
+    completed: "2026-01-05"
+    impact: high
+    description: |
+      CrowdStrike best-practice log management with centralized aggregation,
+      search, indexing, anomaly detection, and compliance reporting.
+    deliverables:
+      - LogManager with SQLite FTS5 indexing
+      - Search/aggregate/stats APIs
+      - Compliance reporting (ISO42001, GDPR)
+      - Log compression and retention policies
+      - CLI commands: paracle logs search/aggregate/stats/anomalies
+
   - id: phase_4_api_cli
     name: "Phase 4 API & CLI Enhancement"
     completed: "2026-01-04"
@@ -161,11 +195,13 @@ recent_achievements:
       Comprehensive API server with security, CLI commands, and MCP integration.
       613 tests passing, 87.5% coverage.
     deliverables:
-      - REST API with 47 endpoints
+      - REST API with 47+ endpoints (11 routers)
       - JWT authentication
       - Rate limiting and security headers
       - Workflow execution endpoints
       - CLI commands for workflow, tools, providers
+      - Approval workflow system (API + routes)
+      - IDE sync commands (5 IDE formats)
 
   - id: package_uniformization
     name: "Package Uniformization"
@@ -340,9 +376,10 @@ phases:
   - id: phase_4
     name: "Persistence & Production Scale"
     duration: 3_weeks
-    status: in_progress
+    status: completed
+    completed_date: "2026-01-05"
     priority: high
-    completion: 30%
+    completion: 100%
     deliverables:
       - sqlite_persistence
       - database_migrations
@@ -350,14 +387,45 @@ phases:
       - performance_optimization
       - observability
       - error_management_hardening
+      - log_management_system # IMPLEMENTED - LogManager with search/aggregate
+      - approval_workflow_api # IMPLEMENTED - Approval system (API routes)
+      - yolo_mode # IMPLEMENTED - Auto-approve workflows (YOLO mode)
+      - plan_mode # IMPLEMENTED - Workflow execution plan preview with cost/time estimates
+      - dry_run_mode # IMPLEMENTED - Mock execution for testing with FIXED/RANDOM/ECHO strategies
+      - ide_sync_generator # IMPLEMENTED - IDE instructions for 5 IDEs
+      - cost_management_system # IMPLEMENTED - Full cost tracking and budget enforcement
+      - mcp_tool_integration # IMPLEMENTED - Model Context Protocol CLI commands
+      - pre_commit_hooks # VALIDATED - Comprehensive governance hooks configured
+      - ci_cd_workflow_testing # VALIDATED - Matrix testing (3 OS × 3 Python versions)
     focus_areas:
       - "SQLite persistence layer"
       - "Alembic migrations"
       - "Storage configuration system"
       - "Repository SQLite implementations"
+      - "Log aggregation and analysis (CrowdStrike best practices)"
+      - "YOLO mode for auto-approving workflows (CI/CD support)"
+      - "Plan Mode for workflow execution preview (DAG analysis)"
+      - "Dry-Run Mode for cost-free testing (mocked LLM responses)"
+      - "Approval workflow for agent artifacts"
+      - "YOLO mode for auto-approving workflows (CI/CD support)"
     cli_commands:
+      implemented:
+        - paracle logs search # Search logs with filters
+        - paracle logs aggregate # Aggregate log metrics
+        - paracle logs stats # Log statistics
+        - paracle logs anomalies # Detect anomalies
+        - paracle logs cleanup # Clean old logs
+        - paracle logs compress # Compress logs
+        - paracle ide init # Initialize IDE configs
+        - paracle ide sync # Sync IDE instructions
+        - paracle ide list # List IDE integrations
+        - paracle cost report # Generate cost report
+        - paracle cost usage # View usage statistics
+        - paracle cost budget # View budget status
+        - paracle cost estimate # Estimate request cost
+        - paracle cost pricing # Show model pricing
+        - paracle cost cleanup # Clean old cost records
       planned:
-        - paracle logs # Stream logs
         - paracle events list # Show recent events
         - paracle config show # Show configuration
         - paracle health # Health check
@@ -365,7 +433,8 @@ phases:
   - id: phase_5
     name: "Execution Safety & Isolation"
     duration: 3_weeks
-    status: planned
+    status: in_progress
+    started_date: "2026-01-05"
     priority: high
     completion: 0%
     deliverables:
@@ -401,6 +470,7 @@ phases:
       - agent_profiles
       - human_in_the_loop
       - conditional_retry
+      - kanban_task_management # ADR-021
     focus_areas:
       - "Follow-up execution with feedback loop"
       - "Agent configuration profiles (variants)"
@@ -408,6 +478,7 @@ phases:
       - "Conditional retry based on validation"
       - "Context accumulation across attempts"
       - "Model switching per task type"
+      - "Kanban task management (ADR-021)"
     cli_commands:
       planned:
         - paracle workflow retry # Retry with feedback
@@ -415,6 +486,12 @@ phases:
         - paracle profiles list # List agent profiles
         - paracle profiles create # Create profile variant
         - paracle agents switch-model # Switch LLM mid-workflow
+        - paracle task list # List tasks by status
+        - paracle task create # Create new task
+        - paracle task move # Move task to status
+        - paracle task assign # Assign to agent
+        - paracle board show # Show Kanban board (CLI)
+        - paracle board stats # Board statistics
 
   - id: phase_7
     name: "Git Integration & Change Tracking"

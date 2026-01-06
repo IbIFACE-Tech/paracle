@@ -76,6 +76,9 @@ class AgentSpec(BaseModel):
     tools: list[str] = Field(
         default_factory=list, description="List of tool names"
     )
+    skills: list[str] = Field(
+        default_factory=list, description="List of skill IDs (from .parac/agents/skills/)"
+    )
     config: dict[str, Any] = Field(
         default_factory=dict, description="Additional configuration"
     )
@@ -346,7 +349,8 @@ class ApprovalRequest(BaseModel):
         ... )
     """
 
-    model_config = ConfigDict(json_encoders={datetime: lambda v: v.isoformat()})
+    model_config = ConfigDict(
+        json_encoders={datetime: lambda v: v.isoformat()})
 
     id: str = Field(default_factory=lambda: generate_id("approval"))
     workflow_id: str = Field(..., description="Workflow requesting approval")
@@ -362,10 +366,13 @@ class ApprovalRequest(BaseModel):
     priority: ApprovalPriority = Field(default=ApprovalPriority.MEDIUM)
     config: ApprovalConfig = Field(default_factory=ApprovalConfig)
     created_at: datetime = Field(default_factory=utc_now)
-    expires_at: datetime | None = Field(None, description="When approval expires")
-    decided_at: datetime | None = Field(None, description="When decision was made")
+    expires_at: datetime | None = Field(
+        None, description="When approval expires")
+    decided_at: datetime | None = Field(
+        None, description="When decision was made")
     decided_by: str | None = Field(None, description="Who approved/rejected")
-    decision_reason: str | None = Field(None, description="Reason for decision")
+    decision_reason: str | None = Field(
+        None, description="Reason for decision")
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     def approve(self, approver: str, reason: str | None = None) -> None:

@@ -200,12 +200,25 @@ def list_workflows(
     is_flag=True,
     help="Watch execution progress (implies --sync)",
 )
+@click.option(
+    "--yolo",
+    "--auto-approve",
+    is_flag=True,
+    help="Auto-approve all approval gates (YOLO mode)",
+)
+@click.option(
+    "--dry-run",
+    is_flag=True,
+    help="Dry-run mode: mock LLM responses for cost-free testing",
+)
 @click.option("--json", "output_json", is_flag=True, help="Output as JSON")
 def run_workflow(
     workflow_id: str,
     input: tuple[str, ...],
     sync: bool,
     watch: bool,
+    yolo: bool,
+    dry_run: bool,
     output_json: bool,
 ) -> None:
     """Execute a workflow.
@@ -225,6 +238,9 @@ def run_workflow(
 
         # Watch execution progress
         $ paracle workflow run my-workflow --watch
+
+        # Auto-approve all approval gates (YOLO mode)
+        $ paracle workflow run my-workflow --yolo
     """
     # Parse inputs
     inputs = {}
@@ -238,12 +254,28 @@ def run_workflow(
         key, value = input_pair.split("=", 1)
         inputs[key.strip()] = value.strip()
 
+    # YOLO mode warning
+    if yolo:
+        console.print(
+            "[yellow]⚠️  YOLO MODE - "
+            "Auto-approving all approval gates[/yellow]"
+        )
+
+    # Dry-run mode warning
+    if dry_run:
+        console.print(
+            "[blue]🔵 DRY-RUN MODE - "
+            "Using mocked LLM responses (no cost)[/blue]"
+        )
+
     # API-first: Try API, fallback to local if unavailable
     use_local = _use_local_fallback()
 
     if use_local:
         # Local execution fallback
-        _run_workflow_local(workflow_id, inputs, sync or watch, output_json)
+        _run_workflow_local(
+            workflow_id, inputs, sync or watch, output_json, yolo, dry_run
+        )
         return
 
     # API execution (preferred)
@@ -253,11 +285,16 @@ def run_workflow(
         # Execute workflow
         async_execution = not sync and not watch
 
-        result = client.workflow_execute(
-            workflow_id=workflow_id,
-            inputs=inputs,
-            async_execution=async_execution,
-        )
+        # Build execution parameters
+        execution_params = {
+            "workflow_id": workflow_id,
+            "inputs": inputs,
+            "async_execution": async_execution,
+            "auto_approve": yolo,
+            "dry_run": dry_run,  # Pass dry-run flag to API
+        }
+
+        result = client.workflow_execute(**execution_params)
 
         execution_id = result.get("execution_id")
         status = result.get("status")
@@ -277,6 +314,89 @@ def run_workflow(
         if watch:
             console.print("\n[dim]Watching execution...[/dim]\n")
             _watch_execution(client, execution_id)
+
+    except APIError as e:
+        console.print(f"[red]✗ API Error:[/red] {e.detail}")
+        raise click.Abort()
+    except Exception as e:
+        console.print(f"[red]✗ Error:[/red] {e}")
+        raise click.Abort()
+
+
+@workflow.command("plan")
+@click.argument("workflow_id")
+@click.option(
+    "--input",
+    "-i",
+    multiple=True,
+    help="Input key=value pairs (can be repeated)",
+)
+@click.option("--json", "output_json", is_flag=True, help="Output as JSON")
+def plan_workflow(
+    workflow_id: str,
+    input: tuple[str, ...],
+    output_json: bool,
+) -> None:
+    """Generate an execution plan for a workflow without running it.
+
+    This command analyzes the workflow DAG and provides:
+    - Execution order (topologically sorted)
+    - Parallel execution opportunities
+    - Estimated cost (tokens and USD)
+    - Estimated time
+    - Approval gates
+    - Optimization suggestions
+
+    Args:
+        workflow_id: Workflow ID or name to plan
+
+    Examples:
+        # Generate execution plan
+        $ paracle workflow plan my-workflow
+
+        # With inputs for better estimation
+        $ paracle workflow plan my-workflow -i source=data.csv
+
+        # JSON output for automation
+        $ paracle workflow plan my-workflow --json
+    """
+    # Parse inputs
+    inputs = {}
+    for input_pair in input:
+        if "=" not in input_pair:
+            console.print(f"[red]✗ Invalid input format:[/red] {input_pair}")
+            console.print(
+                "[dim]Use key=value format, e.g., -i source=data.csv[/dim]")
+            raise click.Abort()
+        key, value = input_pair.split("=", 1)
+        inputs[key.strip()] = value.strip()
+
+    # API-first: Try API, fallback to local if unavailable
+    use_local = _use_local_fallback()
+
+    if use_local:
+        # Local planning fallback
+        _plan_workflow_local(workflow_id, inputs, output_json)
+        return
+
+    # API execution (preferred)
+    client = get_client()
+
+    try:
+        # Generate execution plan via API
+        result = client.post(
+            f"/workflows/{workflow_id}/plan",
+            json={"inputs": inputs},
+        )
+
+        plan_data = result.json()
+
+        if output_json:
+            console.print_json(json.dumps(plan_data))
+            return
+
+        # Display plan in rich format
+        _display_execution_plan(plan_data)
 
     except APIError as e:
         console.print(f"[red]✗ API Error:[/red] {e.detail}")
@@ -496,6 +616,7 @@ def _run_workflow_local(
     inputs: dict[str, Any],
     sync: bool,
     output_json: bool,
+    yolo: bool = False,
 ) -> None:
     """Execute workflow locally (fallback when API unavailable).
 
@@ -504,6 +625,7 @@ def _run_workflow_local(
         inputs: Workflow inputs
         sync: Whether to run synchronously
         output_json: Whether to output JSON
+        yolo: YOLO mode - auto-approve all approval gates
     """
     import asyncio
 
@@ -569,7 +691,9 @@ def _run_workflow_local(
                 step_executor=agent_executor.execute_step,
             )
 
-            context = asyncio.run(orchestrator.execute(workflow, inputs))
+            context = asyncio.run(
+                orchestrator.execute(workflow, inputs, auto_approve=yolo)
+            )
 
             console.print()
             if context.status.value == "completed":
@@ -753,4 +877,114 @@ def _list_workflows_local(
             "[dim]Ensure .parac/workflows/ directory exists with "
             "catalog.yaml[/dim]"
         )
+        raise click.Abort()
+
+
+def _display_execution_plan(plan: dict[str, Any]) -> None:
+    """Display execution plan in rich format.
+
+    Args:
+        plan: ExecutionPlan dict from API or planner
+    """
+    from rich.panel import Panel
+    from rich.tree import Tree
+
+    console.print("\n[bold cyan]Workflow Execution Plan[/bold cyan]\n")
+
+    # Overview
+    overview_table = Table(show_header=False, box=None)
+    overview_table.add_column("Property", style="cyan")
+    overview_table.add_column("Value")
+
+    overview_table.add_row("Workflow", plan.get("workflow_name", "Unknown"))
+    overview_table.add_row("Total Steps", str(plan.get("total_steps", 0)))
+    overview_table.add_row(
+        "Estimated Tokens",
+        f"{plan.get('estimated_tokens', 0):,}"
+    )
+    overview_table.add_row(
+        "Estimated Cost",
+        f"${plan.get('estimated_cost_usd', 0):.4f}"
+    )
+    overview_table.add_row(
+        "Estimated Time",
+        f"{plan.get('estimated_time_seconds', 0):.1f}s"
+    )
+
+    console.print(Panel(overview_table, title="Overview"))
+
+    # Execution order
+    console.print("\n[bold]Execution Order:[/bold]")
+    order_tree = Tree("Execution Flow")
+
+    for step_id in plan.get("execution_order", []):
+        order_tree.add(f"[cyan]{step_id}[/cyan]")
+
+    console.print(order_tree)
+
+    # Parallel groups
+    parallel_groups = plan.get("parallel_groups", [])
+    if parallel_groups:
+        console.print("\n[bold]Parallel Execution Opportunities:[/bold]")
+        for group in parallel_groups:
+            if group.get("can_parallelize"):
+                steps = group.get("steps", [])
+                console.print(
+                    f"  [green]✓[/green] Group {group.get('group_number')}: "
+                    f"{len(steps)} steps can run in parallel"
+                )
+                for step in steps:
+                    console.print(f"    - {step}")
+
+    # Approval gates
+    approval_gates = plan.get("approval_gates", [])
+    if approval_gates:
+        console.print("\n[bold]Approval Gates:[/bold]")
+        for gate in approval_gates:
+            console.print(f"  [yellow]⚠[/yellow]  {gate}")
+
+    # Optimization suggestions
+    suggestions = plan.get("optimization_suggestions", [])
+    if suggestions:
+        console.print("\n[bold]Optimization Suggestions:[/bold]")
+        for suggestion in suggestions:
+            console.print(f"  [blue]💡[/blue] {suggestion}")
+
+
+def _plan_workflow_local(
+    workflow_id: str,
+    inputs: dict[str, Any],
+    output_json: bool
+) -> None:
+    """Plan workflow execution using local WorkflowPlanner.
+
+    Args:
+        workflow_id: Workflow identifier
+        inputs: Input parameters
+        output_json: Output as JSON
+    """
+    try:
+        from paracle_orchestration import WorkflowPlanner
+        from paracle_orchestration.workflow_loader import WorkflowLoader
+
+        # Load workflow spec
+        loader = WorkflowLoader()
+        workflow_spec = loader.load_workflow_spec(workflow_id)
+
+        # Create planner
+        planner = WorkflowPlanner()
+
+        # Generate plan
+        execution_plan = planner.plan(workflow_spec)
+
+        # Convert to dict for display
+        plan_dict = execution_plan.model_dump()
+
+        if output_json:
+            console.print_json(json.dumps(plan_dict))
+        else:
+            _display_execution_plan(plan_dict)
+
+    except Exception as e:
+        console.print(f"[red]✗ Local planning error:[/red] {e}")
         raise click.Abort()
