@@ -68,8 +68,8 @@ Tools available via Paracle MCP server. Configure in Cursor Settings > MCP:
 
 ### Available Tools
 - `code_analysis` - Analyze code structure, dependencies, and complexity metrics
-- `diagram_generation` - Analyze code structure, dependencies, and complexity metrics
-- `pattern_matching` - Generate architecture and design diagrams
+- `diagram_generation` - Generate architecture and design diagrams (Mermaid, PlantUML, ASCII)
+- `pattern_matching` - Detect design patterns and anti-patterns in code
 - `code_generation` - Generate code from templates or specifications
 - `refactoring` - Refactor code with extract method, rename, and formatting
 - `testing` - Run pytest tests and analyze coverage
@@ -78,6 +78,14 @@ Tools available via Paracle MCP server. Configure in Cursor Settings > MCP:
 - `git_status` - Get git repository status
 - `git_push` - Push commits to remote repository
 - `git_tag` - Create an annotated git tag
+- `git_branch` - List, create, or delete git branches
+- `git_checkout` - Switch branches or restore working tree files
+- `git_diff` - Show changes between commits, branches, or working tree
+- `git_log` - View git commit history
+- `git_stash` - Stash changes in working directory
+- `terminal_execute` - Execute shell commands cross-platform (Windows/Linux/macOS)
+- `terminal_info` - Get terminal environment information (OS, shells, paths)
+- `terminal_which` - Find executable location in PATH (cross-platform 'which')
 - `static_analysis` - Run static analysis with ruff, mypy, or pylint
 - `security_scan` - Scan for security vulnerabilities with bandit and safety
 - `code_review` - Review code quality and style
@@ -90,10 +98,16 @@ Tools available via Paracle MCP server. Configure in Cursor Settings > MCP:
 - `markdown_generation` - Generate markdown documentation
 - `api_doc_generation` - Generate API documentation
 - `diagram_creation` - Create diagrams for documentation
-- `version_management` - Manage semantic versioning
-- `changelog_generation` - Generate changelog from commits
-- `cicd_integration` - Integrate with CI/CD pipelines
-- `package_publishing` - Publish packages to PyPI, Docker, npm
+- `git_merge` - Merge a branch into current branch
+- `git_pull` - Fetch and merge changes from remote repository
+- `git_reset` - Reset current HEAD to specified state
+- `git_fetch` - Fetch branches and tags from remote repository
+- `git_remote` - Manage remote repositories
+- `version_management` - Manage semantic versioning (bump, validate, compare, get_current)
+- `changelog_generation` - Generate changelog from git commits using conventional commit format
+- `cicd_integration` - Integrate with CI/CD pipelines (trigger, status, wait, deploy)
+- `package_publishing` - Publish packages to registries (PyPI, Docker, npm, GitHub)
+- `terminal_interactive` - Start interactive terminal session for REPL-style interactions
 
 ### Context Tools
 - `context.current_state` - Get current project state

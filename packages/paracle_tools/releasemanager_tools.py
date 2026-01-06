@@ -25,8 +25,39 @@ class VersionManagementTool(BaseTool):
     def __init__(self):
         super().__init__(
             name="version_management",
-            description="Manage semantic versioning",
-            parameters={},
+            description="Manage semantic versioning (bump, validate, compare, get_current)",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "action": {
+                        "type": "string",
+                        "description": "Action to perform",
+                        "enum": ["bump", "validate", "compare", "get_current"],
+                    },
+                    "bump_type": {
+                        "type": "string",
+                        "description": "Type of version bump (for 'bump' action)",
+                        "enum": ["major", "minor", "patch", "alpha", "beta", "rc"],
+                    },
+                    "current_version": {
+                        "type": "string",
+                        "description": "Current version (optional, auto-detected from pyproject.toml)",
+                    },
+                    "version": {
+                        "type": "string",
+                        "description": "Version to validate (for 'validate' action)",
+                    },
+                    "version1": {
+                        "type": "string",
+                        "description": "First version (for 'compare' action)",
+                    },
+                    "version2": {
+                        "type": "string",
+                        "description": "Second version (for 'compare' action)",
+                    },
+                },
+                "required": ["action"],
+            },
         )
 
     async def _execute(self, action: str, **kwargs) -> dict[str, Any]:
@@ -50,7 +81,9 @@ class VersionManagementTool(BaseTool):
         else:
             return {"error": f"Unsupported action: {action}"}
 
-    async def _bump_version(self, bump_type: str, current_version: str = None, **kwargs) -> dict[str, Any]:
+    async def _bump_version(
+        self, bump_type: str, current_version: str = None, **kwargs
+    ) -> dict[str, Any]:
         """Bump version according to semver.
 
         Args:
@@ -64,8 +97,7 @@ class VersionManagementTool(BaseTool):
             current_version = current_result.get("version")
 
         # Parse version
-        match = re.match(
-            r'(\d+)\.(\d+)\.(\d+)(?:-([a-z]+)\.?(\d+))?', current_version)
+        match = re.match(r"(\d+)\.(\d+)\.(\d+)(?:-([a-z]+)\.?(\d+))?", current_version)
         if not match:
             return {"error": f"Invalid version format: {current_version}"}
 
@@ -97,7 +129,7 @@ class VersionManagementTool(BaseTool):
 
     def _validate_version(self, version: str, **kwargs) -> dict[str, Any]:
         """Validate version format."""
-        pattern = r'^\d+\.\d+\.\d+(?:-(?:alpha|beta|rc)\.\d+)?$'
+        pattern = r"^\d+\.\d+\.\d+(?:-(?:alpha|beta|rc)\.\d+)?$"
         is_valid = bool(re.match(pattern, version))
 
         return {
@@ -106,14 +138,23 @@ class VersionManagementTool(BaseTool):
             "valid": is_valid,
         }
 
-    def _compare_versions(self, version1: str, version2: str, **kwargs) -> dict[str, Any]:
+    def _compare_versions(
+        self, version1: str, version2: str, **kwargs
+    ) -> dict[str, Any]:
         """Compare two versions."""
+
         def parse_version(v):
-            match = re.match(r'(\d+)\.(\d+)\.(\d+)(?:-([a-z]+)\.?(\d+))?', v)
+            match = re.match(r"(\d+)\.(\d+)\.(\d+)(?:-([a-z]+)\.?(\d+))?", v)
             if not match:
                 return None
             major, minor, patch, pre_type, pre_num = match.groups()
-            return (int(major), int(minor), int(patch), pre_type or 'z', int(pre_num or 999))
+            return (
+                int(major),
+                int(minor),
+                int(patch),
+                pre_type or "z",
+                int(pre_num or 999),
+            )
 
         v1 = parse_version(version1)
         v2 = parse_version(version2)
@@ -171,11 +212,26 @@ class ChangelogGenerationTool(BaseTool):
     def __init__(self):
         super().__init__(
             name="changelog_generation",
-            description="Generate changelog from commits",
-            parameters={},
+            description="Generate changelog from git commits using conventional commit format",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "from_ref": {
+                        "type": "string",
+                        "description": "Starting git reference (tag, commit). If omitted, uses all commits.",
+                    },
+                    "to_ref": {
+                        "type": "string",
+                        "description": "Ending git reference (default: HEAD)",
+                        "default": "HEAD",
+                    },
+                },
+            },
         )
 
-    async def _execute(self, from_ref: str = None, to_ref: str = "HEAD", **kwargs) -> dict[str, Any]:
+    async def _execute(
+        self, from_ref: str = None, to_ref: str = "HEAD", **kwargs
+    ) -> dict[str, Any]:
         """Generate changelog from commits.
 
         Args:
@@ -202,7 +258,7 @@ class ChangelogGenerationTool(BaseTool):
             if result.returncode != 0:
                 return {"error": "Failed to get git commits", "details": result.stderr}
 
-            commits = result.stdout.strip().split('\n')
+            commits = result.stdout.strip().split("\n")
 
             # Parse conventional commits
             grouped = {
@@ -222,7 +278,9 @@ class ChangelogGenerationTool(BaseTool):
 
                 # Parse conventional commit format
                 match = re.match(
-                    r'^(feat|fix|docs|style|refactor|test|chore)(?:\([^)]+\))?: (.+)$', commit)
+                    r"^(feat|fix|docs|style|refactor|test|chore)(?:\([^)]+\))?: (.+)$",
+                    commit,
+                )
                 if match:
                     commit_type, message = match.groups()
                     grouped[commit_type].append(message)
@@ -291,8 +349,37 @@ class CICDIntegrationTool(BaseTool):
     def __init__(self):
         super().__init__(
             name="cicd_integration",
-            description="Integrate with CI/CD pipelines",
-            parameters={},
+            description="Integrate with CI/CD pipelines (trigger, status, wait, deploy)",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "action": {
+                        "type": "string",
+                        "description": "Action to perform",
+                        "enum": ["trigger", "status", "wait", "deploy"],
+                    },
+                    "pipeline": {
+                        "type": "string",
+                        "description": "Pipeline name (for 'trigger' action)",
+                        "default": "ci",
+                    },
+                    "pipeline_id": {
+                        "type": "string",
+                        "description": "Pipeline ID (for 'status' and 'wait' actions)",
+                    },
+                    "timeout": {
+                        "type": "integer",
+                        "description": "Timeout in seconds (for 'wait' action)",
+                        "default": 300,
+                    },
+                    "environment": {
+                        "type": "string",
+                        "description": "Deployment environment (for 'deploy' action)",
+                        "default": "production",
+                    },
+                },
+                "required": ["action"],
+            },
         )
 
     async def _execute(self, action: str, **kwargs) -> dict[str, Any]:
@@ -334,7 +421,9 @@ class CICDIntegrationTool(BaseTool):
             "message": "Pipeline is running",
         }
 
-    async def _wait_for_completion(self, pipeline_id: str, timeout: int = 300, **kwargs) -> dict[str, Any]:
+    async def _wait_for_completion(
+        self, pipeline_id: str, timeout: int = 300, **kwargs
+    ) -> dict[str, Any]:
         """Wait for pipeline completion."""
         return {
             "action": "wait",
@@ -343,7 +432,9 @@ class CICDIntegrationTool(BaseTool):
             "result": "success",
         }
 
-    async def _trigger_deployment(self, environment: str = "production", **kwargs) -> dict[str, Any]:
+    async def _trigger_deployment(
+        self, environment: str = "production", **kwargs
+    ) -> dict[str, Any]:
         """Trigger deployment."""
         return {
             "action": "deploy",
@@ -366,8 +457,35 @@ class PackagePublishingTool(BaseTool):
     def __init__(self):
         super().__init__(
             name="package_publishing",
-            description="Publish packages to PyPI, Docker, npm",
-            parameters={},
+            description="Publish packages to registries (PyPI, Docker, npm, GitHub)",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "registry": {
+                        "type": "string",
+                        "description": "Target registry",
+                        "enum": ["pypi", "docker", "npm", "github"],
+                    },
+                    "image_name": {
+                        "type": "string",
+                        "description": "Docker image name (for 'docker' registry)",
+                    },
+                    "tag": {
+                        "type": "string",
+                        "description": "Tag/version for Docker or GitHub release",
+                        "default": "latest",
+                    },
+                    "title": {
+                        "type": "string",
+                        "description": "Release title (for 'github' registry)",
+                    },
+                    "notes": {
+                        "type": "string",
+                        "description": "Release notes (for 'github' registry)",
+                    },
+                },
+                "required": ["registry"],
+            },
         )
 
     async def _execute(self, registry: str, **kwargs) -> dict[str, Any]:
@@ -415,7 +533,9 @@ class PackagePublishingTool(BaseTool):
         except Exception as e:
             return {"error": str(e)}
 
-    async def _publish_to_docker(self, image_name: str, tag: str = "latest", **kwargs) -> dict[str, Any]:
+    async def _publish_to_docker(
+        self, image_name: str, tag: str = "latest", **kwargs
+    ) -> dict[str, Any]:
         """Build and push Docker image."""
         return {
             "registry": "docker",
@@ -433,7 +553,9 @@ class PackagePublishingTool(BaseTool):
             "message": "This is a Python project",
         }
 
-    async def _create_github_release(self, tag: str, title: str, notes: str = "", **kwargs) -> dict[str, Any]:
+    async def _create_github_release(
+        self, tag: str, title: str, notes: str = "", **kwargs
+    ) -> dict[str, Any]:
         """Create GitHub release."""
         try:
             cmd = ["gh", "release", "create", tag, "--title", title]

@@ -12,10 +12,10 @@ paracle --help
 
 ## Global Options
 
-| Option | Description |
-|--------|-------------|
+| Option      | Description           |
+| ----------- | --------------------- |
 | `--version` | Show version and exit |
-| `--help` | Show help message |
+| `--help`    | Show help message     |
 
 ---
 
@@ -46,7 +46,7 @@ Get started:
 
 ### init
 
-Initialize a new `.parac/` workspace.
+Initialize a new `.parac/` workspace with template-based configuration.
 
 ```bash
 paracle init [PATH] [OPTIONS]
@@ -54,47 +54,57 @@ paracle init [PATH] [OPTIONS]
 
 **Arguments:**
 
-| Argument | Default | Description                                      |
-|----------|---------|--------------------------------------------------|
+| Argument | Default | Description                                        |
+| -------- | ------- | -------------------------------------------------- |
 | `PATH`   | `.`     | Directory to initialize (created if doesn't exist) |
 
 **Options:**
 
-| Option        | Description                                         |
-|---------------|-----------------------------------------------------|
-| `--name NAME` | Project name (defaults to directory name)           |
-| `--force`     | Overwrite existing workspace                        |
-| `--lite`      | Minimal structure for quick prototyping             |
-| `--all`       | Complete workspace with all templates               |
+| Option                | Description                                    |
+| --------------------- | ---------------------------------------------- |
+| `--name NAME`         | Project name (defaults to directory name)      |
+| `--template TEMPLATE` | Template tier: lite, standard, or advanced     |
+| `-i, --interactive`   | Interactive prompts for template/name/provider |
+| `-v, --verbose`       | Show detailed progress output                  |
+| `--force`             | Overwrite existing workspace                   |
+| `--lite`              | (Deprecated) Use --template lite               |
+| `--all`               | (Deprecated) Use --template advanced           |
 
-**Modes:**
+**Templates:**
 
-| Mode      | Files | Use Case                              |
-|-----------|-------|---------------------------------------|
-| (default) | ~15   | Standard projects                     |
-| `--lite`  | ~20   | Quick prototyping with full structure |
-| `--all`   | 40+   | Enterprise, full governance           |
+| Template   | Agents | Database   | Features                     | Best For      |
+| ---------- | ------ | ---------- | ---------------------------- | ------------- |
+| `lite`     | 1      | File-based | Zero dependencies, < 2 min   | Learning      |
+| `standard` | 2-3    | SQLite     | Production-ready             | Most projects |
+| `advanced` | 8      | PostgreSQL | Docker, CI/CD, full policies | Enterprise    |
 
 **Example:**
 
 ```bash
-# Quick start - minimal workspace
-paracle init --lite
+# Interactive mode (recommended for first-time users)
+paracle init -i
+
+# Quick start - lite template
+paracle init --template lite
 
 # Standard workspace (default)
-paracle init
+paracle init my-project --template standard
 
-# Complete workspace with templates, policies, and agents
-paracle init --all
+# Enterprise with all features
+paracle init --template advanced
 
-# Initialize in a new directory
-paracle init my-project --name "My Project" --all
+# Interactive + verbose (see what's happening)
+paracle init -i -v
+
+# Non-interactive with specific template
+paracle init my-project --name "My Project" --template advanced
 
 # Overwrite existing workspace
-paracle init --force --all
+paracle init --force --template standard
 
-# Upgrade from lite to full
-paracle init --all --force
+# Legacy syntax (still works)
+paracle init --lite  # → --template lite
+paracle init --all   # → --template advanced
 ```
 
 **Workspace Structure (--lite):**
@@ -182,8 +192,8 @@ paracle status [OPTIONS]
 ```
 
 **Options:**
-| Option | Description |
-|--------|-------------|
+| Option   | Description    |
+| -------- | -------------- |
 | `--json` | Output as JSON |
 
 **Example:**
@@ -203,11 +213,11 @@ paracle serve [OPTIONS]
 ```
 
 **Options:**
-| Option | Default | Description |
-|--------|---------|-------------|
-| `--host` | 127.0.0.1 | Host to bind |
-| `--port` | 8000 | Port to bind |
-| `--reload` | false | Enable auto-reload |
+| Option     | Default   | Description        |
+| ---------- | --------- | ------------------ |
+| `--host`   | 127.0.0.1 | Host to bind       |
+| `--port`   | 8000      | Port to bind       |
+| `--reload` | false     | Enable auto-reload |
 
 **Example:**
 ```bash
@@ -229,8 +239,8 @@ paracle agents list [OPTIONS]
 ```
 
 **Options:**
-| Option | Description |
-|--------|-------------|
+| Option   | Description    |
+| -------- | -------------- |
 | `--json` | Output as JSON |
 
 **Example:**
@@ -248,8 +258,8 @@ paracle agents get NAME [OPTIONS]
 ```
 
 **Options:**
-| Option | Description |
-|--------|-------------|
+| Option   | Description    |
+| -------- | -------------- |
 | `--json` | Output as JSON |
 
 **Example:**
@@ -267,10 +277,10 @@ paracle agents export [OPTIONS]
 ```
 
 **Options:**
-| Option | Default | Description |
-|--------|---------|-------------|
-| `--format` | json | Output format (json/yaml) |
-| `--output` | stdout | Output file path |
+| Option     | Default | Description               |
+| ---------- | ------- | ------------------------- |
+| `--format` | json    | Output format (json/yaml) |
+| `--output` | stdout  | Output file path          |
 
 **Example:**
 ```bash
@@ -291,8 +301,8 @@ paracle workflow list [OPTIONS]
 ```
 
 **Options:**
-| Option | Description |
-|--------|-------------|
+| Option   | Description    |
+| -------- | -------------- |
 | `--json` | Output as JSON |
 
 ### workflow run
@@ -304,12 +314,12 @@ paracle workflow run WORKFLOW_ID [OPTIONS]
 ```
 
 **Options:**
-| Option | Description |
-|--------|-------------|
+| Option                  | Description                  |
+| ----------------------- | ---------------------------- |
 | `-i, --input KEY=VALUE` | Input parameter (repeatable) |
-| `--sync` | Run synchronously |
-| `--watch` | Watch execution progress |
-| `--timeout SECONDS` | Execution timeout |
+| `--sync`                | Run synchronously            |
+| `--watch`               | Watch execution progress     |
+| `--timeout SECONDS`     | Execution timeout            |
 
 **Example:**
 ```bash
@@ -357,10 +367,10 @@ paracle tools list [OPTIONS]
 ```
 
 **Options:**
-| Option | Description |
-|--------|-------------|
+| Option       | Description        |
+| ------------ | ------------------ |
 | `--category` | Filter by category |
-| `--json` | Output as JSON |
+| `--json`     | Output as JSON     |
 
 **Example:**
 ```bash
@@ -411,8 +421,8 @@ paracle tools test TOOL_NAME [OPTIONS]
 ```
 
 **Options:**
-| Option | Description |
-|--------|-------------|
+| Option              | Description                 |
+| ------------------- | --------------------------- |
 | `--param KEY=VALUE` | Tool parameter (repeatable) |
 
 **Example:**
@@ -442,8 +452,8 @@ paracle providers list [OPTIONS]
 ```
 
 **Options:**
-| Option | Description |
-|--------|-------------|
+| Option   | Description    |
+| -------- | -------------- |
 | `--json` | Output as JSON |
 
 **Output:**
@@ -470,10 +480,10 @@ paracle providers add PROVIDER [OPTIONS]
 ```
 
 **Options:**
-| Option | Description |
-|--------|-------------|
-| `--api-key` | API key for the provider |
-| `--base-url` | Custom base URL |
+| Option       | Description              |
+| ------------ | ------------------------ |
+| `--api-key`  | API key for the provider |
+| `--base-url` | Custom base URL          |
 
 **Example:**
 ```bash
@@ -490,8 +500,8 @@ paracle providers test PROVIDER [OPTIONS]
 ```
 
 **Options:**
-| Option | Description |
-|--------|-------------|
+| Option    | Description            |
+| --------- | ---------------------- |
 | `--model` | Specific model to test |
 
 **Example:**
@@ -535,12 +545,12 @@ paracle logs show [LOG_NAME] [OPTIONS]
 ```
 
 **Options:**
-| Option | Default | Description |
-|--------|---------|-------------|
-| `-n, --tail` | 50 | Number of lines to show |
-| `-f, --follow` | false | Follow log output |
-| `--json` | false | Output as JSON |
-| `-g, --filter` | | Filter lines by pattern |
+| Option         | Default | Description             |
+| -------------- | ------- | ----------------------- |
+| `-n, --tail`   | 50      | Number of lines to show |
+| `-f, --follow` | false   | Follow log output       |
+| `--json`       | false   | Output as JSON          |
+| `-g, --filter` |         | Filter lines by pattern |
 
 **Example:**
 ```bash
@@ -560,8 +570,8 @@ paracle logs clear [LOG_NAME] [OPTIONS]
 ```
 
 **Options:**
-| Option | Description |
-|--------|-------------|
+| Option        | Description       |
+| ------------- | ----------------- |
 | `-f, --force` | Skip confirmation |
 
 ### logs export
@@ -573,12 +583,12 @@ paracle logs export [LOG_NAME] [OPTIONS]
 ```
 
 **Options:**
-| Option | Default | Description |
-|--------|---------|-------------|
-| `-o, --output` | auto | Output file path |
-| `-f, --format` | json | Format (json/csv/ndjson) |
-| `--from-date` | | Filter from date (YYYY-MM-DD) |
-| `--to-date` | | Filter to date (YYYY-MM-DD) |
+| Option         | Default | Description                   |
+| -------------- | ------- | ----------------------------- |
+| `-o, --output` | auto    | Output file path              |
+| `-f, --format` | json    | Format (json/csv/ndjson)      |
+| `--from-date`  |         | Filter from date (YYYY-MM-DD) |
+| `--to-date`    |         | Filter to date (YYYY-MM-DD)   |
 
 ### logs audit
 
@@ -589,11 +599,11 @@ paracle logs audit [OPTIONS]
 ```
 
 **Options:**
-| Option | Default | Description |
-|--------|---------|-------------|
-| `-n, --tail` | 50 | Number of entries |
-| `-c, --category` | | Filter by category |
-| `-s, --severity` | | Filter by severity |
+| Option           | Default | Description        |
+| ---------------- | ------- | ------------------ |
+| `-n, --tail`     | 50      | Number of entries  |
+| `-c, --category` |         | Filter by category |
+| `-s, --severity` |         | Filter by severity |
 
 ---
 
@@ -611,13 +621,13 @@ paracle ide list
 ```
 Supported IDEs:
 
-| IDE           | File              | Destination     |
-|---------------|-------------------|-----------------|
-| Cursor        | .cursorrules      | ./              |
-| Claude Code   | CLAUDE.md         | .claude/        |
-| Cline         | .clinerules       | ./              |
-| GitHub Copilot| copilot-instr...  | .github/        |
-| Windsurf      | .windsurfrules    | ./              |
+| IDE            | File             | Destination |
+| -------------- | ---------------- | ----------- |
+| Cursor         | .cursorrules     | ./          |
+| Claude Code    | CLAUDE.md        | .claude/    |
+| Cline          | .clinerules      | ./          |
+| GitHub Copilot | copilot-instr... | .github/    |
+| Windsurf       | .windsurfrules   | ./          |
 ```
 
 ### ide init
@@ -629,10 +639,10 @@ paracle ide init [OPTIONS]
 ```
 
 **Options:**
-| Option | Description |
-|--------|-------------|
-| `--ide NAME` | IDE(s) to initialize (repeatable) |
-| `--force` | Overwrite existing files |
+| Option             | Description                          |
+| ------------------ | ------------------------------------ |
+| `--ide NAME`       | IDE(s) to initialize (repeatable)    |
+| `--force`          | Overwrite existing files             |
 | `--copy/--no-copy` | Copy to project root (default: copy) |
 
 **Example:**
@@ -651,8 +661,8 @@ paracle ide status [OPTIONS]
 ```
 
 **Options:**
-| Option | Description |
-|--------|-------------|
+| Option   | Description    |
+| -------- | -------------- |
 | `--json` | Output as JSON |
 
 ### ide sync
@@ -664,10 +674,10 @@ paracle ide sync [OPTIONS]
 ```
 
 **Options:**
-| Option | Description |
-|--------|-------------|
+| Option             | Description          |
+| ------------------ | -------------------- |
 | `--copy/--no-copy` | Copy to project root |
-| `--watch` | Watch for changes |
+| `--watch`          | Watch for changes    |
 
 ### ide build
 
@@ -678,11 +688,11 @@ paracle ide build --target TARGET [OPTIONS]
 ```
 
 **Options:**
-| Option | Description |
-|--------|-------------|
-| `--target` | Target IDE: vscode, claude, cursor, windsurf, codex, all |
-| `--copy/--no-copy` | Copy to expected IDE locations (default: copy) |
-| `--output` | Custom output directory |
+| Option             | Description                                              |
+| ------------------ | -------------------------------------------------------- |
+| `--target`         | Target IDE: vscode, claude, cursor, windsurf, codex, all |
+| `--copy/--no-copy` | Copy to expected IDE locations (default: copy)           |
+| `--output`         | Custom output directory                                  |
 
 **Example:**
 ```bash
@@ -704,10 +714,10 @@ paracle mcp serve [OPTIONS]
 ```
 
 **Options:**
-| Option | Default | Description |
-|--------|---------|-------------|
-| `--stdio` | false | Use stdio transport (for IDE integration) |
-| `--port` | 3000 | HTTP port (when not using stdio) |
+| Option    | Default | Description                               |
+| --------- | ------- | ----------------------------------------- |
+| `--stdio` | false   | Use stdio transport (for IDE integration) |
+| `--port`  | 3000    | HTTP port (when not using stdio)          |
 
 **Example:**
 ```bash
@@ -724,9 +734,9 @@ paracle mcp list [OPTIONS]
 ```
 
 **Options:**
-| Option | Description |
-|--------|-------------|
-| `--json` | Output as JSON |
+| Option       | Description                                               |
+| ------------ | --------------------------------------------------------- |
+| `--json`     | Output as JSON                                            |
 | `--category` | Filter by category: agent, context, workflow, memory, all |
 
 ### mcp config
@@ -738,8 +748,8 @@ paracle mcp config [OPTIONS]
 ```
 
 **Options:**
-| Option | Description |
-|--------|-------------|
+| Option  | Description                                                    |
+| ------- | -------------------------------------------------------------- |
 | `--ide` | Show config for specific IDE: vscode, cursor, windsurf, claude |
 
 ---
@@ -755,38 +765,38 @@ paracle agents run AGENT_NAME --task "TASK" [OPTIONS]
 ```
 
 **Required:**
-| Option | Description |
-|--------|-------------|
+| Option       | Description                     |
+| ------------ | ------------------------------- |
 | `--task, -t` | Task description or instruction |
 
 **Execution Options:**
-| Option | Default | Description |
-|--------|---------|-------------|
-| `--mode, -m` | safe | Execution mode: safe, yolo, sandbox, review |
-| `--timeout` | 300 | Timeout in seconds |
-| `--dry-run` | false | Validate without executing |
+| Option       | Default | Description                                 |
+| ------------ | ------- | ------------------------------------------- |
+| `--mode, -m` | safe    | Execution mode: safe, yolo, sandbox, review |
+| `--timeout`  | 300     | Timeout in seconds                          |
+| `--dry-run`  | false   | Validate without executing                  |
 
 **LLM Configuration:**
-| Option | Description |
-|--------|-------------|
-| `--model` | Model name (e.g., gpt-4, claude-3-opus) |
-| `--provider` | Provider: openai, anthropic, google, mistral, groq, ollama |
-| `--temperature` | Temperature 0.0-2.0 |
-| `--max-tokens` | Maximum tokens to generate |
+| Option          | Description                                                |
+| --------------- | ---------------------------------------------------------- |
+| `--model`       | Model name (e.g., gpt-4, claude-3-opus)                    |
+| `--provider`    | Provider: openai, anthropic, google, mistral, groq, ollama |
+| `--temperature` | Temperature 0.0-2.0                                        |
+| `--max-tokens`  | Maximum tokens to generate                                 |
 
 **Inputs:**
-| Option | Description |
-|--------|-------------|
+| Option        | Description                        |
+| ------------- | ---------------------------------- |
 | `--input, -i` | Key=value pairs (multiple allowed) |
-| `--file, -f` | Input files (multiple allowed) |
+| `--file, -f`  | Input files (multiple allowed)     |
 
 **Cost & Output:**
-| Option | Description |
-|--------|-------------|
-| `--cost-limit` | Maximum cost in USD |
-| `--output, -o` | Save output to JSON file |
+| Option                 | Description                     |
+| ---------------------- | ------------------------------- |
+| `--cost-limit`         | Maximum cost in USD             |
+| `--output, -o`         | Save output to JSON file        |
 | `--stream/--no-stream` | Stream output (default: stream) |
-| `--verbose, -v` | Show detailed information |
+| `--verbose, -v`        | Show detailed information       |
 
 **Examples:**
 ```bash
@@ -826,9 +836,9 @@ paracle session start [OPTIONS]
 ```
 
 **Options:**
-| Option | Description |
-|--------|-------------|
-| `--name` | Session name |
+| Option    | Description            |
+| --------- | ---------------------- |
+| `--name`  | Session name           |
 | `--focus` | Focus area description |
 
 ### session end
@@ -840,9 +850,9 @@ paracle session end [OPTIONS]
 ```
 
 **Options:**
-| Option | Description |
-|--------|-------------|
-| `--summary` | Session summary |
+| Option        | Description          |
+| ------------- | -------------------- |
+| `--summary`   | Session summary      |
 | `--no-update` | Skip .parac/ updates |
 
 ---
@@ -858,8 +868,8 @@ paracle validate [OPTIONS]
 ```
 
 **Options:**
-| Option | Description |
-|--------|-------------|
+| Option  | Description               |
+| ------- | ------------------------- |
 | `--all` | Run all validation checks |
 
 ### validate governance
@@ -899,36 +909,36 @@ paracle sync [OPTIONS]
 ```
 
 **Options:**
-| Option | Description |
-|--------|-------------|
+| Option      | Description                   |
+| ----------- | ----------------------------- |
 | `--dry-run` | Show changes without applying |
-| `--force` | Force sync even if conflicts |
+| `--force`   | Force sync even if conflicts  |
 
 ---
 
 ## Environment Variables
 
-| Variable | Description |
-|----------|-------------|
-| `PARACLE_API_URL` | API server URL (default: http://localhost:8000) |
-| `PARACLE_LOG_LEVEL` | Log level (DEBUG/INFO/WARNING/ERROR) |
-| `PARACLE_AUTH_ENABLED` | Enable/disable authentication |
-| `OPENAI_API_KEY` | OpenAI API key |
-| `ANTHROPIC_API_KEY` | Anthropic API key |
-| `GOOGLE_API_KEY` | Google API key |
+| Variable               | Description                                     |
+| ---------------------- | ----------------------------------------------- |
+| `PARACLE_API_URL`      | API server URL (default: http://localhost:8000) |
+| `PARACLE_LOG_LEVEL`    | Log level (DEBUG/INFO/WARNING/ERROR)            |
+| `PARACLE_AUTH_ENABLED` | Enable/disable authentication                   |
+| `OPENAI_API_KEY`       | OpenAI API key                                  |
+| `ANTHROPIC_API_KEY`    | Anthropic API key                               |
+| `GOOGLE_API_KEY`       | Google API key                                  |
 
 ---
 
 ## Exit Codes
 
-| Code | Description |
-|------|-------------|
-| 0 | Success |
-| 1 | General error |
-| 2 | Invalid arguments |
-| 3 | Resource not found |
-| 4 | Permission denied |
-| 5 | API unavailable |
+| Code | Description        |
+| ---- | ------------------ |
+| 0    | Success            |
+| 1    | General error      |
+| 2    | Invalid arguments  |
+| 3    | Resource not found |
+| 4    | Permission denied  |
+| 5    | API unavailable    |
 
 ---
 

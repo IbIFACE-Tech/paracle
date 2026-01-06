@@ -10,31 +10,31 @@ This module provides core functionality for managing .parac/ workspaces:
 
 from paracle_core.parac.adr_manager import ADR, ADRManager, ADRMetadata
 from paracle_core.parac.file_config import (
-    # Log configuration
-    LogGlobalConfig,
-    LogFileConfig,
-    PredefinedLogsConfig,
-    CustomLogConfig,
-    LogsConfig,
+    ADRConfig,
+    ADRDefaultsConfig,
     # ADR configuration
     ADRLimitsConfig,
     ADRStatusConfig,
-    ADRDefaultsConfig,
     ADRValidationConfig,
-    ADRConfig,
-    # Roadmap configuration
-    RoadmapLimitsConfig,
-    PhaseStatusConfig,
-    PhaseProgressConfig,
-    PhasesConfig,
+    CustomLogConfig,
     DeliverablesConfig,
-    RoadmapFileConfig,
-    RoadmapSyncConfig,
-    RoadmapValidationConfig,
-    RoadmapExportConfig,
-    RoadmapConfig,
     # Main configuration
     FileManagementConfig,
+    LogFileConfig,
+    # Log configuration
+    LogGlobalConfig,
+    LogsConfig,
+    PhaseProgressConfig,
+    PhasesConfig,
+    PhaseStatusConfig,
+    PredefinedLogsConfig,
+    RoadmapConfig,
+    RoadmapExportConfig,
+    RoadmapFileConfig,
+    # Roadmap configuration
+    RoadmapLimitsConfig,
+    RoadmapSyncConfig,
+    RoadmapValidationConfig,
 )
 from paracle_core.parac.logger import (
     ActionType,
@@ -50,15 +50,31 @@ from paracle_core.parac.roadmap_manager import (
     RoadmapMetadata,
     RoadmapPhase,
     SyncResult,
+)
+from paracle_core.parac.roadmap_manager import (
     ValidationResult as RoadmapValidationResult,
 )
-from paracle_core.parac.state import ParacState, load_state, save_state
+from paracle_core.parac.state import (
+    ParacState,
+    PhaseState,
+    StateConflictError,
+    StateLockError,
+    find_parac_root,
+    load_state,
+    save_state,
+)
 from paracle_core.parac.sync import ParacSynchronizer
 from paracle_core.parac.validator import ParacValidator, ValidationResult
 
 __all__ = [
     # State management
     "ParacState",
+    "load_state",
+    "ParacState",
+    "PhaseState",
+    "StateConflictError",
+    "StateLockError",
+    "find_parac_root",
     "load_state",
     "save_state",
     # Validation

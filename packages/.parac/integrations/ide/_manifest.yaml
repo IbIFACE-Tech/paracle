@@ -1,0 +1,8 @@
+# IDE Integration Manifest
+generated_at: '2026-01-06'
+supported_ides:
+  - cursor
+  - claude
+  - copilot
+  - windsurf
+  - cline

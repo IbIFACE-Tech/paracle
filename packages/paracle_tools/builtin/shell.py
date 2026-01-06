@@ -240,20 +240,41 @@ def create_command_tool(
 
 # Read-only commands that don't modify system state
 READONLY_COMMANDS = [
-    "cat", "head", "tail", "less", "more",  # File viewing
-    "ls", "dir", "tree",  # Directory listing
-    "grep", "find", "which", "whereis",  # Search
-    "pwd", "whoami", "hostname", "uname", "date",  # System info
-    "file", "stat", "wc",  # File info
+    "cat",
+    "head",
+    "tail",
+    "less",
+    "more",  # File viewing
+    "ls",
+    "dir",
+    "tree",  # Directory listing
+    "grep",
+    "find",
+    "which",
+    "whereis",  # Search
+    "pwd",
+    "whoami",
+    "hostname",
+    "uname",
+    "date",  # System info
+    "file",
+    "stat",
+    "wc",  # File info
 ]
 
 # Development commands (includes some that can modify files)
 DEVELOPMENT_COMMANDS = READONLY_COMMANDS + [
     "git",  # Version control
-    "python", "python3",  # Python interpreter
-    "pip", "pip3", "uv", "poetry",  # Package managers
-    "npm", "node",  # Node.js
-    "pytest", "make",  # Testing/building
+    "python",
+    "python3",  # Python interpreter
+    "pip",
+    "pip3",
+    "uv",
+    "poetry",  # Package managers
+    "npm",
+    "node",  # Node.js
+    "pytest",
+    "make",  # Testing/building
 ]
 
 

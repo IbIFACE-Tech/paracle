@@ -28,8 +28,7 @@ def get_parac_root_or_exit() -> Path:
     parac_root = find_parac_root()
     if parac_root is None:
         console.print("[red]Error:[/red] No .parac/ directory found.")
-        console.print(
-            "Run 'paracle init' to create one, or navigate to a project.")
+        console.print("Run 'paracle init' to create one, or navigate to a project.")
         raise SystemExit(1)
     return parac_root
 
@@ -156,6 +155,7 @@ def _status_via_api(client: APIClient, as_json: bool) -> None:
 
     if as_json:
         import json
+
         console.print(json.dumps(result, indent=2))
         return
 
@@ -190,9 +190,7 @@ def _status_via_api(client: APIClient, as_json: bool) -> None:
 
     # Summary
     console.print()
-    console.print(
-        f"Generated: {result['generated_count']}/{len(result['ides'])}"
-    )
+    console.print(f"Generated: {result['generated_count']}/{len(result['ides'])}")
     console.print(f"Copied: {result['copied_count']}/{len(result['ides'])}")
 
     if result["generated_count"] == 0:
@@ -214,6 +212,7 @@ def _status_direct(as_json: bool) -> None:
 
     if as_json:
         import json
+
         console.print(json.dumps(status, indent=2))
         return
 
@@ -247,12 +246,8 @@ def _status_direct(as_json: bool) -> None:
     console.print(table)
 
     # Summary
-    generated_count = sum(
-        1 for s in status["ides"].values() if s["generated"]
-    )
-    copied_count = sum(
-        1 for s in status["ides"].values() if s["copied"]
-    )
+    generated_count = sum(1 for s in status["ides"].values() if s["generated"])
+    copied_count = sum(1 for s in status["ides"].values() if s["copied"])
 
     console.print()
     console.print(f"Generated: {generated_count}/{len(status['ides'])}")
@@ -320,13 +315,10 @@ def _init_via_api(
         )
     if result["copied_count"] > 0:
         console.print(
-            f"[blue]->[/blue] Copied {result['copied_count']} config(s) "
-            f"to project root"
+            f"[blue]->[/blue] Copied {result['copied_count']} config(s) to project root"
         )
     if result["failed_count"] > 0:
-        console.print(
-            f"[red]FAIL[/red] {result['failed_count']} config(s) failed"
-        )
+        console.print(f"[red]FAIL[/red] {result['failed_count']} config(s) failed")
 
 
 def _init_direct(
@@ -409,9 +401,7 @@ def _init_direct(
         manifest_path = generator.generate_manifest()
         console.print(f"\n  [dim]Manifest: {manifest_path}[/dim]")
     except Exception as e:
-        console.print(
-            f"\n  [yellow]Warning:[/yellow] Could not generate manifest: {e}"
-        )
+        console.print(f"\n  [yellow]Warning:[/yellow] Could not generate manifest: {e}")
 
     # Summary
     console.print()
@@ -422,13 +412,10 @@ def _init_direct(
         )
     if results["copied"]:
         console.print(
-            f"[blue]->[/blue] Copied {len(results['copied'])} config(s) "
-            f"to project root"
+            f"[blue]->[/blue] Copied {len(results['copied'])} config(s) to project root"
         )
     if results["failed"]:
-        console.print(
-            f"[red]FAIL[/red] {len(results['failed'])} config(s) failed"
-        )
+        console.print(f"[red]FAIL[/red] {len(results['failed'])} config(s) failed")
 
 
 @ide.command("init")
@@ -436,7 +423,7 @@ def _init_direct(
     "--ide",
     "ide_names",
     multiple=True,
-    help="IDE(s) to initialize (cursor, claude, cline, copilot, windsurf, all)",
+    help="IDE(s) to initialize. Use 'paracle ide list' to see all options.",
 )
 @click.option("--force", is_flag=True, help="Overwrite existing files")
 @click.option("--copy/--no-copy", default=True, help="Copy to project root")
@@ -446,10 +433,16 @@ def ide_init(ide_names: tuple[str, ...], force: bool, copy: bool) -> None:
     Generates IDE-specific configuration files from .parac/ context
     and optionally copies them to the project root.
 
+    Supported IDEs (13 total):
+    - MCP Native: cursor, claude, windsurf, zed
+    - Rules-based: cline, copilot, warp, gemini, opencode
+    - Web-based: claude_desktop, chatgpt, raycast
+    - CI/CD: claude_action, copilot_agent
+
     Examples:
         paracle ide init --ide=cursor
         paracle ide init --ide=all
-        paracle ide init --ide=cursor --ide=claude
+        paracle ide init --ide=cursor --ide=claude --ide=zed
     """
     use_api_or_fallback(_init_via_api, _init_direct, ide_names, force, copy)
 
@@ -526,16 +519,12 @@ def _sync_direct(copy: bool, watch: bool) -> None:
     except Exception:
         pass
 
-    console.print(
-        f"\n[green]OK[/green] Synced {len(generated)} IDE configuration(s)"
-    )
+    console.print(f"\n[green]OK[/green] Synced {len(generated)} IDE configuration(s)")
 
 
 @ide.command("sync")
 @click.option("--copy/--no-copy", default=True, help="Copy to project root")
-@click.option(
-    "--watch", is_flag=True, help="Watch for changes (not yet implemented)"
-)
+@click.option("--watch", is_flag=True, help="Watch for changes (not yet implemented)")
 def ide_sync(copy: bool, watch: bool) -> None:
     """Synchronize IDE configs with .parac/ state.
 
@@ -557,7 +546,10 @@ def ide_sync(copy: bool, watch: bool) -> None:
 @click.option(
     "--target",
     required=True,
-    type=click.Choice(["vscode", "claude", "cursor", "windsurf", "codex", "all"]),
+    type=click.Choice([
+        "vscode", "claude", "cursor", "windsurf", "codex",
+        "zed", "warp", "gemini", "all"
+    ]),
     help="Target IDE for agent compilation",
 )
 @click.option(
@@ -576,11 +568,17 @@ def ide_build(target: str, copy: bool, output: str | None) -> None:
     Compiles .parac/agents/ to IDE-native formats:
 
     \b
+    MCP Native:
     - vscode: .github/agents/*.agent.md (Copilot custom agents)
     - claude: .claude/agents/*.md (Claude Code subagents)
     - cursor: .cursorrules with agent router (@architect, @coder, etc.)
     - windsurf: .windsurfrules + mcp_config.json
+    - zed: .zed/ai_rules.json + mcp settings
+
+    Rules-based:
     - codex: AGENTS.md at project root
+    - warp: .warp/ai-rules.yaml
+    - gemini: .gemini/instructions.md
 
     Generated files reference Paracle MCP tools via:
         paracle mcp serve --stdio
@@ -635,3 +633,219 @@ def ide_build(target: str, copy: bool, output: str | None) -> None:
     console.print(
         "\n[dim]Tip: Start MCP server for tool access: paracle mcp serve --stdio[/dim]"
     )
+
+
+# =============================================================================
+# SETUP Command - Automatic IDE Detection & Configuration
+# =============================================================================
+
+
+def _detect_installed_ides() -> list[str]:
+    """Detect IDEs installed on the system.
+
+    Returns:
+        List of detected IDE names
+    """
+    import shutil
+
+    detected = []
+
+    # Check for IDE-specific directories and executables
+    ide_checks = {
+        "cursor": [".cursor", "cursor"],
+        "vscode": [".vscode", "code"],
+        "zed": [".zed", "zed"],
+        "windsurf": [".windsurf", "windsurf"],
+        "warp": [".warp", "warp"],
+    }
+
+    project_root = Path.cwd()
+
+    for ide_name, checks in ide_checks.items():
+        for check in checks:
+            # Check for directory
+            if (project_root / check).exists():
+                detected.append(ide_name)
+                break
+            # Check for executable
+            if shutil.which(check):
+                detected.append(ide_name)
+                break
+
+    # Always include claude (Claude Code CLI) if paracle is available
+    if shutil.which("claude") or shutil.which("paracle"):
+        if "claude" not in detected:
+            detected.append("claude")
+
+    return detected
+
+
+@ide.command("setup")
+@click.option(
+    "--ide",
+    "ide_name",
+    type=str,
+    help="Specific IDE to set up (auto-detects if not specified)",
+)
+@click.option("--all", "setup_all", is_flag=True, help="Set up all detected IDEs")
+@click.option("--force", is_flag=True, help="Overwrite existing configurations")
+def ide_setup(ide_name: str | None, setup_all: bool, force: bool) -> None:
+    """Automatically detect and configure IDEs.
+
+    Detects installed IDEs and configures them for Paracle integration,
+    including MCP server setup where supported.
+
+    Examples:
+        paracle ide setup              # Auto-detect and configure
+        paracle ide setup --ide cursor # Configure specific IDE
+        paracle ide setup --all        # Configure all detected IDEs
+    """
+    parac_root = get_parac_root_or_exit()
+
+    console.print("\n[bold]IDE Setup[/bold]\n")
+
+    # Detect installed IDEs
+    detected = _detect_installed_ides()
+
+    if not detected:
+        console.print("[yellow]No IDEs detected.[/yellow]")
+        console.print("\nSupported IDEs:")
+        console.print("  cursor, claude, windsurf, zed, vscode, warp")
+        console.print("\nRun with --ide <name> to configure manually.")
+        return
+
+    console.print(f"[green]Detected IDEs:[/green] {', '.join(detected)}\n")
+
+    # Determine which IDEs to configure
+    if ide_name:
+        ides_to_setup = [ide_name.lower()]
+    elif setup_all:
+        ides_to_setup = detected
+    else:
+        # Interactive: ask user
+        console.print("Which IDE(s) would you like to configure?")
+        for i, ide in enumerate(detected, 1):
+            console.print(f"  {i}. {ide}")
+        console.print(f"  {len(detected) + 1}. All")
+        console.print(f"  {len(detected) + 2}. Cancel")
+
+        choice = click.prompt("Enter choice", type=int, default=len(detected) + 1)
+        if choice == len(detected) + 2:
+            console.print("[dim]Cancelled.[/dim]")
+            return
+        elif choice == len(detected) + 1:
+            ides_to_setup = detected
+        elif 1 <= choice <= len(detected):
+            ides_to_setup = [detected[choice - 1]]
+        else:
+            console.print("[red]Invalid choice.[/red]")
+            return
+
+    # Configure each IDE
+    try:
+        from paracle_core.parac.ide_generator import IDEConfigGenerator
+    except ImportError as e:
+        console.print(f"[red]Error:[/red] {e}")
+        raise SystemExit(1)
+
+    generator = IDEConfigGenerator(parac_root)
+
+    for ide in ides_to_setup:
+        console.print(f"\n[bold]Configuring {ide}...[/bold]")
+
+        try:
+            # Generate config
+            path = generator.generate_to_file(ide)
+            console.print(f"  [green]OK[/green] Generated: {path.name}")
+
+            # Copy to project
+            dest = generator.copy_to_project(ide)
+            console.print(f"  [blue]->[/blue] Copied to: {dest}")
+
+            # IDE-specific MCP setup hints
+            mcp_ides = ["cursor", "claude", "windsurf", "zed", "vscode"]
+            if ide in mcp_ides:
+                console.print(f"  [dim]MCP: Add paracle server to {ide} settings[/dim]")
+
+        except Exception as e:
+            console.print(f"  [red]FAIL[/red] {ide}: {e}")
+
+    console.print("\n[green]OK[/green] IDE setup complete!")
+    console.print("\n[dim]Start MCP server: paracle mcp serve --stdio[/dim]")
+
+
+# =============================================================================
+# INSTRUCTIONS Command - Show copy-paste instructions for web-based IDEs
+# =============================================================================
+
+
+@ide.command("instructions")
+@click.argument("ide_name", type=str)
+def ide_instructions(ide_name: str) -> None:
+    """Show setup instructions for an IDE.
+
+    Displays copy-paste instructions for web-based IDEs like ChatGPT,
+    Claude.ai, and Raycast that don't support file-based configuration.
+
+    Examples:
+        paracle ide instructions chatgpt
+        paracle ide instructions claude_desktop
+        paracle ide instructions raycast
+    """
+    parac_root = get_parac_root_or_exit()
+
+    try:
+        from paracle_core.parac.ide_generator import IDEConfigGenerator
+    except ImportError as e:
+        console.print(f"[red]Error:[/red] {e}")
+        raise SystemExit(1)
+
+    generator = IDEConfigGenerator(parac_root)
+    config = generator.get_ide_config(ide_name.lower())
+
+    if not config:
+        console.print(f"[red]Unknown IDE:[/red] {ide_name}")
+        console.print("\nSupported IDEs:")
+        for name in generator.get_supported_ides():
+            console.print(f"  - {name}")
+        return
+
+    # Web-based IDEs that need copy-paste
+    web_ides = ["chatgpt", "claude_desktop", "raycast"]
+
+    console.print(f"\n[bold]Instructions for {config.display_name}[/bold]\n")
+
+    if ide_name.lower() in web_ides:
+        console.print("This IDE uses copy-paste configuration.\n")
+        console.print("[bold]Steps:[/bold]")
+        console.print("1. Run: paracle ide init --ide=" + ide_name.lower())
+        console.print(f"2. Open: {config.destination_dir}/{config.file_name}")
+        console.print("3. Copy the entire file content")
+        console.print(f"4. Paste into {config.display_name}\n")
+
+        if ide_name.lower() == "chatgpt":
+            console.print("[dim]Options:[/dim]")
+            console.print("  - Paste at conversation start")
+            console.print("  - Add to Custom Instructions")
+            console.print("  - Create a GPT with these instructions")
+        elif ide_name.lower() == "claude_desktop":
+            console.print("[dim]Options:[/dim]")
+            console.print("  - Paste at conversation start")
+            console.print("  - Add to Claude.ai Project Knowledge")
+            console.print("  - Set as Claude Desktop system prompt")
+        elif ide_name.lower() == "raycast":
+            console.print("[dim]Options:[/dim]")
+            console.print("  - Create AI Command with instructions")
+            console.print("  - Paste in Raycast AI chat")
+    else:
+        console.print("This IDE uses file-based configuration.\n")
+        console.print("[bold]Steps:[/bold]")
+        console.print(f"1. Run: paracle ide init --ide={ide_name.lower()} --copy")
+        console.print(f"2. Config copied to: {config.destination_dir}/")
+
+        # MCP setup hint
+        mcp_ides = ["cursor", "claude", "windsurf", "zed", "vscode"]
+        if ide_name.lower() in mcp_ides:
+            console.print("\n[bold]MCP Setup:[/bold]")
+            console.print("Add Paracle MCP server to your IDE settings:")
+            console.print("  Command: paracle mcp serve --stdio")

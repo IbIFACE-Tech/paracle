@@ -4496,3 +4496,237 @@ Implement **execution modes as orchestration-level parameters** (not agent capab
 - docs/execution-modes.md
 - examples/08_yolo_mode.py
 
+
+---
+
+## ADR-023: Single MCP Endpoint Architecture
+
+**Date**: 2026-01-06
+**Status**: Accepted
+**Deciders**: Architect Agent, Coder Agent
+
+### Context
+
+Paracle supports external MCP servers (like Astro docs, GitHub, filesystem) defined in `.parac/tools/mcp/mcp.json`. The question arose: should these external servers be:
+
+1. **Duplicated**: Each external MCP server added separately to `.vscode/mcp.json`
+2. **Proxied**: All external MCP servers accessed through the single Paracle MCP server
+
+User explicitly requested: *"the endpoint must be .parac/tools/mcp/mcp.json"* - meaning single source of truth, no duplication.
+
+### Decision
+
+Implement **Single MCP Endpoint Architecture**:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                .parac/tools/mcp/mcp.json                    │
+│                (single source of truth)                      │
+│                                                             │
+│  { "mcpServers": { "Astro docs": {...}, "GitHub": {...} } } │
+└─────────────────────────────────────────────────────────────┘
+                          │
+                          ▼
+┌─────────────────────────────────────────────────────────────┐
+│               Paracle MCP Server (50+ tools)                 │
+│               `paracle mcp serve --stdio`                    │
+├─────────────────────────────────────────────────────────────┤
+│  ✓ Paracle built-in tools (code_analysis, git_*, etc.)     │
+│  ✓ Context tools (context_current_state, context_roadmap)   │
+│  ✓ Workflow tools (workflow_run, workflow_list)             │
+│  ✓ Memory tools (memory_log_action)                         │
+│  ✓ Custom tools (.parac/tools/custom/*.py)                  │
+│  ✓ External MCP servers (<prefix>_info, proxied calls)      │
+└─────────────────────────────────────────────────────────────┘
+                          │
+                          ▼
+┌─────────────────────────────────────────────────────────────┐
+│                 .vscode/mcp.json                             │
+│         (only references paracle server)                     │
+│                                                             │
+│  { "servers": { "paracle": { "command": "paracle..." } } }  │
+└─────────────────────────────────────────────────────────────┘
+                          │
+                          ▼
+                    IDE / AI Assistant
+```
+
+**Key Principles:**
+1. **Write Once**: Define MCP servers in `.parac/tools/mcp/mcp.json`
+2. **Use Anywhere**: Access all tools through single `paracle mcp serve` endpoint
+3. **No Duplication**: `.vscode/mcp.json` only contains Paracle server reference
+4. **Unified Interface**: IDEs see all tools (built-in + external) as Paracle tools
+
+### Implementation
+
+**MCP Server (`paracle_mcp/server.py`):**
+- `_load_external_mcp_servers()`: Loads from `mcp.yaml`, `mcp.json`, or `servers.yaml`
+- `_handle_external_mcp_tool()`: Provides info about external servers
+- External tools exposed as `<prefix>_info` (e.g., `Astro docs_info`)
+
+**Agent Compiler (`agent_compiler.py`):**
+- `compile_vscode_mcp()`: Only outputs Paracle server, not external MCP servers
+- Comment: "External MCP servers accessed through Paracle MCP server"
+
+**Custom Tools (`paracle_mcp/server.py`):**
+- `_load_custom_tools()`: Loads Python tools from `.parac/tools/custom/*.py`
+- Custom tools exposed as `custom_<name>` (e.g., `custom_hello_world`)
+
+### Consequences
+
+#### Positive
+
+✅ **Single Source of Truth**: `.parac/tools/mcp/mcp.json` is the only place to define external MCP servers
+✅ **Simplified IDE Config**: `.vscode/mcp.json` never needs manual editing for new MCP servers
+✅ **Unified Tool Discovery**: `paracle mcp list` shows ALL tools (50+ including external)
+✅ **Write Once, Use Anywhere**: Core Paracle philosophy respected
+
+#### Negative
+
+⚠️ **Proxy Overhead**: External MCP calls go through Paracle server (minimal latency)
+⚠️ **Full Proxy Not Implemented**: Currently only `_info` endpoint works; full proxy would require subprocess management
+
+### Related ADRs
+
+- ADR-008: MCP Integration Strategy
+- ADR-019: Enterprise Log Management System
+- ADR-004: Tool Calling Interface (Hybrid Built-in + MCP)
+
+---
+
+## ADR-024: Comprehensive IDE/AI Assistant Support
+
+**Date**: 2026-01-06
+**Status**: Accepted
+**Deciders**: Architect Agent, PM Agent
+
+### Context
+
+Paracle aims to be IDE-agnostic with "Write Once, Use Anywhere" philosophy. Currently supports 5 IDEs (Cursor, Claude Code, Cline, Copilot, Windsurf). User requested expansion to 13 platforms:
+
+**Current Support (5):**
+- Cursor (.cursorrules)
+- Claude Code (CLAUDE.md, .claude/agents/)
+- Cline (.clinerules)
+- GitHub Copilot (copilot-instructions.md)
+- Windsurf (.windsurfrules)
+
+**Requested Support (13 total):**
+1. Claude Code CLI ✅
+2. Claude Code GitHub Action (NEW)
+3. Cursor ✅
+4. Visual Studio Code ✅ (via Copilot)
+5. Warp (NEW)
+6. Claude.ai / Claude Desktop (NEW)
+7. Windsurf ✅
+8. Gemini CLI (NEW)
+9. Zed (NEW)
+10. ChatGPT (NEW)
+11. Raycast (NEW)
+12. Opencode AI (NEW)
+13. GitHub Copilot Coding Agent (NEW)
+
+### Decision
+
+Implement comprehensive IDE support with two modes:
+
+**1. Manual Setup** (`paracle ide init`)
+- Generates config files for selected IDE(s)
+- User manually copies to project
+
+**2. Automatic Setup** (`paracle ide setup`)
+- Detects installed IDEs automatically
+- Configures MCP integration where supported
+- Creates agent files and rules
+
+**IDE Categories:**
+
+| Category | IDEs | Integration Method |
+|----------|------|-------------------|
+| **MCP Native** | Claude Code, Cursor, Windsurf, Zed | MCP server + rules file |
+| **Rules-based** | Cline, Warp, Copilot, Gemini CLI | Rules/instructions file only |
+| **Web-based** | ChatGPT, Claude.ai, Raycast | Copy-paste instructions |
+| **CI/CD** | Claude GH Action, Copilot Agent | Workflow/action file |
+
+**File Mappings:**
+
+| IDE | File(s) | Location |
+|-----|---------|----------|
+| Claude Code CLI | CLAUDE.md, .claude/agents/*.md | .claude/ |
+| Claude Code GH Action | claude-code.yml | .github/workflows/ |
+| Cursor | .cursorrules, mcp.json | ., .cursor/ |
+| VS Code | copilot-instructions.md, mcp.json | .github/, .vscode/ |
+| Warp | .warp/ai-rules.yaml | .warp/ |
+| Claude.ai/Desktop | CLAUDE_INSTRUCTIONS.md | . |
+| Windsurf | .windsurfrules | . |
+| Gemini CLI | .gemini/instructions.md | .gemini/ |
+| Zed | .zed/ai_rules.json, mcp.json | .zed/ |
+| ChatGPT | CHATGPT_INSTRUCTIONS.md | . |
+| Raycast | raycast-ai-instructions.md | . |
+| Opencode AI | .opencode/rules.yaml | .opencode/ |
+| Copilot Agent | copilot-coding-agent.yml | .github/ |
+
+### Implementation
+
+**Phase 1: Core IDEs (Immediate)**
+- Add Warp, Zed, Gemini CLI to ide_generator.py
+- Create templates for each
+
+**Phase 2: Web & CI/CD (Next)**
+- Add Claude.ai, ChatGPT, Raycast (copy-paste guides)
+- Add GitHub Action templates
+
+**Phase 3: Setup Command**
+```bash
+# Automatic detection + setup
+paracle ide setup
+
+# Setup specific IDE
+paracle ide setup --ide cursor
+
+# List all supported IDEs
+paracle ide list
+
+# Show setup instructions
+paracle ide instructions --ide chatgpt
+```
+
+**Detection Logic:**
+```python
+def detect_installed_ides() -> list[str]:
+    """Detect IDEs installed on system."""
+    detected = []
+
+    # Check for config directories
+    if Path(".cursor").exists() or which("cursor"):
+        detected.append("cursor")
+    if Path(".vscode").exists() or which("code"):
+        detected.append("vscode")
+    if Path(".zed").exists() or which("zed"):
+        detected.append("zed")
+    if which("warp"):
+        detected.append("warp")
+    # ... etc
+
+    return detected
+```
+
+### Consequences
+
+#### Positive
+
+✅ **13 IDE Support**: Covers all major AI-assisted development tools
+✅ **Two Modes**: Manual (control) + Automatic (convenience)
+✅ **Progressive**: Start with rules, upgrade to MCP when supported
+✅ **Unified Source**: All IDEs read from .parac/ source of truth
+
+#### Negative
+
+⚠️ **Maintenance Burden**: 13 templates to maintain
+⚠️ **Version Drift**: IDE formats may change
+⚠️ **Testing Complexity**: Need to test each IDE integration
+
+### Related ADRs
+
+- ADR-023: Single MCP Endpoint Architecture
+- ADR-008: Agent Discovery System for IDE Integration

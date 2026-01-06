@@ -1,0 +1,56 @@
+{# Claude.ai / Claude Desktop Instructions Template #}
+{% extends "base.jinja2" %}
+
+{% block header %}
+# Claude Instructions for Paracle Project
+# Auto-generated from .parac/ - DO NOT EDIT MANUALLY
+# Regenerate with: paracle ide sync --copy
+# Generated: {{ generated_at }}
+#
+# HOW TO USE:
+# 1. Copy this entire file content
+# 2. Paste at the start of your Claude.ai or Claude Desktop conversation
+# 3. Or set as "Project Knowledge" in Claude.ai Projects
+{% endblock %}
+
+{% block ide_specific %}
+## Claude.ai / Desktop Usage
+
+This file is designed for copy-paste into Claude.ai or Claude Desktop.
+
+### Setup Options
+
+**Option 1: Paste at conversation start**
+Copy this entire file and paste as your first message.
+
+**Option 2: Claude.ai Projects**
+1. Go to Claude.ai
+2. Create/open a Project
+3. Add this as "Project Knowledge"
+
+**Option 3: Claude Desktop**
+1. Open Claude Desktop settings
+2. Add this content to system instructions
+
+### Key Files to Reference
+
+When discussing this project, ask me to read:
+- `.parac/memory/context/current_state.yaml` - Current state
+- `.parac/roadmap/roadmap.yaml` - Priorities
+- `.parac/agents/specs/{agent}.md` - Agent guidelines
+
+### Available Agents
+
+{% for agent in agents %}
+**{{ agent.name }}**: {{ agent.description }}
+{% endfor %}
+
+### Commands
+
+If you have access to the codebase:
+```bash
+paracle status          # Check project state
+paracle mcp list        # List available tools
+paracle ide sync        # Regenerate this file
+```
+{% endblock %}

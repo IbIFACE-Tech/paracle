@@ -25,7 +25,14 @@ class CodeAnalysisTool(BaseTool):
             name="code_analysis",
             description="Analyze code structure, dependencies, and complexity metrics",
             parameters={
-                "path": {"type": "string", "description": "Path to analyze", "required": True}
+                "type": "object",
+                "properties": {
+                    "path": {
+                        "type": "string",
+                        "description": "File or directory path to analyze",
+                    },
+                },
+                "required": ["path"],
             },
         )
 
@@ -57,20 +64,29 @@ class CodeAnalysisTool(BaseTool):
             tree = ast.parse(content, filename=str(file_path))
 
             # Extract structure
-            classes = [node.name for node in ast.walk(
-                tree) if isinstance(node, ast.ClassDef)]
-            functions = [node.name for node in ast.walk(
-                tree) if isinstance(node, ast.FunctionDef)]
+            classes = [
+                node.name for node in ast.walk(tree) if isinstance(node, ast.ClassDef)
+            ]
+            functions = [
+                node.name
+                for node in ast.walk(tree)
+                if isinstance(node, ast.FunctionDef)
+            ]
             imports = [
-                node.names[0].name if hasattr(node, 'names') else node.module
+                node.names[0].name if hasattr(node, "names") else node.module
                 for node in ast.walk(tree)
                 if isinstance(node, (ast.Import, ast.ImportFrom))
             ]
 
             # Calculate metrics
-            lines = content.split('\n')
-            loc = len([line for line in lines if line.strip()
-                      and not line.strip().startswith('#')])
+            lines = content.split("\n")
+            loc = len(
+                [
+                    line
+                    for line in lines
+                    if line.strip() and not line.strip().startswith("#")
+                ]
+            )
 
             return {
                 "file": str(file_path),
@@ -99,12 +115,11 @@ class CodeAnalysisTool(BaseTool):
                 results.append(file_result)
 
         # Aggregate metrics
-        total_loc = sum(r.get("metrics", {}).get("lines_of_code", 0)
-                        for r in results)
-        total_classes = sum(r.get("metrics", {}).get(
-            "class_count", 0) for r in results)
-        total_functions = sum(r.get("metrics", {}).get(
-            "function_count", 0) for r in results)
+        total_loc = sum(r.get("metrics", {}).get("lines_of_code", 0) for r in results)
+        total_classes = sum(r.get("metrics", {}).get("class_count", 0) for r in results)
+        total_functions = sum(
+            r.get("metrics", {}).get("function_count", 0) for r in results
+        )
 
         return {
             "directory": str(dir_path),
@@ -129,12 +144,28 @@ class DiagramGenerationTool(BaseTool):
 
     def __init__(self):
         super().__init__(
-            name="code_analysis",
-            description="Analyze code structure, dependencies, and complexity metrics",
-            parameters={},
+            name="diagram_generation",
+            description="Generate architecture and design diagrams (Mermaid, PlantUML, ASCII)",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "diagram_type": {
+                        "type": "string",
+                        "description": "Type of diagram to generate",
+                        "enum": ["mermaid", "plantuml", "ascii"],
+                    },
+                    "content": {
+                        "type": "string",
+                        "description": "Diagram content, description, or existing diagram code",
+                    },
+                },
+                "required": ["diagram_type", "content"],
+            },
         )
 
-    async def _execute(self, diagram_type: str, content: str, **kwargs) -> dict[str, Any]:
+    async def _execute(
+        self, diagram_type: str, content: str, **kwargs
+    ) -> dict[str, Any]:
         """Generate a diagram.
 
         Args:
@@ -156,7 +187,9 @@ class DiagramGenerationTool(BaseTool):
     def _generate_mermaid(self, content: str) -> dict[str, Any]:
         """Generate Mermaid diagram."""
         # If content is already Mermaid syntax, return as-is
-        if content.strip().startswith(("graph", "sequenceDiagram", "classDiagram", "flowchart")):
+        if content.strip().startswith(
+            ("graph", "sequenceDiagram", "classDiagram", "flowchart")
+        ):
             return {"diagram_type": "mermaid", "content": content}
 
         # Generate simple flowchart from description
@@ -200,9 +233,18 @@ class PatternMatchingTool(BaseTool):
 
     def __init__(self):
         super().__init__(
-            name="diagram_generation",
-            description="Generate architecture and design diagrams",
-            parameters={},
+            name="pattern_matching",
+            description="Detect design patterns and anti-patterns in code",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "path": {
+                        "type": "string",
+                        "description": "File or directory path to analyze for patterns",
+                    },
+                },
+                "required": ["path"],
+            },
         )
 
     async def _execute(self, path: str, **kwargs) -> dict[str, Any]:
@@ -245,48 +287,54 @@ class PatternMatchingTool(BaseTool):
                 if isinstance(node, ast.ClassDef):
                     # Check for __new__ method (Singleton indicator)
                     has_new = any(
-                        isinstance(
-                            item, ast.FunctionDef) and item.name == "__new__"
+                        isinstance(item, ast.FunctionDef) and item.name == "__new__"
                         for item in node.body
                     )
                     if has_new:
-                        patterns.append({
-                            "type": "singleton",
-                            "class": node.name,
-                            "line": node.lineno,
-                        })
+                        patterns.append(
+                            {
+                                "type": "singleton",
+                                "class": node.name,
+                                "line": node.lineno,
+                            }
+                        )
 
                     # Check for God Object (many methods)
                     methods = [
-                        item for item in node.body
-                        if isinstance(item, ast.FunctionDef)
+                        item for item in node.body if isinstance(item, ast.FunctionDef)
                     ]
                     if len(methods) > 20:
-                        anti_patterns.append({
-                            "type": "god_object",
-                            "class": node.name,
-                            "method_count": len(methods),
-                            "line": node.lineno,
-                        })
+                        anti_patterns.append(
+                            {
+                                "type": "god_object",
+                                "class": node.name,
+                                "method_count": len(methods),
+                                "line": node.lineno,
+                            }
+                        )
 
             # Detect Factory pattern (functions returning instances)
             for node in ast.walk(tree):
                 if isinstance(node, ast.FunctionDef):
                     if "factory" in node.name.lower() or "create" in node.name.lower():
-                        patterns.append({
-                            "type": "factory",
-                            "function": node.name,
-                            "line": node.lineno,
-                        })
+                        patterns.append(
+                            {
+                                "type": "factory",
+                                "function": node.name,
+                                "line": node.lineno,
+                            }
+                        )
 
                     # Check for long functions (anti-pattern)
                     if len(node.body) > 50:
-                        anti_patterns.append({
-                            "type": "long_function",
-                            "function": node.name,
-                            "lines": len(node.body),
-                            "line": node.lineno,
-                        })
+                        anti_patterns.append(
+                            {
+                                "type": "long_function",
+                                "function": node.name,
+                                "lines": len(node.body),
+                                "line": node.lineno,
+                            }
+                        )
 
             return {
                 "file": str(file_path),

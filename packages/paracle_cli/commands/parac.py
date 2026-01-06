@@ -11,6 +11,7 @@ Architecture: CLI -> API -> Core (API-first design)
 Falls back to direct core access if API is unavailable.
 """
 
+import os
 from pathlib import Path
 
 import click
@@ -278,7 +279,7 @@ def _sync_direct(
         if roadmap_result.suggestions:
             console.print("\n[cyan]Suggestions:[/cyan]")
             for suggestion in roadmap_result.suggestions:
-                console.print(f"  [cyan]💡[/cyan] {suggestion}")
+                console.print(f"  [cyan]Help:[/cyan] {suggestion}")
 
         if roadmap_result.errors:
             result.errors.extend(roadmap_result.errors)
@@ -652,6 +653,143 @@ def session_end(
 # =============================================================================
 
 
+def _load_template_from_directory(
+    template_name: str, parac_dir: Path, project_name: str
+) -> bool:
+    """Load template from templates/ directory.
+
+    Args:
+        template_name: Template to load (lite, standard, advanced)
+        parac_dir: Target .parac/ directory
+        project_name: Project name for substitution
+
+    Returns:
+        True if template was loaded successfully, False otherwise
+    """
+    import shutil
+    from datetime import date
+
+    # Find templates directory (relative to this file)
+    # __file__ is packages/paracle_cli/commands/parac.py
+    # parent = commands/, parent.parent = paracle_cli/, parent.parent.parent = packages/
+    cli_dir = Path(__file__).parent.parent.parent  # packages/paracle_cli
+    repo_root = cli_dir.parent  # repo root (packages -> root)
+    templates_root = repo_root / "templates"
+
+    # Map template names to directories
+    template_map = {
+        "lite": ".parac-template-lite",
+        "standard": ".parac-template",
+        "advanced": ".parac-template-advanced",
+    }
+
+    if template_name not in template_map:
+        return False
+
+    template_dir = templates_root / template_map[template_name]
+
+    # Fallback if template doesn't exist yet
+    if not template_dir.exists():
+        console.print(
+            f"[yellow]Template directory not found:[/yellow] {template_dir}"
+        )
+        console.print("[dim]Falling back to programmatic creation...[/dim]")
+        return False
+
+    # Copy template directory
+    try:
+        shutil.copytree(template_dir, parac_dir, dirs_exist_ok=True)
+
+        # Post-process files: substitute project name and dates
+        for root, _, files in os.walk(parac_dir):
+            for file in files:
+                if file.endswith((".yaml", ".yml", ".md")):
+                    filepath = Path(root) / file
+                    try:
+                        content = filepath.read_text(encoding="utf-8")
+                        # Simple substitutions
+                        content = content.replace(
+                            "{{PROJECT_NAME}}", project_name)
+                        content = content.replace(
+                            "{{DATE}}", date.today().isoformat())
+                        content = content.replace("my-project", project_name)
+                        filepath.write_text(content, encoding="utf-8")
+                    except Exception:
+                        pass  # Skip files that can't be processed
+
+        console.print(f"[dim]Loaded template:[/dim] {template_name}")
+        return True
+
+    except Exception as e:
+        console.print(f"[yellow]Template loading failed:[/yellow] {e}")
+        return False
+
+
+def _interactive_init() -> tuple[str, str | None, str | None]:
+    """
+    Interactive prompts for workspace initialization.
+
+    Returns:
+        tuple[str, str | None, str | None]: (template, project_name, provider)
+    """
+    console.print(
+        "\n[bold cyan]Paracle Workspace Initialization[/bold cyan]\n"
+    )
+
+    # Template selection
+    console.print("[bold]Select a template:[/bold]")
+    console.print("  [cyan]1[/cyan] - lite      (Learning & prototyping)")
+    console.print("  [cyan]2[/cyan] - standard  (Production projects)")
+    console.print("  [cyan]3[/cyan] - advanced  (Enterprise & complex)")
+
+    template_choice = click.prompt(
+        "\nTemplate",
+        type=click.Choice(["1", "2", "3"], case_sensitive=False),
+        default="2"
+    )
+
+    template_map = {
+        "1": "lite",
+        "2": "standard",
+        "3": "advanced"
+    }
+    template = template_map[template_choice]
+
+    # Project name
+    console.print()
+    project_name = click.prompt(
+        "[bold]Project name[/bold]",
+        type=str,
+        default=None
+    )
+
+    # LLM Provider
+    console.print()
+    console.print("[bold]Select LLM provider:[/bold]")
+    console.print("  [cyan]1[/cyan] - openai")
+    console.print("  [cyan]2[/cyan] - anthropic")
+    console.print("  [cyan]3[/cyan] - google")
+    console.print("  [cyan]4[/cyan] - groq")
+    console.print("  [cyan]5[/cyan] - ollama (self-hosted)")
+
+    provider_choice = click.prompt(
+        "\nProvider",
+        type=click.Choice(["1", "2", "3", "4", "5"], case_sensitive=False),
+        default="1"
+    )
+
+    provider_map = {
+        "1": "openai",
+        "2": "anthropic",
+        "3": "google",
+        "4": "groq",
+        "5": "ollama"
+    }
+    provider = provider_map[provider_choice]
+
+    return template, project_name, provider
+
+
 def _create_lite_workspace(
     parac_dir: Path, target: Path, project_name: str
 ) -> None:
@@ -732,7 +870,8 @@ All notable changes to this project will be documented in this file.
 """
     (parac_dir / "changelog.md").write_text(changelog_content, encoding="utf-8")
 
-    console.print("  [dim]Created[/dim] root files (.gitignore, project.yaml, changelog.md)")
+    console.print(
+        "  [dim]Created[/dim] root files (.gitignore, project.yaml, changelog.md)")
 
     # =========================================================================
     # Agents files
@@ -1201,7 +1340,8 @@ This directory is the single source of truth for the project.
 """
     governance_file = parac_dir / "GOVERNANCE.md"
     governance_file.write_text(governance_content, encoding="utf-8")
-    console.print(f"  [dim]Created[/dim] {governance_file.relative_to(target)}")
+    console.print(
+        f"  [dim]Created[/dim] {governance_file.relative_to(target)}")
 
 
 def _create_full_workspace(
@@ -1320,7 +1460,7 @@ next_actions:
     (parac_dir / "memory" / "context" / "current_state.yaml").write_text(
         state_content, encoding="utf-8"
     )
-    console.print(f"  [dim]Created[/dim] memory/context/current_state.yaml")
+    console.print("  [dim]Created[/dim] memory/context/current_state.yaml")
 
     # open_questions.md
     questions_content = """# Open Questions
@@ -1440,7 +1580,7 @@ phases:
     (parac_dir / "roadmap" / "roadmap.yaml").write_text(
         roadmap_content, encoding="utf-8"
     )
-    console.print(f"  [dim]Created[/dim] roadmap/roadmap.yaml")
+    console.print("  [dim]Created[/dim] roadmap/roadmap.yaml")
 
     # decisions.md
     decisions_content = """# Architecture Decision Records
@@ -1505,7 +1645,7 @@ Proposed | Accepted | Deprecated | Superseded
         adr_template, encoding="utf-8"
     )
 
-    adr_001 = f"""# ADR-001: Use Paracle for Project Governance
+    adr_001 = """# ADR-001: Use Paracle for Project Governance
 
 ## Status
 
@@ -1927,7 +2067,7 @@ paracle ide sync    # Generate IDE configs
 ```
 """
     (parac_dir / "GOVERNANCE.md").write_text(governance_content, encoding="utf-8")
-    console.print(f"  [dim]Created[/dim] GOVERNANCE.md")
+    console.print("  [dim]Created[/dim] GOVERNANCE.md")
 
 
 @click.command()
@@ -1935,49 +2075,148 @@ paracle ide sync    # Generate IDE configs
 @click.option("--name", help="Project name (defaults to directory name)")
 @click.option("--force", is_flag=True, help="Overwrite existing .parac/")
 @click.option(
+    "--template", "-t",
+    type=click.Choice(["lite", "standard", "advanced"], case_sensitive=False),
+    help="Project template: lite (minimal), standard (balanced), advanced (full)"
+)
+@click.option(
+    "-i", "--interactive",
+    is_flag=True,
+    help="Interactive mode with prompts for template, name, and provider"
+)
+@click.option(
+    "-v", "--verbose",
+    is_flag=True,
+    help="Verbose output with detailed information"
+)
+@click.option(
     "--all", "full_init", is_flag=True,
-    help="Create complete structure with all templates and policies"
+    help="[DEPRECATED] Use --template advanced instead"
 )
 @click.option(
     "--lite", "lite_init", is_flag=True,
-    help="Create lite workspace with complete folder structure"
+    help="[DEPRECATED] Use --template lite instead"
 )
 def init(
-    path: str, name: str | None, force: bool, full_init: bool, lite_init: bool
+    path: str,
+    name: str | None,
+    force: bool,
+    template: str | None,
+    interactive: bool,
+    verbose: bool,
+    full_init: bool,
+    lite_init: bool,
 ) -> None:
     """Initialize a new .parac/ workspace.
 
-    Creates the .parac/ directory structure with default configuration.
+    Creates the .parac/ directory structure with configuration.
 
     \b
-    Modes (mutually exclusive):
-      (default)  Standard workspace with core structure
-      --lite     Lite workspace with complete folder structure
-      --all      Full workspace with all templates and examples
+    Quick Start:
+      paracle init                  # Standard template
+      paracle init -i               # Interactive mode with prompts
+      paracle init -t lite          # Lite template (learning)
+      paracle init -t advanced -v   # Advanced with verbose output
 
     \b
-    --lite creates complete structure:
-      - project.yaml, changelog.md, .gitignore
-      - agents/ (specs, skills, manifest)
-      - memory/ (context, logs)
-      - roadmap/ (roadmap, decisions, constraints)
-      - tools/ (custom, builtin, registry)
-      - integrations/ (ide)
+    Interactive Mode (-i):
+      Prompts for:
+      - Template choice (lite/standard/advanced)
+      - Project name
+      - Default LLM provider (optional)
 
     \b
-    --all creates everything including:
-      - Default agents (coder, reviewer)
-      - Policy templates (code style, testing, security)
-      - Workflow templates
-      - ADR structure with templates
-      - IDE integration setup
+    Template Tiers:
+      lite      Minimal setup - No Docker, no DB, single agent
+                Perfect for: Learning, prototyping, quick experiments
+                Time to first agent: < 2 minutes
+
+      standard  Balanced setup - Optional Docker, SQLite, multiple agents
+                Perfect for: Small teams, side projects, MVPs
+                Production-ready with growth path
+
+      advanced  Full enterprise - Docker Compose, PostgreSQL, all 8 agents
+                Perfect for: Production, teams, complex workflows
+                Complete observability and compliance
+
+    \b
+    Examples:
+      paracle init -i                           # Interactive prompts
+      paracle init my-project -t lite           # Named lite project
+      paracle init --template advanced -v       # Advanced with details
+      paracle init --name my-bot -t standard    # Named standard project
+      paracle init -i -v                        # Interactive + verbose
+
+    \b
+    Flags:
+      -i, --interactive    Prompt for all options
+      -v, --verbose        Show detailed progress
+      -t, --template       Choose template (lite/standard/advanced)
+      --force              Overwrite existing .parac/
+
+    \b
+    What's Created (lite):
+      + Single agent definition
+      + File-based persistence only
+      + Zero external dependencies
+      + Upgrade path to standard/advanced
+
+    \b
+    What's Created (standard):
+      + Multiple agent templates
+      + SQLite + file persistence
+      + Basic policies and workflows
+      + IDE integration support
+
+    \b
+    What's Created (advanced):
+      + All 8 agent types (architect, coder, tester, reviewer, pm, documenter, release manager, security)
+      + PostgreSQL + Redis/Valkey
+      + Complete policy pack
+      + Docker Compose setup
+      + CI/CD templates
+
+    \b
+    Upgrade Later:
+      paracle init --template advanced --force  # Upgrade lite → advanced
 
     Note: This command always runs locally (no API call) as it creates
     the workspace that the API would operate on.
     """
+    # Interactive mode: explicit -i flag OR auto-detect (no template, default path, no name)
+    is_interactive = interactive or (
+        template is None
+        and not lite_init
+        and not full_init
+        and path == "."
+        and name is None
+        and not interactive  # Prevent double prompt
+    )
+
+    if is_interactive:
+        if verbose:
+            console.print("[dim]Running in interactive mode...[/dim]\n")
+        # Run interactive prompts
+        template, name, _provider = _interactive_init()
+        # Provider is captured but will be used in future enhancement
+        # For now, we just use the template and name
+
+    # Handle backward compatibility
+    if lite_init:
+        console.print(
+            "[yellow]Note:[/yellow] --lite is deprecated, use --template lite")
+        template = "lite"
+    elif full_init:
+        console.print(
+            "[yellow]Note:[/yellow] --all is deprecated, use --template advanced")
+        template = "advanced"
+    elif template is None:
+        template = "standard"  # Default for non-interactive mode
+
     # Validate mutually exclusive options
-    if full_init and lite_init:
-        console.print("[red]Error:[/red] --all and --lite are mutually exclusive")
+    if lite_init and full_init:
+        console.print(
+            "[red]Error:[/red] --all and --lite are mutually exclusive")
         raise SystemExit(1)
 
     target = Path(path).resolve()
@@ -1985,7 +2224,10 @@ def init(
     # Create target directory if it doesn't exist
     if not target.exists():
         target.mkdir(parents=True)
-        console.print(f"[dim]Created project directory:[/dim] {target}")
+        if verbose:
+            console.print(f"[dim]+ Created project directory:[/dim] {target}")
+        else:
+            console.print(f"[dim]Created project directory:[/dim] {target}")
 
     parac_dir = target / ".parac"
 
@@ -1997,56 +2239,125 @@ def init(
 
     project_name = name or target.name
 
-    if lite_init:
-        # Lite mode - complete structure for prototyping
-        console.print(
-            f"[bold cyan]Quick Start:[/bold cyan] "
-            f"Initializing lite .parac/ for: {project_name}\n"
-        )
-        _create_lite_workspace(parac_dir, target, project_name)
-        console.print(
-            f"\n[green]OK[/green] Lite workspace initialized at {target}"
-        )
-        console.print("\n[dim]Complete structure created - ready to prototype![/dim]")
-        console.print("\nNext steps:")
-        console.print("  - Edit .parac/agents/specs/myagent.md")
-        console.print("  - paracle agents list")
-        console.print("  - paracle sync  (after adding agents)")
-        console.print("  - paracle ide sync  (generate IDE configs)")
-        console.print("\n[dim]Upgrade later: paracle init --all --force[/dim]")
+    if verbose:
+        console.print(f"[dim]Project name: {project_name}[/dim]")
+        console.print(f"[dim]Template: {template}[/dim]")
+        console.print(f"[dim]Target: {target}[/dim]\n")
 
-    elif full_init:
-        # Full mode - complete workspace
-        console.print(
-            f"[bold]Initializing complete .parac/ workspace for: {project_name}[/bold]\n")
-        _create_full_workspace(parac_dir, target, project_name)
-        console.print(
-            f"\n[green]OK[/green] Complete .parac/ workspace initialized at {target}")
-        console.print("\nCreated:")
-        console.print("  - Full directory structure")
-        console.print("  - Default agents (coder, reviewer)")
-        console.print("  - Policy templates")
-        console.print("  - Workflow templates")
-        console.print("  - ADR structure")
-        console.print("\nNext steps:")
-        console.print("  - paracle status     - View project state")
-        console.print("  - paracle sync       - Sync with reality")
-        console.print("  - paracle validate   - Check consistency")
-        console.print("  - paracle ide sync   - Generate IDE configs")
+    # Template descriptions
+    template_info = {
+        "lite": {
+            "name": "Lite Mode",
+            "emoji": "🚀",
+            "tagline": "Zero config, maximum speed",
+            "features": [
+                "Single agent (myagent)",
+                "File-based only (no DB)",
+                "Zero dependencies",
+                "< 2 minute setup",
+            ],
+            "upgrade": "paracle init --template standard --force",
+        },
+        "standard": {
+            "name": "Standard Mode",
+            "emoji": "⚡",
+            "tagline": "Balanced power and simplicity",
+            "features": [
+                "Multiple agents (coder, reviewer)",
+                "SQLite persistence",
+                "Basic policies",
+                "Production-ready",
+            ],
+            "upgrade": "paracle init --template advanced --force",
+        },
+        "advanced": {
+            "name": "Advanced Mode",
+            "emoji": "🏢",
+            "tagline": "Enterprise-grade, full stack",
+            "features": [
+                "All 8 agents (architect, coder, tester, reviewer, pm, documenter, releasemanager, security)",
+                "PostgreSQL + Redis",
+                "Docker Compose",
+                "Complete CI/CD",
+            ],
+            "upgrade": None,
+        },
+    }
 
-    else:
-        # Default mode - standard workspace
+    info = template_info[template]
+    console.print(
+        f"\n[bold cyan]{info['name']}:[/bold cyan] {info['tagline']}"
+    )
+    console.print(f"[dim]Project:[/dim] {project_name}\n")
+
+    if verbose:
+        console.print("[bold]Template Details:[/bold]")
+        for feature in info['features']:
+            console.print(f"  • {feature}")
+        console.print()
+
+    # Try loading from template directory first
+    if verbose:
         console.print(
-            f"[bold]Initializing .parac/ workspace for: {project_name}[/bold]\n")
-        _create_minimal_workspace(parac_dir, target, project_name)
+            f"[dim]Loading template from templates/{template}...[/dim]")
+
+    template_loaded = _load_template_from_directory(
+        template, parac_dir, project_name)
+
+    if not template_loaded:
+        # Fallback to programmatic creation
+        if verbose:
+            console.print(
+                "[yellow]Template files not found, generating programmatically...[/yellow]\n")
+        else:
+            console.print(
+                "[dim]Using programmatic template generation...[/dim]\n")
+
+        if template == "lite":
+            _create_lite_workspace(parac_dir, target, project_name)
+        elif template == "advanced":
+            _create_full_workspace(parac_dir, target, project_name)
+        else:  # standard
+            _create_minimal_workspace(parac_dir, target, project_name)
+
+    # Success message
+    console.print(f"\n[green]+ {info['name']} initialized[/green] at {target}")
+    console.print("\n[bold]Features:[/bold]")
+    for feature in info['features']:
+        console.print(f"  + {feature}")
+
+    console.print("\n[bold]Next steps:[/bold]")
+    if template == "lite":
+        console.print("  1. Edit [cyan].parac/agents/specs/myagent.md[/cyan]")
         console.print(
-            f"\n[green]OK[/green] .parac/ workspace initialized at {target}")
-        console.print("\nNext steps:")
-        console.print("  - paracle status     - View project state")
-        console.print("  - paracle sync       - Sync with reality")
-        console.print("  - paracle validate   - Check consistency")
-        console.print("  - paracle ide sync   - Generate IDE configs")
-        console.print("\n[dim]Tip: Use --lite for quick prototyping, --all for full structure[/dim]")
+            "  2. [cyan]paracle agents list[/cyan] - View your agent")
+        console.print(
+            "  3. [cyan]paracle agents run myagent --task 'hello'[/cyan]")
+        console.print(
+            "  4. [cyan]paracle ide sync[/cyan] - Generate IDE configs")
+    elif template == "standard":
+        console.print("  1. [cyan]paracle status[/cyan] - View project state")
+        console.print(
+            "  2. [cyan]paracle agents list[/cyan] - View available agents")
+        console.print("  3. [cyan]paracle sync[/cyan] - Sync workspace")
+        console.print(
+            "  4. [cyan]paracle ide sync[/cyan] - Generate IDE configs")
+    else:  # advanced
+        console.print("  1. [cyan]paracle status[/cyan] - View project state")
+        console.print(
+            "  2. [cyan]paracle agents list[/cyan] - View all 8 agents")
+        console.print(
+            "  3. [cyan]docker compose up -d[/cyan] - Start services")
+        console.print(
+            "  4. [cyan]paracle workflows list[/cyan] - Explore workflows")
+
+    if info['upgrade']:
+        console.print(
+            f"\n[dim]Upgrade later:[/dim] [cyan]{info['upgrade']}[/cyan]")
+
+    console.print(
+        f"\n[dim]Docs: Docs:[/dim] https://paracle.dev/templates/{template}")
+    console.print("[dim]Help: Help:[/dim] [cyan]paracle --help[/cyan]\n")
 
 
 # Legacy compatibility: keep 'parac' group for backward compatibility

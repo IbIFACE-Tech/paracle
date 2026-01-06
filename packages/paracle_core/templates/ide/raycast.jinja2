@@ -1,0 +1,48 @@
+{# Raycast AI Instructions Template #}
+{% extends "base.jinja2" %}
+
+{% block header %}
+# Raycast AI Instructions for Paracle Project
+# Auto-generated from .parac/ - DO NOT EDIT MANUALLY
+# Regenerate with: paracle ide sync --copy
+# Generated: {{ generated_at }}
+#
+# HOW TO USE:
+# 1. Open Raycast → AI Command
+# 2. Create a new AI Command with this content
+# 3. Or paste in Raycast AI conversations
+{% endblock %}
+
+{% block ide_specific %}
+## Raycast AI Usage
+
+This file is designed for Raycast AI integration.
+
+### Setup in Raycast
+
+1. Open Raycast
+2. Go to Extensions → AI Commands
+3. Create new command with these instructions
+4. Or paste in AI chat
+
+### Quick Actions
+
+Use Raycast to run:
+```
+paracle status
+paracle mcp list
+paracle ide sync
+```
+
+### Project Context
+
+{% if current_state %}
+**{{ current_state.project_name }}** - {{ current_state.phase.name }} ({{ current_state.phase.progress }})
+{% endif %}
+
+### Available Agents
+
+{% for agent in agents %}
+- **{{ agent.id }}**: {{ agent.description }}
+{% endfor %}
+{% endblock %}

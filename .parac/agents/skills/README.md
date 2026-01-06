@@ -230,13 +230,35 @@ When working on Paracle:
 These skills are loaded automatically when working in the `.parac/` directory:
 
 ```python
-from paracle_domain.skills import SkillLoader
+from paracle_skills import SkillLoader
 
 # Load framework development skills
-skills = SkillLoader.load_from_directory(".parac/agents/skills")
+loader = SkillLoader(".parac/agents/skills")
+skills = loader.load_all()
 
-# Returns: framework-architecture, paracle-development
+for skill in skills:
+    print(f"{skill.name}: {skill.description}")
 ```
+
+### Exporting Skills to Multiple Platforms
+
+Skills can be exported to GitHub Copilot, Cursor, Claude Code, OpenAI Codex, and MCP:
+
+```bash
+# Export to all platforms
+paracle agents skill export --all
+
+# Export to specific platforms
+paracle agents skill export -p copilot -p cursor -p claude
+
+# CLI commands for skill management
+paracle agents skill list           # List all skills
+paracle agents skill show <name>    # Show skill details
+paracle agents skill validate --all # Validate all skills
+paracle agents skill create <name>  # Create new skill
+```
+
+See [Skills Documentation](../../../docs/skills.md) for complete details.
 
 ## Difference from User Skills
 

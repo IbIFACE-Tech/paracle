@@ -83,6 +83,8 @@ You have access to Paracle MCP tools via `#tool:paracle/*`:
 - `memory.log_action` - Log your actions
 
 
+### External MCP Tools (from .parac/tools/mcp/)
+- `Astro docs.*` - 
 
 ## Skills
 

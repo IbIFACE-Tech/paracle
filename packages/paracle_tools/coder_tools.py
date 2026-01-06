@@ -23,7 +23,48 @@ class CodeGenerationTool(BaseTool):
         super().__init__(
             name="code_generation",
             description="Generate code from templates or specifications",
-            parameters={},
+            parameters={
+                "type": "object",
+                "properties": {
+                    "template_type": {
+                        "type": "string",
+                        "description": "Type of code to generate",
+                        "enum": ["class", "function", "test", "config"],
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "Name of the class/function to generate",
+                    },
+                    "base": {
+                        "type": "string",
+                        "description": "Base class name (for class template)",
+                    },
+                    "methods": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "List of method names (for class template)",
+                    },
+                    "params": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "Function parameters (for function template)",
+                    },
+                    "return_type": {
+                        "type": "string",
+                        "description": "Return type annotation (for function template)",
+                    },
+                    "target": {
+                        "type": "string",
+                        "description": "Target module to test (for test template)",
+                    },
+                    "format": {
+                        "type": "string",
+                        "description": "Config format (for config template)",
+                        "enum": ["yaml", "toml", "json"],
+                    },
+                },
+                "required": ["template_type"],
+            },
         )
 
     async def _execute(self, template_type: str, **kwargs) -> dict[str, Any]:
@@ -47,7 +88,9 @@ class CodeGenerationTool(BaseTool):
         else:
             return {"error": f"Unsupported template type: {template_type}"}
 
-    def _generate_class(self, name: str, base: str = None, methods: list = None, **kwargs) -> dict[str, Any]:
+    def _generate_class(
+        self, name: str, base: str = None, methods: list = None, **kwargs
+    ) -> dict[str, Any]:
         """Generate a Python class."""
         base_str = f"({base})" if base else ""
         methods_str = methods or ["__init__"]
@@ -76,7 +119,9 @@ class {name}{base_str}:
 
         return {"code": code, "type": "class", "name": name}
 
-    def _generate_function(self, name: str, params: list = None, return_type: str = None, **kwargs) -> dict[str, Any]:
+    def _generate_function(
+        self, name: str, params: list = None, return_type: str = None, **kwargs
+    ) -> dict[str, Any]:
         """Generate a Python function."""
         params_str = ", ".join(params or [""])
         return_annotation = f" -> {return_type}" if return_type else ""
@@ -171,7 +216,37 @@ class RefactoringTool(BaseTool):
         super().__init__(
             name="refactoring",
             description="Refactor code with extract method, rename, and formatting",
-            parameters={},
+            parameters={
+                "type": "object",
+                "properties": {
+                    "operation": {
+                        "type": "string",
+                        "description": "Refactoring operation to perform",
+                        "enum": ["extract_method", "rename", "format"],
+                    },
+                    "path": {
+                        "type": "string",
+                        "description": "File path to refactor",
+                    },
+                    "start_line": {
+                        "type": "integer",
+                        "description": "Start line for extract_method operation",
+                    },
+                    "end_line": {
+                        "type": "integer",
+                        "description": "End line for extract_method operation",
+                    },
+                    "old_name": {
+                        "type": "string",
+                        "description": "Current symbol name for rename operation",
+                    },
+                    "new_name": {
+                        "type": "string",
+                        "description": "New name for extract_method or rename operation",
+                    },
+                },
+                "required": ["operation", "path"],
+            },
         )
 
     async def _execute(self, operation: str, path: str, **kwargs) -> dict[str, Any]:
@@ -199,7 +274,9 @@ class RefactoringTool(BaseTool):
         else:
             return {"error": f"Unsupported operation: {operation}"}
 
-    async def _extract_method(self, file_path: Path, start_line: int, end_line: int, new_name: str, **kwargs) -> dict[str, Any]:
+    async def _extract_method(
+        self, file_path: Path, start_line: int, end_line: int, new_name: str, **kwargs
+    ) -> dict[str, Any]:
         """Extract lines into a new method."""
         return {
             "operation": "extract_method",
@@ -210,14 +287,16 @@ class RefactoringTool(BaseTool):
             "message": "Extract method operation would be performed",
         }
 
-    async def _rename_symbol(self, file_path: Path, old_name: str, new_name: str, **kwargs) -> dict[str, Any]:
+    async def _rename_symbol(
+        self, file_path: Path, old_name: str, new_name: str, **kwargs
+    ) -> dict[str, Any]:
         """Rename a symbol throughout the file."""
         try:
             content = file_path.read_text(encoding="utf-8")
             occurrences = content.count(old_name)
-            new_content = content.replace(old_name, new_name)
+            # Note: In a real implementation, we would write the new content
+            _ = content.replace(old_name, new_name)  # Simulated only
 
-            # Don't actually write in simulation
             return {
                 "operation": "rename",
                 "file": str(file_path),
@@ -265,7 +344,21 @@ class TestingTool(BaseTool):
         super().__init__(
             name="testing",
             description="Run pytest tests and analyze coverage",
-            parameters={},
+            parameters={
+                "type": "object",
+                "properties": {
+                    "action": {
+                        "type": "string",
+                        "description": "Test action to perform",
+                        "enum": ["run", "coverage", "check"],
+                    },
+                    "path": {
+                        "type": "string",
+                        "description": "Path to test file or directory (optional)",
+                    },
+                },
+                "required": ["action"],
+            },
         )
 
     async def _execute(self, action: str, path: str = None, **kwargs) -> dict[str, Any]:
@@ -355,14 +448,17 @@ class TestingTool(BaseTool):
             # Look for corresponding test file
             test_file = target_path.parent / f"test_{target_path.name}"
             tests_dir = Path("tests")
-            alt_test_file = tests_dir / target_path.parent.name / \
-                f"test_{target_path.name}"
+            alt_test_file = (
+                tests_dir / target_path.parent.name / f"test_{target_path.name}"
+            )
 
             return {
                 "action": "check_tests",
                 "file": str(target_path),
                 "test_file_exists": test_file.exists() or alt_test_file.exists(),
-                "test_file": str(test_file) if test_file.exists() else str(alt_test_file),
+                "test_file": str(test_file)
+                if test_file.exists()
+                else str(alt_test_file),
             }
 
         return {"error": "Path must be a file"}

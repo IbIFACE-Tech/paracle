@@ -1,0 +1,44 @@
+{# Zed AI Rules Template #}
+{% extends "base.jinja2" %}
+
+{% block header %}
+{# Zed uses JSON format for AI rules #}
+{% endblock %}
+
+{% block ide_specific %}
+## Zed-Specific Configuration
+
+This file configures Zed's AI assistant integration with Paracle.
+
+### MCP Integration
+
+Zed supports MCP servers. Add to your Zed settings (`.zed/settings.json`):
+
+```json
+{
+  "language_models": {
+    "mcp_servers": {
+      "paracle": {
+        "command": "paracle",
+        "args": ["mcp", "serve", "--stdio"]
+      }
+    }
+  }
+}
+```
+
+### Available Paracle Tools
+
+Through MCP, you have access to 50+ Paracle tools:
+- Context tools: `context.current_state`, `context.roadmap`
+- Memory tools: `memory.log_action`
+- Workflow tools: `workflow.run`, `workflow.list`
+- All agent-specific tools
+
+### Agent Selection
+
+When working on tasks, use the appropriate agent:
+{% for agent in agents %}
+- **@{{ agent.id }}**: {{ agent.description }}
+{% endfor %}
+{% endblock %}

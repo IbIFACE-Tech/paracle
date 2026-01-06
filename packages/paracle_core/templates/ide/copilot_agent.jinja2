@@ -1,0 +1,49 @@
+{# GitHub Copilot Coding Agent Template #}
+# GitHub Copilot Coding Agent Configuration
+# Auto-generated from .parac/ - DO NOT EDIT MANUALLY
+# Regenerate with: paracle ide sync --copy
+# Generated: {{ generated_at }}
+#
+# This configures GitHub Copilot Coding Agent for your repository.
+# Documentation: https://docs.github.com/copilot/coding-agent
+
+name: Copilot Coding Agent
+
+# Instructions for Copilot Coding Agent
+instructions: |
+  You are working on the Paracle project.
+
+{% if current_state %}
+  ## Current State
+  - Project: {{ current_state.project_name }} v{{ current_state.project_version }}
+  - Phase: {{ current_state.phase.name }}
+  - Status: {{ current_state.phase.status }}
+{% endif %}
+
+  ## Key Files
+  - `.parac/GOVERNANCE.md` - Project governance
+  - `.parac/memory/context/current_state.yaml` - Current state
+  - `.parac/roadmap/roadmap.yaml` - Priorities
+  - `.parac/agents/specs/` - Agent guidelines
+
+  ## Available Agents
+{% for agent in agents %}
+  - {{ agent.id }}: {{ agent.description }}
+{% endfor %}
+
+  ## Logging
+  After completing work, log to `.parac/memory/logs/agent_actions.log`:
+  Format: [TIMESTAMP] [AGENT] [ACTION] Description
+
+# MCP Tools (if supported)
+mcp:
+  servers:
+    paracle:
+      command: paracle
+      args: [mcp, serve, --stdio]
+
+# Files to always include in context
+context_files:
+  - .parac/GOVERNANCE.md
+  - .parac/memory/context/current_state.yaml
+  - .github/copilot-instructions.md

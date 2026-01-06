@@ -125,6 +125,17 @@ class CohereProvider(LLMProvider):
         except Exception as e:
             raise LLMProviderError(f"Cohere provider error: {e}") from e
 
+    async def stream_chat_completion(
+        self,
+        messages: list[ChatMessage],
+        config: LLMConfig,
+        model: str,
+        **kwargs: Any,
+    ) -> AsyncIterator[StreamChunk]:
+        """Stream chat completion from Cohere (required abstract method)."""
+        async for chunk in self.stream_completion(messages, config, model, **kwargs):
+            yield chunk
+
     async def stream_completion(
         self,
         messages: list[ChatMessage],
@@ -187,6 +198,26 @@ class CohereProvider(LLMProvider):
             ) from e
         except Exception as e:
             raise LLMProviderError(f"Cohere streaming error: {e}") from e
+
+    def validate_config(self, config: dict[str, Any]) -> bool:
+        """Validate Cohere configuration."""
+        return True  # Basic validation, can be enhanced
+
+    @property
+    def provider_name(self) -> str:
+        """Return provider name."""
+        return "cohere"
+
+    @property
+    def supported_models(self) -> list[str]:
+        """Return list of supported models."""
+        return [
+            "command-r-plus",
+            "command-r",
+            "command",
+            "command-light",
+            "command-nightly",
+        ]
 
     async def __aenter__(self):
         """Async context manager entry."""

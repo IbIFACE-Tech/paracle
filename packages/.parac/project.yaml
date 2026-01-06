@@ -1,0 +1,11 @@
+# Paracle Project (Lite Mode)
+# Upgrade to full mode: paracle init --all --force
+
+name: packages
+version: 0.0.1
+
+# Default LLM settings
+defaults:
+  model: gpt-4o-mini
+  provider: openai
+  temperature: 0.7

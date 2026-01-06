@@ -82,6 +82,8 @@ This workflow orchestrates:
 - `memory.log_action` - Log your actions
 
 
+### External MCP Tools (from .parac/tools/mcp/)
+- `Astro docs.*` - 
 
 ## Skills
 

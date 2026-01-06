@@ -1,0 +1,57 @@
+{# ChatGPT Instructions Template #}
+{% extends "base.jinja2" %}
+
+{% block header %}
+# ChatGPT Instructions for Paracle Project
+# Auto-generated from .parac/ - DO NOT EDIT MANUALLY
+# Regenerate with: paracle ide sync --copy
+# Generated: {{ generated_at }}
+#
+# HOW TO USE:
+# 1. Copy this entire file content
+# 2. Paste at the start of your ChatGPT conversation
+# 3. Or add to ChatGPT Custom Instructions
+# 4. Or use in a ChatGPT GPT configuration
+{% endblock %}
+
+{% block ide_specific %}
+## ChatGPT Usage
+
+This file is designed for copy-paste into ChatGPT conversations.
+
+### Setup Options
+
+**Option 1: Paste at conversation start**
+Copy and paste as your first message in ChatGPT.
+
+**Option 2: Custom Instructions**
+1. Go to ChatGPT Settings → Personalization → Custom Instructions
+2. Add key sections to "How would you like ChatGPT to respond?"
+
+**Option 3: Create a GPT**
+1. Go to Explore GPTs → Create
+2. Add these instructions to the GPT configuration
+
+### Project Context
+
+When helping with this project:
+{% if current_state %}
+- **Project**: {{ current_state.project_name }} v{{ current_state.project_version }}
+- **Current Phase**: {{ current_state.phase.name }}
+- **Status**: {{ current_state.phase.status }}
+{% endif %}
+
+### Available Agents
+
+{% for agent in agents %}
+**{{ agent.name }}** (`{{ agent.id }}`): {{ agent.description }}
+{% endfor %}
+
+### Key Commands
+
+```bash
+paracle status          # Check project state
+paracle mcp list        # List available tools
+paracle ide sync        # Regenerate configurations
+```
+{% endblock %}

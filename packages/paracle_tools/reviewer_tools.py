@@ -25,7 +25,22 @@ class StaticAnalysisTool(BaseTool):
         super().__init__(
             name="static_analysis",
             description="Run static analysis with ruff, mypy, or pylint",
-            parameters={},
+            parameters={
+                "type": "object",
+                "properties": {
+                    "path": {
+                        "type": "string",
+                        "description": "File or directory to analyze",
+                    },
+                    "tool": {
+                        "type": "string",
+                        "description": "Analysis tool to use",
+                        "enum": ["ruff", "mypy", "pylint"],
+                        "default": "ruff",
+                    },
+                },
+                "required": ["path"],
+            },
         )
 
     async def _execute(self, path: str, tool: str = "ruff", **kwargs) -> dict[str, Any]:
@@ -84,7 +99,7 @@ class StaticAnalysisTool(BaseTool):
                 text=True,
             )
 
-            errors = result.stdout.strip().split('\n') if result.stdout.strip() else []
+            errors = result.stdout.strip().split("\n") if result.stdout.strip() else []
 
             return {
                 "tool": "mypy",
@@ -129,7 +144,7 @@ class StaticAnalysisTool(BaseTool):
     def _extract_pylint_score(self, output: str) -> float | None:
         """Extract score from pylint output."""
         # Pylint score typically in format: "Your code has been rated at X.XX/10"
-        for line in output.split('\n'):
+        for line in output.split("\n"):
             if "rated at" in line:
                 try:
                     score_str = line.split("rated at")[1].split("/")[0].strip()
@@ -152,10 +167,27 @@ class SecurityScanTool(BaseTool):
         super().__init__(
             name="security_scan",
             description="Scan for security vulnerabilities with bandit and safety",
-            parameters={},
+            parameters={
+                "type": "object",
+                "properties": {
+                    "path": {
+                        "type": "string",
+                        "description": "Path to scan for security issues",
+                    },
+                    "scan_type": {
+                        "type": "string",
+                        "description": "Type of security scan",
+                        "enum": ["code", "dependencies", "all"],
+                        "default": "code",
+                    },
+                },
+                "required": ["path"],
+            },
         )
 
-    async def _execute(self, path: str, scan_type: str = "code", **kwargs) -> dict[str, Any]:
+    async def _execute(
+        self, path: str, scan_type: str = "code", **kwargs
+    ) -> dict[str, Any]:
         """Perform security scan.
 
         Args:
@@ -228,8 +260,7 @@ class SecurityScanTool(BaseTool):
 
             if result.stdout:
                 scan_results = json.loads(result.stdout)
-                vulnerabilities = scan_results if isinstance(
-                    scan_results, list) else []
+                vulnerabilities = scan_results if isinstance(scan_results, list) else []
             else:
                 vulnerabilities = []
 
@@ -261,7 +292,16 @@ class CodeReviewTool(BaseTool):
         super().__init__(
             name="code_review",
             description="Review code quality and style",
-            parameters={},
+            parameters={
+                "type": "object",
+                "properties": {
+                    "path": {
+                        "type": "string",
+                        "description": "File or directory to review",
+                    },
+                },
+                "required": ["path"],
+            },
         )
 
     async def _execute(self, path: str, **kwargs) -> dict[str, Any]:
@@ -288,8 +328,9 @@ class CodeReviewTool(BaseTool):
                     results.append(file_result)
 
             # Aggregate scores
-            avg_score = sum(r.get("score", 0)
-                            for r in results) / len(results) if results else 0
+            avg_score = (
+                sum(r.get("score", 0) for r in results) / len(results) if results else 0
+            )
 
             return {
                 "path": str(file_path),
@@ -304,7 +345,7 @@ class CodeReviewTool(BaseTool):
         """Review a single file."""
         try:
             content = file_path.read_text(encoding="utf-8")
-            lines = content.split('\n')
+            lines = content.split("\n")
 
             issues = []
             score = 100
@@ -320,16 +361,17 @@ class CodeReviewTool(BaseTool):
                 score -= 15
 
             # Check for long lines (>100 chars)
-            long_lines = [i for i, line in enumerate(
-                lines, 1) if len(line) > 100]
+            long_lines = [i for i, line in enumerate(lines, 1) if len(line) > 100]
             if long_lines:
-                issues.append(
-                    f"Long lines (>100 chars): {len(long_lines)} lines")
+                issues.append(f"Long lines (>100 chars): {len(long_lines)} lines")
                 score -= min(10, len(long_lines))
 
             # Check for TODO/FIXME
-            todos = [i for i, line in enumerate(
-                lines, 1) if "TODO" in line or "FIXME" in line]
+            todos = [
+                i
+                for i, line in enumerate(lines, 1)
+                if "TODO" in line or "FIXME" in line
+            ]
             if todos:
                 issues.append(f"Unresolved TODOs: {len(todos)}")
                 score -= min(5, len(todos))
@@ -344,7 +386,7 @@ class CodeReviewTool(BaseTool):
                 "file": str(file_path),
                 "score": max(0, score),
                 "issues": issues,
-                "lines_of_code": len([l for l in lines if l.strip()]),
+                "lines_of_code": len([line for line in lines if line.strip()]),
             }
         except Exception as e:
             logger.error(f"Failed to review {file_path}: {e}")

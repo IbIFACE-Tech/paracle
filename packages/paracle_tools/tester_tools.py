@@ -24,10 +24,31 @@ class TestGenerationTool(BaseTool):
         super().__init__(
             name="test_generation",
             description="Generate test cases for code",
-            parameters={},
+            parameters={
+                "type": "object",
+                "properties": {
+                    "target": {
+                        "type": "string",
+                        "description": "Module, function, or class to generate tests for",
+                    },
+                    "test_type": {
+                        "type": "string",
+                        "description": "Type of test to generate",
+                        "enum": ["unit", "integration", "property", "parametrized"],
+                        "default": "unit",
+                    },
+                    "class_name": {
+                        "type": "string",
+                        "description": "Custom class name for the test class",
+                    },
+                },
+                "required": ["target"],
+            },
         )
 
-    async def _execute(self, target: str, test_type: str = "unit", **kwargs) -> dict[str, Any]:
+    async def _execute(
+        self, target: str, test_type: str = "unit", **kwargs
+    ) -> dict[str, Any]:
         """Generate tests for target.
 
         Args:
@@ -50,8 +71,9 @@ class TestGenerationTool(BaseTool):
 
     def _generate_unit_test(self, target: str, **kwargs) -> dict[str, Any]:
         """Generate unit test scaffold."""
-        class_name = kwargs.get("class_name", "".join(
-            x.title() for x in target.split("_")))
+        class_name = kwargs.get(
+            "class_name", "".join(x.title() for x in target.split("_"))
+        )
 
         code = f'''"""Unit tests for {target}."""
 
@@ -190,7 +212,9 @@ class TestProperties{target.title().replace("_", "")}:
             "code": code,
         }
 
-    def _generate_parametrized_test(self, target: str, cases: list = None, **kwargs) -> dict[str, Any]:
+    def _generate_parametrized_test(
+        self, target: str, cases: list = None, **kwargs
+    ) -> dict[str, Any]:
         """Generate parametrized test."""
         cases_str = cases or [
             "('input1', 'expected1')",
@@ -241,10 +265,30 @@ class TestExecutionTool(BaseTool):
         super().__init__(
             name="test_execution",
             description="Execute pytest tests with options",
-            parameters={},
+            parameters={
+                "type": "object",
+                "properties": {
+                    "path": {
+                        "type": "string",
+                        "description": "Path to test file or directory (optional)",
+                    },
+                    "markers": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "Test markers to filter (e.g., unit, integration)",
+                    },
+                    "parallel": {
+                        "type": "boolean",
+                        "description": "Run tests in parallel with pytest-xdist",
+                        "default": False,
+                    },
+                },
+            },
         )
 
-    async def _execute(self, path: str = None, markers: list = None, parallel: bool = False, **kwargs) -> dict[str, Any]:
+    async def _execute(
+        self, path: str = None, markers: list = None, parallel: bool = False, **kwargs
+    ) -> dict[str, Any]:
         """Execute tests.
 
         Args:
@@ -266,11 +310,13 @@ class TestExecutionTool(BaseTool):
         if parallel:
             cmd.extend(["-n", "auto"])
 
-        cmd.extend([
-            "-v",
-            "--tb=short",
-            "--junit-xml=test-results.xml",
-        ])
+        cmd.extend(
+            [
+                "-v",
+                "--tb=short",
+                "--junit-xml=test-results.xml",
+            ]
+        )
 
         try:
             result = subprocess.run(
@@ -306,8 +352,7 @@ class TestExecutionTool(BaseTool):
             tree = ET.parse(xml_path)
             root = tree.getroot()
 
-            testsuite = root if root.tag == "testsuite" else root.find(
-                "testsuite")
+            testsuite = root if root.tag == "testsuite" else root.find("testsuite")
             if testsuite is None:
                 return {"error": "Invalid JUnit XML format"}
 
@@ -338,10 +383,26 @@ class CoverageAnalysisTool(BaseTool):
         super().__init__(
             name="coverage_analysis",
             description="Analyze test coverage with pytest-cov",
-            parameters={},
+            parameters={
+                "type": "object",
+                "properties": {
+                    "path": {
+                        "type": "string",
+                        "description": "Path to test file or directory (optional)",
+                    },
+                    "report_type": {
+                        "type": "string",
+                        "description": "Coverage report format",
+                        "enum": ["terminal", "html", "json", "xml"],
+                        "default": "terminal",
+                    },
+                },
+            },
         )
 
-    async def _execute(self, path: str = None, report_type: str = "terminal", **kwargs) -> dict[str, Any]:
+    async def _execute(
+        self, path: str = None, report_type: str = "terminal", **kwargs
+    ) -> dict[str, Any]:
         """Analyze test coverage.
 
         Args:
@@ -390,17 +451,19 @@ class CoverageAnalysisTool(BaseTool):
 
     def _parse_coverage_output(self, output: str) -> dict[str, Any]:
         """Parse coverage percentage from output."""
-        lines = output.split('\n')
+        lines = output.split("\n")
 
         for line in lines:
             if "TOTAL" in line:
                 parts = line.split()
                 if len(parts) >= 4:
                     try:
-                        coverage_pct = parts[-1].rstrip('%')
+                        coverage_pct = parts[-1].rstrip("%")
                         return {
                             "total_coverage": float(coverage_pct),
-                            "status": "good" if float(coverage_pct) >= 80 else "needs_improvement",
+                            "status": "good"
+                            if float(coverage_pct) >= 80
+                            else "needs_improvement",
                         }
                     except ValueError:
                         pass

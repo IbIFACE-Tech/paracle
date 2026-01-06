@@ -61,33 +61,93 @@ class AgentCompiler:
     # Handoff definitions for multi-agent collaboration
     AGENT_HANDOFFS = {
         "architect": [
-            {"label": "Implement", "agent": "coder", "prompt": "Implement the architecture design according to specifications."},
-            {"label": "Review", "agent": "reviewer", "prompt": "Review the architectural decision for correctness."},
+            {
+                "label": "Implement",
+                "agent": "coder",
+                "prompt": "Implement the architecture design according to specifications.",
+            },
+            {
+                "label": "Review",
+                "agent": "reviewer",
+                "prompt": "Review the architectural decision for correctness.",
+            },
         ],
         "coder": [
-            {"label": "Review", "agent": "reviewer", "prompt": "Review the implementation for quality and security."},
-            {"label": "Test", "agent": "tester", "prompt": "Create comprehensive tests for this implementation."},
-            {"label": "Document", "agent": "documenter", "prompt": "Document this implementation."},
+            {
+                "label": "Review",
+                "agent": "reviewer",
+                "prompt": "Review the implementation for quality and security.",
+            },
+            {
+                "label": "Test",
+                "agent": "tester",
+                "prompt": "Create comprehensive tests for this implementation.",
+            },
+            {
+                "label": "Document",
+                "agent": "documenter",
+                "prompt": "Document this implementation.",
+            },
         ],
         "reviewer": [
-            {"label": "Fix Issues", "agent": "coder", "prompt": "Fix the issues identified in the review."},
-            {"label": "Add Tests", "agent": "tester", "prompt": "Add tests to cover the reviewed scenarios."},
+            {
+                "label": "Fix Issues",
+                "agent": "coder",
+                "prompt": "Fix the issues identified in the review.",
+            },
+            {
+                "label": "Add Tests",
+                "agent": "tester",
+                "prompt": "Add tests to cover the reviewed scenarios.",
+            },
         ],
         "tester": [
-            {"label": "Fix Failures", "agent": "coder", "prompt": "Fix the failing tests."},
-            {"label": "Review Coverage", "agent": "reviewer", "prompt": "Review the test coverage."},
+            {
+                "label": "Fix Failures",
+                "agent": "coder",
+                "prompt": "Fix the failing tests.",
+            },
+            {
+                "label": "Review Coverage",
+                "agent": "reviewer",
+                "prompt": "Review the test coverage.",
+            },
         ],
         "pm": [
-            {"label": "Design", "agent": "architect", "prompt": "Design the architecture for this task."},
-            {"label": "Implement", "agent": "coder", "prompt": "Implement this planned feature."},
+            {
+                "label": "Design",
+                "agent": "architect",
+                "prompt": "Design the architecture for this task.",
+            },
+            {
+                "label": "Implement",
+                "agent": "coder",
+                "prompt": "Implement this planned feature.",
+            },
         ],
         "documenter": [
-            {"label": "Clarify Code", "agent": "coder", "prompt": "Clarify the code for documentation purposes."},
-            {"label": "Review Docs", "agent": "reviewer", "prompt": "Review the documentation for accuracy."},
+            {
+                "label": "Clarify Code",
+                "agent": "coder",
+                "prompt": "Clarify the code for documentation purposes.",
+            },
+            {
+                "label": "Review Docs",
+                "agent": "reviewer",
+                "prompt": "Review the documentation for accuracy.",
+            },
         ],
         "releasemanager": [
-            {"label": "Review Changes", "agent": "reviewer", "prompt": "Review the changes before release."},
-            {"label": "Run Tests", "agent": "tester", "prompt": "Run full test suite before release."},
+            {
+                "label": "Review Changes",
+                "agent": "reviewer",
+                "prompt": "Review the changes before release.",
+            },
+            {
+                "label": "Run Tests",
+                "agent": "tester",
+                "prompt": "Run full test suite before release.",
+            },
         ],
     }
 
@@ -242,37 +302,111 @@ class AgentCompiler:
         return workflows
 
     def _load_custom_tools(self) -> list[dict]:
-        """Load custom tools from registry.
+        """Load custom tools from registry and .parac/tools/custom/ directory.
+
+        Scans both:
+        - .parac/tools/registry.yaml (custom section)
+        - .parac/tools/custom/*.py (Python files with DESCRIPTION/PARAMETERS)
 
         Returns:
             List of custom tool definitions
         """
-        if not self.tools_registry.exists():
-            return []
+        tools = []
 
-        with open(self.tools_registry, encoding="utf-8") as f:
-            registry = yaml.safe_load(f)
+        # Load from registry.yaml
+        if self.tools_registry.exists():
+            with open(self.tools_registry, encoding="utf-8") as f:
+                registry = yaml.safe_load(f)
+            if registry and registry.get("custom"):
+                tools.extend(registry["custom"])
 
-        return registry.get("custom", []) if registry else []
+        # Scan .parac/tools/custom/ for Python tools
+        custom_dir = self.parac_root / "tools" / "custom"
+        if custom_dir.exists():
+            for py_file in custom_dir.glob("*.py"):
+                if py_file.name.startswith("_"):
+                    continue
+
+                tool_name = py_file.stem
+                # Skip if already in registry
+                if any(t.get("name") == tool_name for t in tools):
+                    continue
+
+                # Try to extract metadata from Python file
+                description = f"Custom tool: {tool_name}"
+                try:
+                    content = py_file.read_text(encoding="utf-8")
+                    # Extract DESCRIPTION
+                    import re
+
+                    desc_match = re.search(
+                        r'^DESCRIPTION\s*=\s*["\'](.+?)["\']', content, re.MULTILINE
+                    )
+                    if desc_match:
+                        description = desc_match.group(1)
+                except Exception:
+                    pass
+
+                tools.append(
+                    {
+                        "name": tool_name,
+                        "description": description,
+                        "file": str(py_file.relative_to(self.parac_root)),
+                    }
+                )
+
+        return tools
 
     def _load_external_mcp_servers(self) -> list[dict]:
         """Load external MCP server configurations.
 
+        Checks multiple config files in order:
+        - .parac/tools/mcp/mcp.yaml (preferred)
+        - .parac/tools/mcp/mcp.json
+        - .parac/tools/mcp/servers.yaml (legacy)
+
         Returns:
             List of MCP server definitions
         """
-        if not self.mcp_servers_config.exists():
+        mcp_dir = self.parac_root / "tools" / "mcp"
+        if not mcp_dir.exists():
             return []
 
-        with open(self.mcp_servers_config, encoding="utf-8") as f:
-            config = yaml.safe_load(f)
+        # Try loading from multiple config files
+        config_files = [
+            mcp_dir / "mcp.yaml",
+            mcp_dir / "mcp.json",
+            mcp_dir / "servers.yaml",  # Legacy fallback
+        ]
+
+        servers_config = []
+        for config_file in config_files:
+            if config_file.exists():
+                with open(config_file, encoding="utf-8") as f:
+                    if config_file.suffix == ".json":
+                        config = json.load(f)
+                    else:
+                        config = yaml.safe_load(f) or {}
+
+                    # Handle different config formats
+                    if "servers" in config:
+                        servers_config = config["servers"]
+                    elif "mcpServers" in config:
+                        # VS Code format: convert to list
+                        for name, srv_config in config["mcpServers"].items():
+                            srv_config["id"] = name
+                            srv_config["name"] = name
+                            servers_config.append(srv_config)
+                    break
 
         servers = []
-        for server in config.get("servers", []):
+        for server in servers_config:
             if server.get("enabled", True):
                 servers.append(
                     {
-                        "prefix": server.get("id", server.get("name", "")),
+                        "prefix": server.get(
+                            "tools_prefix", server.get("id", server.get("name", ""))
+                        ),
                         "name": server.get("name", ""),
                         "description": server.get("description", ""),
                     }
@@ -307,7 +441,9 @@ class AgentCompiler:
                     for tool_name in agent.get("tools", []):
                         if not any(t.name == tool_name for t in tools):
                             tools.append(
-                                ToolInfo(name=tool_name, description=f"{tool_name} tool")
+                                ToolInfo(
+                                    name=tool_name, description=f"{tool_name} tool"
+                                )
                             )
 
         return tools
@@ -469,6 +605,87 @@ class AgentCompiler:
 
         return template.render(agents=agents, all_tools=all_tools)
 
+    def compile_for_zed(self) -> str:
+        """Generate ai_rules.json for Zed.
+
+        Returns:
+            Generated Zed AI rules content
+        """
+        agents = self.load_agents()
+        all_tools = self._get_all_tools_info()
+
+        if not self.jinja_env:
+            logger.error("Jinja2 environment not initialized")
+            return ""
+
+        try:
+            template = self.jinja_env.get_template("zed.jinja2")
+        except TemplateNotFound:
+            logger.error("Zed template not found")
+            return ""
+
+        from datetime import datetime
+
+        return template.render(
+            agents=agents,
+            all_tools=all_tools,
+            generated_at=datetime.now().isoformat(),
+        )
+
+    def compile_for_warp(self) -> str:
+        """Generate ai-rules.yaml for Warp Terminal.
+
+        Returns:
+            Generated Warp AI rules content
+        """
+        agents = self.load_agents()
+        all_tools = self._get_all_tools_info()
+
+        if not self.jinja_env:
+            logger.error("Jinja2 environment not initialized")
+            return ""
+
+        try:
+            template = self.jinja_env.get_template("warp.jinja2")
+        except TemplateNotFound:
+            logger.error("Warp template not found")
+            return ""
+
+        from datetime import datetime
+
+        return template.render(
+            agents=agents,
+            all_tools=all_tools,
+            generated_at=datetime.now().isoformat(),
+        )
+
+    def compile_for_gemini(self) -> str:
+        """Generate instructions.md for Gemini CLI.
+
+        Returns:
+            Generated Gemini instructions content
+        """
+        agents = self.load_agents()
+        all_tools = self._get_all_tools_info()
+
+        if not self.jinja_env:
+            logger.error("Jinja2 environment not initialized")
+            return ""
+
+        try:
+            template = self.jinja_env.get_template("gemini.jinja2")
+        except TemplateNotFound:
+            logger.error("Gemini template not found")
+            return ""
+
+        from datetime import datetime
+
+        return template.render(
+            agents=agents,
+            all_tools=all_tools,
+            generated_at=datetime.now().isoformat(),
+        )
+
     def compile_vscode_tasks(self) -> dict:
         """Generate VS Code tasks.json with Paracle workflow tasks.
 
@@ -488,10 +705,7 @@ class AgentCompiler:
                     "command": "paracle mcp serve --stdio",
                     "problemMatcher": [],
                     "group": "none",
-                    "presentation": {
-                        "reveal": "always",
-                        "panel": "new"
-                    }
+                    "presentation": {"reveal": "always", "panel": "new"},
                 },
                 # Agent commands
                 {
@@ -499,14 +713,14 @@ class AgentCompiler:
                     "type": "shell",
                     "command": "paracle agents list",
                     "problemMatcher": [],
-                    "group": "none"
+                    "group": "none",
                 },
                 {
                     "label": "Paracle: Run Agent",
                     "type": "shell",
-                    "command": "paracle agents run ${input:agentId} --task \"${input:agentTask}\"",
+                    "command": 'paracle agents run ${input:agentId} --task "${input:agentTask}"',
                     "problemMatcher": [],
-                    "group": "none"
+                    "group": "none",
                 },
                 # Workflow commands
                 {
@@ -514,14 +728,14 @@ class AgentCompiler:
                     "type": "shell",
                     "command": "paracle workflows list",
                     "problemMatcher": [],
-                    "group": "none"
+                    "group": "none",
                 },
                 {
                     "label": "Paracle: Run Workflow",
                     "type": "shell",
                     "command": "paracle workflows run ${input:workflowId}",
                     "problemMatcher": [],
-                    "group": "none"
+                    "group": "none",
                 },
                 # Common workflow shortcuts
                 {
@@ -529,21 +743,21 @@ class AgentCompiler:
                     "type": "shell",
                     "command": "paracle workflows run code_review",
                     "problemMatcher": [],
-                    "group": "test"
+                    "group": "test",
                 },
                 {
                     "label": "Paracle: Feature Development Workflow",
                     "type": "shell",
                     "command": "paracle workflows run feature_development",
                     "problemMatcher": [],
-                    "group": "build"
+                    "group": "build",
                 },
                 {
                     "label": "Paracle: Bugfix Workflow",
                     "type": "shell",
                     "command": "paracle workflows run bugfix",
                     "problemMatcher": [],
-                    "group": "build"
+                    "group": "build",
                 },
                 # IDE sync
                 {
@@ -551,14 +765,14 @@ class AgentCompiler:
                     "type": "shell",
                     "command": "paracle ide build --target all --copy",
                     "problemMatcher": [],
-                    "group": "build"
+                    "group": "build",
                 },
                 {
                     "label": "Paracle: IDE Sync",
                     "type": "shell",
                     "command": "paracle ide sync --copy",
                     "problemMatcher": [],
-                    "group": "build"
+                    "group": "build",
                 },
             ],
             "inputs": [
@@ -566,21 +780,21 @@ class AgentCompiler:
                     "id": "agentId",
                     "description": "Select an agent to run",
                     "type": "pickString",
-                    "options": [agent.id for agent in agents]
+                    "options": [agent.id for agent in agents],
                 },
                 {
                     "id": "agentTask",
                     "description": "Describe the task for the agent",
                     "type": "promptString",
-                    "default": ""
+                    "default": "",
                 },
                 {
                     "id": "workflowId",
                     "description": "Select a workflow to run",
                     "type": "pickString",
-                    "options": workflows
-                }
-            ]
+                    "options": workflows,
+                },
+            ],
         }
 
         return tasks
@@ -606,9 +820,6 @@ class AgentCompiler:
         Returns:
             Dict representing mcp.json content
         """
-        # Load external MCP servers
-        external_mcp = self._load_external_mcp_servers()
-
         # Production: use 'paracle' directly (installed globally)
         # Development: use 'uv run paracle' (project venv)
         if dev_mode:
@@ -617,7 +828,7 @@ class AgentCompiler:
                     "paracle": {
                         "type": "stdio",
                         "command": "uv",
-                        "args": ["run", "paracle", "mcp", "serve", "--stdio"]
+                        "args": ["run", "paracle", "mcp", "serve", "--stdio"],
                     }
                 }
             }
@@ -627,29 +838,15 @@ class AgentCompiler:
                     "paracle": {
                         "type": "stdio",
                         "command": "paracle",
-                        "args": ["mcp", "serve", "--stdio"]
+                        "args": ["mcp", "serve", "--stdio"],
                     }
                 }
             }
 
-        # Add external MCP servers if configured
-        for server in external_mcp:
-            server_id = server.get("prefix", "")
-            if server_id and server_id != "paracle":
-                # Read full server config from mcp servers.yaml
-                if self.mcp_servers_config.exists():
-                    with open(self.mcp_servers_config, encoding="utf-8") as f:
-                        config = yaml.safe_load(f)
-                    for srv in config.get("servers", []):
-                        if srv.get("id") == server_id and srv.get("enabled", True):
-                            mcp_config["servers"][server_id] = {
-                                "type": "stdio",
-                                "command": srv.get("command", ""),
-                                "args": srv.get("args", [])
-                            }
-                            if srv.get("env"):
-                                mcp_config["servers"][server_id]["env"] = srv["env"]
-                            break
+        # External MCP servers from .parac/tools/mcp/ are accessed through
+        # the Paracle MCP server (which proxies calls to them), so we don't
+        # duplicate them here. This keeps .parac/tools/mcp/mcp.json as the
+        # single source of truth.
 
         return mcp_config
 
@@ -657,7 +854,8 @@ class AgentCompiler:
         """Build for target IDE(s).
 
         Args:
-            target: IDE target (vscode, claude, cursor, windsurf, codex, all)
+            target: IDE target (vscode, claude, cursor, windsurf, codex,
+                    zed, warp, gemini, all)
             output_dir: Optional custom output directory
 
         Returns:
@@ -666,11 +864,17 @@ class AgentCompiler:
         if output_dir is None:
             output_dir = self.agents_output
 
-        targets = (
-            ["vscode", "claude", "cursor", "windsurf", "codex"]
-            if target == "all"
-            else [target]
-        )
+        all_targets = [
+            "vscode",
+            "claude",
+            "cursor",
+            "windsurf",
+            "codex",
+            "zed",
+            "warp",
+            "gemini",
+        ]
+        targets = all_targets if target == "all" else [target]
         result: dict[str, Any] = {"files": [], "output_dir": str(output_dir)}
 
         for t in targets:
@@ -700,6 +904,12 @@ class AgentCompiler:
             files.extend(self._build_windsurf())
         elif target == "codex":
             files.extend(self._build_codex(output_dir))
+        elif target == "zed":
+            files.extend(self._build_zed(output_dir))
+        elif target == "warp":
+            files.extend(self._build_warp(output_dir))
+        elif target == "gemini":
+            files.extend(self._build_gemini(output_dir))
 
         return files
 
@@ -781,11 +991,48 @@ class AgentCompiler:
             files.append(str(file_path))
         return files
 
+    def _build_zed(self, output_dir: Path) -> list[str]:
+        """Build Zed AI rules file."""
+        files: list[str] = []
+        content = self.compile_for_zed()
+        if content:
+            zed_dir = output_dir / "zed"
+            zed_dir.mkdir(parents=True, exist_ok=True)
+            file_path = zed_dir / "ai_rules.md"
+            file_path.write_text(content, encoding="utf-8")
+            files.append(str(file_path))
+        return files
+
+    def _build_warp(self, output_dir: Path) -> list[str]:
+        """Build Warp AI rules file."""
+        files: list[str] = []
+        content = self.compile_for_warp()
+        if content:
+            warp_dir = output_dir / "warp"
+            warp_dir.mkdir(parents=True, exist_ok=True)
+            file_path = warp_dir / "ai-rules.yaml"
+            file_path.write_text(content, encoding="utf-8")
+            files.append(str(file_path))
+        return files
+
+    def _build_gemini(self, output_dir: Path) -> list[str]:
+        """Build Gemini CLI instructions file."""
+        files: list[str] = []
+        content = self.compile_for_gemini()
+        if content:
+            gemini_dir = output_dir / "gemini"
+            gemini_dir.mkdir(parents=True, exist_ok=True)
+            file_path = gemini_dir / "instructions.md"
+            file_path.write_text(content, encoding="utf-8")
+            files.append(str(file_path))
+        return files
+
     def copy_to_destinations(self, target: str) -> list[Path]:
         """Copy generated files to expected IDE locations.
 
         Args:
-            target: IDE target (vscode, claude, cursor, windsurf, codex, all)
+            target: IDE target (vscode, claude, cursor, windsurf, codex,
+                    zed, warp, gemini, all)
 
         Returns:
             List of destination paths
@@ -793,11 +1040,17 @@ class AgentCompiler:
         copied = []
         project_root = self.parac_root.parent
 
-        targets = (
-            ["vscode", "claude", "cursor", "windsurf", "codex"]
-            if target == "all"
-            else [target]
-        )
+        all_targets = [
+            "vscode",
+            "claude",
+            "cursor",
+            "windsurf",
+            "codex",
+            "zed",
+            "warp",
+            "gemini",
+        ]
+        targets = all_targets if target == "all" else [target]
 
         for t in targets:
             if t == "vscode":
@@ -862,6 +1115,33 @@ class AgentCompiler:
                 src = self.agents_output / "codex" / "AGENTS.md"
                 if src.exists():
                     dest = project_root / "AGENTS.md"
+                    shutil.copy2(src, dest)
+                    copied.append(dest)
+
+            elif t == "zed":
+                src = self.agents_output / "zed" / "ai_rules.md"
+                if src.exists():
+                    dest_dir = project_root / ".zed"
+                    dest_dir.mkdir(parents=True, exist_ok=True)
+                    dest = dest_dir / "ai_rules.md"
+                    shutil.copy2(src, dest)
+                    copied.append(dest)
+
+            elif t == "warp":
+                src = self.agents_output / "warp" / "ai-rules.yaml"
+                if src.exists():
+                    dest_dir = project_root / ".warp"
+                    dest_dir.mkdir(parents=True, exist_ok=True)
+                    dest = dest_dir / "ai-rules.yaml"
+                    shutil.copy2(src, dest)
+                    copied.append(dest)
+
+            elif t == "gemini":
+                src = self.agents_output / "gemini" / "instructions.md"
+                if src.exists():
+                    dest_dir = project_root / ".gemini"
+                    dest_dir.mkdir(parents=True, exist_ok=True)
+                    dest = dest_dir / "instructions.md"
                     shutil.copy2(src, dest)
                     copied.append(dest)
 

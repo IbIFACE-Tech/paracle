@@ -261,13 +261,36 @@ class RoadmapStateSynchronizer:
                 )
 
     def _save_state(self, state: dict[str, Any], result: RoadmapSyncResult) -> None:
-        """Save updated state."""
+        """Save updated state to current_state.yaml with file locking."""
+        from filelock import FileLock
+        from filelock import Timeout as FileLockTimeout
+
+        lock_file = self.state_path.with_suffix(".yaml.lock")
+        temp_file = self.state_path.with_suffix(".yaml.tmp")
+
         try:
-            with open(self.state_path, "w", encoding="utf-8") as f:
-                yaml.dump(state, f, default_flow_style=False, sort_keys=False)
-            result.add_change("Saved updated current_state.yaml")
+            with FileLock(str(lock_file), timeout=10.0):
+                # Atomic write: temp file + rename
+                with open(temp_file, "w", encoding="utf-8") as f:
+                    yaml.dump(
+                        state,
+                        f,
+                        default_flow_style=False,
+                        allow_unicode=True,
+                        sort_keys=False,
+                    )
+                temp_file.replace(self.state_path)
+            result.add_change("Updated current_state.yaml (with file locking)")
+        except FileLockTimeout:
+            result.add_error("Failed to acquire lock for state file (timeout)")
         except Exception as e:
             result.add_error(f"Failed to save state: {e}")
+            # Clean up temp file on error
+            if temp_file.exists():
+                try:
+                    temp_file.unlink()
+                except OSError:
+                    pass
 
 
 def sync_roadmap_and_state(

@@ -17,8 +17,18 @@ from paracle_tools import (
     diagram_generation,
     # Git tools (shared by coder and releasemanager)
     git_add,
+    git_branch,
+    git_checkout,
     git_commit,
+    git_diff,
+    git_fetch,
+    git_log,
+    git_merge,
+    git_pull,
     git_push,
+    git_remote,
+    git_reset,
+    git_stash,
     git_status,
     git_tag,
     # Documenter tools
@@ -33,6 +43,11 @@ from paracle_tools import (
     # PM tools
     task_tracking,
     team_coordination,
+    # Terminal tools (for IDE agents)
+    terminal_execute,
+    terminal_info,
+    terminal_interactive,
+    terminal_which,
     test_execution,
     # Tester tools
     test_generation,
@@ -76,6 +91,15 @@ class AgentToolRegistry:
                 "git_status": git_status,
                 "git_push": git_push,
                 "git_tag": git_tag,
+                "git_branch": git_branch,
+                "git_checkout": git_checkout,
+                "git_diff": git_diff,
+                "git_log": git_log,
+                "git_stash": git_stash,
+                # Terminal access for running builds, tests, etc.
+                "terminal_execute": terminal_execute,
+                "terminal_info": terminal_info,
+                "terminal_which": terminal_which,
             },
             "reviewer": {
                 "static_analysis": static_analysis,
@@ -86,6 +110,10 @@ class AgentToolRegistry:
                 "test_generation": test_generation,
                 "test_execution": test_execution,
                 "coverage_analysis": coverage_analysis,
+                # Terminal access for running test commands
+                "terminal_execute": terminal_execute,
+                "terminal_info": terminal_info,
+                "terminal_which": terminal_which,
             },
             "pm": {
                 "task_tracking": task_tracking,
@@ -98,15 +126,43 @@ class AgentToolRegistry:
                 "diagram_creation": diagram_creation,
             },
             "releasemanager": {
+                # Basic git operations
                 "git_add": git_add,
                 "git_commit": git_commit,
                 "git_status": git_status,
                 "git_push": git_push,
                 "git_tag": git_tag,
+                # Branch management
+                "git_branch": git_branch,
+                "git_checkout": git_checkout,
+                "git_merge": git_merge,
+                "git_pull": git_pull,
+                # History and diffs
+                "git_log": git_log,
+                "git_diff": git_diff,
+                # Stashing and reset
+                "git_stash": git_stash,
+                "git_reset": git_reset,
+                # Remote operations
+                "git_fetch": git_fetch,
+                "git_remote": git_remote,
+                # Release management
                 "version_management": version_management,
                 "changelog_generation": changelog_generation,
                 "cicd_integration": cicd_integration,
                 "package_publishing": package_publishing,
+                # Terminal access
+                "terminal_execute": terminal_execute,
+                "terminal_info": terminal_info,
+                "terminal_which": terminal_which,
+                "terminal_interactive": terminal_interactive,
+            },
+            # All agents have access to terminal tools for IDE integration
+            "terminal": {
+                "terminal_execute": terminal_execute,
+                "terminal_interactive": terminal_interactive,
+                "terminal_info": terminal_info,
+                "terminal_which": terminal_which,
             },
         }
 

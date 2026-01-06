@@ -122,7 +122,7 @@ cost:
   tracking:
     enabled: true # Enable cost tracking
     persist_to_db: true # Persist cost records to database
-    db_path: memory/data/costs.db # Path to cost database (relative to .parac/)
+    db_path: memory/data/costs.db # Path relative to .parac/ (can be absolute or relative)
     retention_days: 90 # Days to retain cost records
 
   # Budget Configuration
@@ -192,36 +192,35 @@ cost:
 # Comprehensive configuration for logs, ADRs, and roadmaps
 # All paths are relative to .parac/ unless otherwise specified
 file_management:
-
   # ===========================================================================
   # LOG FILES CONFIGURATION
   # ===========================================================================
   logs:
-    base_path: memory/logs  # Relative to .parac/
+    base_path: memory/logs # Relative to .parac/
 
     # Global log settings
     global:
       # Line/entry limits
-      max_line_length: 2000          # Max characters per log line (truncate if exceeded)
-      max_message_length: 1000       # Max characters for message field
-      max_description_length: 500    # Max characters for description field
-      max_file_size_mb: 100          # Max log file size before rotation (MB)
-      max_total_size_mb: 1000        # Max total size of all logs (MB)
+      max_line_length: 2000 # Max characters per log line (truncate if exceeded)
+      max_message_length: 1000 # Max characters for message field
+      max_description_length: 500 # Max characters for description field
+      max_file_size_mb: 100 # Max log file size before rotation (MB)
+      max_total_size_mb: 1000 # Max total size of all logs (MB)
 
       # Timestamp settings
-      timestamp_format: "%Y-%m-%d %H:%M:%S"  # ISO 8601 compatible
-      timezone: UTC                  # UTC, local, or specific timezone
+      timestamp_format: "%Y-%m-%d %H:%M:%S" # ISO 8601 compatible
+      timezone: UTC # UTC, local, or specific timezone
 
       # Rotation settings (defaults for all logs)
-      default_rotation: none         # none, daily, weekly, monthly, size
-      default_retention_days: null   # null = permanent, number = days to keep
-      compress_rotated: true         # Compress rotated log files (.gz)
-      backup_count: 10               # Number of rotated files to keep
+      default_rotation: none # none, daily, weekly, monthly, size
+      default_retention_days: null # null = permanent, number = days to keep
+      compress_rotated: true # Compress rotated log files (.gz)
+      backup_count: 10 # Number of rotated files to keep
 
       # Performance
-      buffer_size: 8192              # Write buffer size in bytes
-      flush_interval_seconds: 5      # Auto-flush interval (0 = immediate)
-      async_logging: true            # Use async writes for performance
+      buffer_size: 8192 # Write buffer size in bytes
+      flush_interval_seconds: 5 # Auto-flush interval (0 = immediate)
+      async_logging: true # Use async writes for performance
 
     # Pre-defined log categories
     predefined:
@@ -231,11 +230,11 @@ file_management:
         format: "[{timestamp}] [{agent}] [{action}] {description}"
         description: "Agent actions and activities"
         # Limits
-        max_entries: null            # null = unlimited, number = max entries
-        max_file_size_mb: 50         # Override global setting
+        max_entries: null # null = unlimited, number = max entries
+        max_file_size_mb: 50 # Override global setting
         # Rotation
-        rotation: none               # Governance logs are versioned in git
-        retention_days: null         # Permanent
+        rotation: none # Governance logs are versioned in git
+        retention_days: null # Permanent
         # Fields
         required_fields: [timestamp, agent, action, description]
         optional_fields: [details, context, duration_ms]
@@ -247,24 +246,24 @@ file_management:
         description: "Important decisions made by agents"
         max_file_size_mb: 20
         rotation: none
-        retention_days: null         # Permanent - decisions are historical record
+        retention_days: null # Permanent - decisions are historical record
         required_fields: [timestamp, agent, decision]
         optional_fields: [rationale, impact, alternatives, references]
 
       security:
         enabled: false
         path: security/security.log
-        format: structured_json      # JSON format for security analysis
+        format: structured_json # JSON format for security analysis
         description: "Security events and audit trail"
         max_file_size_mb: 100
         rotation: daily
-        retention_days: 365          # 1 year for compliance
+        retention_days: 365 # 1 year for compliance
         compress_rotated: true
         required_fields: [timestamp, level, event_type, actor]
         optional_fields: [resource, action, outcome, ip_address, user_agent]
         # Security-specific settings
-        include_stack_trace: false   # Include stack traces in errors
-        redact_sensitive: true       # Auto-redact PII/secrets
+        include_stack_trace: false # Include stack traces in errors
+        redact_sensitive: true # Auto-redact PII/secrets
 
       performance:
         enabled: false
@@ -278,8 +277,8 @@ file_management:
         required_fields: [timestamp, metric_name, value]
         optional_fields: [unit, tags, percentiles, histogram]
         # Performance-specific settings
-        sample_rate: 1.0             # 1.0 = 100%, 0.1 = 10% sampling
-        include_percentiles: true    # Calculate p50, p95, p99
+        sample_rate: 1.0 # 1.0 = 100%, 0.1 = 10% sampling
+        include_percentiles: true # Calculate p50, p95, p99
 
       risk:
         enabled: false
@@ -292,7 +291,7 @@ file_management:
         required_fields: [timestamp, level, message]
         optional_fields: [category, severity, mitigation, owner]
         # Risk levels: INFO, LOW, MEDIUM, HIGH, CRITICAL
-        min_level: LOW               # Minimum level to log
+        min_level: LOW # Minimum level to log
 
       errors:
         enabled: true
@@ -327,31 +326,31 @@ file_management:
   # ADR (ARCHITECTURE DECISION RECORDS) CONFIGURATION
   # ===========================================================================
   adr:
-    base_path: roadmap/adr           # Relative to .parac/
+    base_path: roadmap/adr # Relative to .parac/
     enabled: true
-    format: markdown                 # markdown or yaml
+    format: markdown # markdown or yaml
 
     # File settings
-    index_file: index.md             # Summary/index of all ADRs
-    file_extension: .md              # .md or .yaml
+    index_file: index.md # Summary/index of all ADRs
+    file_extension: .md # .md or .yaml
     encoding: utf-8
 
     # Content limits
     limits:
-      max_title_length: 200          # Max characters for title
-      max_context_length: 5000       # Max characters for context section
-      max_decision_length: 3000      # Max characters for decision section
-      max_consequences_length: 3000  # Max characters for consequences
+      max_title_length: 200 # Max characters for title
+      max_context_length: 5000 # Max characters for context section
+      max_decision_length: 3000 # Max characters for decision section
+      max_consequences_length: 3000 # Max characters for consequences
       max_implementation_length: 5000 # Max characters for implementation
-      max_related_length: 1000       # Max characters for related decisions
-      max_total_length: 20000        # Max total ADR file size in characters
-      max_adrs: null                 # null = unlimited, number = max ADRs
+      max_related_length: 1000 # Max characters for related decisions
+      max_total_length: 20000 # Max total ADR file size in characters
+      max_adrs: null # null = unlimited, number = max ADRs
 
     # Auto-numbering configuration
     auto_number: true
-    number_format: "ADR-{:03d}"      # ADR-001, ADR-002, etc.
-    number_start: 1                  # Starting number for new projects
-    number_padding: 3                # Zero-padding width (3 = 001, 4 = 0001)
+    number_format: "ADR-{:03d}" # ADR-001, ADR-002, etc.
+    number_start: 1 # Starting number for new projects
+    number_padding: 3 # Zero-padding width (3 = 001, 4 = 0001)
 
     # Status management
     statuses:
@@ -438,24 +437,24 @@ file_management:
       *Last updated: {last_updated}*
 
     # Migration settings
-    legacy_file: roadmap/decisions.md  # Original single-file location
-    migrate_on_init: false           # Auto-migrate on initialization
-    backup_before_migrate: true      # Create backup before migration
+    legacy_file: roadmap/decisions.md # Original single-file location
+    migrate_on_init: false # Auto-migrate on initialization
+    backup_before_migrate: true # Create backup before migration
 
     # Validation
     validation:
-      require_context: true          # Context section required
-      require_decision: true         # Decision section required
-      require_consequences: true     # Consequences section required
-      require_deciders: false        # Deciders field required
-      validate_links: true           # Validate related ADR links exist
-      warn_empty_sections: true      # Warn on empty optional sections
+      require_context: true # Context section required
+      require_decision: true # Decision section required
+      require_consequences: true # Consequences section required
+      require_deciders: false # Deciders field required
+      validate_links: true # Validate related ADR links exist
+      warn_empty_sections: true # Warn on empty optional sections
 
   # ===========================================================================
   # ROADMAP CONFIGURATION
   # ===========================================================================
   roadmap:
-    base_path: roadmap               # Relative to .parac/
+    base_path: roadmap # Relative to .parac/
 
     # Primary roadmap (required)
     primary: roadmap.yaml
@@ -463,12 +462,12 @@ file_management:
 
     # Content limits
     limits:
-      max_phase_name_length: 100     # Max characters for phase name
-      max_phase_description_length: 2000  # Max characters for phase description
-      max_deliverable_name_length: 200    # Max characters for deliverable name
-      max_phases: 50                 # Max phases per roadmap
-      max_deliverables_per_phase: 100    # Max deliverables per phase
-      max_roadmaps: 20               # Max total roadmaps
+      max_phase_name_length: 100 # Max characters for phase name
+      max_phase_description_length: 2000 # Max characters for phase description
+      max_deliverable_name_length: 200 # Max characters for deliverable name
+      max_phases: 50 # Max phases per roadmap
+      max_deliverables_per_phase: 100 # Max deliverables per phase
+      max_roadmaps: 20 # Max total roadmaps
 
     # Phase configuration
     phases:
@@ -496,17 +495,17 @@ file_management:
 
       # Progress tracking
       progress:
-        min: 0                       # Minimum progress value
-        max: 100                     # Maximum progress value
-        unit: "%"                    # Display unit
-        auto_calculate: false        # Auto-calculate from deliverables
+        min: 0 # Minimum progress value
+        max: 100 # Maximum progress value
+        unit: "%" # Display unit
+        auto_calculate: false # Auto-calculate from deliverables
 
     # Deliverable configuration
     deliverables:
       statuses: [pending, in_progress, completed, blocked, cancelled]
       default_status: pending
-      track_completion_date: true    # Record when completed
-      require_owner: false           # Require owner assignment
+      track_completion_date: true # Record when completed
+      require_owner: false # Require owner assignment
 
     # Additional roadmaps (optional, user-defined)
     additional: []
@@ -531,23 +530,23 @@ file_management:
     # Synchronization settings
     sync:
       enabled: true
-      validate_on_sync: true         # Validate before syncing
-      auto_update_state: true        # Update current_state.yaml on sync
-      sync_interval_minutes: null    # null = manual only, number = auto-sync
-      conflict_resolution: roadmap   # roadmap or state (which wins on conflict)
+      validate_on_sync: true # Validate before syncing
+      auto_update_state: true # Update current_state.yaml on sync
+      sync_interval_minutes: null # null = manual only, number = auto-sync
+      conflict_resolution: roadmap # roadmap or state (which wins on conflict)
 
     # Validation
     validation:
-      require_phase_id: true         # Phase ID required
-      require_phase_name: true       # Phase name required
-      unique_phase_ids: true         # Phase IDs must be unique
-      validate_progress_range: true  # Progress must be 0-100
-      validate_date_order: true      # start_date must be before end_date
-      warn_no_current_phase: true    # Warn if no phase is in_progress
-      warn_multiple_in_progress: true  # Warn if multiple phases in_progress
+      require_phase_id: true # Phase ID required
+      require_phase_name: true # Phase name required
+      unique_phase_ids: true # Phase IDs must be unique
+      validate_progress_range: true # Progress must be 0-100
+      validate_date_order: true # start_date must be before end_date
+      warn_no_current_phase: true # Warn if no phase is in_progress
+      warn_multiple_in_progress: true # Warn if multiple phases in_progress
 
     # Export settings
     export:
       formats: [yaml, json, markdown, html]
       default_format: yaml
-      include_metadata: true         # Include timestamps, version info
+      include_metadata: true # Include timestamps, version info

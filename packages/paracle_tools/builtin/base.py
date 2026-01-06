@@ -11,7 +11,9 @@ from pydantic import BaseModel, Field
 class ToolError(Exception):
     """Base exception for tool errors."""
 
-    def __init__(self, tool_name: str, message: str, details: dict[str, Any] | None = None):
+    def __init__(
+        self, tool_name: str, message: str, details: dict[str, Any] | None = None
+    ):
         self.tool_name = tool_name
         self.message = message
         self.details = details or {}

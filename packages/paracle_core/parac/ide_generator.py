@@ -1,7 +1,8 @@
 """IDE configuration generator for .parac/ integration.
 
 Generates IDE-specific configuration files from .parac/ context
-using Jinja2 templates.
+using Jinja2 templates. Also exports skills to platform-specific
+formats (Agent Skills specification).
 """
 
 from dataclasses import dataclass
@@ -34,7 +35,9 @@ class IDEConfigGenerator:
     """
 
     # Supported IDEs with their configurations
+    # Categories: mcp_native, rules_based, web_based, cicd
     SUPPORTED_IDES: dict[str, IDEConfig] = {
+        # === MCP Native IDEs ===
         "cursor": IDEConfig(
             name="cursor",
             display_name="Cursor",
@@ -45,12 +48,29 @@ class IDEConfigGenerator:
         ),
         "claude": IDEConfig(
             name="claude",
-            display_name="Claude Code",
+            display_name="Claude Code CLI",
             file_name="CLAUDE.md",
             template_name="claude.jinja2",
             destination_dir=".claude",
             max_context_size=50_000,
         ),
+        "windsurf": IDEConfig(
+            name="windsurf",
+            display_name="Windsurf",
+            file_name=".windsurfrules",
+            template_name="windsurf.jinja2",
+            destination_dir=".",
+            max_context_size=50_000,
+        ),
+        "zed": IDEConfig(
+            name="zed",
+            display_name="Zed",
+            file_name="ai_rules.json",
+            template_name="zed.jinja2",
+            destination_dir=".zed",
+            max_context_size=50_000,
+        ),
+        # === Rules-based IDEs ===
         "cline": IDEConfig(
             name="cline",
             display_name="Cline",
@@ -67,13 +87,71 @@ class IDEConfigGenerator:
             destination_dir=".github",
             max_context_size=30_000,
         ),
-        "windsurf": IDEConfig(
-            name="windsurf",
-            display_name="Windsurf",
-            file_name=".windsurfrules",
-            template_name="windsurf.jinja2",
-            destination_dir=".",
+        "warp": IDEConfig(
+            name="warp",
+            display_name="Warp Terminal",
+            file_name="ai-rules.yaml",
+            template_name="warp.jinja2",
+            destination_dir=".warp",
             max_context_size=50_000,
+        ),
+        "gemini": IDEConfig(
+            name="gemini",
+            display_name="Gemini CLI",
+            file_name="instructions.md",
+            template_name="gemini.jinja2",
+            destination_dir=".gemini",
+            max_context_size=50_000,
+        ),
+        "opencode": IDEConfig(
+            name="opencode",
+            display_name="Opencode AI",
+            file_name="rules.yaml",
+            template_name="opencode.jinja2",
+            destination_dir=".opencode",
+            max_context_size=50_000,
+        ),
+        # === Web-based (copy-paste instructions) ===
+        "claude_desktop": IDEConfig(
+            name="claude_desktop",
+            display_name="Claude.ai / Desktop",
+            file_name="CLAUDE_INSTRUCTIONS.md",
+            template_name="claude_desktop.jinja2",
+            destination_dir=".",
+            max_context_size=30_000,
+        ),
+        "chatgpt": IDEConfig(
+            name="chatgpt",
+            display_name="ChatGPT",
+            file_name="CHATGPT_INSTRUCTIONS.md",
+            template_name="chatgpt.jinja2",
+            destination_dir=".",
+            max_context_size=30_000,
+        ),
+        "raycast": IDEConfig(
+            name="raycast",
+            display_name="Raycast AI",
+            file_name="raycast-ai-instructions.md",
+            template_name="raycast.jinja2",
+            destination_dir=".",
+            max_context_size=30_000,
+        ),
+        # === CI/CD Integrations ===
+        "claude_action": IDEConfig(
+            name="claude_action",
+            display_name="Claude Code GitHub Action",
+            file_name="claude-code.yml",
+            template_name="claude_action.jinja2",
+            destination_dir=".github/workflows",
+            max_context_size=10_000,
+        ),
+        "copilot_agent": IDEConfig(
+            name="copilot_agent",
+            display_name="GitHub Copilot Coding Agent",
+            file_name="copilot-coding-agent.yml",
+            template_name="copilot_agent.jinja2",
+            destination_dir=".github",
+            max_context_size=10_000,
         ),
     }
 
@@ -282,12 +360,14 @@ class IDEConfigGenerator:
         for ide, config in self.SUPPORTED_IDES.items():
             ide_file = self.ide_output_dir / config.file_name
             if ide_file.exists():
-                manifest["configs"].append({
-                    "ide": ide,
-                    "file": config.file_name,
-                    "destination": f"{config.destination_dir}/{config.file_name}",
-                    "exists": True,
-                })
+                manifest["configs"].append(
+                    {
+                        "ide": ide,
+                        "file": config.file_name,
+                        "destination": f"{config.destination_dir}/{config.file_name}",
+                        "exists": True,
+                    }
+                )
 
         manifest_path = self.ide_output_dir / "_manifest.yaml"
         self.ide_output_dir.mkdir(parents=True, exist_ok=True)
@@ -312,7 +392,9 @@ class IDEConfigGenerator:
 
         for ide, config in self.SUPPORTED_IDES.items():
             ide_file = self.ide_output_dir / config.file_name
-            project_file = self.project_root / config.destination_dir / config.file_name
+            project_file = (
+                self.project_root / config.destination_dir / config.file_name
+            )
 
             status["ides"][ide] = {
                 "generated": ide_file.exists(),
@@ -322,3 +404,137 @@ class IDEConfigGenerator:
             }
 
         return status
+
+    # =========================================================================
+    # SKILL EXPORT METHODS
+    # =========================================================================
+
+    def export_skills(
+        self,
+        platforms: list[str] | None = None,
+        overwrite: bool = False,
+    ) -> dict[str, list[str]]:
+        """Export skills to platform-specific formats.
+
+        Exports skills from .parac/agents/skills/ to platform-specific
+        directories following the Agent Skills specification.
+
+        Args:
+            platforms: Target platforms (default: all Agent Skills platforms)
+            overwrite: Whether to overwrite existing files
+
+        Returns:
+            Dictionary mapping platform to list of exported skill names
+        """
+        try:
+            from paracle_skills import SkillLoader, SkillExporter
+            from paracle_skills.exporter import AGENT_SKILLS_PLATFORMS
+        except ImportError:
+            # paracle_skills not available
+            return {}
+
+        # Default to Agent Skills platforms (not MCP)
+        if platforms is None:
+            platforms = AGENT_SKILLS_PLATFORMS
+
+        skills_dir = self.parac_root / "agents" / "skills"
+        if not skills_dir.exists():
+            return {}
+
+        # Load skills
+        loader = SkillLoader(skills_dir)
+        try:
+            skills = loader.load_all()
+        except Exception:
+            return {}
+
+        if not skills:
+            return {}
+
+        # Export to each platform
+        exporter = SkillExporter(skills)
+        results = exporter.export_all(self.project_root, platforms, overwrite)
+
+        # Build result dict
+        exported: dict[str, list[str]] = {}
+        for result in results:
+            for platform, export_result in result.results.items():
+                if export_result.success:
+                    if platform not in exported:
+                        exported[platform] = []
+                    exported[platform].append(result.skill_name)
+
+        return exported
+
+    def export_skills_to_platform(
+        self,
+        platform: str,
+        overwrite: bool = False,
+    ) -> list[str]:
+        """Export all skills to a single platform.
+
+        Args:
+            platform: Target platform (copilot, cursor, claude, codex, mcp)
+            overwrite: Whether to overwrite existing files
+
+        Returns:
+            List of exported skill names
+        """
+        try:
+            from paracle_skills import SkillLoader, SkillExporter
+        except ImportError:
+            return []
+
+        skills_dir = self.parac_root / "agents" / "skills"
+        if not skills_dir.exists():
+            return []
+
+        loader = SkillLoader(skills_dir)
+        try:
+            skills = loader.load_all()
+        except Exception:
+            return []
+
+        if not skills:
+            return []
+
+        exporter = SkillExporter(skills)
+        results = exporter.export_to_platform(platform, self.project_root, overwrite)
+
+        return [r.skill_name for r in results if r.success]
+
+    def sync_with_skills(
+        self,
+        platforms: list[str] | None = None,
+        overwrite: bool = False,
+    ) -> dict[str, Any]:
+        """Generate IDE configs and export skills together.
+
+        This is the recommended method for complete IDE synchronization.
+
+        Args:
+            platforms: Skill export platforms (default: all)
+            overwrite: Whether to overwrite existing skill files
+
+        Returns:
+            Dictionary with ide_configs and skills export results
+        """
+        results: dict[str, Any] = {
+            "ide_configs": {},
+            "skills": {},
+            "errors": [],
+        }
+
+        # Generate IDE configs
+        try:
+            results["ide_configs"] = self.generate_all()
+        except Exception as e:
+            results["errors"].append(f"IDE config generation: {e}")
+
+        # Export skills
+        try:
+            results["skills"] = self.export_skills(platforms, overwrite)
+        except Exception as e:
+            results["errors"].append(f"Skills export: {e}")
+
+        return results

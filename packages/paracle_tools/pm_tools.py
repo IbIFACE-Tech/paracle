@@ -27,7 +27,46 @@ class TaskTrackingTool(BaseTool):
         super().__init__(
             name="task_tracking",
             description="Track and manage tasks",
-            parameters={},
+            parameters={
+                "type": "object",
+                "properties": {
+                    "action": {
+                        "type": "string",
+                        "description": "Action to perform",
+                        "enum": ["create", "update", "list", "report"],
+                    },
+                    "title": {
+                        "type": "string",
+                        "description": "Task title (for create action)",
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Task description (for create action)",
+                    },
+                    "priority": {
+                        "type": "string",
+                        "description": "Task priority (for create action)",
+                        "enum": ["low", "medium", "high", "critical"],
+                        "default": "medium",
+                    },
+                    "task_id": {
+                        "type": "string",
+                        "description": "Task ID (for update action)",
+                    },
+                    "status": {
+                        "type": "string",
+                        "description": "Task status (for update/list actions)",
+                        "enum": ["todo", "in_progress", "done", "blocked"],
+                    },
+                    "period": {
+                        "type": "string",
+                        "description": "Report period (for report action)",
+                        "enum": ["day", "week", "month"],
+                        "default": "week",
+                    },
+                },
+                "required": ["action"],
+            },
         )
 
     async def _execute(self, action: str, **kwargs) -> dict[str, Any]:
@@ -51,7 +90,9 @@ class TaskTrackingTool(BaseTool):
         else:
             return {"error": f"Unsupported action: {action}"}
 
-    async def _create_task(self, title: str, description: str = "", priority: str = "medium", **kwargs) -> dict[str, Any]:
+    async def _create_task(
+        self, title: str, description: str = "", priority: str = "medium", **kwargs
+    ) -> dict[str, Any]:
         """Create a new task."""
         task = {
             "id": f"TASK-{datetime.now().strftime('%Y%m%d-%H%M%S')}",
@@ -77,7 +118,9 @@ class TaskTrackingTool(BaseTool):
             "message": f"Task {task_id} updated",
         }
 
-    async def _list_tasks(self, status: str = None, priority: str = None, **kwargs) -> dict[str, Any]:
+    async def _list_tasks(
+        self, status: str = None, priority: str = None, **kwargs
+    ) -> dict[str, Any]:
         """List tasks with optional filters."""
         # In real implementation, would read from .parac/memory/context/current_state.yaml
         # or a task tracking file
@@ -124,7 +167,26 @@ class MilestoneManagementTool(BaseTool):
         super().__init__(
             name="milestone_management",
             description="Manage project milestones and roadmap",
-            parameters={},
+            parameters={
+                "type": "object",
+                "properties": {
+                    "action": {
+                        "type": "string",
+                        "description": "Action to perform",
+                        "enum": ["check", "update", "sync", "report"],
+                    },
+                    "milestone_id": {
+                        "type": "string",
+                        "description": "Milestone ID (for update action)",
+                    },
+                    "status": {
+                        "type": "string",
+                        "description": "Milestone status (for update action)",
+                        "enum": ["planned", "in_progress", "completed", "delayed"],
+                    },
+                },
+                "required": ["action"],
+            },
         )
 
     async def _execute(self, action: str, **kwargs) -> dict[str, Any]:
@@ -154,7 +216,7 @@ class MilestoneManagementTool(BaseTool):
             # Read current state
             state_path = Path(".parac/memory/context/current_state.yaml")
             if state_path.exists():
-                with open(state_path, encoding='utf-8') as f:
+                with open(state_path, encoding="utf-8") as f:
                     state = yaml.safe_load(f)
 
                 return {
@@ -168,7 +230,9 @@ class MilestoneManagementTool(BaseTool):
         except Exception as e:
             return {"error": str(e)}
 
-    async def _update_milestone(self, milestone_id: str, status: str, **kwargs) -> dict[str, Any]:
+    async def _update_milestone(
+        self, milestone_id: str, status: str, **kwargs
+    ) -> dict[str, Any]:
         """Update milestone status."""
         return {
             "action": "update",
@@ -203,7 +267,7 @@ class MilestoneManagementTool(BaseTool):
         try:
             roadmap_path = Path(".parac/roadmap/roadmap.yaml")
             if roadmap_path.exists():
-                with open(roadmap_path, encoding='utf-8') as f:
+                with open(roadmap_path, encoding="utf-8") as f:
                     roadmap = yaml.safe_load(f)
 
                 phases = roadmap.get("phases", [])
@@ -233,7 +297,37 @@ class TeamCoordinationTool(BaseTool):
         super().__init__(
             name="team_coordination",
             description="Coordinate team activities and assignments",
-            parameters={},
+            parameters={
+                "type": "object",
+                "properties": {
+                    "action": {
+                        "type": "string",
+                        "description": "Action to perform",
+                        "enum": ["assign", "notify", "status", "coordinate"],
+                    },
+                    "task_id": {
+                        "type": "string",
+                        "description": "Task ID (for assign action)",
+                    },
+                    "agent": {
+                        "type": "string",
+                        "description": "Agent to assign task to (for assign action)",
+                    },
+                    "recipient": {
+                        "type": "string",
+                        "description": "Notification recipient (for notify action)",
+                    },
+                    "message": {
+                        "type": "string",
+                        "description": "Notification message (for notify action)",
+                    },
+                    "workflow_id": {
+                        "type": "string",
+                        "description": "Workflow ID (for coordinate action)",
+                    },
+                },
+                "required": ["action"],
+            },
         )
 
     async def _execute(self, action: str, **kwargs) -> dict[str, Any]:
@@ -266,7 +360,9 @@ class TeamCoordinationTool(BaseTool):
             "message": f"Task {task_id} assigned to {agent}",
         }
 
-    async def _send_notification(self, recipient: str, message: str, **kwargs) -> dict[str, Any]:
+    async def _send_notification(
+        self, recipient: str, message: str, **kwargs
+    ) -> dict[str, Any]:
         """Send notification."""
         return {
             "action": "notify",
@@ -282,7 +378,7 @@ class TeamCoordinationTool(BaseTool):
             # Read agent manifest
             manifest_path = Path(".parac/agents/manifest.yaml")
             if manifest_path.exists():
-                with open(manifest_path, encoding='utf-8') as f:
+                with open(manifest_path, encoding="utf-8") as f:
                     manifest = yaml.safe_load(f)
 
                 agents = manifest.get("agents", [])
@@ -291,8 +387,11 @@ class TeamCoordinationTool(BaseTool):
                     "action": "status",
                     "total_agents": len(agents),
                     "agents": [
-                        {"id": a.get("id"), "name": a.get(
-                            "name"), "role": a.get("role")}
+                        {
+                            "id": a.get("id"),
+                            "name": a.get("name"),
+                            "role": a.get("role"),
+                        }
                         for a in agents
                     ],
                 }

@@ -94,6 +94,8 @@ The `release` workflow automates the entire release process:
 - `memory.log_action` - Log your actions
 
 
+### External MCP Tools (from .parac/tools/mcp/)
+- `Astro docs.*` - 
 
 ## Skills
 

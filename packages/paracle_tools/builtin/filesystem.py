@@ -356,7 +356,9 @@ class ListDirectoryTool(BaseTool):
         )
         self.allowed_paths = allowed_paths
 
-    async def _execute(self, path: str, recursive: bool = False, **kwargs) -> dict[str, Any]:
+    async def _execute(
+        self, path: str, recursive: bool = False, **kwargs
+    ) -> dict[str, Any]:
         """List directory contents.
 
         Args:

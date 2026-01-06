@@ -2,6 +2,9 @@
 
 Handles reading, writing, and updating the current_state.yaml file
 which represents the source of truth for project state.
+
+This module implements file-level locking and optimistic concurrency control
+to prevent lost updates and data corruption in multi-process scenarios.
 """
 
 from dataclasses import dataclass, field
@@ -10,6 +13,22 @@ from pathlib import Path
 from typing import Any
 
 import yaml
+from filelock import FileLock
+from filelock import Timeout as FileLockTimeout
+
+from paracle_core.parac.state_logging import log_state_change
+
+
+class StateConflictError(Exception):
+    """Raised when state has been modified by another process."""
+
+    pass
+
+
+class StateLockError(Exception):
+    """Raised when unable to acquire file lock."""
+
+    pass
 
 
 @dataclass
@@ -68,7 +87,11 @@ class PhaseState:
 
 @dataclass
 class ParacState:
-    """Represents the current state of a .parac/ workspace."""
+    """Represents the current state of a .parac/ workspace.
+
+    Includes revision counter for optimistic locking to detect
+    concurrent modifications.
+    """
 
     version: str
     snapshot_date: str
@@ -79,6 +102,7 @@ class ParacState:
     metrics: dict[str, Any] = field(default_factory=dict)
     blockers: list[dict[str, Any]] = field(default_factory=list)
     next_actions: list[str] = field(default_factory=list)
+    revision: int = 0  # Revision counter for optimistic locking
     raw_data: dict[str, Any] = field(default_factory=dict)
 
     @classmethod
@@ -102,6 +126,7 @@ class ParacState:
             metrics=data.get("metrics", {}),
             blockers=data.get("blockers", []),
             next_actions=data.get("next_actions", []),
+            revision=data.get("revision", 0),
             raw_data=data,
         )
 
@@ -116,13 +141,30 @@ class ParacState:
         result["metrics"] = self.metrics
         result["blockers"] = self.blockers
         result["next_actions"] = self.next_actions
+        result["revision"] = self.revision
         return result
 
     def update_progress(self, progress: int) -> None:
         """Update current phase progress."""
         if 0 <= progress <= 100:
+            old_progress = self.current_phase.progress
             self.current_phase.progress = f"{progress}%"
             self.snapshot_date = str(date.today())
+
+            # Log change if parac_root is available
+            try:
+                parac_root = find_parac_root()
+                if parac_root:
+                    log_state_change(
+                        parac_root,
+                        "progress",
+                        f"Updated phase progress from {old_progress} to {progress}%",
+                        old_value=old_progress,
+                        new_value=f"{progress}%",
+                        revision=self.revision,
+                    )
+            except Exception:
+                pass  # Don't fail on logging errors
 
     def add_completed(self, item: str) -> None:
         """Add item to completed list."""
@@ -190,14 +232,22 @@ def find_parac_root(start_path: Path | None = None) -> Path | None:
     return None
 
 
-def load_state(parac_root: Path | None = None) -> ParacState | None:
+def load_state(
+    parac_root: Path | None = None, *, timeout: float = 10.0
+) -> ParacState | None:
     """Load current state from .parac/memory/context/current_state.yaml.
+
+    Uses file locking to prevent reading during concurrent writes.
 
     Args:
         parac_root: Path to .parac/ directory. If None, searches from cwd.
+        timeout: Lock acquisition timeout in seconds.
 
     Returns:
         ParacState if found and valid, None otherwise.
+
+    Raises:
+        StateLockError: If unable to acquire lock within timeout.
     """
     if parac_root is None:
         parac_root = find_parac_root()
@@ -209,23 +259,47 @@ def load_state(parac_root: Path | None = None) -> ParacState | None:
     if not state_file.exists():
         return None
 
+    lock_file = state_file.with_suffix(".yaml.lock")
+
     try:
-        with open(state_file, encoding="utf-8") as f:
-            data = yaml.safe_load(f)
-        return ParacState.from_dict(data)
+        with FileLock(str(lock_file), timeout=timeout):
+            with open(state_file, encoding="utf-8") as f:
+                data = yaml.safe_load(f)
+            return ParacState.from_dict(data)
+    except FileLockTimeout as e:
+        raise StateLockError(
+            f"Could not acquire lock for {state_file} within {timeout}s"
+        ) from e
     except (yaml.YAMLError, KeyError, TypeError):
         return None
 
 
-def save_state(state: ParacState, parac_root: Path | None = None) -> bool:
+def save_state(
+    state: ParacState,
+    parac_root: Path | None = None,
+    *,
+    timeout: float = 10.0,
+    check_conflict: bool = True,
+) -> bool:
     """Save state to .parac/memory/context/current_state.yaml.
+
+    Implements:
+    - File-level locking to prevent concurrent writes
+    - Atomic writes using temp file + rename
+    - Optimistic locking with revision counter
 
     Args:
         state: The state to save.
         parac_root: Path to .parac/ directory. If None, searches from cwd.
+        timeout: Lock acquisition timeout in seconds.
+        check_conflict: If True, check for revision conflicts.
 
     Returns:
         True if saved successfully, False otherwise.
+
+    Raises:
+        StateConflictError: If state was modified by another process.
+        StateLockError: If unable to acquire lock within timeout.
     """
     if parac_root is None:
         parac_root = find_parac_root()
@@ -234,17 +308,56 @@ def save_state(state: ParacState, parac_root: Path | None = None) -> bool:
         return False
 
     state_file = parac_root / "memory" / "context" / "current_state.yaml"
+    lock_file = state_file.with_suffix(".yaml.lock")
+    temp_file = state_file.with_suffix(".yaml.tmp")
+
     state_file.parent.mkdir(parents=True, exist_ok=True)
 
     try:
-        with open(state_file, "w", encoding="utf-8") as f:
-            yaml.dump(
-                state.to_dict(),
-                f,
-                default_flow_style=False,
-                allow_unicode=True,
-                sort_keys=False,
-            )
+        with FileLock(str(lock_file), timeout=timeout):
+            # Optimistic locking: check for conflicts
+            if check_conflict and state_file.exists():
+                with open(state_file, encoding="utf-8") as f:
+                    current_data = yaml.safe_load(f)
+                current_revision = current_data.get("revision", 0)
+
+                if current_revision != state.revision:
+                    raise StateConflictError(
+                        f"State modified by another process "
+                        f"(expected revision={state.revision}, "
+                        f"got revision={current_revision}). "
+                        f"Reload state and retry."
+                    )
+
+            # Increment revision before saving
+            state.revision += 1
+
+            # Atomic write: write to temp file, then rename
+            with open(temp_file, "w", encoding="utf-8") as f:
+                yaml.dump(
+                    state.to_dict(),
+                    f,
+                    default_flow_style=False,
+                    allow_unicode=True,
+                    sort_keys=False,
+                )
+
+            # Atomic rename (overwrites existing file)
+            temp_file.replace(state_file)
+
         return True
+    except FileLockTimeout as e:
+        raise StateLockError(
+            f"Could not acquire lock for {state_file} within {timeout}s"
+        ) from e
+    except (StateConflictError, StateLockError):
+        # Re-raise these exceptions
+        raise
     except (OSError, yaml.YAMLError):
+        # Clean up temp file on error
+        if temp_file.exists():
+            try:
+                temp_file.unlink()
+            except OSError:
+                pass
         return False

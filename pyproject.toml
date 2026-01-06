@@ -41,6 +41,7 @@ dependencies = [
     "rich>=13.7.0",
     "pyyaml>=6.0.1",
     "httpx>=0.27.0",
+    "filelock>=3.13.0",  # Cross-platform file locking for state management
     # Security
     "bcrypt>=5.0.0",
     "argon2-cffi>=25.1.0",
@@ -77,6 +78,7 @@ sandbox = [
 providers = [
     "openai>=1.3.7",
     "anthropic>=0.7.8",
+    "cohere>=5.0.0",
 ]
 
 # Extended provider support (optional)
@@ -230,6 +232,7 @@ known_first_party = [
     "paracle_adapters",
     "paracle_orchestration",
     "paracle_tools",
+    "paracle_skills",
     "paracle_api",
     "paracle_cli",
     # Phase 5 packages
@@ -238,6 +241,7 @@ known_first_party = [
     "paracle_rollback",
     "paracle_review",
     "paracle_resources",
+    "paracle_mcp",
 ]
 
 # mypy Configuration

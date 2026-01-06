@@ -17,6 +17,13 @@ except ImportError:
     print("⚠️  PyYAML not installed. Run: pip install pyyaml")
     sys.exit(1)
 
+try:
+    from filelock import FileLock
+    from filelock import Timeout as FileLockTimeout
+except ImportError:
+    print("⚠️  filelock not installed. Run: pip install filelock")
+    sys.exit(1)
+
 
 PARAC_ROOT = Path(__file__).parent.parent
 STATE_FILE = PARAC_ROOT / "memory" / "context" / "current_state.yaml"
@@ -25,15 +32,42 @@ QUESTIONS_FILE = PARAC_ROOT / "memory" / "context" / "open_questions.md"
 
 
 def load_state() -> dict:
-    """Load current state."""
-    with open(STATE_FILE, "r", encoding="utf-8") as f:
-        return yaml.safe_load(f)
+    """Load current state with file locking."""
+    lock_file = STATE_FILE.with_suffix(".yaml.lock")
+    try:
+        with FileLock(str(lock_file), timeout=10.0):
+            with open(STATE_FILE, encoding="utf-8") as f:
+                return yaml.safe_load(f)
+    except FileLockTimeout:
+        print("⚠️  Could not acquire lock for state file (timeout)")
+        sys.exit(1)
 
 
 def save_state(state: dict):
-    """Save state file."""
-    with open(STATE_FILE, "w", encoding="utf-8") as f:
-        yaml.dump(state, f, default_flow_style=False, allow_unicode=True, sort_keys=False)
+    """Save state file with file locking and atomic writes."""
+    lock_file = STATE_FILE.with_suffix(".yaml.lock")
+    temp_file = STATE_FILE.with_suffix(".yaml.tmp")
+
+    try:
+        with FileLock(str(lock_file), timeout=10.0):
+            # Atomic write: temp file + rename
+            with open(temp_file, "w", encoding="utf-8") as f:
+                yaml.dump(
+                    state,
+                    f,
+                    default_flow_style=False,
+                    allow_unicode=True,
+                    sort_keys=False,
+                )
+            temp_file.replace(STATE_FILE)
+    except FileLockTimeout:
+        print("⚠️  Could not acquire lock for state file (timeout)")
+        sys.exit(1)
+    except Exception as e:
+        print(f"⚠️  Failed to save state: {e}")
+        if temp_file.exists():
+            temp_file.unlink()
+        sys.exit(1)
 
 
 def update_progress(state: dict, progress: int) -> dict:
@@ -153,7 +187,8 @@ def interactive_checkpoint():
 
     # Show current state
     phase = state.get("current_phase", {})
-    print(f"📍 Current Phase: {phase.get('id', 'unknown')} ({phase.get('progress', '0%')})")
+    print(
+        f"📍 Current Phase: {phase.get('id', 'unknown')} ({phase.get('progress', '0%')})")
     print()
 
     # Ask about progress

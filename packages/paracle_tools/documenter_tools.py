@@ -23,7 +23,47 @@ class MarkdownGenerationTool(BaseTool):
         super().__init__(
             name="markdown_generation",
             description="Generate markdown documentation",
-            parameters={},
+            parameters={
+                "type": "object",
+                "properties": {
+                    "doc_type": {
+                        "type": "string",
+                        "description": "Type of documentation to generate",
+                        "enum": ["readme", "guide", "tutorial", "changelog"],
+                    },
+                    "project_name": {
+                        "type": "string",
+                        "description": "Project name (for readme)",
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Project description (for readme)",
+                    },
+                    "title": {
+                        "type": "string",
+                        "description": "Document title (for guide/tutorial)",
+                    },
+                    "sections": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "Section titles (for guide)",
+                    },
+                    "steps": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "Step titles (for tutorial)",
+                    },
+                    "version": {
+                        "type": "string",
+                        "description": "Version number (for changelog)",
+                    },
+                    "date": {
+                        "type": "string",
+                        "description": "Release date (for changelog)",
+                    },
+                },
+                "required": ["doc_type"],
+            },
         )
 
     async def _execute(self, doc_type: str, **kwargs) -> dict[str, Any]:
@@ -47,7 +87,9 @@ class MarkdownGenerationTool(BaseTool):
         else:
             return {"error": f"Unsupported doc type: {doc_type}"}
 
-    def _generate_readme(self, project_name: str, description: str = "", **kwargs) -> dict[str, Any]:
+    def _generate_readme(
+        self, project_name: str, description: str = "", **kwargs
+    ) -> dict[str, Any]:
         """Generate README.md."""
         content = f"""# {project_name}
 
@@ -62,13 +104,13 @@ class MarkdownGenerationTool(BaseTool):
 ## Installation
 
 ```bash
-pip install {project_name.lower().replace(' ', '-')}
+pip install {project_name.lower().replace(" ", "-")}
 ```
 
 ## Quick Start
 
 ```python
-from {project_name.lower().replace(' ', '_')} import *
+from {project_name.lower().replace(" ", "_")} import *
 
 # Your code here
 ```
@@ -92,10 +134,15 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
             "file": "README.md",
         }
 
-    def _generate_guide(self, title: str, sections: list = None, **kwargs) -> dict[str, Any]:
+    def _generate_guide(
+        self, title: str, sections: list = None, **kwargs
+    ) -> dict[str, Any]:
         """Generate user guide."""
         sections_list = sections or [
-            "Introduction", "Getting Started", "Advanced Usage"]
+            "Introduction",
+            "Getting Started",
+            "Advanced Usage",
+        ]
 
         content = f"# {title}\n\n"
 
@@ -109,7 +156,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
             "content": content,
         }
 
-    def _generate_tutorial(self, title: str, steps: list = None, **kwargs) -> dict[str, Any]:
+    def _generate_tutorial(
+        self, title: str, steps: list = None, **kwargs
+    ) -> dict[str, Any]:
         """Generate tutorial."""
         steps_list = steps or ["Step 1", "Step 2", "Step 3"]
 
@@ -128,7 +177,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
             "content": content,
         }
 
-    def _generate_changelog(self, version: str, changes: list = None, **kwargs) -> dict[str, Any]:
+    def _generate_changelog(
+        self, version: str, changes: list = None, **kwargs
+    ) -> dict[str, Any]:
         """Generate changelog entry."""
         changes_list = changes or []
 
@@ -136,8 +187,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
         if changes_list:
             for category in ["Added", "Changed", "Fixed", "Removed"]:
-                category_changes = [c for c in changes_list if c.get(
-                    "type") == category.lower()]
+                category_changes = [
+                    c for c in changes_list if c.get("type") == category.lower()
+                ]
                 if category_changes:
                     content += f"### {category}\n\n"
                     for change in category_changes:
@@ -169,10 +221,27 @@ class ApiDocGenerationTool(BaseTool):
         super().__init__(
             name="api_doc_generation",
             description="Generate API documentation",
-            parameters={},
+            parameters={
+                "type": "object",
+                "properties": {
+                    "source": {
+                        "type": "string",
+                        "description": "Source code path to document",
+                    },
+                    "output_format": {
+                        "type": "string",
+                        "description": "Output documentation format",
+                        "enum": ["markdown", "html", "openapi"],
+                        "default": "markdown",
+                    },
+                },
+                "required": ["source"],
+            },
         )
 
-    async def _execute(self, source: str, output_format: str = "markdown", **kwargs) -> dict[str, Any]:
+    async def _execute(
+        self, source: str, output_format: str = "markdown", **kwargs
+    ) -> dict[str, Any]:
         """Generate API documentation.
 
         Args:
@@ -250,7 +319,26 @@ class DiagramCreationTool(BaseTool):
         super().__init__(
             name="diagram_creation",
             description="Create diagrams for documentation",
-            parameters={},
+            parameters={
+                "type": "object",
+                "properties": {
+                    "diagram_type": {
+                        "type": "string",
+                        "description": "Type of diagram to create",
+                        "enum": ["flowchart", "sequence", "class", "architecture"],
+                    },
+                    "title": {
+                        "type": "string",
+                        "description": "Diagram title",
+                    },
+                    "participants": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "Participants (for sequence diagrams)",
+                    },
+                },
+                "required": ["diagram_type"],
+            },
         )
 
     async def _execute(self, diagram_type: str, **kwargs) -> dict[str, Any]:
@@ -291,7 +379,9 @@ flowchart TD
             "content": diagram,
         }
 
-    def _create_sequence_diagram(self, title: str = "Sequence", participants: list = None, **kwargs) -> dict[str, Any]:
+    def _create_sequence_diagram(
+        self, title: str = "Sequence", participants: list = None, **kwargs
+    ) -> dict[str, Any]:
         """Create sequence diagram."""
         parts = participants or ["User", "System", "Database"]
 
@@ -310,7 +400,9 @@ flowchart TD
             "content": diagram,
         }
 
-    def _create_class_diagram(self, title: str = "Class Diagram", **kwargs) -> dict[str, Any]:
+    def _create_class_diagram(
+        self, title: str = "Class Diagram", **kwargs
+    ) -> dict[str, Any]:
         """Create class diagram."""
         diagram = """```mermaid
 classDiagram
@@ -330,7 +422,9 @@ classDiagram
             "content": diagram,
         }
 
-    def _create_architecture_diagram(self, title: str = "Architecture", **kwargs) -> dict[str, Any]:
+    def _create_architecture_diagram(
+        self, title: str = "Architecture", **kwargs
+    ) -> dict[str, Any]:
         """Create architecture diagram."""
         diagram = """```mermaid
 graph TB

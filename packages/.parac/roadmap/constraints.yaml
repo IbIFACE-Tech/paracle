@@ -1,0 +1,14 @@
+# Project Constraints
+
+# Define project constraints and boundaries
+
+constraints:
+  - name: budget
+    type: resource
+    description: Project budget constraints
+    value: TBD
+
+  - name: timeline
+    type: time
+    description: Project timeline
+    value: TBD

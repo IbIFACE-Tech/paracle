@@ -3,13 +3,23 @@
 This module provides a Model Context Protocol (MCP) server that exposes
 all Paracle tools to IDEs and AI assistants. Supports both stdio and HTTP transports.
 
+Tool sources:
+- Built-in agent tools from agent_tool_registry
+- Custom Python tools from .parac/tools/custom/
+- External MCP servers from .parac/tools/mcp/mcp.yaml or mcp.json
+- Context, workflow, and memory tools
+
 MCP Specification: https://modelcontextprotocol.io/
 """
 
 import asyncio
+import importlib.util
 import json
 import logging
+import os
+import subprocess
 import sys
+from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -17,6 +27,33 @@ from typing import Any
 import yaml
 
 logger = logging.getLogger("paracle.mcp.server")
+
+
+@dataclass
+class ExternalMCPServer:
+    """Configuration for an external MCP server."""
+
+    id: str
+    name: str
+    description: str
+    command: str
+    args: list[str] = field(default_factory=list)
+    env: dict[str, str] = field(default_factory=dict)
+    tools_prefix: str = ""
+    enabled: bool = True
+    _process: subprocess.Popen | None = field(default=None, repr=False)
+    _tools: list[dict] = field(default_factory=list, repr=False)
+
+
+@dataclass
+class CustomTool:
+    """Configuration for a custom Python tool."""
+
+    name: str
+    description: str
+    file: str
+    parameters: dict = field(default_factory=dict)
+    _module: Any = field(default=None, repr=False)
 
 
 class ParacleMCPServer:
@@ -41,7 +78,14 @@ class ParacleMCPServer:
         """
         self.parac_root = parac_root or self._find_parac_root()
         self.tools = self._load_all_tools()
+        self.custom_tools: list[CustomTool] = []
+        self.external_mcp_servers: list[ExternalMCPServer] = []
         self.active_agent: str | None = None
+
+        # Load user-defined tools from .parac/tools/
+        if self.parac_root:
+            self._load_custom_tools()
+            self._load_external_mcp_servers()
 
     def _find_parac_root(self) -> Path | None:
         """Find the .parac/ directory by walking up from cwd.
@@ -78,6 +122,133 @@ class ParacleMCPServer:
 
         return all_tools
 
+    def _load_custom_tools(self) -> None:
+        """Load custom Python tools from .parac/tools/custom/.
+
+        Custom tools are Python files with an execute() function and metadata.
+        """
+        if not self.parac_root:
+            return
+
+        custom_dir = self.parac_root / "tools" / "custom"
+        if not custom_dir.exists():
+            return
+
+        # Also check registry.yaml for custom tool definitions
+        registry_path = self.parac_root / "tools" / "registry.yaml"
+        custom_defs = {}
+        if registry_path.exists():
+            with open(registry_path, encoding="utf-8") as f:
+                registry = yaml.safe_load(f) or {}
+                for tool_def in registry.get("custom", []):
+                    if tool_def.get("name"):
+                        custom_defs[tool_def["name"]] = tool_def
+
+        # Load Python tools from custom directory
+        for py_file in custom_dir.glob("*.py"):
+            if py_file.name.startswith("_"):
+                continue
+
+            tool_name = py_file.stem
+            try:
+                # Load module dynamically
+                spec = importlib.util.spec_from_file_location(tool_name, py_file)
+                if spec and spec.loader:
+                    module = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(module)
+
+                    # Get metadata from module or registry
+                    description = getattr(module, "DESCRIPTION", custom_defs.get(tool_name, {}).get("description", f"Custom tool: {tool_name}"))
+                    parameters = getattr(module, "PARAMETERS", custom_defs.get(tool_name, {}).get("parameters", {}))
+
+                    custom_tool = CustomTool(
+                        name=tool_name,
+                        description=description,
+                        file=str(py_file),
+                        parameters=parameters,
+                        _module=module,
+                    )
+                    self.custom_tools.append(custom_tool)
+                    logger.info(f"Loaded custom tool: {tool_name}")
+
+            except Exception as e:
+                logger.warning(f"Failed to load custom tool {tool_name}: {e}")
+
+    def _load_external_mcp_servers(self) -> None:
+        """Load external MCP server configurations from .parac/tools/mcp/.
+
+        Supports both mcp.yaml and mcp.json formats, as well as servers.yaml.
+        """
+        if not self.parac_root:
+            return
+
+        mcp_dir = self.parac_root / "tools" / "mcp"
+        if not mcp_dir.exists():
+            return
+
+        # Try loading from mcp.yaml, mcp.json, or servers.yaml
+        config_files = [
+            mcp_dir / "mcp.yaml",
+            mcp_dir / "mcp.json",
+            mcp_dir / "servers.yaml",
+        ]
+
+        servers_config = []
+        for config_file in config_files:
+            if config_file.exists():
+                with open(config_file, encoding="utf-8") as f:
+                    if config_file.suffix == ".json":
+                        config = json.load(f)
+                    else:
+                        config = yaml.safe_load(f) or {}
+
+                    # Handle different config formats
+                    if "servers" in config:
+                        servers_config = config["servers"]
+                    elif "mcpServers" in config:
+                        # VS Code format: convert to list
+                        for name, srv_config in config["mcpServers"].items():
+                            srv_config["id"] = name
+                            srv_config["name"] = name
+                            servers_config.append(srv_config)
+                    break
+
+        # Create ExternalMCPServer instances
+        for srv in servers_config:
+            if not srv.get("enabled", True):
+                continue
+
+            # Expand environment variables in args
+            args = []
+            for arg in srv.get("args", []):
+                if isinstance(arg, str) and arg.startswith("${") and arg.endswith("}"):
+                    env_var = arg[2:-1]
+                    args.append(os.environ.get(env_var, arg))
+                else:
+                    args.append(arg)
+
+            # Expand environment variables in env dict
+            env = {}
+            for key, val in srv.get("env", {}).items():
+                if isinstance(val, str) and val.startswith("${") and val.endswith("}"):
+                    env_var = val[2:-1]
+                    env[key] = os.environ.get(env_var, "")
+                else:
+                    env[key] = val
+
+            server = ExternalMCPServer(
+                id=srv.get("id", srv.get("name", "")),
+                name=srv.get("name", srv.get("id", "")),
+                description=srv.get("description", ""),
+                command=srv.get("command", ""),
+                args=args,
+                env=env,
+                tools_prefix=srv.get("tools_prefix", srv.get("id", "")),
+                enabled=srv.get("enabled", True),
+            )
+            self.external_mcp_servers.append(server)
+            logger.info(f"Loaded external MCP server: {server.id}")
+
     def _get_context_tools(self) -> list[dict]:
         """Get context tool schemas.
 
@@ -86,22 +257,22 @@ class ParacleMCPServer:
         """
         return [
             {
-                "name": "context.current_state",
+                "name": "context_current_state",
                 "description": "Get current project state from .parac/memory/context/current_state.yaml",
                 "inputSchema": {"type": "object", "properties": {}},
             },
             {
-                "name": "context.roadmap",
+                "name": "context_roadmap",
                 "description": "Get project roadmap from .parac/roadmap/roadmap.yaml",
                 "inputSchema": {"type": "object", "properties": {}},
             },
             {
-                "name": "context.decisions",
+                "name": "context_decisions",
                 "description": "Get architectural decisions from .parac/roadmap/decisions.md",
                 "inputSchema": {"type": "object", "properties": {}},
             },
             {
-                "name": "context.policies",
+                "name": "context_policies",
                 "description": "Get active policies from .parac/policies/",
                 "inputSchema": {
                     "type": "object",
@@ -134,7 +305,7 @@ class ParacleMCPServer:
 
         return [
             {
-                "name": "workflow.run",
+                "name": "workflow_run",
                 "description": "Execute a Paracle workflow",
                 "inputSchema": {
                     "type": "object",
@@ -153,7 +324,7 @@ class ParacleMCPServer:
                 },
             },
             {
-                "name": "workflow.list",
+                "name": "workflow_list",
                 "description": "List available Paracle workflows",
                 "inputSchema": {"type": "object", "properties": {}},
             },
@@ -167,7 +338,7 @@ class ParacleMCPServer:
         """
         return [
             {
-                "name": "memory.log_action",
+                "name": "memory_log_action",
                 "description": "Log agent action to .parac/memory/logs/agent_actions.log",
                 "inputSchema": {
                     "type": "object",
@@ -190,6 +361,51 @@ class ParacleMCPServer:
             },
         ]
 
+    def _convert_to_json_schema(self, params: dict) -> dict:
+        """Convert tool parameters to JSON Schema format for MCP.
+
+        Args:
+            params: Tool parameters in Paracle format
+
+        Returns:
+            Parameters in JSON Schema format
+        """
+        # If already in JSON Schema format, return as-is
+        if "type" in params and params.get("type") == "object":
+            return params
+
+        # If empty, return empty schema
+        if not params:
+            return {"type": "object", "properties": {}}
+
+        # Convert from Paracle format to JSON Schema
+        properties = {}
+        required = []
+
+        for param_name, param_def in params.items():
+            if isinstance(param_def, dict):
+                prop = {
+                    "type": param_def.get("type", "string"),
+                    "description": param_def.get("description", ""),
+                }
+                if "default" in param_def:
+                    prop["default"] = param_def["default"]
+                if "enum" in param_def:
+                    prop["enum"] = param_def["enum"]
+                properties[param_name] = prop
+
+                if param_def.get("required", False):
+                    required.append(param_name)
+
+        schema = {
+            "type": "object",
+            "properties": properties,
+        }
+        if required:
+            schema["required"] = required
+
+        return schema
+
     def get_tool_schemas(self) -> list[dict]:
         """Generate MCP tool schemas for all tools.
 
@@ -201,14 +417,15 @@ class ParacleMCPServer:
         # Agent tools
         for name, tool in self.tools.items():
             description = getattr(tool, "description", f"Paracle {name} tool")
-            parameters = getattr(
+            raw_params = getattr(
                 tool, "parameters", {"type": "object", "properties": {}}
             )
+            input_schema = self._convert_to_json_schema(raw_params)
             schemas.append(
                 {
                     "name": name,
                     "description": description,
-                    "inputSchema": parameters,
+                    "inputSchema": input_schema,
                 }
             )
 
@@ -220,6 +437,27 @@ class ParacleMCPServer:
 
         # Memory tools
         schemas.extend(self._get_memory_tools())
+
+        # Custom tools from .parac/tools/custom/
+        for custom_tool in self.custom_tools:
+            input_schema = self._convert_to_json_schema(custom_tool.parameters)
+            schemas.append(
+                {
+                    "name": f"custom_{custom_tool.name}",
+                    "description": custom_tool.description,
+                    "inputSchema": input_schema,
+                }
+            )
+
+        # External MCP server tools (placeholder schemas)
+        for server in self.external_mcp_servers:
+            schemas.append(
+                {
+                    "name": f"{server.tools_prefix}_info",
+                    "description": f"{server.description} - List available tools from {server.name}",
+                    "inputSchema": {"type": "object", "properties": {}},
+                }
+            )
 
         # Agent router tool
         try:
@@ -249,10 +487,10 @@ class ParacleMCPServer:
         return schemas
 
     async def _handle_context_tool(self, name: str, _arguments: dict) -> dict:
-        """Handle context.* tool calls.
+        """Handle context_* tool calls.
 
         Args:
-            name: Tool name (context.current_state, etc.)
+            name: Tool name (context_current_state, etc.)
             _arguments: Tool arguments
 
         Returns:
@@ -261,7 +499,7 @@ class ParacleMCPServer:
         if not self.parac_root:
             return {"error": "No .parac/ directory found"}
 
-        tool_name = name.replace("context.", "")
+        tool_name = name.replace("context_", "")
 
         if tool_name == "current_state":
             path = self.parac_root / "memory" / "context" / "current_state.yaml"
@@ -305,16 +543,16 @@ class ParacleMCPServer:
         return {"error": f"Unknown context tool: {name}"}
 
     async def _handle_workflow_tool(self, name: str, arguments: dict) -> dict:
-        """Handle workflow.* tool calls.
+        """Handle workflow_* tool calls.
 
         Args:
-            name: Tool name (workflow.run, workflow.list)
+            name: Tool name (workflow_run, workflow_list)
             arguments: Tool arguments
 
         Returns:
             Tool result
         """
-        tool_name = name.replace("workflow.", "")
+        tool_name = name.replace("workflow_", "")
 
         if tool_name == "list":
             if self.parac_root:
@@ -346,16 +584,16 @@ class ParacleMCPServer:
         return {"error": f"Unknown workflow tool: {name}"}
 
     async def _handle_memory_tool(self, name: str, arguments: dict) -> dict:
-        """Handle memory.* tool calls.
+        """Handle memory_* tool calls.
 
         Args:
-            name: Tool name (memory.log_action)
+            name: Tool name (memory_log_action)
             arguments: Tool arguments
 
         Returns:
             Tool result
         """
-        if name == "memory.log_action":
+        if name == "memory_log_action":
             if not self.parac_root:
                 return {"error": "No .parac/ directory found"}
 
@@ -375,6 +613,92 @@ class ParacleMCPServer:
             return {"content": [{"type": "text", "text": f"Action logged: {log_entry.strip()}"}]}
 
         return {"error": f"Unknown memory tool: {name}"}
+
+    async def _handle_custom_tool(self, name: str, arguments: dict) -> dict:
+        """Handle custom_* tool calls.
+
+        Args:
+            name: Tool name (custom_<tool_name>)
+            arguments: Tool arguments
+
+        Returns:
+            Tool result
+        """
+        tool_name = name.replace("custom_", "")
+
+        # Find the custom tool
+        custom_tool = None
+        for ct in self.custom_tools:
+            if ct.name == tool_name:
+                custom_tool = ct
+                break
+
+        if not custom_tool:
+            return {"error": f"Custom tool not found: {tool_name}"}
+
+        if not custom_tool._module:
+            return {"error": f"Custom tool module not loaded: {tool_name}"}
+
+        # Execute the tool
+        try:
+            execute_fn = getattr(custom_tool._module, "execute", None)
+            if not execute_fn:
+                return {"error": f"Custom tool {tool_name} has no execute() function"}
+
+            if asyncio.iscoroutinefunction(execute_fn):
+                result = await execute_fn(**arguments)
+            else:
+                result = execute_fn(**arguments)
+
+            return {"content": [{"type": "text", "text": str(result)}]}
+
+        except Exception as e:
+            logger.exception(f"Error executing custom tool {tool_name}")
+            return {"error": str(e)}
+
+    async def _handle_external_mcp_tool(
+        self, server: ExternalMCPServer, name: str, arguments: dict
+    ) -> dict:
+        """Handle external MCP server tool calls.
+
+        Args:
+            server: External MCP server configuration
+            name: Tool name
+            arguments: Tool arguments
+
+        Returns:
+            Tool result (proxied from external server)
+        """
+        # Handle info tool - list available tools from this server
+        if name == f"{server.tools_prefix}_info":
+            return {
+                "content": [
+                    {
+                        "type": "text",
+                        "text": f"External MCP Server: {server.name}\n"
+                               f"Description: {server.description}\n"
+                               f"Command: {server.command} {' '.join(server.args)}\n"
+                               f"Tools prefix: {server.tools_prefix}_*\n\n"
+                               f"Note: To use this server, start it separately and configure your IDE.\n"
+                               f"Example: {server.command} {' '.join(server.args)}",
+                    }
+                ]
+            }
+
+        # For other tools, we'd need to proxy to the external server
+        # This is a placeholder - full proxy implementation would require
+        # starting the external process and communicating via stdio
+        return {
+            "content": [
+                {
+                    "type": "text",
+                    "text": f"Tool {name} is provided by external MCP server '{server.name}'.\n"
+                           f"To use it, configure your IDE to connect to this server directly:\n"
+                           f"  Command: {server.command}\n"
+                           f"  Args: {server.args}",
+                }
+            ]
+        }
 
     async def handle_list_tools(self) -> dict:
         """MCP list_tools handler.
@@ -404,16 +728,25 @@ class ParacleMCPServer:
             }
 
         # Context tools
-        if name.startswith("context."):
+        if name.startswith("context_"):
             return await self._handle_context_tool(name, arguments)
 
         # Workflow tools
-        if name.startswith("workflow."):
+        if name.startswith("workflow_"):
             return await self._handle_workflow_tool(name, arguments)
 
         # Memory tools
-        if name.startswith("memory."):
+        if name.startswith("memory_"):
             return await self._handle_memory_tool(name, arguments)
+
+        # Custom tools
+        if name.startswith("custom_"):
+            return await self._handle_custom_tool(name, arguments)
+
+        # External MCP server tools
+        for server in self.external_mcp_servers:
+            if name.startswith(f"{server.tools_prefix}_"):
+                return await self._handle_external_mcp_tool(server, name, arguments)
 
         # Agent tools
         tool = self.tools.get(name)

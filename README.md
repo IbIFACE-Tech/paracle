@@ -15,6 +15,7 @@ Paracle is a powerful framework for building **multi-agent AI applications** wit
 - **🧬 Agent Inheritance**: Reuse and specialize agents like classes
 - **🔌 Multi-Provider**: 14+ providers - Commercial (OpenAI, Anthropic, Google, xAI, DeepSeek, Groq, Mistral, Cohere, Together, Perplexity, OpenRouter, Fireworks) + Self-hosted (Ollama, LM Studio, vLLM, llama.cpp, LocalAI, Jan)
 - **🎨 Multi-Framework**: MSAF, LangChain, LlamaIndex support
+- **🎯 Write Once Skills**: Define skills once, export to Copilot, Cursor, Claude, Codex
 - **🌐 API-First**: RESTful API with FastAPI
 - **📡 MCP Native**: Model Context Protocol support
 - **🎭 BYO Philosophy**: Bring Your Own models, frameworks, tools
@@ -93,6 +94,7 @@ paracle-lite/
 │   ├── paracle_adapters/       # Framework adapters
 │   ├── paracle_orchestration/  # Workflow engine
 │   ├── paracle_tools/          # Tool management
+│   ├── paracle_skills/         # Skills system (multi-platform)
 │   ├── paracle_mcp/            # MCP protocol client
 │   ├── paracle_api/            # REST API
 │   └── paracle_cli/            # CLI
@@ -186,7 +188,9 @@ workflow = Workflow(
 
 ### Features
 
+- [Skills System](docs/skills.md) - Write once, export to all AI platforms
 - [Built-in Tools](docs/builtin-tools.md) - 9 native tools (filesystem, HTTP, shell)
+- [MCP Integration](docs/mcp-integration.md) - Model Context Protocol support
 - [Security Audit Report](docs/security-audit-report.md) - Security assessment
 - [Examples](examples/) - 11 code examples and tutorials
 

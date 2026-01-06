@@ -73,7 +73,9 @@ class BuiltinToolRegistry:
         # Initialize filesystem tools (with mandatory sandboxing)
         self._tools["read_file"] = ReadFileTool(allowed_paths=filesystem_paths)
         self._tools["write_file"] = WriteFileTool(allowed_paths=filesystem_paths)
-        self._tools["list_directory"] = ListDirectoryTool(allowed_paths=filesystem_paths)
+        self._tools["list_directory"] = ListDirectoryTool(
+            allowed_paths=filesystem_paths
+        )
         self._tools["delete_file"] = DeleteFileTool(allowed_paths=filesystem_paths)
 
         # Initialize HTTP tools

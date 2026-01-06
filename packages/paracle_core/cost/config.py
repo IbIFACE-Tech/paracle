@@ -14,7 +14,8 @@ from pydantic import BaseModel, Field
 class BudgetConfig(BaseModel):
     """Budget limit configuration."""
 
-    enabled: bool = Field(default=False, description="Enable budget enforcement")
+    enabled: bool = Field(
+        default=False, description="Enable budget enforcement")
 
     # Budget limits in USD
     daily_limit: float | None = Field(
@@ -50,11 +51,13 @@ class AlertConfig(BaseModel):
     enabled: bool = Field(default=True, description="Enable cost alerts")
 
     # Alert channels
-    log_alerts: bool = Field(default=True, description="Log alerts to console/file")
+    log_alerts: bool = Field(
+        default=True, description="Log alerts to console/file")
     webhook_url: str | None = Field(
         default=None, description="Webhook URL for alert notifications"
     )
-    email: str | None = Field(default=None, description="Email for alert notifications")
+    email: str | None = Field(
+        default=None, description="Email for alert notifications")
 
     # Alert frequency
     min_interval_minutes: int = Field(
@@ -72,7 +75,8 @@ class TrackingConfig(BaseModel):
         default=True, description="Persist cost records to database"
     )
     db_path: str | None = Field(
-        default=None, description="Path to cost database (default: .parac/costs.db)"
+        default=None,
+        description="Path to cost database. Relative paths are resolved from .parac/ directory (default: .parac/costs.db)",
     )
 
     # Retention
@@ -127,7 +131,8 @@ class CostConfig(BaseModel):
 
     # Cost display settings
     currency: str = Field(default="USD", description="Currency for display")
-    decimal_places: int = Field(default=4, ge=0, le=8, description="Decimal places")
+    decimal_places: int = Field(
+        default=4, ge=0, le=8, description="Decimal places")
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "CostConfig":
@@ -160,10 +165,20 @@ class CostConfig(BaseModel):
         if not project_path or not project_path.exists():
             return cls()  # Return defaults
 
+        # Remember the .parac/ directory for relative path resolution
+        parac_dir = project_path.parent
+
         with open(project_path) as f:
             data = yaml.safe_load(f) or {}
 
         cost_data = data.get("cost", {})
+
+        # Resolve db_path relative to .parac/ directory if specified
+        if "tracking" in cost_data and "db_path" in cost_data["tracking"]:
+            db_path = cost_data["tracking"]["db_path"]
+            if db_path and not Path(db_path).is_absolute():
+                # Resolve relative paths relative to .parac/ directory
+                cost_data["tracking"]["db_path"] = str(parac_dir / db_path)
 
         # Apply environment variable overrides
         cost_data = cls._apply_env_overrides(cost_data)
@@ -204,12 +219,14 @@ class CostConfig(BaseModel):
         # Budget config
         daily_limit = os.getenv("PARACLE_COST_DAILY_LIMIT")
         if daily_limit:
-            config_data.setdefault("budget", {})["daily_limit"] = float(daily_limit)
+            config_data.setdefault("budget", {})[
+                "daily_limit"] = float(daily_limit)
             config_data.setdefault("budget", {})["enabled"] = True
 
         monthly_limit = os.getenv("PARACLE_COST_MONTHLY_LIMIT")
         if monthly_limit:
-            config_data.setdefault("budget", {})["monthly_limit"] = float(monthly_limit)
+            config_data.setdefault("budget", {})[
+                "monthly_limit"] = float(monthly_limit)
             config_data.setdefault("budget", {})["enabled"] = True
 
         workflow_limit = os.getenv("PARACLE_COST_WORKFLOW_LIMIT")

@@ -17,6 +17,7 @@ from rich.table import Table
 
 from paracle_cli.api_client import APIClient, APIError, get_client
 from paracle_cli.commands.agent_run import run as _agent_run_cmd
+from paracle_cli.commands.skills import skills as skills_group
 
 console = Console()
 
@@ -538,3 +539,11 @@ def show_skills(agent_id: str | None, list_all: bool) -> None:
 
 # Add the run command from agent_run module to agents group
 agents.add_command(_agent_run_cmd, name="run")
+
+# =============================================================================
+# SKILLS Subcommand Group - Full skill management
+# =============================================================================
+
+# Add the skills subcommand group for advanced skill management
+# This provides: list, export, validate, create, show
+agents.add_command(skills_group, name="skill")

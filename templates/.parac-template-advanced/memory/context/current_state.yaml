@@ -1,0 +1,91 @@
+version: "1.0"
+snapshot_date: "{{DATE}}"
+
+project:
+  name: { { PROJECT_NAME } }
+  version: 0.0.1
+  phase: phase_1
+  status: active
+
+current_phase:
+  id: phase_1
+  name: Initial Setup
+  status: in_progress
+  progress: 0%
+  started_date: "{{DATE}}"
+  target_completion: null
+  focus_areas:
+    - Infrastructure setup (PostgreSQL, Redis)
+    - Agent configuration and testing
+    - Workflow definitions
+    - Policy enforcement
+    - CI/CD pipeline setup
+
+team:
+  size: large
+  members: []
+  roles:
+    - architect
+    - developers
+    - qa_engineers
+    - security_specialist
+    - devops_engineer
+
+infrastructure:
+  database:
+    engine: postgresql
+    status: pending
+  event_bus:
+    engine: redis
+    status: pending
+  observability:
+    tracing: enabled
+    metrics: enabled
+  security:
+    authentication: enabled
+    rate_limiting: enabled
+
+agents:
+  total: 8
+  enabled:
+    - architect
+    - coder
+    - tester
+    - reviewer
+    - pm
+    - documenter
+    - releasemanager
+    - security
+
+workflows:
+  available:
+    - feature_development
+    - bugfix
+    - code_review
+    - security_audit
+    - release
+
+policies:
+  active:
+    - CODE_STYLE
+    - TESTING
+    - SECURITY
+    - GIT_WORKFLOW
+  compliance:
+    - SOC2
+    - GDPR
+    - ISO27001
+
+metrics:
+  agents_run: 0
+  workflows_executed: 0
+  tests_passed: 0
+  security_scans: 0
+  releases_deployed: 0
+
+next_steps:
+  - Configure .env file with API keys
+  - Start infrastructure (docker-compose up -d)
+  - Run database migrations
+  - Test agent connectivity
+  - Execute first workflow

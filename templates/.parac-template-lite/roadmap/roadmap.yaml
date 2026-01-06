@@ -1,0 +1,45 @@
+# Project Roadmap (Lite Mode)
+version: "1.0"
+project: { { PROJECT_NAME } }
+created: "{{DATE}}"
+
+phases:
+  - id: phase_0
+    name: Setup & Prototyping
+    status: in_progress
+    description: Initial project setup and exploration
+    deliverables:
+      - name: .parac/ workspace
+        status: completed
+        completion: 100%
+      - name: First agent customization
+        status: in_progress
+        completion: 0%
+      - name: Run first tasks
+        status: pending
+        completion: 0%
+
+  - id: phase_1
+    name: Development
+    status: pending
+    description: Build out agents and workflows
+    deliverables:
+      - name: Custom agents
+        status: pending
+      - name: Task automation
+        status: pending
+
+goals:
+  short_term:
+    - "Familiarize with Paracle"
+    - "Customize myagent"
+    - "Run successful tasks"
+
+  medium_term:
+    - "Create specialized agents"
+    - "Build basic workflows"
+    - "Integrate with tools"
+
+  long_term:
+    - "Consider upgrading to full mode"
+    - "Production deployment"

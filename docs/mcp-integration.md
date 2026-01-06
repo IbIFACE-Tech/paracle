@@ -6,31 +6,60 @@ Guide to using Model Context Protocol (MCP) with Paracle.
 
 Paracle supports the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) for integrating external tools and resources. MCP provides a standardized way for AI applications to interact with tools, data sources, and services.
 
-## Architecture
+## Single MCP Endpoint Architecture
+
+Paracle follows a **"Write Once, Use Anywhere"** philosophy. All tools—built-in, custom, and external MCP servers—are accessible through a **single Paracle MCP endpoint**.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                     PARACLE FRAMEWORK                        │
+│                      IDE (VS Code, Cursor, etc.)             │
 │                                                             │
-│   ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    │
-│   │   Agent     │───▶│ Tool Router │───▶│ MCP Client  │    │
-│   │             │    │             │    │             │    │
-│   └─────────────┘    └─────────────┘    └──────┬──────┘    │
-│                                                │            │
-└────────────────────────────────────────────────│────────────┘
-                                                 │
-                         HTTP/JSON-RPC           │
-                                                 ▼
+│   Only ONE MCP server configured: paracle mcp serve --stdio │
+│                                                             │
+└────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                       MCP SERVER                             │
+│                   PARACLE MCP SERVER                         │
+│                  (Single Entry Point)                        │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  ┌──────────────────┐  ┌──────────────┐  ┌──────────────┐  │
+│  │  Built-in Tools  │  │ Custom Tools │  │ External MCP │  │
+│  │  (agent_tools)   │  │ (.parac/     │  │  Servers     │  │
+│  │                  │  │ tools/custom)│  │              │  │
+│  │  • code_analysis │  │              │  │  Loaded from │  │
+│  │  • git_commit    │  │  Python .py  │  │  .parac/     │  │
+│  │  • test_exec     │  │  files with  │  │  tools/mcp/  │  │
+│  │  • ...50+ tools  │  │  execute()   │  │  mcp.json    │  │
+│  └──────────────────┘  └──────────────┘  └──────────────┘  │
+│                                                             │
+│              All exposed as: paracle/*                      │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                    Proxies calls to
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│               EXTERNAL MCP SERVERS                           │
 │                                                             │
 │   ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    │
-│   │   Tools     │    │  Resources  │    │   Prompts   │    │
-│   │             │    │             │    │             │    │
+│   │ Astro Docs  │    │  GitHub     │    │  Custom     │    │
+│   │             │    │             │    │  Servers    │    │
 │   └─────────────┘    └─────────────┘    └─────────────┘    │
+│                                                             │
+│   Defined in: .parac/tools/mcp/mcp.json (source of truth)  │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
 ```
+
+### Key Principles
+
+1. **Single Source of Truth**: External MCP servers are defined ONLY in `.parac/tools/mcp/mcp.json`
+2. **No Duplication**: IDE configs (`.vscode/mcp.json`) only reference Paracle server
+3. **Unified Access**: All tools accessible through `paracle mcp serve --stdio`
+4. **Write Once**: Define tools in `.parac/`, access from any IDE
 
 ## Quick Start
 
@@ -532,24 +561,131 @@ tool_cache = {t["name"]: t for t in tools}
 
 ---
 
-## IDE Configuration Examples
+## Configuring External MCP Servers
 
-### VS Code
+### The Source of Truth: `.parac/tools/mcp/mcp.json`
 
-Add to `.vscode/mcp.json` or settings.json:
+All external MCP servers are defined in a single file. **Do not** add them directly to your IDE config.
 
 ```json
+// .parac/tools/mcp/mcp.json
 {
-  "mcp": {
-    "servers": {
-      "paracle": {
-        "command": "paracle",
-        "args": ["mcp", "serve", "--stdio"]
+  "mcpServers": {
+    "Astro docs": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://mcp.docs.astro.build/mcp"]
+    },
+    "GitHub": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
       }
+    },
+    "filesystem": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "./"]
     }
   }
 }
 ```
+
+### Verifying External Servers
+
+After adding servers, verify they load correctly:
+
+```bash
+# List all tools (including external MCP servers)
+paracle mcp list
+
+# You should see tools like:
+# - Astro docs_info (from Astro docs MCP)
+# - GitHub_create_issue (from GitHub MCP)
+# - ...
+```
+
+### How It Works
+
+1. Paracle MCP server reads `.parac/tools/mcp/mcp.json`
+2. Spawns external MCP servers as child processes
+3. Proxies tool calls to the appropriate server
+4. Returns results through the single Paracle endpoint
+
+**Benefits:**
+
+- One config file to manage all external tools
+- IDEs only need Paracle MCP configured
+- Easy to share tool configurations with team
+- Version-controlled in `.parac/`
+
+---
+
+## IDE Configuration
+
+### Supported IDEs (13 Total)
+
+Paracle supports comprehensive integration with 13 IDEs and AI tools:
+
+| Category | IDEs |
+|----------|------|
+| **MCP Native** | VS Code, Cursor, Windsurf, Zed |
+| **Rules-based** | Cline, GitHub Copilot, Warp, Gemini CLI, Opencode AI |
+| **Web-based** | Claude.ai/Desktop, ChatGPT, Raycast AI |
+| **CI/CD** | Claude Code GitHub Action, GitHub Copilot Coding Agent |
+
+### Automatic Setup
+
+```bash
+# Auto-detect installed IDEs and configure them
+paracle ide setup
+
+# Setup specific IDE
+paracle ide setup --ide cursor
+
+# Setup all detected IDEs
+paracle ide setup --all
+```
+
+### Manual Setup
+
+```bash
+# Initialize configuration for specific IDE
+paracle ide init --ide vscode
+paracle ide init --ide cursor
+paracle ide init --ide zed
+
+# Build and copy configurations
+paracle ide build --target all --copy
+
+# Get instructions for web-based IDEs
+paracle ide instructions chatgpt
+paracle ide instructions claude_desktop
+```
+
+### Important: Only Configure Paracle
+
+IDEs should **only** reference the Paracle MCP server. External servers are loaded from `.parac/tools/mcp/mcp.json`.
+
+### VS Code
+
+The file `.vscode/mcp.json` is auto-generated by `paracle ide build --copy`:
+
+```json
+{
+  "servers": {
+    "paracle": {
+      "type": "stdio",
+      "command": "uv",
+      "args": ["run", "paracle", "mcp", "serve", "--stdio"]
+    }
+  }
+}
+```
+
+**Note:** Do NOT add external MCP servers here. They are accessed through Paracle.
 
 ### Cursor
 
@@ -596,6 +732,49 @@ Add to `~/.codeium/windsurf/mcp_config.json`:
   }
 }
 ```
+
+### Zed
+
+Add to `.zed/settings.json`:
+
+```json
+{
+  "language_models": {
+    "mcp_servers": {
+      "paracle": {
+        "command": "paracle",
+        "args": ["mcp", "serve", "--stdio"]
+      }
+    }
+  }
+}
+```
+
+### Warp Terminal
+
+Place AI rules in `.warp/ai-rules.yaml` (auto-generated by `paracle ide build --target warp --copy`).
+
+### Gemini CLI
+
+Place instructions in `.gemini/instructions.md`:
+
+```bash
+# Configure Gemini CLI to use instructions file
+gemini config set instructions_file .gemini/instructions.md
+```
+
+### Web-based IDEs (ChatGPT, Claude.ai, Raycast)
+
+For web-based IDEs that don't support file-based configuration:
+
+```bash
+# Get copy-paste instructions
+paracle ide instructions chatgpt
+paracle ide instructions claude_desktop
+paracle ide instructions raycast
+```
+
+These commands output formatted instructions that you can paste into the respective AI's custom instructions or system prompt.
 
 ---
 
