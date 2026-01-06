@@ -1,6 +1,25 @@
 # Paracle Examples
 
-This directory contains practical examples demonstrating how to use Paracle's built-in tools.
+This directory contains practical examples demonstrating how to use Paracle's features.
+
+## ⭐ Featured Example: Agent Inheritance
+
+**File**: [`real_world_inheritance.py`](real_world_inheritance.py)
+
+Demonstrates Paracle's **unique agent inheritance feature** - not available in any other framework!
+
+Build a hierarchy of specialized code reviewers:
+- Base Reviewer → Python Specialist → FastAPI Expert → Security Auditor
+- 4-level inheritance chain with tool/skill accumulation
+- Property overrides and metadata merging
+
+```bash
+uv run python examples/real_world_inheritance.py
+```
+
+**Learn more**: [Agent Inheritance Documentation](../docs/agent-inheritance-example.md)
+
+---
 
 ## Quick Start
 

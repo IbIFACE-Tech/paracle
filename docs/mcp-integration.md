@@ -34,6 +34,39 @@ Paracle supports the [Model Context Protocol (MCP)](https://modelcontextprotocol
 
 ## Quick Start
 
+### 1. Start Paracle MCP Server
+
+Paracle includes a built-in MCP server that exposes all agent tools:
+
+```bash
+# For IDE integration (stdio transport)
+paracle mcp serve --stdio
+
+# For debugging (HTTP transport)
+paracle mcp serve --port 3000
+```
+
+### 2. List Available Tools
+
+```bash
+paracle mcp list
+paracle mcp list --category agent
+paracle mcp list --json
+```
+
+### 3. Configure Your IDE
+
+```bash
+# Show configuration for your IDE
+paracle mcp config --ide vscode
+paracle mcp config --ide cursor
+paracle mcp config --ide claude
+```
+
+---
+
+## Using Paracle as MCP Client
+
 ### 1. Install Dependencies
 
 ```bash
@@ -41,7 +74,7 @@ pip install httpx
 # MCP client is included in paracle_mcp
 ```
 
-### 2. Connect to MCP Server
+### 2. Connect to External MCP Server
 
 ```python
 from paracle_mcp import MCPClient
@@ -499,13 +532,81 @@ tool_cache = {t["name"]: t for t in tools}
 
 ---
 
+## IDE Configuration Examples
+
+### VS Code
+
+Add to `.vscode/mcp.json` or settings.json:
+
+```json
+{
+  "mcp": {
+    "servers": {
+      "paracle": {
+        "command": "paracle",
+        "args": ["mcp", "serve", "--stdio"]
+      }
+    }
+  }
+}
+```
+
+### Cursor
+
+In Settings > MCP, or `mcp_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "paracle": {
+      "command": "paracle",
+      "args": ["mcp", "serve", "--stdio"]
+    }
+  }
+}
+```
+
+### Claude Code
+
+Add to `~/.claude/mcp_servers.json`:
+
+```json
+{
+  "mcpServers": {
+    "paracle": {
+      "command": "paracle",
+      "args": ["mcp", "serve", "--stdio"]
+    }
+  }
+}
+```
+
+### Windsurf
+
+Add to `~/.codeium/windsurf/mcp_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "paracle": {
+      "command": "paracle",
+      "args": ["mcp", "serve", "--stdio"],
+      "env": {}
+    }
+  }
+}
+```
+
+---
+
 ## Related Documentation
 
+- [CLI Reference](cli-reference.md) - Full CLI command reference
 - [Built-in Tools](builtin-tools.md) - Paracle's native tools
 - [Agents](getting-started.md) - Agent configuration
 - [MCP Specification](https://modelcontextprotocol.io/) - Official MCP docs
 
 ---
 
-**Last Updated:** 2026-01-05
+**Last Updated:** 2026-01-06
 **Version:** 0.0.1

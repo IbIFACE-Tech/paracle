@@ -6,7 +6,7 @@ Get up and running with Paracle in 5 minutes.
 
 - Python 3.10 or higher
 - pip package manager
-- (Optional) Docker for Phase 5 features
+- (Optional) Docker for sandbox features
 
 ## Installation
 
@@ -77,19 +77,34 @@ $env:OPENAI_API_KEY = "sk-your-key-here"
 
 See [API Keys Guide](api-keys.md) for all providers.
 
-### 4. Run Your Agent
+### 4. Initialize Paracle Workspace
 
 ```bash
-paracle agent run agent.yaml
+paracle init
 ```
 
-Interactive prompt:
+### 5. Run an Agent
+
+```bash
+# List available agents
+paracle agents list
+
+# Run an agent with a task
+paracle agents run coder --task "Create a hello world script"
 ```
-🤖 hello-agent: Hello! How can I help you today?
 
-You: What's the current date and time?
+Example output:
 
-🤖 hello-agent: The current date and time is January 6, 2026, 10:30:00 AM.
+```
+🛡️ Running Agent: CODER
+
+Task: Create a hello world script
+Mode: SAFE
+
+✅ Execution Complete
+
+Outputs:
+  • result: Created hello.py with print("Hello, World!")
 ```
 
 ## Next Steps
@@ -201,7 +216,7 @@ tools:
   - custom_calculator
 ```
 
-### Enable Phase 5 Features
+### Enable Sandbox Features
 
 Install Docker dependencies:
 
@@ -209,19 +224,18 @@ Install Docker dependencies:
 pip install "paracle[sandbox]"
 ```
 
-Run agent in sandbox:
+Run agent in sandbox mode:
 
 ```bash
-paracle agent run agent.yaml --sandbox --cpu-limit 2.0 --memory-limit 512m
+paracle agents run tester --task "Run security tests" --mode sandbox
 ```
 
 Features:
+
 - ✅ Docker isolation
 - ✅ Resource limits
 - ✅ Automatic rollback on failure
 - ✅ Artifact review
-
-See [Phase 5 Guide](phase5-guide.md).
 
 ## Common Patterns
 
@@ -324,7 +338,7 @@ pip install --force-reinstall "paracle[all]"
 - 🛠️ [Built-in Tools](builtin-tools.md) - Available tools
 - 🌐 [Providers](providers.md) - LLM provider setup
 - 🔧 [Advanced Topics](agent-skills.md) - Agent skills, MCP integration
-- 🚀 [Phase 5 Features](phase5-guide.md) - Sandbox, rollback, review
+- 🚀 [Execution Modes](execution-modes.md) - Safe, YOLO, sandbox, review modes
 
 ## Getting Help
 

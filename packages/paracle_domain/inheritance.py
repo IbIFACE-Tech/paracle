@@ -58,7 +58,8 @@ class ParentNotFoundError(InheritanceError):
     def __init__(self, child: str, parent: str) -> None:
         self.child = child
         self.parent = parent
-        super().__init__(f"Parent agent '{parent}' not found for agent '{child}'")
+        super().__init__(
+            f"Parent agent '{parent}' not found for agent '{child}'")
 
 
 class InheritanceResult:
@@ -126,7 +127,8 @@ def resolve_inheritance(
 
         # Check depth limit
         if len(chain) >= max_depth:
-            raise MaxDepthExceededError(len(chain), max_depth, chain + [parent_name])
+            raise MaxDepthExceededError(
+                len(chain), max_depth, chain + [parent_name])
 
         # Get parent spec
         parent_spec = get_parent(parent_name)
@@ -179,6 +181,7 @@ def _merge_specs(specs: list[AgentSpec]) -> AgentSpec:
     # Start with root spec
     base = specs[0]
     merged_tools = list(base.tools)
+    merged_skills = list(base.skills)  # ← BUG FIX: merge skills too!
     merged_metadata = dict(base.metadata)
     merged_config = dict(base.config)
 
@@ -196,6 +199,11 @@ def _merge_specs(specs: list[AgentSpec]) -> AgentSpec:
         for tool in child.tools:
             if tool not in merged_tools:
                 merged_tools.append(tool)
+
+        # Merge skills (additive, avoid duplicates)
+        for skill in child.skills:
+            if skill not in merged_skills:
+                merged_skills.append(skill)
 
         # Merge metadata (child overrides)
         merged_metadata.update(child.metadata)
@@ -230,6 +238,7 @@ def _merge_specs(specs: list[AgentSpec]) -> AgentSpec:
         system_prompt=merged_system_prompt,
         parent=leaf.parent,
         tools=merged_tools,
+        skills=merged_skills,  # ← BUG FIX: include merged skills!
         config=merged_config,
         metadata=merged_metadata,
     )

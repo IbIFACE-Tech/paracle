@@ -115,36 +115,53 @@ Each agent has been assigned relevant skills from the `.parac/agents/skills/` di
 
 ---
 
+### 🔒 Security Agent
+
+**Role**: Security auditing, vulnerability detection, and compliance enforcement.
+
+**Skills**:
+
+- `security-hardening` - Security best practices, authentication, authorization
+- `testing-qa` - Security testing and validation
+- `paracle-development` - Framework security patterns
+- `performance-optimization` - Security performance analysis (DoS prevention)
+
+**Rationale**: Security agents need deep security expertise, testing capabilities for penetration testing, framework knowledge to identify vulnerabilities, and performance understanding to prevent security-related performance issues.
+
+---
+
 ## Skill Distribution Matrix
 
-| Skill                    | Architect | Coder | Documenter | PM  | Reviewer | Tester | ReleaseManager |
-| ------------------------ | --------- | ----- | ---------- | --- | -------- | ------ | -------------- |
-| framework-architecture   | ✅         |       |            |     |          |        |                |
-| api-development          | ✅         | ✅     | ✅          |     |          |        |                |
-| performance-optimization | ✅         |       |            |     | ✅        | ✅      |                |
-| security-hardening       | ✅         |       |            |     | ✅        | ✅      |                |
-| paracle-development      | ✅         | ✅     | ✅          | ✅   | ✅        | ✅      | ✅              |
-| tool-integration         |           | ✅     |            |     |          |        |                |
-| provider-integration     |           | ✅     |            |     |          |        |                |
-| testing-qa               |           | ✅     |            |     | ✅        | ✅      |                |
-| technical-documentation  |           |       | ✅          |     |          |        |                |
-| workflow-orchestration   |           |       |            | ✅   |          |        | ✅              |
-| agent-configuration      |           |       |            | ✅   |          |        |                |
-| cicd-devops              |           |       |            | ✅   |          |        | ✅              |
-| git-management           |           |       |            |     |          |        | ✅              |
-| release-automation       |           |       |            |     |          |        | ✅              |
+| Skill                    | Architect | Coder | Documenter | PM  | Reviewer | Tester | ReleaseManager | Security |
+| ------------------------ | --------- | ----- | ---------- | --- | -------- | ------ | -------------- | -------- |
+| framework-architecture   | ✅         |       |            |     |          |        |                |          |
+| api-development          | ✅         | ✅     | ✅          |     |          |        |                |          |
+| performance-optimization | ✅         |       |            |     | ✅        | ✅      |                | ✅        |
+| security-hardening       | ✅         |       |            |     | ✅        | ✅      |                | ✅        |
+| paracle-development      | ✅         | ✅     | ✅          | ✅   | ✅        | ✅      | ✅              | ✅        |
+| tool-integration         |           | ✅     |            |     |          |        |                |          |
+| provider-integration     |           | ✅     |            |     |          |        |                |          |
+| testing-qa               |           | ✅     |            |     | ✅        | ✅      |                | ✅        |
+| technical-documentation  |           |       | ✅          |     |          |        |                |          |
+| workflow-orchestration   |           |       |            | ✅   |          |        | ✅              |          |
+| agent-configuration      |           |       |            | ✅   |          |        |                |          |
+| cicd-devops              |           |       |            | ✅   |          |        | ✅              |          |
+| git-management           |           |       |            |     |          |        | ✅              |          |
+| release-automation       |           |       |            |     |          |        | ✅              |          |
 
 ## Skill Coverage
 
-- **Most Shared**: `paracle-development` (7 agents) - Core framework knowledge
+- **Most Shared**: `paracle-development` (8 agents) - Core framework knowledge
 - **DevOps Focus**: `cicd-devops`, `git-management`, `release-automation` specialized for Release Manager
 - **Quality Focus**: `testing-qa`, `security-hardening`, `performance-optimization` shared across quality-focused agents
+- **Security Focus**: `security-hardening` is primary for Security agent, shared with Architect, Reviewer, and Tester
 - **Specialized**: `technical-documentation`, `tool-integration`, `provider-integration`, `workflow-orchestration` assigned to specific agents
 
 ## Notes
 
 - All agents have `paracle-development` as it provides core framework understanding
-- Quality-related skills (`testing-qa`, `security-hardening`, `performance-optimization`) are shared across Architect, Reviewer, and Tester
+- Quality-related skills (`testing-qa`, `security-hardening`, `performance-optimization`) are shared across Architect, Reviewer, Tester, and Security
+- Security agent is the primary owner of security-hardening skill with deepest expertise
 - Specialized skills are assigned to agents with direct responsibilities in those areas
 - Skills can be discovered, activated, and executed following the progressive disclosure pattern
 

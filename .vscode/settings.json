@@ -188,6 +188,7 @@
   // ═══════════════════════════════════════════════════════════════
   "github.copilot.chat.edits.enabled": true,
   "github.copilot.chat.edits.suggestRelatedFilesFromGitHistory": true,
+  "github.copilot.edits.enableTerminalCommands": true,
   // ═══════════════════════════════════════════════════════════════
   // COPILOT CODE ACTIONS - Quick fixes and refactoring
   // ═══════════════════════════════════════════════════════════════

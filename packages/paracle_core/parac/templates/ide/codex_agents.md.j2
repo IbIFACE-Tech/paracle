@@ -1,0 +1,102 @@
+# AGENTS.md - Paracle Multi-Agent Framework
+
+## Repository Overview
+
+This project uses the Paracle multi-agent framework. Agents are defined in `.parac/agents/`.
+
+## Available Agents
+
+| Agent | Role | Invoke When |
+|-------|------|-------------|
+{% for agent in agents %}
+| `{{ agent.id }}` | {{ agent.name }} | {{ agent.description[:50] }}{% if agent.description|length > 50 %}...{% endif %} |
+{% endfor %}
+
+## Agent Invocation
+
+Prefix your request with the agent name:
+{% for agent in agents %}
+- `@{{ agent.id }} [task description]`
+{% endfor %}
+
+## Before Any Task
+
+1. Read `.parac/memory/context/current_state.yaml` - Current project state
+2. Check `.parac/roadmap/roadmap.yaml` - Phase and priorities
+3. Review `.parac/policies/` - Coding standards
+
+## Coding Conventions
+
+- Run `make lint` before commits
+- Follow `.parac/policies/CODE_STYLE.md`
+- Document decisions in `.parac/roadmap/decisions.md`
+
+## Testing
+
+- Run `make test` for unit tests
+- Run `make coverage` for coverage report
+- Target: 80%+ coverage
+
+## MCP Integration
+
+Tools available via MCP server:
+```bash
+paracle mcp serve --stdio
+```
+
+### Available Tools
+{% for tool in all_tools %}
+- `{{ tool.name }}` - {{ tool.description }}
+{% endfor %}
+
+### Context Tools
+- `context.current_state` - Get current project state
+- `context.roadmap` - Get project roadmap
+- `context.policies` - Get active policies
+- `context.decisions` - Get architectural decisions
+
+### Workflow Tools
+- `workflow.run(workflow_id, inputs)` - Execute Paracle workflows
+- `workflow.list` - List available workflows
+
+**Available Workflows:**
+- `feature_development` - Full feature cycle (design → code → test → review → docs)
+- `bugfix` - Streamlined bugfix flow
+- `code_review` - Comprehensive code review (quality, security, tests)
+- `refactoring` - Safe refactoring with baseline tests
+- `release` - Release management (version, changelog, publish)
+- `documentation` - Documentation generation workflow
+
+**Workflow Examples:**
+
+@coder - Run code review:
+```
+workflow.run(workflow_id="code_review", inputs={changed_files: ["src/api.py"]})
+```
+
+@architect - Start feature development:
+```
+workflow.run(workflow_id="feature_development", inputs={feature_name: "authentication"})
+```
+
+@releasemanager - Create a release:
+```
+workflow.run(workflow_id="release", inputs={version_type: "minor"})
+```
+
+### Memory Tools
+- `memory.log_action(agent, action, description)` - Log agent actions
+
+## Logging Actions
+
+After significant work, log to `.parac/memory/logs/agent_actions.log`:
+```
+[TIMESTAMP] [AGENT] [ACTION] Description
+```
+
+## Reference
+
+- `.parac/` - Project governance and state
+- `.parac/agents/specs/` - Full agent specifications
+- `.parac/policies/` - Coding policies
+- `.parac/roadmap/` - Roadmap and decisions

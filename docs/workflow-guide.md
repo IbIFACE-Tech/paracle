@@ -524,6 +524,116 @@ WorkflowStep(
 
 ---
 
+## IDE Agent Integration
+
+IDE-generated agents (VS Code Copilot, Claude Code, Cursor, etc.) can execute Paracle workflows through MCP tools.
+
+### How IDE Agents Access Workflows
+
+1. **Via MCP Server**: The `paracle mcp serve --stdio` server exposes workflow tools
+2. **Via Generated Agent Files**: Agent files include workflow tool references
+
+### Available Workflow Tools
+
+| Tool | Description |
+|------|-------------|
+| `workflow.run` | Execute a workflow by ID |
+| `workflow.list` | List all available workflows |
+| `workflow.status` | Check workflow execution status |
+
+### Using Workflows in VS Code Copilot
+
+In VS Code with Copilot agents (`.github/agents/*.agent.md`):
+
+```markdown
+## Available Workflows
+
+Use `#tool:paracle/workflow.run` to execute workflows:
+
+- **feature_development**: Full feature cycle (design -> code -> test -> review -> docs)
+- **bugfix**: Quick bugfix flow
+- **code_review**: Comprehensive code review
+- **release**: Release management (version, changelog, publish)
+
+Example usage:
+#tool:paracle/workflow.run(workflow_id="code_review", inputs={changed_files: ["src/api.py"]})
+```
+
+### Using Workflows in Claude Code
+
+In Claude Code subagents (`.claude/agents/*.md`):
+
+```markdown
+## Workflows
+
+Execute multi-agent workflows via Paracle CLI or MCP:
+
+CLI: `paracle workflow run code_review --input changed_files='["src/api.py"]'`
+MCP: Use workflow.run tool with workflow_id and inputs
+```
+
+### Workflow Catalog
+
+Available workflows are defined in `.parac/workflows/catalog.yaml`:
+
+| Workflow | Category | Description |
+|----------|----------|-------------|
+| `feature_development` | development | End-to-end feature dev (Architect -> Coder -> Tester -> Reviewer -> Documenter) |
+| `bugfix` | development | Streamlined bugfix flow |
+| `refactoring` | development | Safe refactoring with baseline tests |
+| `code_review` | quality | Multi-agent code review (static, security, quality, coverage, performance) |
+| `documentation` | documentation | Doc generation workflow |
+| `release` | release | Complete release workflow (validation -> changelog -> tag -> publish) |
+
+### Workflow Execution Flow
+
+```
+IDE Agent Request
+      |
+      v
+MCP Server (paracle mcp serve --stdio)
+      |
+      v
+workflow.run tool called
+      |
+      v
+WorkflowLoader loads from .parac/workflows/definitions/
+      |
+      v
+WorkflowEngine executes steps (DAG order)
+      |
+      v
+Each step invokes appropriate agent (coder, tester, reviewer...)
+      |
+      v
+Results aggregated and returned to IDE agent
+```
+
+### Example: Code Review Workflow
+
+The `code_review` workflow orchestrates multiple checks:
+
+1. **static_analysis** - Linting and type checking
+2. **security_check** - Security vulnerability scan (depends on step 1)
+3. **code_quality** - Best practices review (depends on step 1)
+4. **test_coverage** - Coverage analysis (depends on step 1)
+5. **performance_check** - Performance review (depends on step 3)
+6. **final_verdict** - Aggregate results (depends on steps 2-5)
+
+```bash
+# Run via CLI
+paracle workflow run code_review \
+  --input changed_files='["src/api.py", "src/models.py"]' \
+  --input review_depth=thorough
+
+# Or via API
+curl -X POST http://localhost:8000/workflows/code_review/execute \
+  -H "Content-Type: application/json" \
+  -d '{"inputs": {"changed_files": ["src/api.py"], "review_depth": "standard"}}'
+```
+
+---
+
 ## Examples
 
 See the [examples/](../examples/) directory:
@@ -531,5 +641,5 @@ See the [examples/](../examples/) directory:
 
 ---
 
-**Last Updated:** 2026-01-05
+**Last Updated:** 2026-01-06
 **Version:** 0.0.1

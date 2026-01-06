@@ -4,12 +4,12 @@ import click
 from rich.console import Console
 
 from paracle_cli.commands.adr import adr
-from paracle_cli.commands.agent_run import run as agent_run
 from paracle_cli.commands.agents import agents
 from paracle_cli.commands.approvals import approvals
 from paracle_cli.commands.cost import cost
 from paracle_cli.commands.ide import ide
 from paracle_cli.commands.logs import logs
+from paracle_cli.commands.mcp import mcp
 from paracle_cli.commands.parac import (
     init,
     parac,
@@ -33,78 +33,72 @@ console = Console()
 @click.group()
 @click.version_option(version="0.0.1")
 def cli() -> None:
-    """Paracle - User-driven multi-agent framework."""
+    """Paracle - User-driven multi-agent framework.
+
+    Run AI-powered agents for code review, testing, documentation, and more.
+
+    Quick start:
+        paracle init              - Initialize a new project
+        paracle agents list       - List available agents
+        paracle agents run coder -t "Fix bug"  - Run an agent
+
+    For more help: paracle <command> --help
+    """
     pass
 
 
-# Register top-level governance commands (new API)
+# Project governance commands
 cli.add_command(init)
 cli.add_command(status)
 cli.add_command(sync)
-# Old: paracle parac validate
 cli.add_command(parac_validate, name="parac-validate")
-# New: paracle validate
 cli.add_command(governance_validate, name="validate")
 cli.add_command(session)
 
-# Register server command (Priority 0 - Essential)
+# API server
 cli.add_command(serve)
 
-# Register domain command groups
+# Agent management (includes run command)
 cli.add_command(agents)
+
+# IDE and MCP integration
 cli.add_command(ide)
+cli.add_command(mcp)
+
+# Workflow and tool management
+cli.add_command(workflow)
+cli.add_command(tools)
+cli.add_command(providers)
+
+# Cost tracking
+cli.add_command(cost)
+
+# Release management
+cli.add_command(release)
+
+# Human-in-the-loop approvals and reviews
+cli.add_command(approvals)
+cli.add_command(reviews)
+
+# Project documentation
+cli.add_command(adr)
+cli.add_command(roadmap)
 cli.add_command(logs)
 
-# Priority 1 CLI commands - Phase 4
-cli.add_command(workflow)   # Workflow management (list, run, status, cancel)
-cli.add_command(tools)      # Tool management (list, info, test, register)
-cli.add_command(providers)  # Provider management (list, add, test, default)
-cli.add_command(cost)       # Cost tracking and budget management
-cli.add_command(release)    # ReleaseManager operations (commit, tag, status)
-
-# Phase 5: Human-in-the-Loop & Artifact Reviews (ISO 42001)
-# Approval management (list, approve, reject, stats)
-cli.add_command(approvals)
-cli.add_command(reviews)    # Artifact reviews (list, approve, reject, stats)
-
-# File management commands
-# ADR management (list, create, get, status, migrate)
-cli.add_command(adr)
-# Roadmap management (list, show, add, validate, sync)
-cli.add_command(roadmap)
-
-# Legacy compatibility (hidden, deprecated)
+# Legacy commands (hidden)
 cli.add_command(parac)
 
 
 @cli.command()
 def hello() -> None:
-    """Hello World command - Phase 0 validation."""
-    console.print("[bold green]Paracle v0.0.1 - Hello World![/bold green]")
+    """Verify Paracle installation."""
+    console.print("[bold green]Paracle v0.0.1[/bold green]")
     console.print("\n[cyan]Framework successfully installed![/cyan]")
-    console.print("\n[yellow]Phase 0: Foundation - Complete[/yellow]")
-    console.print("\nNext steps:")
-    console.print("  - paracle agents create   - Create a new agent")
-    console.print("  - paracle status          - View project state")
-    console.print("  - paracle --help          - Show all commands")
-
-
-@cli.group()
-def agent() -> None:
-    """Manage and run individual agents."""
-    pass
-
-
-# Add agent run command
-agent.add_command(agent_run)
-
-
-@agent.command("create")
-@click.argument("name")
-def agent_create(name: str) -> None:
-    """Create a new agent."""
-    console.print(f"[green]Creating agent: {name}[/green]")
-    console.print("[yellow]⚠️  Use 'paracle agents create' instead[/yellow]")
+    console.print("\nGet started:")
+    console.print("  paracle init              - Initialize a project")
+    console.print("  paracle agents list       - List available agents")
+    console.print("  paracle agents run coder -t 'Fix bug'  - Run an agent")
+    console.print("  paracle --help            - Show all commands")
 
 
 if __name__ == "__main__":

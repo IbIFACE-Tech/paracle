@@ -31,16 +31,15 @@ paracle hello
 
 **Output:**
 ```
-Paracle v0.0.1 - Hello World!
+Paracle v0.0.1
 
 Framework successfully installed!
 
-Phase 0: Foundation - Complete
-
-Next steps:
-  - paracle agents create   - Create a new agent
-  - paracle status          - View project state
-  - paracle --help          - Show all commands
+Get started:
+  paracle init              - Initialize a project
+  paracle agents list       - List available agents
+  paracle agents run coder -t 'Fix bug'  - Run an agent
+  paracle --help            - Show all commands
 ```
 
 ---
@@ -669,6 +668,150 @@ paracle ide sync [OPTIONS]
 |--------|-------------|
 | `--copy/--no-copy` | Copy to project root |
 | `--watch` | Watch for changes |
+
+### ide build
+
+Build native agent files for IDEs.
+
+```bash
+paracle ide build --target TARGET [OPTIONS]
+```
+
+**Options:**
+| Option | Description |
+|--------|-------------|
+| `--target` | Target IDE: vscode, claude, cursor, windsurf, codex, all |
+| `--copy/--no-copy` | Copy to expected IDE locations (default: copy) |
+| `--output` | Custom output directory |
+
+**Example:**
+```bash
+paracle ide build --target vscode
+paracle ide build --target all --copy
+paracle ide build --target claude --no-copy --output ./custom/
+```
+
+---
+
+## MCP Commands
+
+### mcp serve
+
+Start MCP server exposing Paracle tools.
+
+```bash
+paracle mcp serve [OPTIONS]
+```
+
+**Options:**
+| Option | Default | Description |
+|--------|---------|-------------|
+| `--stdio` | false | Use stdio transport (for IDE integration) |
+| `--port` | 3000 | HTTP port (when not using stdio) |
+
+**Example:**
+```bash
+paracle mcp serve --stdio    # For IDE integration (recommended)
+paracle mcp serve --port 3000  # For debugging/testing
+```
+
+### mcp list
+
+List available MCP tools.
+
+```bash
+paracle mcp list [OPTIONS]
+```
+
+**Options:**
+| Option | Description |
+|--------|-------------|
+| `--json` | Output as JSON |
+| `--category` | Filter by category: agent, context, workflow, memory, all |
+
+### mcp config
+
+Show MCP configuration for IDEs.
+
+```bash
+paracle mcp config [OPTIONS]
+```
+
+**Options:**
+| Option | Description |
+|--------|-------------|
+| `--ide` | Show config for specific IDE: vscode, cursor, windsurf, claude |
+
+---
+
+## Agent Run Command
+
+### agents run
+
+Run a single agent for a specific task.
+
+```bash
+paracle agents run AGENT_NAME --task "TASK" [OPTIONS]
+```
+
+**Required:**
+| Option | Description |
+|--------|-------------|
+| `--task, -t` | Task description or instruction |
+
+**Execution Options:**
+| Option | Default | Description |
+|--------|---------|-------------|
+| `--mode, -m` | safe | Execution mode: safe, yolo, sandbox, review |
+| `--timeout` | 300 | Timeout in seconds |
+| `--dry-run` | false | Validate without executing |
+
+**LLM Configuration:**
+| Option | Description |
+|--------|-------------|
+| `--model` | Model name (e.g., gpt-4, claude-3-opus) |
+| `--provider` | Provider: openai, anthropic, google, mistral, groq, ollama |
+| `--temperature` | Temperature 0.0-2.0 |
+| `--max-tokens` | Maximum tokens to generate |
+
+**Inputs:**
+| Option | Description |
+|--------|-------------|
+| `--input, -i` | Key=value pairs (multiple allowed) |
+| `--file, -f` | Input files (multiple allowed) |
+
+**Cost & Output:**
+| Option | Description |
+|--------|-------------|
+| `--cost-limit` | Maximum cost in USD |
+| `--output, -o` | Save output to JSON file |
+| `--stream/--no-stream` | Stream output (default: stream) |
+| `--verbose, -v` | Show detailed information |
+
+**Examples:**
+```bash
+# Basic code review
+paracle agents run reviewer --task "Review changes in src/app.py"
+
+# Bug fix with yolo mode (auto-approve all actions)
+paracle agents run coder --task "Fix memory leak" --mode yolo
+
+# Sandboxed execution (safe environment)
+paracle agents run tester --task "Run integration tests" --mode sandbox
+
+# With custom model and inputs
+paracle agents run architect \
+    --task "Design auth system" \
+    --model gpt-4-turbo \
+    --input feature=authentication \
+    --input users=1000000
+
+# Cost-limited execution
+paracle agents run coder \
+    --task "Implement feature X" \
+    --cost-limit 2.50 \
+    --output result.json
+```
 
 ---
 

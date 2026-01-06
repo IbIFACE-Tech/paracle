@@ -41,13 +41,26 @@ cp .env.example .env
 
 📖 **See [API Keys Guide](docs/api-keys.md) for detailed setup**
 
-### Hello World
+### Verify Installation
 
 ```bash
 paracle hello
 ```
 
-### Create Your First Agent
+### Initialize & Run Your First Agent
+
+```bash
+# Initialize workspace
+paracle init
+
+# List available agents
+paracle agents list
+
+# Run an agent with a task
+paracle agents run coder --task "Create a hello world script"
+```
+
+### Or Use the Python API
 
 ```python
 from paracle_domain.models import AgentSpec, Agent
@@ -223,21 +236,7 @@ make format
 
 ## 🗺️ Roadmap
 
-Paracle is being developed in **10 phases** over **32 weeks**:
-
-- ✅ **Phase 0** (1 week): Foundation & Setup - Complete
-- ✅ **Phase 1** (3 weeks): Core Domain - Complete
-- ✅ **Phase 2** (4 weeks): Multi-Provider & Multi-Framework - Complete
-- ✅ **Phase 3** (4 weeks): Orchestration & API - Complete
-- 🔄 **Phase 4** (3 weeks): Persistence & Production Scale - 95% Complete
-- 📅 **Phase 5** (3 weeks): Execution Safety & Isolation
-- 📅 **Phase 6** (3 weeks): Iterative Execution & Agent Profiles
-- 📅 **Phase 7** (3 weeks): Git Integration & Change Tracking
-- 📅 **Phase 8** (2 weeks): Real-time Monitoring & Templates
-- 📅 **Phase 9** (2 weeks): Notifications & Advanced Features
-- 📅 **Phase 10** (2 weeks): Polish & v0.1.0 Release
-
-See [detailed roadmap](.parac/roadmap/roadmap.yaml) for more information.
+Paracle is under active development. See [roadmap](.parac/roadmap/roadmap.yaml) for details.
 
 ## 🤝 Contributing
 
@@ -270,4 +269,4 @@ Paracle is licensed under the [Apache License 2.0](LICENSE).
 
 **Built with ❤️ by IbIFACE-Tech**
 
-_Paracle v0.0.1 - Phase 4: Persistence & Production Scale (95% complete) - 672 tests passing_
+_Paracle v0.0.1 - 700+ tests passing_

@@ -1,5 +1,5 @@
 schema_version: '1.0'
-generated_at: '2026-01-06T02:54:00.876836'
+generated_at: '2026-01-06T15:41:14.106231'
 workspace:
   name: paracle-lite
   version: 0.0.1
@@ -72,6 +72,19 @@ agents:
   - knowledge transfer
   description: Code review, quality assurance, and ensuring adherence to project standards
     and best practices.
+- id: security
+  name: Security Agent
+  role: Security auditing, vulnerability detection, threat modeling, and security
+    compliance enforcement for Paracle framework and AI applications.
+  spec_file: agents\specs\security.md
+  capabilities:
+  - security auditing
+  - vulnerability detection
+  - threat modeling
+  - compliance & standards
+  - security testing
+  description: Security auditing, vulnerability detection, threat modeling, and security
+    compliance enforcement for Paracle framework and AI applications.
 - id: tester
   name: Tester Agent
   role: Test design, implementation, and quality validation ensuring comprehensive
@@ -84,5 +97,5 @@ agents:
   description: Test design, implementation, and quality validation ensuring comprehensive
     coverage and reliability.
 metadata:
-  agent_count: 7
+  agent_count: 8
   specs_directory: agents/specs/

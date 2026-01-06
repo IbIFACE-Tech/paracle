@@ -546,3 +546,92 @@ def ide_sync(copy: bool, watch: bool) -> None:
         paracle ide sync --no-copy
     """
     use_api_or_fallback(_sync_via_api, _sync_direct, copy, watch)
+
+
+# =============================================================================
+# BUILD Command - Native Agent Compilation
+# =============================================================================
+
+
+@ide.command("build")
+@click.option(
+    "--target",
+    required=True,
+    type=click.Choice(["vscode", "claude", "cursor", "windsurf", "codex", "all"]),
+    help="Target IDE for agent compilation",
+)
+@click.option(
+    "--copy/--no-copy",
+    default=True,
+    help="Copy to expected IDE locations (e.g., .github/agents/)",
+)
+@click.option(
+    "--output",
+    type=click.Path(),
+    help="Custom output directory",
+)
+def ide_build(target: str, copy: bool, output: str | None) -> None:
+    """Build native agent files for IDEs.
+
+    Compiles .parac/agents/ to IDE-native formats:
+
+    \b
+    - vscode: .github/agents/*.agent.md (Copilot custom agents)
+    - claude: .claude/agents/*.md (Claude Code subagents)
+    - cursor: .cursorrules with agent router (@architect, @coder, etc.)
+    - windsurf: .windsurfrules + mcp_config.json
+    - codex: AGENTS.md at project root
+
+    Generated files reference Paracle MCP tools via:
+        paracle mcp serve --stdio
+
+    Examples:
+        paracle ide build --target vscode
+        paracle ide build --target all --copy
+        paracle ide build --target claude --no-copy --output ./custom/
+    """
+    parac_root = get_parac_root_or_exit()
+
+    try:
+        from paracle_core.parac.agent_compiler import AgentCompiler
+    except ImportError as e:
+        console.print(f"[red]Error:[/red] {e}")
+        console.print("Ensure paracle_core is properly installed.")
+        raise SystemExit(1)
+
+    compiler = AgentCompiler(parac_root)
+
+    # Determine output directory
+    output_dir = Path(output) if output else None
+
+    console.print(f"\n[bold]Building agents for {target}...[/bold]\n")
+
+    try:
+        result = compiler.build(target, output_dir=output_dir)
+    except Exception as e:
+        console.print(f"[red]Error:[/red] {e}")
+        raise SystemExit(1)
+
+    # Display generated files
+    for file_path in result["files"]:
+        console.print(f"  [green]OK[/green] Generated: {Path(file_path).name}")
+
+    # Copy to destinations if requested
+    if copy:
+        console.print()
+        try:
+            copied = compiler.copy_to_destinations(target)
+            for dest in copied:
+                console.print(f"  [blue]->[/blue] Copied to: {dest}")
+        except Exception as e:
+            console.print(f"  [yellow]Warning:[/yellow] Copy failed: {e}")
+
+    # Summary
+    console.print(
+        f"\n[green]OK[/green] Built {len(result['files'])} file(s) for {target}"
+    )
+
+    # Hint about MCP
+    console.print(
+        "\n[dim]Tip: Start MCP server for tool access: paracle mcp serve --stdio[/dim]"
+    )

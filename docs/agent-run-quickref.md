@@ -2,12 +2,12 @@
 
 ## Overview
 
-The `paracle agent run` command enables **single-agent task execution** for quick, targeted operations without creating full workflows.
+The `paracle agents run` command enables **single-agent task execution** for quick, targeted operations without creating full workflows.
 
 ## Basic Usage
 
 ```bash
-paracle agent run <agent_name> --task "<task_description>"
+paracle agents run <agent_name> --task "<task_description>"
 ```
 
 ## Execution Modes
@@ -16,7 +16,7 @@ paracle agent run <agent_name> --task "<task_description>"
 **Recommended for production and critical tasks**
 
 ```bash
-paracle agent run coder --task "Fix bug in auth" --mode safe
+paracle agents run coder --task "Fix bug in auth" --mode safe
 ```
 
 - Human approval required for sensitive operations
@@ -27,7 +27,7 @@ paracle agent run coder --task "Fix bug in auth" --mode safe
 **Automated execution with auto-approval**
 
 ```bash
-paracle agent run coder --task "Update dependencies" --mode yolo
+paracle agents run coder --task "Update dependencies" --mode yolo
 ```
 
 - Auto-approves all gates
@@ -39,7 +39,7 @@ paracle agent run coder --task "Update dependencies" --mode yolo
 **Isolated execution environment**
 
 ```bash
-paracle agent run tester --task "Run security tests" --mode sandbox
+paracle agents run tester --task "Run security tests" --mode sandbox
 ```
 
 - Isolated file system
@@ -51,7 +51,7 @@ paracle agent run tester --task "Run security tests" --mode sandbox
 **Human-in-the-loop with mandatory review**
 
 ```bash
-paracle agent run architect --task "Design API" --mode review
+paracle agents run architect --task "Design API" --mode review
 ```
 
 - Mandatory human approval for all steps
@@ -63,7 +63,7 @@ paracle agent run architect --task "Design API" --mode review
 ### 1. Code Review
 
 ```bash
-paracle agent run reviewer \
+paracle agents run reviewer \
   --task "Review changes in PR #42" \
   --file src/api.py \
   --file tests/test_api.py \
@@ -73,7 +73,7 @@ paracle agent run reviewer \
 ### 2. Bug Fix (YOLO)
 
 ```bash
-paracle agent run coder \
+paracle agents run coder \
   --task "Fix memory leak in worker" \
   --mode yolo \
   --input bug_id=123 \
@@ -83,7 +83,7 @@ paracle agent run coder \
 ### 3. Documentation Generation
 
 ```bash
-paracle agent run documenter \
+paracle agents run documenter \
   --task "Generate API reference" \
   --file src/api/ \
   --output docs/api.json
@@ -92,7 +92,7 @@ paracle agent run documenter \
 ### 4. Architecture Design
 
 ```bash
-paracle agent run architect \
+paracle agents run architect \
   --task "Design authentication system" \
   --model gpt-4-turbo \
   --input users=1000000 \
@@ -103,7 +103,7 @@ paracle agent run architect \
 ### 5. Testing in Sandbox
 
 ```bash
-paracle agent run tester \
+paracle agents run tester \
   --task "Run integration tests" \
   --mode sandbox \
   --timeout 600
@@ -112,7 +112,7 @@ paracle agent run tester \
 ### 6. Cost-Limited Execution
 
 ```bash
-paracle agent run coder \
+paracle agents run coder \
   --task "Implement feature X" \
   --cost-limit 5.00 \
   --model gpt-4 \
@@ -122,7 +122,7 @@ paracle agent run coder \
 ## All Options
 
 ```bash
-paracle agent run <agent_name> [OPTIONS]
+paracle agents run <agent_name> [OPTIONS]
 
 Required:
   --task, -t TEXT           Task description or instruction
@@ -179,35 +179,35 @@ Choose agent based on task type:
 ### 1. Start with Dry Run
 
 ```bash
-paracle agent run coder --task "Refactor module X" --dry-run
+paracle agents run coder --task "Refactor module X" --dry-run
 # Validates configuration without executing
 ```
 
 ### 2. Use Verbose for Debugging
 
 ```bash
-paracle agent run reviewer --task "Review code" --verbose
+paracle agents run reviewer --task "Review code" --verbose
 # Shows detailed execution info and cost breakdown
 ```
 
 ### 3. Set Cost Limits
 
 ```bash
-paracle agent run coder --task "Large refactoring" --cost-limit 10.00
+paracle agents run coder --task "Large refactoring" --cost-limit 10.00
 # Prevents unexpected costs
 ```
 
 ### 4. Save Outputs for Analysis
 
 ```bash
-paracle agent run architect --task "Design system" --output design.json
+paracle agents run architect --task "Design system" --output design.json
 # Save results for later review or processing
 ```
 
 ### 5. Combine Multiple Inputs
 
 ```bash
-paracle agent run coder \
+paracle agents run coder \
   --task "Implement auth" \
   --input provider=oauth2 \
   --input users=100000 \
@@ -249,14 +249,14 @@ paracle agent run coder \
 
 ```bash
 # Increase timeout for long-running tasks
-paracle agent run coder --task "Large refactor" --timeout 1800  # 30 min
+paracle agents run coder --task "Large refactor" --timeout 1800  # 30 min
 ```
 
 ### Cost Exceeded
 
 ```bash
 # Set higher limit or optimize task
-paracle agent run coder --task "Task" --cost-limit 20.00
+paracle agents run coder --task "Task" --cost-limit 20.00
 ```
 
 ### Agent Not Found
@@ -278,7 +278,7 @@ For multi-step processes, use workflows:
 
 ```bash
 # Single agent (quick)
-paracle agent run coder --task "Fix bug"
+paracle agents run coder --task "Fix bug"
 
 # Multi-agent workflow (comprehensive)
 paracle workflow run bugfix --bug_description "Memory leak"
@@ -290,13 +290,13 @@ paracle workflow run bugfix --bug_description "Memory leak"
 
 ```bash
 # System design
-paracle agent run architect \
+paracle agents run architect \
   --task "Design microservices architecture" \
   --input services=api,worker,scheduler \
   --mode review
 
 # Performance analysis
-paracle agent run architect \
+paracle agents run architect \
   --task "Analyze bottlenecks" \
   --file profiling_results.json
 ```
@@ -305,13 +305,13 @@ paracle agent run architect \
 
 ```bash
 # Feature implementation
-paracle agent run coder \
+paracle agents run coder \
   --task "Implement JWT authentication" \
   --file design.md \
   --mode yolo
 
 # Bug fix
-paracle agent run coder \
+paracle agents run coder \
   --task "Fix SQL injection in auth" \
   --input cve=CVE-2024-1234 \
   --mode safe
@@ -321,12 +321,12 @@ paracle agent run coder \
 
 ```bash
 # Test generation
-paracle agent run tester \
+paracle agents run tester \
   --task "Generate tests for UserService" \
   --file src/services/user.py
 
 # Test execution
-paracle agent run tester \
+paracle agents run tester \
   --task "Run security tests" \
   --mode sandbox \
   --timeout 600
@@ -336,13 +336,13 @@ paracle agent run tester \
 
 ```bash
 # Code review
-paracle agent run reviewer \
+paracle agents run reviewer \
   --task "Review PR #42" \
   --file changes.diff \
   --input focus=security
 
 # Performance review
-paracle agent run reviewer \
+paracle agents run reviewer \
   --task "Check performance regressions" \
   --file benchmark_results.json
 ```
@@ -351,13 +351,13 @@ paracle agent run reviewer \
 
 ```bash
 # API documentation
-paracle agent run documenter \
+paracle agents run documenter \
   --task "Generate API reference" \
   --file src/api/ \
   --output docs/api.md
 
 # User guide
-paracle agent run documenter \
+paracle agents run documenter \
   --task "Write getting started guide" \
   --input audience=beginners
 ```
@@ -366,12 +366,12 @@ paracle agent run documenter \
 
 ```bash
 # Version check
-paracle agent run releasemanager \
+paracle agents run releasemanager \
   --task "Validate release readiness" \
   --mode safe
 
 # Changelog generation
-paracle agent run releasemanager \
+paracle agents run releasemanager \
   --task "Generate changelog from commits" \
   --input from_tag=v0.1.0 \
   --input to_tag=v0.2.0

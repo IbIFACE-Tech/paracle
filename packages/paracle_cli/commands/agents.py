@@ -16,6 +16,7 @@ from rich.console import Console
 from rich.table import Table
 
 from paracle_cli.api_client import APIClient, APIError, get_client
+from paracle_cli.commands.agent_run import run as _agent_run_cmd
 
 console = Console()
 
@@ -77,7 +78,16 @@ def use_api_or_fallback(api_func, fallback_func, *args, **kwargs):
 
 @click.group()
 def agents() -> None:
-    """Manage and discover agents in .parac/ workspace."""
+    """Manage, discover, and run agents.
+
+    Agents are AI-powered specialists defined in .parac/agents/ that can
+    execute tasks like code review, testing, documentation, and more.
+
+    Common commands:
+        paracle agents list          - List all available agents
+        paracle agents run coder -t "Fix bug"  - Run an agent with a task
+        paracle agents skills --list-all       - Show available skills
+    """
     pass
 
 
@@ -132,39 +142,37 @@ def _list_via_api(client: APIClient, output_format: str) -> None:
 def _list_direct(output_format: str) -> None:
     """List agents via direct core access."""
     parac_root = get_parac_root_or_exit()
-    specs_dir = parac_root / "agents" / "specs"
+    manifest_path = parac_root / "agents" / "manifest.yaml"
 
-    if not specs_dir.exists():
-        console.print(
-            "[yellow]No agents found in .parac/agents/specs/[/yellow]"
-        )
+    if not manifest_path.exists():
+        console.print("[yellow]No agents manifest found[/yellow]")
+        console.print("Expected: .parac/agents/manifest.yaml")
         return
 
-    # Load agent specs from YAML files
+    # Load agents from manifest
     import yaml
 
-    agents_list = []
-    for spec_file in specs_dir.glob("*.yaml"):
-        try:
-            content = yaml.safe_load(spec_file.read_text(encoding="utf-8"))
-            if content:
-                agents_list.append({
-                    "id": content.get("id", spec_file.stem),
-                    "name": content.get("name", spec_file.stem),
-                    "role": content.get("role", ""),
-                    "description": content.get("description", ""),
-                    "capabilities": content.get("capabilities", []),
-                    "spec_file": str(spec_file.relative_to(parac_root.parent)),
-                })
-        except Exception as e:
-            console.print(
-                f"[yellow]Warning:[/yellow] Failed to load {spec_file.name}: {e}")
-
-    if not agents_list:
-        console.print(
-            "[yellow]No agents found in .parac/agents/specs/[/yellow]"
-        )
+    try:
+        manifest = yaml.safe_load(manifest_path.read_text(encoding="utf-8"))
+    except Exception as e:
+        console.print(f"[red]Error loading manifest:[/red] {e}")
         return
+
+    agents_data = manifest.get("agents", [])
+    if not agents_data:
+        console.print("[yellow]No agents defined in manifest[/yellow]")
+        return
+
+    agents_list = []
+    for agent in agents_data:
+        agents_list.append({
+            "id": agent.get("id", ""),
+            "name": agent.get("name", ""),
+            "role": agent.get("role", ""),
+            "description": agent.get("description", ""),
+            "capabilities": agent.get("responsibilities", [])[:5],
+            "tools": agent.get("tools", []),
+        })
 
     if output_format == "json":
         import json
@@ -522,3 +530,11 @@ def show_skills(agent_id: str | None, list_all: bool) -> None:
         console.print("\nExamples:")
         console.print("  paracle agents skills --list-all")
         console.print("  paracle agents skills coder")
+
+
+# =============================================================================
+# RUN Command - Execute an agent for a task
+# =============================================================================
+
+# Add the run command from agent_run module to agents group
+agents.add_command(_agent_run_cmd, name="run")

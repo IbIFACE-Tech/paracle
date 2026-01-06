@@ -4,7 +4,8 @@
       "Bash(uv run pytest:*)",
       "Bash(mkdir:*)",
       "Bash(set:*)",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(timeout 2 uv run:*)"
     ]
   }
 }

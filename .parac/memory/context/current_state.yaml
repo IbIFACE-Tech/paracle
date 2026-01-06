@@ -1,4 +1,4 @@
-version: "1.8"
+version: "1.9"
 snapshot_date: "2026-01-06"
 project:
   name: paracle-lite
@@ -8,46 +8,85 @@ project:
 strategic_direction:
   adr: ADR-017
   focus: Developer Experience & Community Growth
-  rationale: "Balance power with accessibility - reduce learning curve while maintaining production readiness"
+  rationale:
+    Balance power with accessibility - reduce learning curve while maintaining
+    production readiness
   phases:
-    phase_6: "Developer Experience & Accessibility"
-    phase_7: "Community Growth & Ecosystem"
-    phase_8: "Performance Optimization & Scale"
+    phase_6: Developer Experience & Accessibility
+    phase_7: Community Growth & Ecosystem
+    phase_8: Performance Optimization & Scale
 recent_updates:
   - date: "2026-01-06"
-    update: "Implemented executable tools for all 7 agents (25+ tools)"
-    impact: "Agents now have real Python tools with _execute() methods, enabling true autonomy"
-    strategic_alignment: "Phase 6 DX - Agent capabilities, tool discovery system"
+    update: Security Agent implementation complete with 21 passing tests
+    impact:
+      Paracle now has 8th agent - Security specialist with 12 tools, 4 skills,
+      full OWASP/CWE/GDPR/SOC2 compliance
+    strategic_alignment:
+      Secure development lifecycle, Phase 6 DX (agent roster expansion),
+      ISO 42001 compliance
+    commit:
+      "feat: implement security agent with comprehensive testing (8 files, 2,841
+      insertions)"
+    artifacts:
+      - .parac/agents/specs/security.md (500+ lines specification)
+      - Security agent manifest entry (12 security tools)
+      - docs/security-agent.md (complete guide)
+      - examples/security_agent.py (350+ lines, 6-step demo)
+      - tests/integration/test_security_agent.py (21 tests, 100% passing)
+      - "Specialized security agents: Python Security Specialist, API Security Specialist"
+    test_results:
+      total_tests: 21
+      passing_tests: 21
+      success_rate: 100%
+      execution_time: 7.11s
+    capabilities:
+      tools:
+        bandit, safety, semgrep, detect-secrets, pip-audit, trivy, static_analysis,
+        security_scan, vulnerability_detector, secret_scanner, dependency_auditor, compliance_checker
+      standards: OWASP Top 10, CWE Top 25, GDPR, SOC2
+      workflows:
+        pre-commit checks, full security audits, continuous monitoring, pre-release
+        validation
+  - date: "2026-01-06"
+    update: Implemented executable tools for all 7 agents (25+ tools)
+    impact:
+      Agents now have real Python tools with _execute() methods, enabling true
+      autonomy
+    strategic_alignment: Phase 6 DX - Agent capabilities, tool discovery system
     commit: "feat: implement executable tools for all agents (15 files, 3,352 insertions)"
     artifacts:
-      - "architect_tools.py (343 lines, 3 tools)"
-      - "coder_tools.py (368 lines, 3 tools)"
-      - "reviewer_tools.py (331 lines, 3 tools)"
-      - "tester_tools.py (389 lines, 3 tools)"
-      - "pm_tools.py (264 lines, 3 tools)"
-      - "documenter_tools.py (303 lines, 3 tools)"
-      - "releasemanager_tools.py (398 lines, 4 tools)"
-      - "agent_tool_registry.py (179 lines, registry mapping)"
+      - architect_tools.py (343 lines, 3 tools)
+      - coder_tools.py (368 lines, 3 tools)
+      - reviewer_tools.py (331 lines, 3 tools)
+      - tester_tools.py (389 lines, 3 tools)
+      - pm_tools.py (264 lines, 3 tools)
+      - documenter_tools.py (303 lines, 3 tools)
+      - releasemanager_tools.py (398 lines, 4 tools)
+      - agent_tool_registry.py (179 lines, registry mapping)
     adr: ADR-018
   - date: "2026-01-06"
-    update: "Extracted MCP tools to separate paracle_mcp package"
-    impact: "Better modularity, clearer separation between agent tools and protocol client"
-    strategic_alignment: "Package architecture, Phase 6 prep (cleaner structure for lite mode)"
-    commit: "refactor: extract MCP tools to separate paracle_mcp package (29 files, 640 insertions, 534 deletions)"
+    update: Extracted MCP tools to separate paracle_mcp package
+    impact: Better modularity, clearer separation between agent tools and protocol client
+    strategic_alignment:
+      Package architecture, Phase 6 prep (cleaner structure for lite
+      mode)
+    commit:
+      "refactor: extract MCP tools to separate paracle_mcp package (29 files,
+      640 insertions, 534 deletions)"
     artifacts:
-      - "paracle_mcp/__init__.py"
-      - "paracle_mcp/client.py"
-      - "paracle_mcp/registry.py"
-      - "Updated 10+ imports across CLI, orchestration, docs"
+      - paracle_mcp/__init__.py
+      - paracle_mcp/client.py
+      - paracle_mcp/registry.py
+      - Updated 10+ imports across CLI, orchestration, docs
     adr: ADR-019
   - date: "2026-01-06"
     update: "Completed API-CLI alignment: Added approvals and reviews CLI commands"
-    impact: "All Phase 5 API endpoints now have CLI equivalents (12 new commands)"
-    strategic_alignment: "API-first architecture compliance, ISO 42001 Human-in-the-Loop"
+    impact: All Phase 5 API endpoints now have CLI equivalents (12 new commands)
+    strategic_alignment: API-first architecture compliance, ISO 42001 Human-in-the-Loop
   - date: "2026-01-06"
-    update: "Added execution runs tracking infrastructure (.parac/runs/)"
-    impact: "Enables debugging, tutorial replay, performance analysis"
-    strategic_alignment: "Phase 6 DX (debugging), Phase 8 Performance (observability)"
+    update: Added execution runs tracking infrastructure (.parac/runs/)
+    impact: Enables debugging, tutorial replay, performance analysis
+    strategic_alignment: Phase 6 DX (debugging), Phase 8 Performance (observability)
 next_phase:
   id: phase_6
   name: Developer Experience & Accessibility
@@ -57,7 +96,7 @@ next_phase:
   target_start: "2026-01-07"
   planned_duration: 4_weeks
   priority: critical
-  strategic_focus: "ADR-017 - Reduce learning curve by ~50%"
+  strategic_focus: ADR-017 - Reduce learning curve by ~50%
   deliverables:
     - lite_mode_init
     - interactive_tutorial
@@ -67,10 +106,10 @@ next_phase:
     - execution_chains
     - agent_profiles
   success_metrics:
-    time_to_first_agent: "< 2 minutes"
+    time_to_first_agent: < 2 minutes
     tutorial_completion: ">70%"
-    example_count: "10+ tested examples"
-    user_feedback_target: "Easy to get started"
+    example_count: 10+ tested examples
+    user_feedback_target: Easy to get started
 current_phase:
   id: phase_5
   name: Execution Safety & Isolation
@@ -684,8 +723,8 @@ metrics:
   tests_failing: 8
   tests_skipped: 1
   test_pass_rate: 97.2%
-  python_files: 173
-  test_files: 53
+  python_files: 190
+  test_files: 57
   cost_management_tests: 22
   cost_management_passing: 22
   cost_management_pass_rate: 100%
@@ -705,5 +744,7 @@ repository:
   url: https://github.com/IbIFACE-Tech/paracle-lite
   branch: develop
   default_branch: main
-  last_commit: "5e9b4cd feat: Implement skill loading and injection system"
+  last_commit:
+    "629f918 docs: update roadmap, ADRs, and logs with tool implementation
+    and MCP refactoring"
   has_uncommitted_changes: true

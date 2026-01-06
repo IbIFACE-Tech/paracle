@@ -134,6 +134,37 @@ agents:
       - Integration with CI/CD pipelines
       - Deployment tracking
 
+  - id: security
+    name: Security Expert
+    role: security_audit
+    description: Security auditing, vulnerability detection, and compliance enforcement
+    spec_file: specs/security.md
+    tools:
+      - bandit # Bandit - Python security linter
+      - safety # Safety - dependency vulnerability checker
+      - semgrep # Semgrep - pattern-based security analysis
+      - detect_secrets # DetectSecrets - scan for exposed secrets
+      - pip_audit # PipAudit - Python package vulnerability scanner
+      - trivy # Trivy - container and dependency scanner
+      - static_analysis # StaticAnalysisTool - comprehensive static checks
+      - security_scan # SecurityScanTool - multi-scanner execution
+      - vulnerability_detector # VulnerabilityDetectorTool - known vulnerability detection
+      - secret_scanner # SecretScannerTool - find exposed credentials
+      - dependency_auditor # DependencyAuditorTool - audit third-party packages
+      - compliance_checker # ComplianceCheckerTool - validate compliance requirements
+    responsibilities:
+      - Security audits and vulnerability detection
+      - Threat modeling and risk assessment
+      - OWASP Top 10 compliance checking
+      - Authentication and authorization review
+      - Input validation and sanitization checks
+      - Dependency vulnerability scanning
+      - Secret detection in code
+      - Security testing and penetration testing
+      - Compliance validation (GDPR, SOC2)
+      - Security incident analysis
+      - Security best practices enforcement
+
 # Agent Inheritance Examples (to be implemented)
 # inheritance:
 #   - child: security-expert

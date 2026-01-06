@@ -127,29 +127,29 @@ def run(
     Examples:
 
         # Basic code review
-        paracle agent run reviewer --task "Review changes in src/app.py"
+        paracle agents run reviewer --task "Review changes in src/app.py"
 
         # Bug fix with yolo mode (auto-approve all actions)
-        paracle agent run coder --task "Fix memory leak" --mode yolo
+        paracle agents run coder --task "Fix memory leak" --mode yolo
 
         # Sandboxed execution (safe environment)
-        paracle agent run tester --task "Run integration tests" --mode sandbox
+        paracle agents run tester --task "Run integration tests" --mode sandbox
 
         # With custom model and inputs
-        paracle agent run architect \\
+        paracle agents run architect \\
             --task "Design auth system" \\
             --model gpt-4-turbo \\
             --input feature=authentication \\
             --input users=1000000
 
         # Include files in context
-        paracle agent run documenter \\
+        paracle agents run documenter \\
             --task "Generate API docs" \\
             --file src/api.py \\
             --file src/models.py
 
         # Cost-limited execution
-        paracle agent run coder \\
+        paracle agents run coder \\
             --task "Implement feature X" \\
             --cost-limit 2.50 \\
             --output result.json
