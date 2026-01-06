@@ -63,7 +63,8 @@ cli.add_command(cost)       # Cost tracking and budget management
 cli.add_command(release)    # ReleaseManager operations (commit, tag, status)
 
 # Phase 5: Human-in-the-Loop & Artifact Reviews (ISO 42001)
-cli.add_command(approvals)  # Approval management (list, approve, reject, stats)
+# Approval management (list, approve, reject, stats)
+cli.add_command(approvals)
 cli.add_command(reviews)    # Artifact reviews (list, approve, reject, stats)
 
 # File management commands

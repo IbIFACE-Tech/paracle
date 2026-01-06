@@ -1,9 +1,7 @@
 """Architecture and design tools for Architect agent."""
 
 import ast
-import json
 import logging
-import subprocess
 from pathlib import Path
 from typing import Any
 
@@ -14,7 +12,7 @@ logger = logging.getLogger("paracle.tools.architect")
 
 class CodeAnalysisTool(BaseTool):
     """Analyze code structure, dependencies, and complexity.
-    
+
     Provides insights into:
     - Module dependencies
     - Function/class complexity
@@ -33,18 +31,18 @@ class CodeAnalysisTool(BaseTool):
 
     async def _execute(self, path: str, **kwargs) -> dict[str, Any]:
         """Analyze code at given path.
-        
+
         Args:
             path: File or directory path to analyze
-            
+
         Returns:
             Analysis results with structure, metrics, dependencies
         """
         file_path = Path(path)
-        
+
         if not file_path.exists():
             return {"error": f"Path not found: {path}"}
-        
+
         if file_path.is_file() and file_path.suffix == ".py":
             return await self._analyze_file(file_path)
         elif file_path.is_dir():
@@ -57,20 +55,23 @@ class CodeAnalysisTool(BaseTool):
         try:
             content = file_path.read_text(encoding="utf-8")
             tree = ast.parse(content, filename=str(file_path))
-            
+
             # Extract structure
-            classes = [node.name for node in ast.walk(tree) if isinstance(node, ast.ClassDef)]
-            functions = [node.name for node in ast.walk(tree) if isinstance(node, ast.FunctionDef)]
+            classes = [node.name for node in ast.walk(
+                tree) if isinstance(node, ast.ClassDef)]
+            functions = [node.name for node in ast.walk(
+                tree) if isinstance(node, ast.FunctionDef)]
             imports = [
                 node.names[0].name if hasattr(node, 'names') else node.module
                 for node in ast.walk(tree)
                 if isinstance(node, (ast.Import, ast.ImportFrom))
             ]
-            
+
             # Calculate metrics
             lines = content.split('\n')
-            loc = len([line for line in lines if line.strip() and not line.strip().startswith('#')])
-            
+            loc = len([line for line in lines if line.strip()
+                      and not line.strip().startswith('#')])
+
             return {
                 "file": str(file_path),
                 "classes": classes,
@@ -91,17 +92,20 @@ class CodeAnalysisTool(BaseTool):
         """Analyze all Python files in directory."""
         py_files = list(dir_path.rglob("*.py"))
         results = []
-        
+
         for py_file in py_files:
             if "__pycache__" not in str(py_file):
                 file_result = await self._analyze_file(py_file)
                 results.append(file_result)
-        
+
         # Aggregate metrics
-        total_loc = sum(r.get("metrics", {}).get("lines_of_code", 0) for r in results)
-        total_classes = sum(r.get("metrics", {}).get("class_count", 0) for r in results)
-        total_functions = sum(r.get("metrics", {}).get("function_count", 0) for r in results)
-        
+        total_loc = sum(r.get("metrics", {}).get("lines_of_code", 0)
+                        for r in results)
+        total_classes = sum(r.get("metrics", {}).get(
+            "class_count", 0) for r in results)
+        total_functions = sum(r.get("metrics", {}).get(
+            "function_count", 0) for r in results)
+
         return {
             "directory": str(dir_path),
             "files_analyzed": len(results),
@@ -116,7 +120,7 @@ class CodeAnalysisTool(BaseTool):
 
 class DiagramGenerationTool(BaseTool):
     """Generate architecture diagrams from code or descriptions.
-    
+
     Supports:
     - Mermaid diagram generation
     - PlantUML diagrams
@@ -132,11 +136,11 @@ class DiagramGenerationTool(BaseTool):
 
     async def _execute(self, diagram_type: str, content: str, **kwargs) -> dict[str, Any]:
         """Generate a diagram.
-        
+
         Args:
             diagram_type: Type of diagram (mermaid, plantuml, ascii)
             content: Diagram content or description
-            
+
         Returns:
             Generated diagram code
         """
@@ -154,7 +158,7 @@ class DiagramGenerationTool(BaseTool):
         # If content is already Mermaid syntax, return as-is
         if content.strip().startswith(("graph", "sequenceDiagram", "classDiagram", "flowchart")):
             return {"diagram_type": "mermaid", "content": content}
-        
+
         # Generate simple flowchart from description
         diagram = f"""```mermaid
 flowchart TD
@@ -167,7 +171,7 @@ flowchart TD
         """Generate PlantUML diagram."""
         if content.strip().startswith("@startuml"):
             return {"diagram_type": "plantuml", "content": content}
-        
+
         diagram = f"""@startuml
 {content}
 @enduml"""
@@ -185,7 +189,7 @@ flowchart TD
 
 class PatternMatchingTool(BaseTool):
     """Detect design patterns and anti-patterns in code.
-    
+
     Identifies:
     - Singleton pattern
     - Factory pattern
@@ -203,18 +207,18 @@ class PatternMatchingTool(BaseTool):
 
     async def _execute(self, path: str, **kwargs) -> dict[str, Any]:
         """Detect patterns in code.
-        
+
         Args:
             path: File or directory to analyze
-            
+
         Returns:
             Detected patterns and anti-patterns
         """
         file_path = Path(path)
-        
+
         if not file_path.exists():
             return {"error": f"Path not found: {path}"}
-        
+
         if file_path.is_file() and file_path.suffix == ".py":
             return await self._detect_patterns_in_file(file_path)
         elif file_path.is_dir():
@@ -232,16 +236,17 @@ class PatternMatchingTool(BaseTool):
         try:
             content = file_path.read_text(encoding="utf-8")
             tree = ast.parse(content, filename=str(file_path))
-            
+
             patterns = []
             anti_patterns = []
-            
+
             # Detect Singleton pattern
             for node in ast.walk(tree):
                 if isinstance(node, ast.ClassDef):
                     # Check for __new__ method (Singleton indicator)
                     has_new = any(
-                        isinstance(item, ast.FunctionDef) and item.name == "__new__"
+                        isinstance(
+                            item, ast.FunctionDef) and item.name == "__new__"
                         for item in node.body
                     )
                     if has_new:
@@ -250,7 +255,7 @@ class PatternMatchingTool(BaseTool):
                             "class": node.name,
                             "line": node.lineno,
                         })
-                    
+
                     # Check for God Object (many methods)
                     methods = [
                         item for item in node.body
@@ -263,7 +268,7 @@ class PatternMatchingTool(BaseTool):
                             "method_count": len(methods),
                             "line": node.lineno,
                         })
-            
+
             # Detect Factory pattern (functions returning instances)
             for node in ast.walk(tree):
                 if isinstance(node, ast.FunctionDef):
@@ -273,7 +278,7 @@ class PatternMatchingTool(BaseTool):
                             "function": node.name,
                             "line": node.lineno,
                         })
-                    
+
                     # Check for long functions (anti-pattern)
                     if len(node.body) > 50:
                         anti_patterns.append({
@@ -282,7 +287,7 @@ class PatternMatchingTool(BaseTool):
                             "lines": len(node.body),
                             "line": node.lineno,
                         })
-            
+
             return {
                 "file": str(file_path),
                 "patterns": patterns,

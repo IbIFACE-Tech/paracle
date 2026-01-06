@@ -1,12 +1,12 @@
 """Project management tools for PM agent."""
 
-import json
 import logging
 import subprocess
-import yaml
 from datetime import datetime
 from pathlib import Path
 from typing import Any
+
+import yaml
 
 from paracle_tools.builtin.base import BaseTool
 
@@ -15,7 +15,7 @@ logger = logging.getLogger("paracle.tools.pm")
 
 class TaskTrackingTool(BaseTool):
     """Track tasks, issues, and project progress.
-    
+
     Supports:
     - Task creation and updates
     - Status tracking
@@ -32,11 +32,11 @@ class TaskTrackingTool(BaseTool):
 
     async def _execute(self, action: str, **kwargs) -> dict[str, Any]:
         """Perform task tracking action.
-        
+
         Args:
             action: Action to perform (create, update, list, report)
             **kwargs: Action-specific parameters
-            
+
         Returns:
             Task tracking results
         """
@@ -61,7 +61,7 @@ class TaskTrackingTool(BaseTool):
             "status": "todo",
             "created": datetime.now().isoformat(),
         }
-        
+
         return {
             "action": "create",
             "task": task,
@@ -81,13 +81,13 @@ class TaskTrackingTool(BaseTool):
         """List tasks with optional filters."""
         # In real implementation, would read from .parac/memory/context/current_state.yaml
         # or a task tracking file
-        
+
         filters = {}
         if status:
             filters["status"] = status
         if priority:
             filters["priority"] = priority
-        
+
         return {
             "action": "list",
             "filters": filters,
@@ -112,7 +112,7 @@ class TaskTrackingTool(BaseTool):
 
 class MilestoneManagementTool(BaseTool):
     """Manage project milestones and roadmap.
-    
+
     Features:
     - Milestone tracking
     - Progress calculation
@@ -129,11 +129,11 @@ class MilestoneManagementTool(BaseTool):
 
     async def _execute(self, action: str, **kwargs) -> dict[str, Any]:
         """Perform milestone management action.
-        
+
         Args:
             action: Action to perform (check, update, sync, report)
             **kwargs: Action-specific parameters
-            
+
         Returns:
             Milestone management results
         """
@@ -154,9 +154,9 @@ class MilestoneManagementTool(BaseTool):
             # Read current state
             state_path = Path(".parac/memory/context/current_state.yaml")
             if state_path.exists():
-                with open(state_path, 'r', encoding='utf-8') as f:
+                with open(state_path, encoding='utf-8') as f:
                     state = yaml.safe_load(f)
-                
+
                 return {
                     "action": "check",
                     "current_phase": state.get("current_phase", {}),
@@ -187,7 +187,7 @@ class MilestoneManagementTool(BaseTool):
                 text=True,
                 timeout=30,
             )
-            
+
             return {
                 "action": "sync",
                 "success": result.returncode == 0,
@@ -203,11 +203,11 @@ class MilestoneManagementTool(BaseTool):
         try:
             roadmap_path = Path(".parac/roadmap/roadmap.yaml")
             if roadmap_path.exists():
-                with open(roadmap_path, 'r', encoding='utf-8') as f:
+                with open(roadmap_path, encoding='utf-8') as f:
                     roadmap = yaml.safe_load(f)
-                
+
                 phases = roadmap.get("phases", [])
-                
+
                 return {
                     "action": "report",
                     "total_phases": len(phases),
@@ -221,7 +221,7 @@ class MilestoneManagementTool(BaseTool):
 
 class TeamCoordinationTool(BaseTool):
     """Coordinate team activities and communication.
-    
+
     Features:
     - Agent coordination
     - Workflow orchestration
@@ -238,11 +238,11 @@ class TeamCoordinationTool(BaseTool):
 
     async def _execute(self, action: str, **kwargs) -> dict[str, Any]:
         """Perform team coordination action.
-        
+
         Args:
             action: Action to perform (assign, notify, status, coordinate)
             **kwargs: Action-specific parameters
-            
+
         Returns:
             Team coordination results
         """
@@ -282,16 +282,17 @@ class TeamCoordinationTool(BaseTool):
             # Read agent manifest
             manifest_path = Path(".parac/agents/manifest.yaml")
             if manifest_path.exists():
-                with open(manifest_path, 'r', encoding='utf-8') as f:
+                with open(manifest_path, encoding='utf-8') as f:
                     manifest = yaml.safe_load(f)
-                
+
                 agents = manifest.get("agents", [])
-                
+
                 return {
                     "action": "status",
                     "total_agents": len(agents),
                     "agents": [
-                        {"id": a.get("id"), "name": a.get("name"), "role": a.get("role")}
+                        {"id": a.get("id"), "name": a.get(
+                            "name"), "role": a.get("role")}
                         for a in agents
                     ],
                 }

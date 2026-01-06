@@ -113,11 +113,10 @@ class SkillLoader:
             return None
 
         # Load main content
-        content = skill_file.read_text(encoding="utf-8")
+        raw_content = skill_file.read_text(encoding="utf-8")
 
-        # Extract name and description from frontmatter or content
-        name = skill_id.replace("-", " ").title()
-        description = f"Skill: {name}"
+        # Parse YAML frontmatter and extract name/description
+        name, description, content = self._parse_skill_md(raw_content, skill_id)
 
         # Load assets
         assets = self._load_directory_files(skill_path / "assets")
@@ -232,6 +231,59 @@ class SkillLoader:
                     skills.append(skill_id)
 
         return skills
+
+    def _parse_skill_md(
+        self, raw_content: str, skill_id: str
+    ) -> tuple[str, str, str]:
+        """Parse SKILL.md file extracting YAML frontmatter.
+
+        Args:
+            raw_content: Raw file content
+            skill_id: Skill identifier (folder name)
+
+        Returns:
+            Tuple of (name, description, content)
+        """
+        import re
+
+        # Default values
+        name = skill_id.replace("-", " ").title()
+        description = f"Skill: {name}"
+        content = raw_content
+
+        # Check for YAML frontmatter (content between --- markers)
+        frontmatter_pattern = r'^---\s*\n(.*?)\n---\s*\n(.*)$'
+        match = re.match(frontmatter_pattern, raw_content, re.DOTALL)
+
+        if match:
+            try:
+                import yaml
+                frontmatter_text = match.group(1)
+                content = match.group(2)
+
+                frontmatter = yaml.safe_load(frontmatter_text)
+                if frontmatter:
+                    # Extract name and description from frontmatter
+                    name = frontmatter.get("name", skill_id)
+                    description = frontmatter.get(
+                        "description", f"Skill: {name}"
+                    )
+
+                    # Also try metadata.display_name if available
+                    metadata = frontmatter.get("metadata", {})
+                    if metadata and metadata.get("display_name"):
+                        name = metadata["display_name"]
+
+                logger.debug(
+                    f"Parsed frontmatter for {skill_id}: "
+                    f"name={name}, desc={description[:50]}..."
+                )
+            except Exception as e:
+                logger.warning(
+                    f"Failed to parse frontmatter for {skill_id}: {e}"
+                )
+
+        return name, description, content
 
     def _load_directory_files(self, directory: Path) -> dict[str, str]:
         """Load all files from a directory.

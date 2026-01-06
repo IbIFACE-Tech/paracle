@@ -1,8 +1,7 @@
 """Tests for MCP tool registry."""
 
 import pytest
-
-from paracle_tools.mcp import MCPToolRegistry
+from paracle_mcp import MCPToolRegistry
 
 
 class MockMCPClient:

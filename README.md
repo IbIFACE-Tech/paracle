@@ -80,6 +80,7 @@ paracle-lite/
 │   ├── paracle_adapters/       # Framework adapters
 │   ├── paracle_orchestration/  # Workflow engine
 │   ├── paracle_tools/          # Tool management
+│   ├── paracle_mcp/            # MCP protocol client
 │   ├── paracle_api/            # REST API
 │   └── paracle_cli/            # CLI
 ├── tests/               # Test suite

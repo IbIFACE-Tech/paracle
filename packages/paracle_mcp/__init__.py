@@ -7,8 +7,8 @@ enabling Paracle to discover and use MCP-compatible tools from external servers.
 MCP Specification: https://modelcontextprotocol.io/
 """
 
-from paracle_tools.mcp.client import MCPClient
-from paracle_tools.mcp.registry import MCPToolRegistry
+from paracle_mcp.client import MCPClient
+from paracle_mcp.registry import MCPToolRegistry
 
 __all__ = [
     "MCPClient",

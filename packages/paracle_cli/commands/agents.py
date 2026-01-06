@@ -479,10 +479,10 @@ def show_skills(agent_id: str | None, list_all: bool) -> None:
         for skill_id in sorted(available):
             try:
                 skill = skill_loader.load_skill(skill_id)
-                status = "✓ Loaded" if skill else "✗ Error"
+                status = "[green]OK[/green]" if skill else "[red]Error[/red]"
                 table.add_row(skill_id, status)
             except Exception:
-                table.add_row(skill_id, "✗ Error")
+                table.add_row(skill_id, "[red]Error[/red]")
 
         console.print(table)
 

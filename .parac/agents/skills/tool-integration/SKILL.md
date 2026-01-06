@@ -116,5 +116,5 @@ tools:
 ## Resources
 
 - Built-in Tools: `packages/paracle_tools/builtin/`
-- MCP Integration: `packages/paracle_tools/mcp/`
+- MCP Integration: `packages/paracle_mcp/`
 - Tool Examples: `examples/*_tools.py`

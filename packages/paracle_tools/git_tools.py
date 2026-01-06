@@ -1,7 +1,6 @@
 """Git operation tools for Paracle agents."""
 
 import subprocess
-from typing import Any
 
 from paracle_tools.builtin.base import BaseTool
 
@@ -109,7 +108,7 @@ class GitStatusTool(BaseTool):
             text=True,
             check=True,
         )
-        
+
         # Parse output
         lines = (
             result.stdout.strip().split("\n")
@@ -120,13 +119,13 @@ class GitStatusTool(BaseTool):
         added = []
         deleted = []
         untracked = []
-        
+
         for line in lines:
             if not line:
                 continue
             status = line[:2]
             file = line[3:]
-            
+
             if status.startswith("M"):
                 modified.append(file)
             elif status.startswith("A"):
@@ -135,7 +134,7 @@ class GitStatusTool(BaseTool):
                 deleted.append(file)
             elif status.startswith("??"):
                 untracked.append(file)
-        
+
         total = len(modified) + len(added) + len(deleted) + len(untracked)
         return {
             "modified": modified,
@@ -189,7 +188,7 @@ class GitPushTool(BaseTool):
             cmd.append(branch)
         if tags:
             cmd.append("--tags")
-        
+
         result = subprocess.run(
             cmd,
             cwd=cwd,

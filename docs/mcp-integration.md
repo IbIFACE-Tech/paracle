@@ -38,13 +38,13 @@ Paracle supports the [Model Context Protocol (MCP)](https://modelcontextprotocol
 
 ```bash
 pip install httpx
-# MCP client is included in paracle_tools
+# MCP client is included in paracle_mcp
 ```
 
 ### 2. Connect to MCP Server
 
 ```python
-from paracle_tools.mcp import MCPClient
+from paracle_mcp import MCPClient
 
 # Create client
 client = MCPClient(server_url="http://localhost:3000")
@@ -76,7 +76,7 @@ async with MCPClient(server_url="http://localhost:3000") as client:
 ### Initialization
 
 ```python
-from paracle_tools.mcp import MCPClient
+from paracle_mcp import MCPClient
 
 client = MCPClient(
     server_url="http://localhost:3000",  # MCP server URL
@@ -189,7 +189,7 @@ print(content)  # Markdown content of the file
 The `MCPRegistry` manages multiple MCP servers:
 
 ```python
-from paracle_tools.mcp import MCPRegistry
+from paracle_mcp import MCPRegistry
 
 # Create registry
 registry = MCPRegistry()
@@ -413,7 +413,7 @@ client = MCPClient(
 ## Error Handling
 
 ```python
-from paracle_tools.mcp import MCPClient, MCPError
+from paracle_mcp import MCPClient, MCPError
 
 try:
     async with MCPClient(server_url="http://localhost:3000") as client:
@@ -439,7 +439,7 @@ except MCPError as e:
 import logging
 
 logging.basicConfig(level=logging.DEBUG)
-logging.getLogger("paracle_tools.mcp").setLevel(logging.DEBUG)
+logging.getLogger("paracle_mcp").setLevel(logging.DEBUG)
 ```
 
 ### Inspect Tool Calls

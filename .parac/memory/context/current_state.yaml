@@ -420,7 +420,7 @@ deliverables:
       details:
         - MCP client (connect, list_tools, call_tool, resources)
         - MCP tool registry (discovery, callable creation)
-        - Organized in paracle_tools/mcp/ subdirectory
+        - Organized in paracle_mcp package
         - 18 unit tests (100% passing)
         - Async context manager support
         - Tool search and statistics

@@ -13,7 +13,7 @@ logger = logging.getLogger("paracle.tools.reviewer")
 
 class StaticAnalysisTool(BaseTool):
     """Perform static code analysis with ruff, mypy, pylint.
-    
+
     Detects:
     - Style violations
     - Type errors
@@ -30,11 +30,11 @@ class StaticAnalysisTool(BaseTool):
 
     async def _execute(self, path: str, tool: str = "ruff", **kwargs) -> dict[str, Any]:
         """Run static analysis tool.
-        
+
         Args:
             path: File or directory to analyze
             tool: Analysis tool (ruff, mypy, pylint)
-            
+
         Returns:
             Analysis results
         """
@@ -55,12 +55,12 @@ class StaticAnalysisTool(BaseTool):
                 capture_output=True,
                 text=True,
             )
-            
+
             if result.stdout:
                 issues = json.loads(result.stdout)
             else:
                 issues = []
-            
+
             return {
                 "tool": "ruff",
                 "path": path,
@@ -83,9 +83,9 @@ class StaticAnalysisTool(BaseTool):
                 capture_output=True,
                 text=True,
             )
-            
+
             errors = result.stdout.strip().split('\n') if result.stdout.strip() else []
-            
+
             return {
                 "tool": "mypy",
                 "path": path,
@@ -106,12 +106,12 @@ class StaticAnalysisTool(BaseTool):
                 capture_output=True,
                 text=True,
             )
-            
+
             if result.stdout:
                 issues = json.loads(result.stdout)
             else:
                 issues = []
-            
+
             return {
                 "tool": "pylint",
                 "path": path,
@@ -141,7 +141,7 @@ class StaticAnalysisTool(BaseTool):
 
 class SecurityScanTool(BaseTool):
     """Scan code for security vulnerabilities.
-    
+
     Uses:
     - bandit for Python security issues
     - safety for dependency vulnerabilities
@@ -157,11 +157,11 @@ class SecurityScanTool(BaseTool):
 
     async def _execute(self, path: str, scan_type: str = "code", **kwargs) -> dict[str, Any]:
         """Perform security scan.
-        
+
         Args:
             path: Path to scan
             scan_type: Type of scan (code, dependencies, all)
-            
+
         Returns:
             Security scan results
         """
@@ -188,18 +188,18 @@ class SecurityScanTool(BaseTool):
                 capture_output=True,
                 text=True,
             )
-            
+
             if result.stdout:
                 scan_results = json.loads(result.stdout)
                 issues = scan_results.get("results", [])
             else:
                 issues = []
-            
+
             # Categorize by severity
             high = [i for i in issues if i.get("issue_severity") == "HIGH"]
             medium = [i for i in issues if i.get("issue_severity") == "MEDIUM"]
             low = [i for i in issues if i.get("issue_severity") == "LOW"]
-            
+
             return {
                 "tool": "bandit",
                 "path": path,
@@ -225,13 +225,14 @@ class SecurityScanTool(BaseTool):
                 capture_output=True,
                 text=True,
             )
-            
+
             if result.stdout:
                 scan_results = json.loads(result.stdout)
-                vulnerabilities = scan_results if isinstance(scan_results, list) else []
+                vulnerabilities = scan_results if isinstance(
+                    scan_results, list) else []
             else:
                 vulnerabilities = []
-            
+
             return {
                 "tool": "safety",
                 "vulnerabilities_found": len(vulnerabilities),
@@ -248,7 +249,7 @@ class SecurityScanTool(BaseTool):
 
 class CodeReviewTool(BaseTool):
     """Perform comprehensive code review checks.
-    
+
     Reviews:
     - Code style and conventions
     - Documentation quality
@@ -265,18 +266,18 @@ class CodeReviewTool(BaseTool):
 
     async def _execute(self, path: str, **kwargs) -> dict[str, Any]:
         """Perform code review.
-        
+
         Args:
             path: File or directory to review
-            
+
         Returns:
             Review results with scores and feedback
         """
         file_path = Path(path)
-        
+
         if not file_path.exists():
             return {"error": f"Path not found: {path}"}
-        
+
         if file_path.is_file() and file_path.suffix == ".py":
             return await self._review_file(file_path)
         elif file_path.is_dir():
@@ -285,10 +286,11 @@ class CodeReviewTool(BaseTool):
                 if "__pycache__" not in str(py_file):
                     file_result = await self._review_file(py_file)
                     results.append(file_result)
-            
+
             # Aggregate scores
-            avg_score = sum(r.get("score", 0) for r in results) / len(results) if results else 0
-            
+            avg_score = sum(r.get("score", 0)
+                            for r in results) / len(results) if results else 0
+
             return {
                 "path": str(file_path),
                 "files_reviewed": len(results),
@@ -303,38 +305,41 @@ class CodeReviewTool(BaseTool):
         try:
             content = file_path.read_text(encoding="utf-8")
             lines = content.split('\n')
-            
+
             issues = []
             score = 100
-            
+
             # Check for docstrings
             if '"""' not in content and "'''" not in content:
                 issues.append("Missing docstrings")
                 score -= 20
-            
+
             # Check for type hints
             if "def " in content and "->" not in content:
                 issues.append("Missing type hints in functions")
                 score -= 15
-            
+
             # Check for long lines (>100 chars)
-            long_lines = [i for i, line in enumerate(lines, 1) if len(line) > 100]
+            long_lines = [i for i, line in enumerate(
+                lines, 1) if len(line) > 100]
             if long_lines:
-                issues.append(f"Long lines (>100 chars): {len(long_lines)} lines")
+                issues.append(
+                    f"Long lines (>100 chars): {len(long_lines)} lines")
                 score -= min(10, len(long_lines))
-            
+
             # Check for TODO/FIXME
-            todos = [i for i, line in enumerate(lines, 1) if "TODO" in line or "FIXME" in line]
+            todos = [i for i, line in enumerate(
+                lines, 1) if "TODO" in line or "FIXME" in line]
             if todos:
                 issues.append(f"Unresolved TODOs: {len(todos)}")
                 score -= min(5, len(todos))
-            
+
             # Check for print statements (should use logging)
             prints = [i for i, line in enumerate(lines, 1) if "print(" in line]
             if prints:
                 issues.append(f"Print statements (use logging): {len(prints)}")
                 score -= min(10, len(prints))
-            
+
             return {
                 "file": str(file_path),
                 "score": max(0, score),

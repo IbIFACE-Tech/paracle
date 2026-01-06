@@ -8,8 +8,8 @@ import asyncio
 import json
 
 import click
+from paracle_mcp import MCPClient, MCPToolRegistry
 from paracle_tools import BuiltinToolRegistry
-from paracle_tools.mcp import MCPClient, MCPToolRegistry
 from rich.console import Console
 from rich.table import Table
 

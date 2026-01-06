@@ -579,7 +579,7 @@ tools = create_sandboxed_filesystem_tools(
 ```
 
 #### Tier 2: MCP Integration (Protocol Adapter)
-**Package**: `paracle_tools.mcp`
+**Package**: `paracle_mcp`
 **Purpose**: Discover and call Model Context Protocol tools
 
 **Components**:
@@ -596,7 +596,7 @@ tools = create_sandboxed_filesystem_tools(
 
 **Example**:
 ```python
-from paracle_tools.mcp import MCPClient, MCPToolRegistry
+from paracle_mcp import MCPClient, MCPToolRegistry
 
 # Connect to MCP server
 client = MCPClient(server_url="https://mcp.example.com")

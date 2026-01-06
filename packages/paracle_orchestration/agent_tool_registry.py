@@ -4,41 +4,41 @@ import logging
 from typing import Any
 
 from paracle_tools import (
+    api_doc_generation,
+    changelog_generation,
+    cicd_integration,
     # Architect tools
     code_analysis,
-    diagram_generation,
-    pattern_matching,
     # Coder tools
     code_generation,
-    refactoring,
-    testing,
+    code_review,
+    coverage_analysis,
+    diagram_creation,
+    diagram_generation,
     # Git tools (shared by coder and releasemanager)
     git_add,
     git_commit,
     git_push,
     git_status,
     git_tag,
-    # Reviewer tools
-    static_analysis,
-    security_scan,
-    code_review,
-    # Tester tools
-    test_generation,
-    test_execution,
-    coverage_analysis,
-    # PM tools
-    task_tracking,
-    milestone_management,
-    team_coordination,
     # Documenter tools
     markdown_generation,
-    api_doc_generation,
-    diagram_creation,
+    milestone_management,
+    package_publishing,
+    pattern_matching,
+    refactoring,
+    security_scan,
+    # Reviewer tools
+    static_analysis,
+    # PM tools
+    task_tracking,
+    team_coordination,
+    test_execution,
+    # Tester tools
+    test_generation,
+    testing,
     # Release Manager tools
     version_management,
-    changelog_generation,
-    cicd_integration,
-    package_publishing,
 )
 
 logger = logging.getLogger("paracle.orchestration.agent_tool_registry")
@@ -46,7 +46,7 @@ logger = logging.getLogger("paracle.orchestration.agent_tool_registry")
 
 class AgentToolRegistry:
     """Registry mapping agents to their available tools.
-    
+
     This provides the bridge between agent definitions in manifest.yaml
     and the actual executable tool instances.
     """
@@ -57,7 +57,7 @@ class AgentToolRegistry:
 
     def _build_registry(self) -> dict[str, dict[str, Any]]:
         """Build the agent-to-tools mapping.
-        
+
         Maps agent IDs to dictionaries of tool names and instances.
         Tool names match those in .parac/agents/manifest.yaml.
         """
@@ -112,29 +112,29 @@ class AgentToolRegistry:
 
     def get_tools_for_agent(self, agent_id: str) -> dict[str, Any]:
         """Get all tools available to an agent.
-        
+
         Args:
             agent_id: Agent ID (e.g., 'architect', 'coder', 'releasemanager')
-            
+
         Returns:
             Dictionary of tool_name -> tool_instance
         """
         tools = self._registry.get(agent_id, {})
-        
+
         if not tools:
             logger.warning(f"No tools registered for agent: {agent_id}")
         else:
             logger.info(f"Loaded {len(tools)} tools for agent: {agent_id}")
-        
+
         return tools
 
     def get_tool(self, agent_id: str, tool_name: str) -> Any | None:
         """Get a specific tool for an agent.
-        
+
         Args:
             agent_id: Agent ID
             tool_name: Tool name
-            
+
         Returns:
             Tool instance or None if not found
         """
@@ -143,7 +143,7 @@ class AgentToolRegistry:
 
     def list_agents(self) -> list[str]:
         """List all agents with registered tools.
-        
+
         Returns:
             List of agent IDs
         """
@@ -151,16 +151,16 @@ class AgentToolRegistry:
 
     def list_tools(self, agent_id: str = None) -> dict[str, list[str]]:
         """List all tools, optionally filtered by agent.
-        
+
         Args:
             agent_id: Optional agent ID to filter by
-            
+
         Returns:
             Dictionary of agent_id -> list of tool names
         """
         if agent_id:
             return {agent_id: list(self._registry.get(agent_id, {}).keys())}
-        
+
         return {
             agent: list(tools.keys())
             for agent, tools in self._registry.items()
@@ -168,11 +168,11 @@ class AgentToolRegistry:
 
     def has_tool(self, agent_id: str, tool_name: str) -> bool:
         """Check if an agent has a specific tool.
-        
+
         Args:
             agent_id: Agent ID
             tool_name: Tool name
-            
+
         Returns:
             True if agent has tool, False otherwise
         """

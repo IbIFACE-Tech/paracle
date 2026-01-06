@@ -1,10 +1,8 @@
 """Testing tools for Tester agent."""
 
-import json
 import logging
 import subprocess
 import xml.etree.ElementTree as ET
-from pathlib import Path
 from typing import Any
 
 from paracle_tools.builtin.base import BaseTool
@@ -14,7 +12,7 @@ logger = logging.getLogger("paracle.tools.tester")
 
 class TestGenerationTool(BaseTool):
     """Generate test cases from code or specifications.
-    
+
     Generates:
     - Unit test scaffolds
     - Integration test templates
@@ -31,11 +29,11 @@ class TestGenerationTool(BaseTool):
 
     async def _execute(self, target: str, test_type: str = "unit", **kwargs) -> dict[str, Any]:
         """Generate tests for target.
-        
+
         Args:
             target: Module/function/class to test
             test_type: Type of test (unit, integration, property, parametrized)
-            
+
         Returns:
             Generated test code
         """
@@ -52,8 +50,9 @@ class TestGenerationTool(BaseTool):
 
     def _generate_unit_test(self, target: str, **kwargs) -> dict[str, Any]:
         """Generate unit test scaffold."""
-        class_name = kwargs.get("class_name", "".join(x.title() for x in target.split("_")))
-        
+        class_name = kwargs.get("class_name", "".join(
+            x.title() for x in target.split("_")))
+
         code = f'''"""Unit tests for {target}."""
 
 import pytest
@@ -63,45 +62,45 @@ from {target} import *
 
 class Test{class_name}:
     """Test suite for {target}."""
-    
+
     @pytest.fixture
     def setup(self):
         """Setup test fixtures."""
         # Arrange
         pass
-    
+
     def test_basic_functionality(self, setup):
         """Test basic functionality."""
         # Act
-        
+
         # Assert
         pass
-    
+
     def test_edge_cases(self, setup):
         """Test edge cases."""
         # Test empty input
-        
+
         # Test None input
-        
+
         # Test invalid input
         pass
-    
+
     def test_error_handling(self, setup):
         """Test error handling."""
         with pytest.raises(Exception):
             # Trigger expected exception
             pass
-    
+
     def test_state_changes(self, setup):
         """Test state changes."""
         # Verify state before
-        
+
         # Perform action
-        
+
         # Verify state after
         pass
 '''
-        
+
         return {
             "test_type": "unit",
             "target": target,
@@ -120,35 +119,35 @@ from {target} import *
 @pytest.mark.integration
 class TestIntegration{target.title().replace("_", "")}:
     """Integration test suite for {target}."""
-    
+
     @pytest.fixture(scope="module")
     def setup_module(self):
         """Setup module-level fixtures."""
         # Initialize resources
         yield
         # Cleanup resources
-    
+
     def test_end_to_end_flow(self, setup_module):
         """Test end-to-end flow."""
         # Step 1: Setup
-        
+
         # Step 2: Execute workflow
-        
+
         # Step 3: Verify results
-        
+
         # Step 4: Cleanup
         pass
-    
+
     def test_integration_with_dependencies(self, setup_module):
         """Test integration with external dependencies."""
         # Test database integration
-        
+
         # Test API integration
-        
+
         # Test file system integration
         pass
 '''
-        
+
         return {
             "test_type": "integration",
             "target": target,
@@ -167,24 +166,24 @@ from {target} import *
 
 class TestProperties{target.title().replace("_", "")}:
     """Property-based tests for {target}."""
-    
+
     @given(st.integers())
     def test_integer_property(self, value):
         """Test property holds for all integers."""
         # Define property that should always hold
         assert True  # Replace with actual property
-    
+
     @given(st.text())
     def test_string_property(self, text):
         """Test property holds for all strings."""
         assert True  # Replace with actual property
-    
+
     @given(st.lists(st.integers()))
     def test_list_property(self, items):
         """Test property holds for all lists."""
         assert True  # Replace with actual property
 '''
-        
+
         return {
             "test_type": "property",
             "target": target,
@@ -198,7 +197,7 @@ class TestProperties{target.title().replace("_", "")}:
             "('input2', 'expected2')",
             "('input3', 'expected3')",
         ]
-        
+
         code = f'''"""Parametrized tests for {target}."""
 
 import pytest
@@ -208,7 +207,7 @@ from {target} import *
 
 class TestParametrized{target.title().replace("_", "")}:
     """Parametrized tests for {target}."""
-    
+
     @pytest.mark.parametrize("input_val,expected", [
         {",        ".join(cases_str)}
     ])
@@ -216,11 +215,11 @@ class TestParametrized{target.title().replace("_", "")}:
         """Test with multiple parameter sets."""
         # Execute
         result = None  # Call function with input_val
-        
+
         # Verify
         assert result == expected
 '''
-        
+
         return {
             "test_type": "parametrized",
             "target": target,
@@ -230,7 +229,7 @@ class TestParametrized{target.title().replace("_", "")}:
 
 class TestExecutionTool(BaseTool):
     """Execute tests and collect detailed results.
-    
+
     Features:
     - Run specific tests or suites
     - Parallel execution
@@ -247,32 +246,32 @@ class TestExecutionTool(BaseTool):
 
     async def _execute(self, path: str = None, markers: list = None, parallel: bool = False, **kwargs) -> dict[str, Any]:
         """Execute tests.
-        
+
         Args:
             path: Optional path to test file/directory
             markers: Optional test markers to filter (e.g., ['unit', 'integration'])
             parallel: Run tests in parallel
-            
+
         Returns:
             Test execution results
         """
         cmd = ["pytest"]
-        
+
         if path:
             cmd.append(path)
-        
+
         if markers:
             cmd.extend(["-m", " or ".join(markers)])
-        
+
         if parallel:
             cmd.extend(["-n", "auto"])
-        
+
         cmd.extend([
             "-v",
             "--tb=short",
             "--junit-xml=test-results.xml",
         ])
-        
+
         try:
             result = subprocess.run(
                 cmd,
@@ -280,10 +279,10 @@ class TestExecutionTool(BaseTool):
                 text=True,
                 timeout=600,
             )
-            
+
             # Parse JUnit XML for detailed results
             junit_results = self._parse_junit_xml("test-results.xml")
-            
+
             return {
                 "path": path or "all tests",
                 "markers": markers,
@@ -306,11 +305,12 @@ class TestExecutionTool(BaseTool):
         try:
             tree = ET.parse(xml_path)
             root = tree.getroot()
-            
-            testsuite = root if root.tag == "testsuite" else root.find("testsuite")
+
+            testsuite = root if root.tag == "testsuite" else root.find(
+                "testsuite")
             if testsuite is None:
                 return {"error": "Invalid JUnit XML format"}
-            
+
             return {
                 "tests": int(testsuite.get("tests", 0)),
                 "failures": int(testsuite.get("failures", 0)),
@@ -326,7 +326,7 @@ class TestExecutionTool(BaseTool):
 
 class CoverageAnalysisTool(BaseTool):
     """Analyze test coverage and generate reports.
-    
+
     Provides:
     - Line coverage
     - Branch coverage
@@ -343,19 +343,19 @@ class CoverageAnalysisTool(BaseTool):
 
     async def _execute(self, path: str = None, report_type: str = "terminal", **kwargs) -> dict[str, Any]:
         """Analyze test coverage.
-        
+
         Args:
             path: Optional path to test
             report_type: Report format (terminal, html, json, xml)
-            
+
         Returns:
             Coverage analysis results
         """
         cmd = ["pytest", "--cov=packages"]
-        
+
         if path:
             cmd.append(path)
-        
+
         if report_type == "html":
             cmd.append("--cov-report=html")
         elif report_type == "json":
@@ -364,7 +364,7 @@ class CoverageAnalysisTool(BaseTool):
             cmd.append("--cov-report=xml")
         else:
             cmd.append("--cov-report=term")
-        
+
         try:
             result = subprocess.run(
                 cmd,
@@ -372,9 +372,9 @@ class CoverageAnalysisTool(BaseTool):
                 text=True,
                 timeout=600,
             )
-            
+
             coverage_data = self._parse_coverage_output(result.stdout)
-            
+
             return {
                 "path": path or "all packages",
                 "report_type": report_type,
@@ -391,7 +391,7 @@ class CoverageAnalysisTool(BaseTool):
     def _parse_coverage_output(self, output: str) -> dict[str, Any]:
         """Parse coverage percentage from output."""
         lines = output.split('\n')
-        
+
         for line in lines:
             if "TOTAL" in line:
                 parts = line.split()
@@ -404,7 +404,7 @@ class CoverageAnalysisTool(BaseTool):
                         }
                     except ValueError:
                         pass
-        
+
         return {"error": "Could not parse coverage percentage"}
 
 

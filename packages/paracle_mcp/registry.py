@@ -3,7 +3,7 @@
 from collections.abc import Callable
 from typing import Any
 
-from paracle_tools.mcp.client import MCPClient
+from paracle_mcp.client import MCPClient
 
 
 class MCPToolRegistry:

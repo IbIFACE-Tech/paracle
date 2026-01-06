@@ -2,7 +2,6 @@
 
 import logging
 import subprocess
-from pathlib import Path
 from typing import Any
 
 from paracle_tools.builtin.base import BaseTool
@@ -12,7 +11,7 @@ logger = logging.getLogger("paracle.tools.documenter")
 
 class MarkdownGenerationTool(BaseTool):
     """Generate markdown documentation.
-    
+
     Creates:
     - README files
     - User guides
@@ -29,11 +28,11 @@ class MarkdownGenerationTool(BaseTool):
 
     async def _execute(self, doc_type: str, **kwargs) -> dict[str, Any]:
         """Generate markdown documentation.
-        
+
         Args:
             doc_type: Type of document (readme, guide, tutorial, changelog)
             **kwargs: Document-specific parameters
-            
+
         Returns:
             Generated markdown content
         """
@@ -86,7 +85,7 @@ Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for de
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 """
-        
+
         return {
             "doc_type": "readme",
             "content": content,
@@ -95,14 +94,15 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
     def _generate_guide(self, title: str, sections: list = None, **kwargs) -> dict[str, Any]:
         """Generate user guide."""
-        sections_list = sections or ["Introduction", "Getting Started", "Advanced Usage"]
-        
+        sections_list = sections or [
+            "Introduction", "Getting Started", "Advanced Usage"]
+
         content = f"# {title}\n\n"
-        
+
         for section in sections_list:
             content += f"## {section}\n\n"
             content += "TODO: Add content for this section.\n\n"
-        
+
         return {
             "doc_type": "guide",
             "title": title,
@@ -112,16 +112,16 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
     def _generate_tutorial(self, title: str, steps: list = None, **kwargs) -> dict[str, Any]:
         """Generate tutorial."""
         steps_list = steps or ["Step 1", "Step 2", "Step 3"]
-        
+
         content = f"# {title}\n\n"
         content += "In this tutorial, you'll learn how to...\n\n"
-        
+
         for i, step in enumerate(steps_list, 1):
             content += f"## Step {i}: {step}\n\n"
             content += "```python\n# Code example\n```\n\n"
-        
+
         content += "## Conclusion\n\nYou've successfully...\n"
-        
+
         return {
             "doc_type": "tutorial",
             "title": title,
@@ -131,12 +131,13 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
     def _generate_changelog(self, version: str, changes: list = None, **kwargs) -> dict[str, Any]:
         """Generate changelog entry."""
         changes_list = changes or []
-        
+
         content = f"## [{version}] - {kwargs.get('date', 'YYYY-MM-DD')}\n\n"
-        
+
         if changes_list:
             for category in ["Added", "Changed", "Fixed", "Removed"]:
-                category_changes = [c for c in changes_list if c.get("type") == category.lower()]
+                category_changes = [c for c in changes_list if c.get(
+                    "type") == category.lower()]
                 if category_changes:
                     content += f"### {category}\n\n"
                     for change in category_changes:
@@ -146,7 +147,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
             content += "### Added\n\n- New feature\n\n"
             content += "### Changed\n\n- Updated behavior\n\n"
             content += "### Fixed\n\n- Bug fix\n\n"
-        
+
         return {
             "doc_type": "changelog",
             "version": version,
@@ -156,7 +157,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 class ApiDocGenerationTool(BaseTool):
     """Generate API documentation from code.
-    
+
     Supports:
     - OpenAPI/Swagger specs
     - Function/class documentation
@@ -173,11 +174,11 @@ class ApiDocGenerationTool(BaseTool):
 
     async def _execute(self, source: str, output_format: str = "markdown", **kwargs) -> dict[str, Any]:
         """Generate API documentation.
-        
+
         Args:
             source: Source code path
             output_format: Output format (markdown, html, json, openapi)
-            
+
         Returns:
             Generated API documentation
         """
@@ -200,7 +201,7 @@ class ApiDocGenerationTool(BaseTool):
                 text=True,
                 timeout=30,
             )
-            
+
             return {
                 "format": "markdown",
                 "source": source,
@@ -227,7 +228,7 @@ class ApiDocGenerationTool(BaseTool):
             },
             "paths": {},
         }
-        
+
         return {
             "format": "openapi",
             "source": source,
@@ -237,7 +238,7 @@ class ApiDocGenerationTool(BaseTool):
 
 class DiagramCreationTool(BaseTool):
     """Create diagrams for documentation.
-    
+
     Creates:
     - Architecture diagrams (Mermaid, PlantUML)
     - Flowcharts
@@ -254,11 +255,11 @@ class DiagramCreationTool(BaseTool):
 
     async def _execute(self, diagram_type: str, **kwargs) -> dict[str, Any]:
         """Create a diagram.
-        
+
         Args:
             diagram_type: Type of diagram (flowchart, sequence, class, architecture)
             **kwargs: Diagram-specific parameters
-            
+
         Returns:
             Diagram definition
         """
@@ -283,7 +284,7 @@ flowchart TD
     C --> E[End]
     D --> E
 ```"""
-        
+
         return {
             "diagram_type": "flowchart",
             "title": title,
@@ -293,7 +294,7 @@ flowchart TD
     def _create_sequence_diagram(self, title: str = "Sequence", participants: list = None, **kwargs) -> dict[str, Any]:
         """Create sequence diagram."""
         parts = participants or ["User", "System", "Database"]
-        
+
         diagram = "```mermaid\nsequenceDiagram\n"
         for part in parts:
             diagram += f"    participant {part}\n"
@@ -302,7 +303,7 @@ flowchart TD
         diagram += "    Database-->>System: Result\n"
         diagram += "    System-->>User: Response\n"
         diagram += "```"
-        
+
         return {
             "diagram_type": "sequence",
             "title": title,
@@ -322,7 +323,7 @@ classDiagram
     }
     BaseClass <|-- ChildClass
 ```"""
-        
+
         return {
             "diagram_type": "class",
             "title": title,
@@ -347,7 +348,7 @@ graph TB
     API --> BL
     BL --> DB
 ```"""
-        
+
         return {
             "diagram_type": "architecture",
             "title": title,

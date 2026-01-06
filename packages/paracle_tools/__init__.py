@@ -16,6 +16,17 @@ __version__ = "0.0.1"
 
 # MCP tools
 # Built-in tools
+from paracle_mcp import MCPClient, MCPToolRegistry
+
+# Agent-specific tools
+from paracle_tools.architect_tools import (
+    CodeAnalysisTool,
+    DiagramGenerationTool,
+    PatternMatchingTool,
+    code_analysis,
+    diagram_generation,
+    pattern_matching,
+)
 from paracle_tools.builtin import (
     DEVELOPMENT_COMMANDS,
     READONLY_COMMANDS,
@@ -43,29 +54,6 @@ from paracle_tools.builtin import (
     http_post,
     http_put,
 )
-from paracle_tools.git_tools import (
-    GitAddTool,
-    GitCommitTool,
-    GitPushTool,
-    GitStatusTool,
-    GitTagTool,
-    git_add,
-    git_commit,
-    git_push,
-    git_status,
-    git_tag,
-)
-from paracle_tools.mcp import MCPClient, MCPToolRegistry
-
-# Agent-specific tools
-from paracle_tools.architect_tools import (
-    CodeAnalysisTool,
-    DiagramGenerationTool,
-    PatternMatchingTool,
-    code_analysis,
-    diagram_generation,
-    pattern_matching,
-)
 from paracle_tools.coder_tools import (
     CodeGenerationTool,
     RefactoringTool,
@@ -82,6 +70,18 @@ from paracle_tools.documenter_tools import (
     diagram_creation,
     markdown_generation,
 )
+from paracle_tools.git_tools import (
+    GitAddTool,
+    GitCommitTool,
+    GitPushTool,
+    GitStatusTool,
+    GitTagTool,
+    git_add,
+    git_commit,
+    git_push,
+    git_status,
+    git_tag,
+)
 from paracle_tools.pm_tools import (
     MilestoneManagementTool,
     TaskTrackingTool,
@@ -91,8 +91,8 @@ from paracle_tools.pm_tools import (
     team_coordination,
 )
 from paracle_tools.releasemanager_tools import (
-    CICDIntegrationTool,
     ChangelogGenerationTool,
+    CICDIntegrationTool,
     PackagePublishingTool,
     VersionManagementTool,
     changelog_generation,

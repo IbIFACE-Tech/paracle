@@ -12,7 +12,7 @@ logger = logging.getLogger("paracle.tools.coder")
 
 class CodeGenerationTool(BaseTool):
     """Generate code from templates or specifications.
-    
+
     Supports:
     - Python class/function generation
     - Test boilerplate generation
@@ -28,11 +28,11 @@ class CodeGenerationTool(BaseTool):
 
     async def _execute(self, template_type: str, **kwargs) -> dict[str, Any]:
         """Generate code based on template type.
-        
+
         Args:
             template_type: Type of code to generate (class, function, test, config)
             **kwargs: Template parameters
-            
+
         Returns:
             Generated code
         """
@@ -51,48 +51,48 @@ class CodeGenerationTool(BaseTool):
         """Generate a Python class."""
         base_str = f"({base})" if base else ""
         methods_str = methods or ["__init__"]
-        
+
         code = f'''"""Generated class."""
 
 
 class {name}{base_str}:
     """TODO: Add docstring."""
-    
+
 '''
-        
+
         for method in methods_str:
             if method == "__init__":
                 code += '''    def __init__(self):
         """Initialize instance."""
         pass
-    
+
 '''
             else:
                 code += f'''    def {method}(self):
         """TODO: Add docstring."""
         pass
-    
+
 '''
-        
+
         return {"code": code, "type": "class", "name": name}
 
     def _generate_function(self, name: str, params: list = None, return_type: str = None, **kwargs) -> dict[str, Any]:
         """Generate a Python function."""
         params_str = ", ".join(params or [""])
         return_annotation = f" -> {return_type}" if return_type else ""
-        
+
         code = f'''def {name}({params_str}){return_annotation}:
     """TODO: Add docstring.
-    
+
     Args:
         {chr(10).join(f"{p}: TODO" for p in (params or []))}
-        
+
     Returns:
         TODO
     """
     pass
 '''
-        
+
         return {"code": code, "type": "function", "name": name}
 
     def _generate_test(self, target: str, **kwargs) -> dict[str, Any]:
@@ -106,26 +106,26 @@ from {target} import TODO
 
 class Test{target.title().replace("_", "")}:
     """Test suite for {target}."""
-    
+
     def test_basic(self):
         """Test basic functionality."""
         # Arrange
-        
+
         # Act
-        
+
         # Assert
         pass
-    
+
     def test_edge_case(self):
         """Test edge cases."""
         pass
-    
+
     def test_error_handling(self):
         """Test error handling."""
         with pytest.raises(Exception):
             pass
 '''
-        
+
         return {"code": code, "type": "test", "target": target}
 
     def _generate_config(self, format: str, **kwargs) -> dict[str, Any]:
@@ -153,13 +153,13 @@ timeout = 30
 """
         else:
             return {"error": f"Unsupported config format: {format}"}
-        
+
         return {"code": code, "type": "config", "format": format}
 
 
 class RefactoringTool(BaseTool):
     """Refactor code for better quality and maintainability.
-    
+
     Operations:
     - Extract method
     - Rename symbol
@@ -176,20 +176,20 @@ class RefactoringTool(BaseTool):
 
     async def _execute(self, operation: str, path: str, **kwargs) -> dict[str, Any]:
         """Perform refactoring operation.
-        
+
         Args:
             operation: Refactoring operation (extract_method, rename, move, simplify)
             path: File path to refactor
             **kwargs: Operation-specific parameters
-            
+
         Returns:
             Refactoring results
         """
         file_path = Path(path)
-        
+
         if not file_path.exists():
             return {"error": f"File not found: {path}"}
-        
+
         if operation == "extract_method":
             return await self._extract_method(file_path, **kwargs)
         elif operation == "rename":
@@ -216,7 +216,7 @@ class RefactoringTool(BaseTool):
             content = file_path.read_text(encoding="utf-8")
             occurrences = content.count(old_name)
             new_content = content.replace(old_name, new_name)
-            
+
             # Don't actually write in simulation
             return {
                 "operation": "rename",
@@ -237,9 +237,9 @@ class RefactoringTool(BaseTool):
                 capture_output=True,
                 text=True,
             )
-            
+
             needs_formatting = result.returncode != 0
-            
+
             return {
                 "operation": "format",
                 "file": str(file_path),
@@ -254,7 +254,7 @@ class RefactoringTool(BaseTool):
 
 class TestingTool(BaseTool):
     """Run tests and collect results.
-    
+
     Supports:
     - pytest execution
     - Coverage analysis
@@ -270,12 +270,12 @@ class TestingTool(BaseTool):
 
     async def _execute(self, action: str, path: str = None, **kwargs) -> dict[str, Any]:
         """Execute testing action.
-        
+
         Args:
             action: Test action (run, coverage, check)
             path: Optional path to test file/directory
             **kwargs: Additional test parameters
-            
+
         Returns:
             Test results
         """
@@ -294,7 +294,7 @@ class TestingTool(BaseTool):
         if path:
             cmd.append(path)
         cmd.extend(["-v", "--tb=short"])
-        
+
         try:
             result = subprocess.run(
                 cmd,
@@ -302,7 +302,7 @@ class TestingTool(BaseTool):
                 text=True,
                 timeout=300,
             )
-            
+
             return {
                 "action": "run_tests",
                 "path": path or "all tests",
@@ -323,7 +323,7 @@ class TestingTool(BaseTool):
         cmd = ["pytest", "--cov=packages"]
         if path:
             cmd.append(path)
-        
+
         try:
             result = subprocess.run(
                 cmd,
@@ -331,7 +331,7 @@ class TestingTool(BaseTool):
                 text=True,
                 timeout=300,
             )
-            
+
             return {
                 "action": "coverage",
                 "path": path or "all tests",
@@ -347,23 +347,24 @@ class TestingTool(BaseTool):
     async def _check_tests_exist(self, path: str) -> dict[str, Any]:
         """Check if tests exist for path."""
         target_path = Path(path)
-        
+
         if not target_path.exists():
             return {"error": f"Path not found: {path}"}
-        
+
         if target_path.is_file():
             # Look for corresponding test file
             test_file = target_path.parent / f"test_{target_path.name}"
             tests_dir = Path("tests")
-            alt_test_file = tests_dir / target_path.parent.name / f"test_{target_path.name}"
-            
+            alt_test_file = tests_dir / target_path.parent.name / \
+                f"test_{target_path.name}"
+
             return {
                 "action": "check_tests",
                 "file": str(target_path),
                 "test_file_exists": test_file.exists() or alt_test_file.exists(),
                 "test_file": str(test_file) if test_file.exists() else str(alt_test_file),
             }
-        
+
         return {"error": "Path must be a file"}
 
 
