@@ -148,6 +148,442 @@ After completing Phase 5 (Execution Safety & Isolation), a comprehensive strateg
 - Week 30-31: Benchmarking suite
 - Week 31-32: Performance documentation
 
+---
+
+## ADR-018: Executable Tools Implementation for Agent Autonomy
+
+**Date**: 2026-01-06
+**Status**: Accepted
+**Deciders**: System Architect, Coder Agent
+
+### Context
+
+Prior to this implementation, agents defined in `.parac/agents/manifest.yaml` had tool references as simple strings:
+```yaml
+tools:
+  - code_analysis
+  - diagram_generation
+  - git_operations
+```
+
+These were descriptions, not executable code. Agents could reference tools but couldn't actually use them autonomously. The gap between agent definitions and executable capabilities prevented true agent autonomy.
+
+**Key Issues:**
+1. **No True Autonomy** - Agents couldn't execute their own tools
+2. **Manual Workflow** - All operations required CLI commands or manual scripting
+3. **Description vs Execution** - Tool names were metadata, not functional code
+4. **No Agent→Tool Mapping** - No registry connecting agents to their capabilities
+
+**Goal:** Transform all tool descriptions in manifest.yaml into executable Python code that agents can invoke.
+
+### Decision
+
+**Implement comprehensive executable tools for all 7 agents:**
+
+**Architecture:**
+```python
+# Tool Pattern
+class MyTool(BaseTool):
+    def __init__(self):
+        super().__init__(
+            name="my_tool",
+            description="Tool description",
+            parameters={...}
+        )
+    
+    async def _execute(self, **kwargs) -> dict[str, Any]:
+        # Actual implementation
+        return {"result": "..."}
+
+# Registry Pattern
+agent_tool_registry.get_tools_for_agent("coder")
+# → {"code_generation": CodeGenerationTool(), ...}
+
+# Execution
+tool = agent_tool_registry.get_tool("architect", "code_analysis")
+result = await tool.execute(path="src/")
+```
+
+**Implementation:**
+
+1. **Created 7 Tool Modules** (2,396 lines):
+   - `architect_tools.py` - Code analysis, diagram generation, pattern matching (3 tools)
+   - `coder_tools.py` - Code generation, refactoring, testing (3 tools)
+   - `reviewer_tools.py` - Static analysis, security scanning, code review (3 tools)
+   - `tester_tools.py` - Test generation, execution, coverage analysis (3 tools)
+   - `pm_tools.py` - Task tracking, milestone management, team coordination (3 tools)
+   - `documenter_tools.py` - Markdown generation, API docs, diagrams (3 tools)
+   - `releasemanager_tools.py` - Version management, changelog, CI/CD, publishing (4 tools)
+
+2. **Created AgentToolRegistry** (179 lines):
+   - Maps agent_id → dict[tool_name, tool_instance]
+   - Methods: `get_tools_for_agent()`, `get_tool()`, `list_agents()`, `has_tool()`
+   - Global instance: `agent_tool_registry`
+
+3. **Updated ToolEnabledAgentExecutor**:
+   - Accepts `agent_id` parameter
+   - Loads agent-specific tools from registry
+   - Backward compatible (falls back to git tools if no agent_id)
+
+4. **Updated manifest.yaml**:
+   - Changed from generic strings to specific tool names
+   - Added inline comments mapping tools to classes
+   - Format: `- tool_name  # ToolClass - description`
+
+**Tool Categories:**
+
+**Architecture Tools** (architect):
+- `code_analysis` - Parse AST, extract metrics (LOC, classes, functions, imports)
+- `diagram_generation` - Generate Mermaid/PlantUML/ASCII diagrams
+- `pattern_matching` - Detect design patterns and anti-patterns
+
+**Development Tools** (coder):
+- `code_generation` - Generate classes, functions, tests from templates
+- `refactoring` - Extract methods, rename symbols, format with black
+- `testing` - Run pytest, analyze coverage
+- Plus 5 git tools: add, commit, status, push, tag
+
+**Review Tools** (reviewer):
+- `static_analysis` - Run ruff, mypy, pylint with score extraction
+- `security_scan` - Run bandit (code), safety (dependencies)
+- `code_review` - Check docstrings, type hints, style issues
+
+**Testing Tools** (tester):
+- `test_generation` - Generate unit, integration, property-based tests
+- `test_execution` - Execute pytest with markers, parallel option
+- `coverage_analysis` - Run pytest-cov, generate reports (HTML/JSON/XML)
+
+**PM Tools** (pm):
+- `task_tracking` - Create, update, list tasks with filters
+- `milestone_management` - Check progress, update milestones, sync roadmap
+- `team_coordination` - Assign tasks, send notifications, team status
+
+**Documentation Tools** (documenter):
+- `markdown_generation` - Generate README, guides, tutorials, changelogs
+- `api_doc_generation` - Generate markdown/HTML/OpenAPI docs
+- `diagram_creation` - Create Mermaid flowcharts, sequence, class diagrams
+
+**Release Tools** (releasemanager):
+- `version_management` - Bump versions (major/minor/patch/prerelease)
+- `changelog_generation` - Parse conventional commits, group by type
+- `cicd_integration` - Trigger pipelines, check status, deploy
+- `package_publishing` - Build and publish to PyPI/Docker/npm
+- Plus 5 git tools
+
+**External Integrations:**
+- ruff, mypy, pylint, bandit, safety (static analysis/security)
+- pytest, black (testing/formatting)
+- gh CLI (GitHub operations)
+- twine, python -m build (packaging)
+
+### Implementation Details
+
+**File Structure:**
+```
+packages/paracle_tools/
+├── architect_tools.py      # 343 lines, 3 tools
+├── coder_tools.py          # 368 lines, 3 tools + integration
+├── reviewer_tools.py       # 331 lines, 3 tools
+├── tester_tools.py         # 389 lines, 3 tools
+├── pm_tools.py             # 264 lines, 3 tools
+├── documenter_tools.py     # 303 lines, 3 tools
+└── releasemanager_tools.py # 398 lines, 4 tools
+
+packages/paracle_orchestration/
+└── agent_tool_registry.py  # 179 lines, registry
+```
+
+**Commit Stats:**
+- 15 files changed
+- 3,352 insertions, 41 deletions
+- 9 new files created
+- 6 files modified
+
+### Consequences
+
+#### Positive
+
+✅ **True Agent Autonomy** - Agents can now execute tools programmatically
+✅ **Executable vs Descriptive** - Tool names map to real Python code with `_execute()` methods
+✅ **Comprehensive Coverage** - 25+ tools across all 7 agent types
+✅ **Registry Pattern** - Clean separation, easy tool discovery and loading
+✅ **External Integration** - Tools integrate with ruff, pytest, black, gh CLI, etc.
+✅ **Consistent Pattern** - All tools follow BaseTool abstract class
+✅ **Error Handling** - All subprocess calls have timeouts, proper error capture
+✅ **Security** - JSON output parsing, validated inputs, safe subprocess execution
+✅ **Maintainability** - Modular design, one file per agent type
+✅ **Foundation for Workflows** - Tools can be composed into multi-step agent workflows
+
+#### Negative
+
+⚠️ **Code Volume** - Added ~2,400 lines of tool implementation code
+⚠️ **External Dependencies** - Tools depend on ruff, pytest, black, etc. being installed
+⚠️ **Maintenance Burden** - More code to maintain, test, and document
+⚠️ **Testing Gap** - Tools created but comprehensive tests not yet written
+
+#### Neutral
+
+📊 **Package Growth** - paracle_tools now larger with 7 new tool modules
+📊 **Import Complexity** - More exports in __init__.py (~60+ items)
+📊 **Agent Complexity** - Agents now have more capabilities but also more to learn
+
+### Mitigations
+
+**For Testing Gap:**
+- Create comprehensive test suite for each tool module
+- Mock subprocess calls in tests
+- Test error handling and edge cases
+- Priority: HIGH
+
+**For External Dependencies:**
+- Document required tools in README
+- Provide installation scripts
+- Graceful degradation if tools not found
+- Optional dependencies in pyproject.toml
+
+**For Maintenance:**
+- Clear tool documentation
+- Consistent patterns across all tools
+- Comprehensive docstrings
+- Agent-specific tool ownership
+
+### Integration
+
+**Next Steps:**
+
+1. **Agent Runner Integration** - Update `paracle agent run` to load tools from registry
+2. **Tool Schemas** - Generate JSON Schema for each tool for LLM understanding
+3. **Documentation** - Create tools reference guide (docs/tools-reference.md)
+4. **Testing** - Write comprehensive tests for all 25+ tools
+5. **Examples** - Create agent tool usage examples
+
+**Success Criteria:**
+
+✅ All agents can execute their tools programmatically
+✅ Tool registry successfully maps agents to tools
+✅ ToolEnabledAgentExecutor loads agent-specific tools
+✅ Manifest.yaml references real tools with inline comments
+✅ All tools follow BaseTool pattern with proper __init__
+
+### Related
+
+- **ADR-008** - MCP Integration (tool system foundation)
+- **ADR-017** - Strategic Direction (DX focus, tool usability)
+- **Phase 4** - API & CLI Enhancement (tool execution infrastructure)
+- **Phase 6** - Developer Experience (tool discovery, examples)
+
+---
+
+## ADR-019: Extract MCP Tools to Separate Package
+
+**Date**: 2026-01-06
+**Status**: Accepted
+**Deciders**: System Architect, Coder Agent
+
+### Context
+
+The Model Context Protocol (MCP) tools (client and registry) were initially implemented within `packages/paracle_tools/mcp/`. As the codebase grew, this placement created several issues:
+
+**Problems:**
+1. **Modularity** - MCP is a distinct protocol with its own concerns (client, registry, server communication)
+2. **Scope Confusion** - paracle_tools should be about *agent tools*, not protocol clients
+3. **Dependencies** - MCP has different dependencies than builtin tools (httpx, websockets)
+4. **Reusability** - MCP client could be used independently of agent tools
+5. **Testing** - MCP tests mixed with tool tests
+6. **Package Clarity** - paracle_tools grew too large with mixed responsibilities
+
+**MCP in paracle_tools:**
+```
+packages/paracle_tools/
+├── builtin/         # Builtin tools (filesystem, http, shell)
+├── mcp/             # ← MCP protocol (different concern!)
+│   ├── __init__.py
+│   ├── client.py
+│   └── registry.py
+├── architect_tools.py
+├── coder_tools.py
+...
+```
+
+**Goal:** Extract MCP to standalone package for better modularity, clearer separation of concerns, and easier maintenance.
+
+### Decision
+
+**Create new `paracle_mcp` package and move MCP implementation:**
+
+**New Structure:**
+```
+packages/
+├── paracle_tools/          # Agent executable tools
+│   ├── builtin/           # Builtin tools
+│   ├── architect_tools.py
+│   ├── coder_tools.py
+│   └── ...
+├── paracle_mcp/           # ← New package
+│   ├── __init__.py        # MCP exports
+│   ├── client.py          # MCPClient
+│   └── registry.py        # MCPRegistry
+```
+
+**Migration Steps:**
+
+1. **Create Package** - New `packages/paracle_mcp/` directory
+2. **Move Files** - Move `mcp/*.py` to `paracle_mcp/`
+3. **Update Imports** - Change `paracle_tools.mcp` → `paracle_mcp` (10+ files)
+4. **Update CLI** - Fix imports in commands/agents.py, commands/tools.py, main.py
+5. **Update Orchestration** - Fix imports in tool_executor.py, agent_tool_registry.py, skill_loader.py
+6. **Update Docs** - Update README, mcp-integration.md, ADR-008
+7. **Update Tests** - Fix test_mcp_registry.py imports
+8. **Backward Compatibility** - Add re-exports in paracle_tools.__init__.py
+
+**Package Configuration:**
+
+paracle_mcp added to pyproject.toml packages (auto-discovered via `tool.setuptools.packages.find` with `include = ["paracle_*"]`).
+
+**Import Changes:**
+
+Before:
+```python
+from paracle_tools.mcp import MCPClient, MCPRegistry
+```
+
+After:
+```python
+from paracle_mcp import MCPClient, MCPRegistry
+```
+
+Backward compatible:
+```python
+# Still works via re-export
+from paracle_tools import MCPClient, MCPRegistry
+```
+
+### Implementation Details
+
+**Files Changed:** 29 files
+- 3 moved (renamed paths)
+- 10 imports updated (CLI commands)
+- 3 orchestration files updated
+- 2 documentation files updated
+- 1 test file updated
+- 1 ADR updated (ADR-008)
+- 1 skill updated (tool-integration)
+- 1 backward compatibility added
+
+**Commit Stats:**
+- 640 insertions, 534 deletions
+- Net: +106 lines (mostly documentation and re-exports)
+
+**Updated Files:**
+- CLI: `commands/agents.py`, `commands/tools.py`, `main.py`
+- Orchestration: `tool_executor.py`, `agent_tool_registry.py`, `skill_loader.py`
+- Tools: `__init__.py` (re-exports)
+- Docs: `README.md`, `mcp-integration.md`
+- ADRs: `decisions.md` (ADR-008 updated)
+- Skills: `tool-integration/SKILL.md`
+- Tests: `test_mcp_registry.py`
+
+### Consequences
+
+#### Positive
+
+✅ **Better Modularity** - MCP is now a standalone package with clear boundaries
+✅ **Clearer Responsibilities** - paracle_tools = agent tools, paracle_mcp = protocol client
+✅ **Independent Usage** - paracle_mcp can be used without paracle_tools
+✅ **Easier Testing** - MCP tests separate from tool tests
+✅ **Dependency Isolation** - MCP dependencies (httpx, websockets) separate from tool dependencies
+✅ **Package Organization** - 15 packages now, each with focused purpose
+✅ **Backward Compatible** - Old imports still work via re-exports
+✅ **Documentation Clarity** - Easier to document MCP vs tools separately
+
+#### Negative
+
+⚠️ **Package Proliferation** - Now 15+ packages (manageable but more to track)
+⚠️ **Import Changes** - Need to update imports (mitigated by backward compatibility)
+⚠️ **Documentation Updates** - Multiple files needed updating
+⚠️ **Breaking Change Risk** - If re-exports removed, would break existing code
+
+#### Neutral
+
+📊 **Package Count** - Increased from 14 to 15 packages
+📊 **File Count** - Same total files, just reorganized
+📊 **Code Volume** - No code added, just moved
+
+### Mitigations
+
+**For Import Changes:**
+- ✅ Backward compatibility via re-exports in paracle_tools.__init__.py
+- ✅ Deprecation warning in future version
+- ✅ Migration guide in documentation
+
+**For Package Proliferation:**
+- Acceptable - Each package has clear purpose
+- Standard practice in modular architectures
+- Easier maintenance than monolithic package
+
+**For Documentation:**
+- ✅ All docs updated in same commit
+- ✅ ADR-008 updated with new structure
+- ✅ README package list updated
+
+### Package Roster (Post-Refactoring)
+
+Current 15 packages:
+
+**Core:**
+1. `paracle_core` - Shared utilities, config, IDs
+2. `paracle_domain` - Business logic, models
+
+**Infrastructure:**
+3. `paracle_store` - Persistence layer
+4. `paracle_events` - Event bus
+5. `paracle_providers` - LLM providers (14+)
+6. `paracle_adapters` - Framework adapters
+
+**Tools:**
+7. `paracle_tools` - Agent executable tools (25+ tools)
+8. `paracle_mcp` - ← NEW: MCP protocol client
+
+**Orchestration:**
+9. `paracle_orchestration` - Workflow engine
+
+**Phase 5 (Execution Safety):**
+10. `paracle_sandbox` - Sandbox execution
+11. `paracle_isolation` - Network isolation
+12. `paracle_rollback` - State rollback
+13. `paracle_review` - Human review
+14. `paracle_resources` - Resource limits
+
+**API/CLI:**
+15. `paracle_api` - REST API
+16. `paracle_cli` - CLI commands
+
+### Integration
+
+**Related ADRs:**
+- **ADR-008** - MCP Integration (updated with new package structure)
+- **ADR-018** - Executable Tools (agent tools in paracle_tools)
+
+**Roadmap Impact:**
+- Phase 4 complete - Package structure now optimal for Phase 6 DX work
+- Phase 6 prep - Clear package boundaries help with lite mode
+- No roadmap delays - Refactoring completed in same day
+
+**Next Steps:**
+1. Monitor for any missed imports (low risk, comprehensive search done)
+2. Update any external examples/tutorials with new imports
+3. Consider deprecation timeline for re-exports (v0.2.0+)
+4. Update package diagram in architecture.md
+
+**Success Criteria:**
+
+✅ MCP tools moved to paracle_mcp package
+✅ All imports updated (29 files)
+✅ Tests passing with new imports
+✅ Documentation updated
+✅ Backward compatibility maintained
+✅ No functionality lost
+
 ### Related Decisions
 
 - ADR-016: Pre-Flight Checklist - Ensures quality while reducing barrier
