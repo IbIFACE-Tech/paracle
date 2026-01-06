@@ -6,6 +6,7 @@ from rich.console import Console
 from paracle_cli.commands.adr import adr
 from paracle_cli.commands.agent_run import run as agent_run
 from paracle_cli.commands.agents import agents
+from paracle_cli.commands.approvals import approvals
 from paracle_cli.commands.cost import cost
 from paracle_cli.commands.ide import ide
 from paracle_cli.commands.logs import logs
@@ -18,6 +19,8 @@ from paracle_cli.commands.parac import (
 )
 from paracle_cli.commands.parac import validate as parac_validate
 from paracle_cli.commands.providers import providers
+from paracle_cli.commands.release import release
+from paracle_cli.commands.reviews import reviews
 from paracle_cli.commands.roadmap import roadmap
 from paracle_cli.commands.serve import serve
 from paracle_cli.commands.tools import tools
@@ -57,6 +60,11 @@ cli.add_command(workflow)   # Workflow management (list, run, status, cancel)
 cli.add_command(tools)      # Tool management (list, info, test, register)
 cli.add_command(providers)  # Provider management (list, add, test, default)
 cli.add_command(cost)       # Cost tracking and budget management
+cli.add_command(release)    # ReleaseManager operations (commit, tag, status)
+
+# Phase 5: Human-in-the-Loop & Artifact Reviews (ISO 42001)
+cli.add_command(approvals)  # Approval management (list, approve, reject, stats)
+cli.add_command(reviews)    # Artifact reviews (list, approve, reject, stats)
 
 # File management commands
 # ADR management (list, create, get, status, migrate)

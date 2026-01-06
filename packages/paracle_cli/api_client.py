@@ -531,6 +531,285 @@ class APIClient:
             )
             return self._handle_response(response)
 
+    # =========================================================================
+    # Approval Endpoints (Human-in-the-Loop)
+    # =========================================================================
+
+    def approvals_list_pending(
+        self,
+        workflow_id: str | None = None,
+        priority: str | None = None,
+    ) -> dict[str, Any]:
+        """List pending approval requests.
+
+        Args:
+            workflow_id: Optional filter by workflow ID
+            priority: Optional filter by priority (low, medium, high, critical)
+
+        Returns:
+            ApprovalListResponse as dict
+        """
+        with httpx.Client(timeout=self.timeout) as client:
+            params = {}
+            if workflow_id:
+                params["workflow_id"] = workflow_id
+            if priority:
+                params["priority"] = priority
+            response = client.get(
+                f"{self.base_url}/approvals/pending",
+                headers=self._get_headers(),
+                params=params,
+            )
+            return self._handle_response(response)
+
+    def approvals_list_decided(
+        self,
+        workflow_id: str | None = None,
+        status: str | None = None,
+        limit: int = 100,
+    ) -> dict[str, Any]:
+        """List decided approval requests.
+
+        Args:
+            workflow_id: Optional filter by workflow ID
+            status: Optional filter by status (approved, rejected, expired, cancelled)
+            limit: Maximum number of results
+
+        Returns:
+            ApprovalListResponse as dict
+        """
+        with httpx.Client(timeout=self.timeout) as client:
+            params: dict[str, Any] = {"limit": limit}
+            if workflow_id:
+                params["workflow_id"] = workflow_id
+            if status:
+                params["approval_status"] = status
+            response = client.get(
+                f"{self.base_url}/approvals/decided",
+                headers=self._get_headers(),
+                params=params,
+            )
+            return self._handle_response(response)
+
+    def approvals_get(self, approval_id: str) -> dict[str, Any]:
+        """Get approval request by ID.
+
+        Args:
+            approval_id: Approval request identifier
+
+        Returns:
+            ApprovalRequestResponse as dict
+        """
+        with httpx.Client(timeout=self.timeout) as client:
+            response = client.get(
+                f"{self.base_url}/approvals/{approval_id}",
+                headers=self._get_headers(),
+            )
+            return self._handle_response(response)
+
+    def approvals_approve(
+        self,
+        approval_id: str,
+        approver: str,
+        reason: str | None = None,
+    ) -> dict[str, Any]:
+        """Approve a pending request.
+
+        Args:
+            approval_id: Approval request identifier
+            approver: ID/email of the approver
+            reason: Optional reason for approval
+
+        Returns:
+            ApprovalRequestResponse as dict
+        """
+        with httpx.Client(timeout=self.timeout) as client:
+            response = client.post(
+                f"{self.base_url}/approvals/{approval_id}/approve",
+                headers=self._get_headers(),
+                json={"approver": approver, "reason": reason},
+            )
+            return self._handle_response(response)
+
+    def approvals_reject(
+        self,
+        approval_id: str,
+        approver: str,
+        reason: str | None = None,
+    ) -> dict[str, Any]:
+        """Reject a pending request.
+
+        Args:
+            approval_id: Approval request identifier
+            approver: ID/email of the approver
+            reason: Optional reason for rejection
+
+        Returns:
+            ApprovalRequestResponse as dict
+        """
+        with httpx.Client(timeout=self.timeout) as client:
+            response = client.post(
+                f"{self.base_url}/approvals/{approval_id}/reject",
+                headers=self._get_headers(),
+                json={"approver": approver, "reason": reason},
+            )
+            return self._handle_response(response)
+
+    def approvals_cancel(self, approval_id: str) -> dict[str, Any]:
+        """Cancel a pending request.
+
+        Args:
+            approval_id: Approval request identifier
+
+        Returns:
+            ApprovalRequestResponse as dict
+        """
+        with httpx.Client(timeout=self.timeout) as client:
+            response = client.post(
+                f"{self.base_url}/approvals/{approval_id}/cancel",
+                headers=self._get_headers(),
+            )
+            return self._handle_response(response)
+
+    def approvals_stats(self) -> dict[str, Any]:
+        """Get approval statistics.
+
+        Returns:
+            ApprovalStatsResponse as dict
+        """
+        with httpx.Client(timeout=self.timeout) as client:
+            response = client.get(
+                f"{self.base_url}/approvals/stats",
+                headers=self._get_headers(),
+            )
+            return self._handle_response(response)
+
+    # =========================================================================
+    # Review Endpoints (Artifact Reviews)
+    # =========================================================================
+
+    def reviews_list(
+        self,
+        status: str | None = None,
+        sandbox_id: str | None = None,
+    ) -> dict[str, Any]:
+        """List artifact reviews.
+
+        Args:
+            status: Optional filter by status (pending, approved, rejected, timeout)
+            sandbox_id: Optional filter by sandbox ID
+
+        Returns:
+            ReviewListResponse as dict
+        """
+        with httpx.Client(timeout=self.timeout) as client:
+            params = {}
+            if status:
+                params["status_filter"] = status
+            if sandbox_id:
+                params["sandbox_id"] = sandbox_id
+            response = client.get(
+                f"{self.base_url}/reviews/",
+                headers=self._get_headers(),
+                params=params,
+            )
+            return self._handle_response(response)
+
+    def reviews_get(self, review_id: str) -> dict[str, Any]:
+        """Get review by ID.
+
+        Args:
+            review_id: Review identifier
+
+        Returns:
+            ReviewResponse as dict
+        """
+        with httpx.Client(timeout=self.timeout) as client:
+            response = client.get(
+                f"{self.base_url}/reviews/{review_id}",
+                headers=self._get_headers(),
+            )
+            return self._handle_response(response)
+
+    def reviews_approve(
+        self,
+        review_id: str,
+        reviewer: str,
+        comment: str | None = None,
+    ) -> dict[str, Any]:
+        """Approve an artifact review.
+
+        Args:
+            review_id: Review identifier
+            reviewer: Reviewer ID/email
+            comment: Optional comment
+
+        Returns:
+            ReviewResponse as dict
+        """
+        with httpx.Client(timeout=self.timeout) as client:
+            response = client.post(
+                f"{self.base_url}/reviews/{review_id}/approve",
+                headers=self._get_headers(),
+                json={"reviewer": reviewer, "comment": comment},
+            )
+            return self._handle_response(response)
+
+    def reviews_reject(
+        self,
+        review_id: str,
+        reviewer: str,
+        comment: str | None = None,
+    ) -> dict[str, Any]:
+        """Reject an artifact review.
+
+        Args:
+            review_id: Review identifier
+            reviewer: Reviewer ID/email
+            comment: Optional comment
+
+        Returns:
+            ReviewResponse as dict
+        """
+        with httpx.Client(timeout=self.timeout) as client:
+            response = client.post(
+                f"{self.base_url}/reviews/{review_id}/reject",
+                headers=self._get_headers(),
+                json={"reviewer": reviewer, "comment": comment},
+            )
+            return self._handle_response(response)
+
+    def reviews_cancel(self, review_id: str) -> None:
+        """Cancel a pending review.
+
+        Args:
+            review_id: Review identifier
+        """
+        with httpx.Client(timeout=self.timeout) as client:
+            response = client.delete(
+                f"{self.base_url}/reviews/{review_id}",
+                headers=self._get_headers(),
+            )
+            if response.status_code >= 400:
+                try:
+                    detail = response.json().get("detail", response.text)
+                except Exception:
+                    detail = response.text
+                raise APIError(response.status_code, detail)
+
+    def reviews_stats(self) -> dict[str, Any]:
+        """Get review statistics.
+
+        Returns:
+            ReviewStatsResponse as dict
+        """
+        with httpx.Client(timeout=self.timeout) as client:
+            response = client.get(
+                f"{self.base_url}/reviews/stats/summary",
+                headers=self._get_headers(),
+            )
+            return self._handle_response(response)
+
 
 class APIError(Exception):
     """API request error."""
