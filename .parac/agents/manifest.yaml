@@ -20,9 +20,9 @@ agents:
     description: Designs system architecture, modules, and interfaces
     spec_file: specs/architect.md
     tools:
-      - code_analysis
-      - diagram_generation
-      - pattern_matching
+      - code_analysis           # CodeAnalysisTool - analyze code structure and metrics
+      - diagram_generation      # DiagramGenerationTool - generate Mermaid/PlantUML diagrams
+      - pattern_matching        # PatternMatchingTool - detect design patterns
     responsibilities:
       - Module structure design
       - Interface definition
@@ -35,10 +35,14 @@ agents:
     description: Implements features following architecture and best practices
     spec_file: specs/coder.md
     tools:
-      - code_generation
-      - refactoring
-      - testing
-      - git
+      - code_generation        # CodeGenerationTool - generate code from templates
+      - refactoring            # RefactoringTool - refactor code for quality
+      - testing                # TestingTool - run tests and collect results
+      - git_add                # GitAddTool - stage files
+      - git_commit             # GitCommitTool - create commits
+      - git_status             # GitStatusTool - check git status
+      - git_push               # GitPushTool - push to remote
+      - git_tag                # GitTagTool - create tags
     responsibilities:
       - Feature implementation
       - Bug fixes
@@ -51,9 +55,9 @@ agents:
     description: Reviews code for quality, security, and best practices
     spec_file: specs/reviewer.md
     tools:
-      - static_analysis
-      - security_scan
-      - code_review
+      - static_analysis        # StaticAnalysisTool - run ruff, mypy, pylint
+      - security_scan          # SecurityScanTool - scan with bandit, safety
+      - code_review            # CodeReviewTool - comprehensive review checks
     responsibilities:
       - Code review
       - Security audit
@@ -66,9 +70,9 @@ agents:
     description: Creates and maintains test suites
     spec_file: specs/tester.md
     tools:
-      - test_generation
-      - test_execution
-      - coverage_analysis
+      - test_generation        # TestGenerationTool - generate test scaffolds
+      - test_execution         # TestExecutionTool - execute tests with pytest
+      - coverage_analysis      # CoverageAnalysisTool - analyze test coverage
     responsibilities:
       - Test case design
       - Test implementation
@@ -81,9 +85,9 @@ agents:
     description: Manages project progress, priorities, and coordination
     spec_file: specs/pm.md
     tools:
-      - task_tracking
-      - milestone_management
-      - team_coordination
+      - task_tracking          # TaskTrackingTool - track tasks and progress
+      - milestone_management   # MilestoneManagementTool - manage milestones
+      - team_coordination      # TeamCoordinationTool - coordinate team activities
     responsibilities:
       - Roadmap management
       - Priority setting
@@ -96,9 +100,9 @@ agents:
     description: Creates and maintains project documentation
     spec_file: specs/documenter.md
     tools:
-      - markdown_generation
-      - api_doc_generation
-      - diagram_creation
+      - markdown_generation    # MarkdownGenerationTool - generate markdown docs
+      - api_doc_generation     # ApiDocGenerationTool - generate API docs
+      - diagram_creation       # DiagramCreationTool - create diagrams
     responsibilities:
       - API documentation
       - User guides
@@ -111,11 +115,15 @@ agents:
     description: Manages git workflows, versioning, releases, and deployment automation
     spec_file: specs/releasemanager.md
     tools:
-      - git_operations
-      - version_management
-      - changelog_generation
-      - ci_cd_integration
-      - package_publishing
+      - git_add                # GitAddTool - stage files
+      - git_commit             # GitCommitTool - create commits
+      - git_status             # GitStatusTool - check git status
+      - git_push               # GitPushTool - push to remote
+      - git_tag                # GitTagTool - create tags
+      - version_management     # VersionManagementTool - manage semver
+      - changelog_generation   # ChangelogGenerationTool - generate changelogs
+      - cicd_integration       # CICDIntegrationTool - CI/CD pipeline integration
+      - package_publishing     # PackagePublishingTool - publish to PyPI/Docker
     responsibilities:
       - Semantic versioning management
       - Conventional commits enforcement

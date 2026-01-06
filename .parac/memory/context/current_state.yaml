@@ -15,6 +15,10 @@ strategic_direction:
     phase_8: "Performance Optimization & Scale"
 recent_updates:
   - date: "2026-01-06"
+    update: "Completed API-CLI alignment: Added approvals and reviews CLI commands"
+    impact: "All Phase 5 API endpoints now have CLI equivalents (12 new commands)"
+    strategic_alignment: "API-first architecture compliance, ISO 42001 Human-in-the-Loop"
+  - date: "2026-01-06"
     update: "Added execution runs tracking infrastructure (.parac/runs/)"
     impact: "Enables debugging, tutorial replay, performance analysis"
     strategic_alignment: "Phase 6 DX (debugging), Phase 8 Performance (observability)"
@@ -568,6 +572,32 @@ deliverables:
         - Comprehensive API schemas
         - Error handling and validation
         - Integration with main FastAPI app
+    - name: Approvals CLI Commands
+      status: completed
+      completion: 100%
+      completed_date: "2026-01-06"
+      details:
+        - paracle approvals list - List pending/decided approvals
+        - paracle approvals get - Get approval details
+        - paracle approvals approve - Approve a request
+        - paracle approvals reject - Reject a request
+        - paracle approvals cancel - Cancel a request
+        - paracle approvals stats - Show statistics
+        - APIClient methods for all approval endpoints
+        - Rich formatting with priority/status styling
+    - name: Reviews CLI Commands
+      status: completed
+      completion: 100%
+      completed_date: "2026-01-06"
+      details:
+        - paracle reviews list - List artifact reviews
+        - paracle reviews get - Get review details with artifact content
+        - paracle reviews approve - Approve artifact changes
+        - paracle reviews reject - Reject with feedback
+        - paracle reviews cancel - Cancel a review
+        - paracle reviews stats - Show statistics by status and risk
+        - APIClient methods for all review endpoints
+        - Rich formatting with risk level styling
 risks:
   - id: risk_1
     description: Timeline aggressive for 17 weeks

@@ -433,10 +433,11 @@ phases:
   - id: phase_5
     name: "Execution Safety & Isolation"
     duration: 3_weeks
-    status: in_progress
+    status: completed
     started_date: "2026-01-05"
+    completed_date: "2026-01-06"
     priority: high
-    completion: 0%
+    completion: 100%
     deliverables:
       - sandbox_execution
       - docker_isolation
@@ -448,15 +449,27 @@ phases:
       - "Resource limits (CPU, memory, timeout)"
       - "Filesystem isolation per execution"
       - "Automatic rollback on failure"
-      - "Artifact review and approval workflow (API)"
+      - "Artifact review and approval workflow (API + CLI)"
     cli_commands:
+      implemented:
+        # Approval commands (Human-in-the-Loop)
+        - paracle approvals list # List pending/decided approvals
+        - paracle approvals get # Get approval details
+        - paracle approvals approve # Approve a request
+        - paracle approvals reject # Reject a request
+        - paracle approvals cancel # Cancel a request
+        - paracle approvals stats # Show statistics
+        # Review commands (Artifact Reviews)
+        - paracle reviews list # List artifact reviews
+        - paracle reviews get # Get review details
+        - paracle reviews approve # Approve artifact changes
+        - paracle reviews reject # Reject with feedback
+        - paracle reviews cancel # Cancel a review
+        - paracle reviews stats # Show statistics
       planned:
         - paracle sandbox create # Create isolated environment
         - paracle sandbox list # List active sandboxes
         - paracle sandbox cleanup # Clean up sandboxes
-        - paracle review list # List pending reviews
-        - paracle review approve # Approve artifact changes
-        - paracle review reject # Reject with feedback
 
   - id: phase_6
     name: "Developer Experience & Accessibility"

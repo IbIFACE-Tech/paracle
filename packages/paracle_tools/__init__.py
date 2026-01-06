@@ -57,6 +57,66 @@ from paracle_tools.git_tools import (
 )
 from paracle_tools.mcp import MCPClient, MCPToolRegistry
 
+# Agent-specific tools
+from paracle_tools.architect_tools import (
+    CodeAnalysisTool,
+    DiagramGenerationTool,
+    PatternMatchingTool,
+    code_analysis,
+    diagram_generation,
+    pattern_matching,
+)
+from paracle_tools.coder_tools import (
+    CodeGenerationTool,
+    RefactoringTool,
+    TestingTool,
+    code_generation,
+    refactoring,
+    testing,
+)
+from paracle_tools.documenter_tools import (
+    ApiDocGenerationTool,
+    DiagramCreationTool,
+    MarkdownGenerationTool,
+    api_doc_generation,
+    diagram_creation,
+    markdown_generation,
+)
+from paracle_tools.pm_tools import (
+    MilestoneManagementTool,
+    TaskTrackingTool,
+    TeamCoordinationTool,
+    milestone_management,
+    task_tracking,
+    team_coordination,
+)
+from paracle_tools.releasemanager_tools import (
+    CICDIntegrationTool,
+    ChangelogGenerationTool,
+    PackagePublishingTool,
+    VersionManagementTool,
+    changelog_generation,
+    cicd_integration,
+    package_publishing,
+    version_management,
+)
+from paracle_tools.reviewer_tools import (
+    CodeReviewTool,
+    SecurityScanTool,
+    StaticAnalysisTool,
+    code_review,
+    security_scan,
+    static_analysis,
+)
+from paracle_tools.tester_tools import (
+    CoverageAnalysisTool,
+    TestExecutionTool,
+    TestGenerationTool,
+    coverage_analysis,
+    test_execution,
+    test_generation,
+)
+
 __all__ = [
     # MCP
     "MCPClient",
@@ -97,4 +157,55 @@ __all__ = [
     "git_push",
     "git_status",
     "git_tag",
+    # Architect tools
+    "CodeAnalysisTool",
+    "DiagramGenerationTool",
+    "PatternMatchingTool",
+    "code_analysis",
+    "diagram_generation",
+    "pattern_matching",
+    # Coder tools
+    "CodeGenerationTool",
+    "RefactoringTool",
+    "TestingTool",
+    "code_generation",
+    "refactoring",
+    "testing",
+    # Reviewer tools
+    "StaticAnalysisTool",
+    "SecurityScanTool",
+    "CodeReviewTool",
+    "static_analysis",
+    "security_scan",
+    "code_review",
+    # Tester tools
+    "TestGenerationTool",
+    "TestExecutionTool",
+    "CoverageAnalysisTool",
+    "test_generation",
+    "test_execution",
+    "coverage_analysis",
+    # PM tools
+    "TaskTrackingTool",
+    "MilestoneManagementTool",
+    "TeamCoordinationTool",
+    "task_tracking",
+    "milestone_management",
+    "team_coordination",
+    # Documenter tools
+    "MarkdownGenerationTool",
+    "ApiDocGenerationTool",
+    "DiagramCreationTool",
+    "markdown_generation",
+    "api_doc_generation",
+    "diagram_creation",
+    # Release Manager tools
+    "VersionManagementTool",
+    "ChangelogGenerationTool",
+    "CICDIntegrationTool",
+    "PackagePublishingTool",
+    "version_management",
+    "changelog_generation",
+    "cicd_integration",
+    "package_publishing",
 ]
