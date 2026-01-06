@@ -43,6 +43,18 @@ from paracle_tools.builtin import (
     http_post,
     http_put,
 )
+from paracle_tools.git_tools import (
+    GitAddTool,
+    GitCommitTool,
+    GitPushTool,
+    GitStatusTool,
+    GitTagTool,
+    git_add,
+    git_commit,
+    git_push,
+    git_status,
+    git_tag,
+)
 from paracle_tools.mcp import MCPClient, MCPToolRegistry
 
 __all__ = [
@@ -74,4 +86,15 @@ __all__ = [
     "create_development_command_tool",
     "READONLY_COMMANDS",
     "DEVELOPMENT_COMMANDS",
+    # Git tools
+    "GitAddTool",
+    "GitCommitTool",
+    "GitPushTool",
+    "GitStatusTool",
+    "GitTagTool",
+    "git_add",
+    "git_commit",
+    "git_push",
+    "git_status",
+    "git_tag",
 ]

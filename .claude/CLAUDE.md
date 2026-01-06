@@ -9,6 +9,12 @@
 
 > **`.parac/` is the single source of truth. Read it. Follow it. Log to it.**
 
+> **⚠️ IMPORTANT: Agents are EXECUTABLE PROGRAMS, not personas to adopt.**
+>
+> - ✅ **Say**: "I'll run CoderAgent..." or "Following CoderAgent standards..."
+> - ❌ **DON'T say**: "I adopt the CoderAgent persona..."
+> - 📖 **See**: `docs/agent-execution-model.md` for complete explanation
+
 ## 🚨 MANDATORY: Pre-Flight Checklist
 
 **Before ANY implementation task:**
@@ -27,7 +33,7 @@ This checklist ensures:
 3. Consult `.parac/roadmap/roadmap.yaml` - Phase & priorities
 4. Verify `.parac/memory/context/open_questions.md` - Blockers
 5. **VALIDATE**: Task in roadmap? Correct phase? Priority? Dependencies?
-6. Adopt agent persona from `.parac/agents/specs/{agent}.md`
+6. Select which agent to run (see `.parac/agents/specs/{agent}.md`)
 7. Check policies (CODE_STYLE, TESTING, SECURITY)
 
 **Before ANY action**, you MUST:
@@ -36,7 +42,7 @@ This checklist ensures:
 3. `.parac/memory/context/current_state.yaml` - Current project state
 4. `.parac/roadmap/roadmap.yaml` - Phases and priorities
 5. `.parac/PRE_FLIGHT_CHECKLIST.md` - Mandatory task validation
-6. Adopt agent persona from `.parac/agents/specs/{agent_id}.md`
+6. Determine which agent to run (see `.parac/agents/specs/{agent_id}.md`)
 
 
 
@@ -221,7 +227,65 @@ with agent_context("CoderAgent"):
 - **manifest.yaml** (AUTO-GENERATED): Workspace state - CLI generates, DON'T edit
 - See `.parac/CONFIG_FILES.md` for complete explanation
 
+## Agent Execution Options
 
+### Option 1: Run Agent via CLI (Recommended)
+
+**When to use**:
+- Complex, multi-step tasks
+- Need consistent agent behavior
+- Automated workflows (CI/CD)
+- Want agent's specialized skills executed
+
+**How**:
+```bash
+# Run agent with task
+paracle agent run coder --task "Implement user authentication"
+
+# With options
+paracle agent run coder --task "Fix bug #123" --mode safe --verbose
+
+# See all options
+paracle agent run --help
+```
+
+**Available modes**:
+- `--mode safe` (default): Manual approvals, production-ready
+- `--mode yolo`: Auto-approve all gates, CI/CD friendly
+- `--mode sandbox`: Isolated execution environment
+- `--mode review`: Mandatory human approval
+
+**See**: [docs/agent-run-quickref.md](../docs/agent-run-quickref.md) for complete guide
+
+### Option 2: Manual Implementation Following Agent Standards
+
+**When to use**:
+- Simple, straightforward tasks
+- Agent execution not available
+- Real-time AI assistant help
+- Rapid prototyping
+
+**How**:
+1. Read agent spec: `.parac/agents/specs/{agent}.md`
+2. Understand agent's responsibilities
+3. Follow agent's assigned skills
+4. Implement according to standards
+5. Log action as that agent
+
+**Example**:
+```python
+# Read .parac/agents/specs/coder.md first
+# Then implement following CoderAgent standards:
+# - Python 3.10+ with type hints
+# - Pydantic v2 for models
+# - Google-style docstrings
+# - pytest for testing
+
+# After implementation, log:
+# [2026-01-06 10:30:00] [CoderAgent] [IMPLEMENTATION] Implemented auth in packages/paracle_api/auth.py
+```
+
+**Key**: Even when implementing manually, **follow agent standards** from `.parac/agents/specs/{agent}.md`
 
 ## Governance Tools & Commands
 
@@ -283,30 +347,30 @@ paracle session end
 
 ## Essential .parac/ Files
 
-| File | Purpose | When to Read |
-| --- | --- | --- |
-| **`.parac/GOVERNANCE.md`** | Governance rules, dogfooding context | ALWAYS first |
-| **`.parac/PRE_FLIGHT_CHECKLIST.md`** | **NEW: Mandatory task validation** | **Before ANY implementation** |
-| **`.parac/UNIVERSAL_AI_INSTRUCTIONS.md`** | Universal instructions (any IDE) | Setup / reference |
-| **`.parac/USING_PARAC.md`** | Complete 20+ section guide | Deep understanding |
-| **`.parac/CONFIG_FILES.md`** | project.yaml vs manifest.yaml | When confused about config |
-| **`.parac/STRUCTURE.md`** | Complete .parac/ structure | Understanding organization |
-| **`.parac/agents/manifest.yaml`** | Agent registry | Before selecting agent |
-| **`.parac/agents/specs/{agent}.md`** | Agent detailed specs | After selecting agent |
-| **`.parac/agents/SKILL_ASSIGNMENTS.md`** | Skills per agent | Understanding capabilities |
-| **`.parac/memory/context/current_state.yaml`** | Project state | ALWAYS (before action) |
-| **`.parac/memory/context/open_questions.md`** | Open questions | When blocked |
-| **`.parac/memory/knowledge/architecture.md`** | Architecture knowledge | Design decisions |
-| **`.parac/memory/knowledge/glossary.md`** | Project glossary | Term clarification |
-| **`.parac/memory/logs/agent_actions.log`** | Action history | Understanding changes |
-| **`.parac/memory/logs/decisions.log`** | Important decisions | Context for choices |
-| **`.parac/roadmap/roadmap.yaml`** | Roadmap and phases | Understanding priorities |
-| **`.parac/roadmap/decisions.md`** | ADRs (Architecture Decision Records) | Design rationale |
-| **`.parac/policies/CODE_STYLE.md`** | Code style guide | Before coding |
-| **`.parac/policies/TESTING.md`** | Testing policy | Before writing tests |
-| **`.parac/policies/SECURITY.md`** | Security policy | Security-sensitive code |
-| **`docs/api-keys.md`** | **NEW: API key management guide** | **Setting up LLM providers** |
-| **`docs/roadmap-state-sync.md`** | **NEW: Roadmap sync guide** | **Understanding governance automation** |
+| File                                           | Purpose                              | When to Read                            |
+| ---------------------------------------------- | ------------------------------------ | --------------------------------------- |
+| **`.parac/GOVERNANCE.md`**                     | Governance rules, dogfooding context | ALWAYS first                            |
+| **`.parac/PRE_FLIGHT_CHECKLIST.md`**           | **NEW: Mandatory task validation**   | **Before ANY implementation**           |
+| **`.parac/UNIVERSAL_AI_INSTRUCTIONS.md`**      | Universal instructions (any IDE)     | Setup / reference                       |
+| **`.parac/USING_PARAC.md`**                    | Complete 20+ section guide           | Deep understanding                      |
+| **`.parac/CONFIG_FILES.md`**                   | project.yaml vs manifest.yaml        | When confused about config              |
+| **`.parac/STRUCTURE.md`**                      | Complete .parac/ structure           | Understanding organization              |
+| **`.parac/agents/manifest.yaml`**              | Agent registry                       | Before selecting agent                  |
+| **`.parac/agents/specs/{agent}.md`**           | Agent detailed specs                 | After selecting agent                   |
+| **`.parac/agents/SKILL_ASSIGNMENTS.md`**       | Skills per agent                     | Understanding capabilities              |
+| **`.parac/memory/context/current_state.yaml`** | Project state                        | ALWAYS (before action)                  |
+| **`.parac/memory/context/open_questions.md`**  | Open questions                       | When blocked                            |
+| **`.parac/memory/knowledge/architecture.md`**  | Architecture knowledge               | Design decisions                        |
+| **`.parac/memory/knowledge/glossary.md`**      | Project glossary                     | Term clarification                      |
+| **`.parac/memory/logs/agent_actions.log`**     | Action history                       | Understanding changes                   |
+| **`.parac/memory/logs/decisions.log`**         | Important decisions                  | Context for choices                     |
+| **`.parac/roadmap/roadmap.yaml`**              | Roadmap and phases                   | Understanding priorities                |
+| **`.parac/roadmap/decisions.md`**              | ADRs (Architecture Decision Records) | Design rationale                        |
+| **`.parac/policies/CODE_STYLE.md`**            | Code style guide                     | Before coding                           |
+| **`.parac/policies/TESTING.md`**               | Testing policy                       | Before writing tests                    |
+| **`.parac/policies/SECURITY.md`**              | Security policy                      | Security-sensitive code                 |
+| **`docs/api-keys.md`**                         | **NEW: API key management guide**    | **Setting up LLM providers**            |
+| **`docs/roadmap-state-sync.md`**               | **NEW: Roadmap sync guide**          | **Understanding governance automation** |
 
 
 

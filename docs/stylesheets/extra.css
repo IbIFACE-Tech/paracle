@@ -1,0 +1,75 @@
+/* Custom CSS for Paracle Documentation */
+
+/* Brand colors */
+:root {
+  --paracle-primary: #4f46e5;
+  --paracle-secondary: #06b6d4;
+  --paracle-accent: #f59e0b;
+}
+
+/* Code blocks */
+.highlight {
+  border-radius: 8px;
+}
+
+/* Cards grid */
+.grid.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.grid.cards > * {
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 8px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.grid.cards > *:hover {
+  border-color: var(--paracle-primary);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
+  transform: translateY(-2px);
+}
+
+/* Admonitions */
+.admonition {
+  border-left: 4px solid var(--paracle-primary);
+}
+
+/* Tables */
+table {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Buttons */
+.md-button--primary {
+  background-color: var(--paracle-primary);
+}
+
+.md-button--primary:hover {
+  background-color: #4338ca;
+}
+
+/* Code inline */
+code {
+  border-radius: 4px;
+  padding: 0.1em 0.3em;
+}
+
+/* Navigation tabs */
+.md-tabs {
+  background-color: var(--paracle-primary);
+}
+
+/* Search */
+.md-search__input {
+  border-radius: 8px;
+}
+
+/* Footer */
+.md-footer {
+  background-color: var(--md-default-fg-color--lightest);
+}

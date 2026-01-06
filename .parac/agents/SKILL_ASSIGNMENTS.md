@@ -99,34 +99,45 @@ Each agent has been assigned relevant skills from the `.parac/agents/skills/` di
 
 ---
 
+### 🚀 Release Manager Agent
+
+**Role**: Git workflows, versioning, releases, and deployment automation.
+
+**Skills**:
+
+- `cicd-devops` - CI/CD pipelines and deployment automation
+- `git-management` - Conventional commits, branching strategy, git operations
+- `release-automation` - Semantic versioning, packaging, publishing (PyPI/Docker)
+- `workflow-orchestration` - Coordinating release process across teams
+- `paracle-development` - Framework knowledge for version management
+
+**Rationale**: Release Managers need expertise in git workflows, semantic versioning, CI/CD pipelines, and deployment automation to orchestrate the entire release lifecycle from commit to production.
+
+---
+
 ## Skill Distribution Matrix
 
-| Skill                    | Architect | Coder | Documenter | PM  | Reviewer | Tester |
-| ------------------------ | --------- | ----- | ---------- | --- | -------- | ------ |
-| framework-architecture   | ✅         |       |            |     |          |        |
-| api-development          | ✅         | ✅     | ✅          |     |          |        |
-| performance-optimization | ✅         |       |            |     | ✅        | ✅      |
-| security-hardening       | ✅         |       |            |     | ✅        | ✅      |
-| paracle-development      | ✅         | ✅     | ✅          | ✅   | ✅        | ✅      |
-| tool-integration         |           | ✅     |            |     |          |        |
-| provider-integration     |           | ✅     |            |     |          |        |
-| testing-qa               |           | ✅     |            |     | ✅        | ✅      |
-| technical-documentation  |           |       | ✅          |     |          |        |
-| workflow-orchestration   |           |       |            | ✅   |          |        |
-| agent-configuration      |           |       |            | ✅   |          |        |
-| cicd-devops              |           |       |            | ✅   |          |        |
-| migration-upgrading      |           |       |            |     |          |        |
-| tool-integration         |           | ✅     |            |     |          |        |
-| provider-integration     |           | ✅     |            |     |          |        |
-| testing-qa               |           | ✅     |            |     | ✅        | ✅      |
-| technical-documentation  |           |       | ✅          |     |          |        |
-| workflow-orchestration   |           |       |            | ✅   |          |        |
-| agent-configuration      |           |       |            | ✅   |          |        |
-| cicd-devops              |           |       |            | ✅   |          |        |
+| Skill                    | Architect | Coder | Documenter | PM  | Reviewer | Tester | ReleaseManager |
+| ------------------------ | --------- | ----- | ---------- | --- | -------- | ------ | -------------- |
+| framework-architecture   | ✅         |       |            |     |          |        |                |
+| api-development          | ✅         | ✅     | ✅          |     |          |        |                |
+| performance-optimization | ✅         |       |            |     | ✅        | ✅      |                |
+| security-hardening       | ✅         |       |            |     | ✅        | ✅      |                |
+| paracle-development      | ✅         | ✅     | ✅          | ✅   | ✅        | ✅      | ✅              |
+| tool-integration         |           | ✅     |            |     |          |        |                |
+| provider-integration     |           | ✅     |            |     |          |        |                |
+| testing-qa               |           | ✅     |            |     | ✅        | ✅      |                |
+| technical-documentation  |           |       | ✅          |     |          |        |                |
+| workflow-orchestration   |           |       |            | ✅   |          |        | ✅              |
+| agent-configuration      |           |       |            | ✅   |          |        |                |
+| cicd-devops              |           |       |            | ✅   |          |        | ✅              |
+| git-management           |           |       |            |     |          |        | ✅              |
+| release-automation       |           |       |            |     |          |        | ✅              |
 
 ## Skill Coverage
 
-- **Most Shared**: `paracle-development` (6 agents) - Core framework knowledge
+- **Most Shared**: `paracle-development` (7 agents) - Core framework knowledge
+- **DevOps Focus**: `cicd-devops`, `git-management`, `release-automation` specialized for Release Manager
 - **Quality Focus**: `testing-qa`, `security-hardening`, `performance-optimization` shared across quality-focused agents
 - **Specialized**: `technical-documentation`, `tool-integration`, `provider-integration`, `workflow-orchestration` assigned to specific agents
 

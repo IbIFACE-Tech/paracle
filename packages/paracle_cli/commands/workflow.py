@@ -37,9 +37,8 @@ def _is_api_available() -> bool:
     """
     try:
         client = get_client()
-        # Quick health check
-        response = client.get("/health", timeout=2.0)
-        return response.status_code == 200
+        # Quick health check using typed method
+        return client.is_available()
     except Exception:
         return False
 
@@ -383,13 +382,8 @@ def plan_workflow(
     client = get_client()
 
     try:
-        # Generate execution plan via API
-        result = client.post(
-            f"/workflows/{workflow_id}/plan",
-            json={"inputs": inputs},
-        )
-
-        plan_data = result.json()
+        # Generate execution plan via API using typed method
+        plan_data = client.workflow_plan(workflow_id, inputs)
 
         if output_json:
             console.print_json(json.dumps(plan_data))
@@ -617,6 +611,7 @@ def _run_workflow_local(
     sync: bool,
     output_json: bool,
     yolo: bool = False,
+    dry_run: bool = False,
 ) -> None:
     """Execute workflow locally (fallback when API unavailable).
 
@@ -626,6 +621,7 @@ def _run_workflow_local(
         sync: Whether to run synchronously
         output_json: Whether to output JSON
         yolo: YOLO mode - auto-approve all approval gates
+        dry_run: Dry-run mode - mock LLM responses
     """
     import asyncio
 

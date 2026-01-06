@@ -1,0 +1,360 @@
+# Release Workflow
+# Complete release process with version bumping, changelog, and publishing
+# Version: 1.0.0
+
+name: release
+version: 1.0.0
+description: |
+  Complete release workflow for Paracle platform following semantic versioning.
+  Orchestrates: validation, version bump, changelog generation, tagging, and publishing.
+
+metadata:
+  category: release
+  tags: [release, versioning, publishing, pypi]
+  author: Release Manager Agent
+  created: "2026-01-06"
+  governance: true
+
+# Input parameters
+inputs:
+  version_type:
+    type: string
+    description: Type of version bump (major, minor, patch)
+    enum: [major, minor, patch]
+    required: true
+    example: "minor"
+
+  release_notes:
+    type: string
+    description: Additional release notes (optional)
+    required: false
+    default: ""
+
+  skip_tests:
+    type: boolean
+    description: Skip pre-release tests (NOT RECOMMENDED)
+    default: false
+    required: false
+
+  dry_run:
+    type: boolean
+    description: Perform dry run without actual publishing
+    default: false
+    required: false
+
+# Workflow steps
+steps:
+  # ============================================================================
+  # PHASE 1: PRE-RELEASE VALIDATION
+  # ============================================================================
+  - id: validate_readiness
+    name: pre_release_validation
+    description: Validate project readiness for release
+    agent: releasemanager
+    config:
+      model: gpt-4
+      temperature: 0.1
+      system_prompt: |
+        You are the Release Manager Agent. Validate release readiness:
+        - All tests must pass
+        - Linting must be clean
+        - Type checking must pass
+        - No open blockers (check .parac/memory/context/open_questions.md)
+        - Current phase deliverables complete
+    inputs:
+      skip_tests: "{{ inputs.skip_tests }}"
+      state_path: ".parac/memory/context/current_state.yaml"
+      questions_path: ".parac/memory/context/open_questions.md"
+    outputs:
+      - validation_status # pass/fail
+      - test_results # pytest results
+      - lint_results # ruff results
+      - typecheck_results # mypy results
+      - blockers # List of blockers if any
+    validation:
+      must_pass: true
+      on_fail: abort
+    tools:
+      - name: run_tests
+        description: Run pytest test suite
+      - name: run_lint
+        description: Run ruff linting
+      - name: run_typecheck
+        description: Run mypy type checking
+
+  # ============================================================================
+  # PHASE 2: VERSION MANAGEMENT
+  # ============================================================================
+  - id: bump_version
+    name: version_bump
+    description: Bump version following semantic versioning
+    agent: releasemanager
+    depends_on: [validate_readiness]
+    config:
+      model: gpt-4
+      temperature: 0
+      system_prompt: |
+        You are the Release Manager Agent. Bump version using scripts/bump_version.py:
+        - Read current version from pyproject.toml
+        - Calculate new version based on type (major/minor/patch)
+        - Update pyproject.toml
+        - Update all package __init__.py files
+        - Validate version format (MAJOR.MINOR.PATCH)
+    inputs:
+      version_type: "{{ inputs.version_type }}"
+      dry_run: "{{ inputs.dry_run }}"
+      script_path: "scripts/bump_version.py"
+    outputs:
+      - current_version # Current version before bump
+      - new_version # New version after bump
+      - updated_files # List of files updated
+    tools:
+      - name: execute_script
+        description: Run bump_version.py script
+
+  # ============================================================================
+  # PHASE 3: CHANGELOG GENERATION
+  # ============================================================================
+  - id: generate_changelog
+    name: changelog_generation
+    description: Generate changelog from conventional commits
+    agent: releasemanager
+    depends_on: [bump_version]
+    config:
+      model: gpt-4
+      temperature: 0.3
+      system_prompt: |
+        You are the Release Manager Agent. Generate changelog using scripts/generate_changelog.py:
+        - Parse conventional commits since last release
+        - Group by type (feat, fix, docs, etc.)
+        - Highlight breaking changes
+        - Format as markdown
+        - Update CHANGELOG.md
+    inputs:
+      new_version: "{{ steps.bump_version.outputs.new_version }}"
+      release_notes: "{{ inputs.release_notes }}"
+      script_path: "scripts/generate_changelog.py"
+      dry_run: "{{ inputs.dry_run }}"
+    outputs:
+      - changelog_entry # Generated changelog markdown
+      - commit_count # Number of commits included
+      - breaking_changes # List of breaking changes
+    tools:
+      - name: execute_script
+        description: Run generate_changelog.py script
+      - name: git_log
+        description: Read git commit history
+
+  # ============================================================================
+  # PHASE 4: GIT OPERATIONS
+  # ============================================================================
+  - id: git_commit_and_tag
+    name: git_operations
+    description: Commit version changes and create git tag
+    agent: releasemanager
+    depends_on: [generate_changelog]
+    config:
+      model: gpt-4
+      temperature: 0
+      system_prompt: |
+        You are the Release Manager Agent. Perform git operations:
+        - Stage changed files (pyproject.toml, CHANGELOG.md, packages/**/__init__.py)
+        - Commit with message: "chore(release): bump version to X.Y.Z"
+        - Create annotated tag: "vX.Y.Z"
+        - Push to origin with tags
+    inputs:
+      new_version: "{{ steps.bump_version.outputs.new_version }}"
+      updated_files: "{{ steps.bump_version.outputs.updated_files }}"
+      changelog_entry: "{{ steps.generate_changelog.outputs.changelog_entry }}"
+      dry_run: "{{ inputs.dry_run }}"
+    outputs:
+      - commit_sha # SHA of release commit
+      - tag_name # Name of created tag (vX.Y.Z)
+      - pushed # Whether changes were pushed
+    tools:
+      - name: git_add
+        description: Stage files for commit
+      - name: git_commit
+        description: Create commit
+      - name: git_tag
+        description: Create annotated tag
+      - name: git_push
+        description: Push to origin
+
+  # ============================================================================
+  # PHASE 5: BUILD & PACKAGE
+  # ============================================================================
+  - id: build_package
+    name: package_build
+    description: Build distribution packages (sdist + wheel)
+    agent: releasemanager
+    depends_on: [git_commit_and_tag]
+    config:
+      model: gpt-4
+      temperature: 0
+      system_prompt: |
+        You are the Release Manager Agent. Build Python packages:
+        - Clean previous builds (rm -rf dist/ build/)
+        - Run: python -m build
+        - Validate packages (twine check dist/*)
+        - List package contents
+    inputs:
+      new_version: "{{ steps.bump_version.outputs.new_version }}"
+      dry_run: "{{ inputs.dry_run }}"
+    outputs:
+      - package_files # List of built packages
+      - package_size # Total size of packages
+      - validation_result # twine check result
+    tools:
+      - name: execute_command
+        description: Run shell commands
+      - name: validate_package
+        description: Run twine check
+
+  # ============================================================================
+  # PHASE 6: PYPI PUBLISHING (if not dry_run)
+  # ============================================================================
+  - id: publish_pypi
+    name: pypi_publishing
+    description: Publish packages to PyPI
+    agent: releasemanager
+    depends_on: [build_package]
+    condition: "{{ inputs.dry_run == false }}"
+    config:
+      model: gpt-4
+      temperature: 0
+      system_prompt: |
+        You are the Release Manager Agent. Publish to PyPI:
+        - Check PYPI_TOKEN environment variable exists
+        - Run: twine upload dist/* --repository pypi
+        - Verify package appears on PyPI
+        - Display package URL: https://pypi.org/project/paracle/X.Y.Z/
+    inputs:
+      new_version: "{{ steps.bump_version.outputs.new_version }}"
+      package_files: "{{ steps.build_package.outputs.package_files }}"
+    outputs:
+      - published # Whether publish succeeded
+      - pypi_url # URL to package on PyPI
+      - upload_result # twine upload result
+    tools:
+      - name: execute_command
+        description: Run twine upload
+      - name: http_get
+        description: Verify package on PyPI
+    secrets:
+      - PYPI_TOKEN
+
+  # ============================================================================
+  # PHASE 7: GITHUB RELEASE
+  # ============================================================================
+  - id: create_github_release
+    name: github_release
+    description: Create GitHub release with notes
+    agent: releasemanager
+    depends_on: [publish_pypi]
+    condition: "{{ inputs.dry_run == false }}"
+    config:
+      model: gpt-4
+      temperature: 0.5
+      system_prompt: |
+        You are the Release Manager Agent. Create GitHub release:
+        - Use gh CLI or GitHub API
+        - Title: "Paracle vX.Y.Z"
+        - Body: Include changelog entry
+        - Attach: None (packages on PyPI)
+        - Mark as latest release
+    inputs:
+      new_version: "{{ steps.bump_version.outputs.new_version }}"
+      tag_name: "{{ steps.git_commit_and_tag.outputs.tag_name }}"
+      changelog_entry: "{{ steps.generate_changelog.outputs.changelog_entry }}"
+      breaking_changes: "{{ steps.generate_changelog.outputs.breaking_changes }}"
+    outputs:
+      - release_url # URL to GitHub release
+      - release_id # GitHub release ID
+    tools:
+      - name: github_create_release
+        description: Create GitHub release
+
+  # ============================================================================
+  # PHASE 8: GOVERNANCE UPDATE
+  # ============================================================================
+  - id: update_governance
+    name: governance_update
+    description: Update .parac/ with release information
+    agent: pm
+    depends_on: [create_github_release]
+    config:
+      model: gpt-4
+      temperature: 0.1
+      system_prompt: |
+        You are the PM Agent. Update governance after release:
+        - Update .parac/memory/context/current_state.yaml (version)
+        - Log to .parac/memory/logs/agent_actions.log
+        - Create release summary in .parac/memory/summaries/vX.Y.Z_release.md
+        - Update .parac/roadmap/roadmap.yaml if phase completed
+    inputs:
+      new_version: "{{ steps.bump_version.outputs.new_version }}"
+      release_url: "{{ steps.create_github_release.outputs.release_url }}"
+      changelog_entry: "{{ steps.generate_changelog.outputs.changelog_entry }}"
+    outputs:
+      - governance_updated # Files updated
+      - summary_path # Path to release summary
+    tools:
+      - name: file_write
+        description: Update YAML and markdown files
+
+  # ============================================================================
+  # PHASE 9: NOTIFICATION
+  # ============================================================================
+  - id: notify_stakeholders
+    name: stakeholder_notification
+    description: Notify team and stakeholders of release
+    agent: pm
+    depends_on: [update_governance]
+    config:
+      model: gpt-4
+      temperature: 0.7
+      system_prompt: |
+        You are the PM Agent. Notify stakeholders:
+        - Format release announcement
+        - Include: Version, highlights, breaking changes, migration guide
+        - List channels: GitHub release, docs, README
+    inputs:
+      new_version: "{{ steps.bump_version.outputs.new_version }}"
+      release_url: "{{ steps.create_github_release.outputs.release_url }}"
+      pypi_url: "{{ steps.publish_pypi.outputs.pypi_url }}"
+      breaking_changes: "{{ steps.generate_changelog.outputs.breaking_changes }}"
+    outputs:
+      - notification_message # Formatted announcement
+      - channels # List of notification channels
+
+# Workflow outputs
+outputs:
+  release_version:
+    description: Released version number
+    value: "{{ steps.bump_version.outputs.new_version }}"
+
+  release_url:
+    description: GitHub release URL
+    value: "{{ steps.create_github_release.outputs.release_url }}"
+
+  pypi_url:
+    description: PyPI package URL
+    value: "{{ steps.publish_pypi.outputs.pypi_url }}"
+
+  changelog:
+    description: Release changelog
+    value: "{{ steps.generate_changelog.outputs.changelog_entry }}"
+
+# Workflow configuration
+config:
+  timeout: 1800 # 30 minutes
+  retry:
+    max_attempts: 2
+    backoff: exponential
+  logging:
+    level: INFO
+    path: ".parac/memory/logs/release_workflow.log"
+  notifications:
+    on_success: true
+    on_failure: true

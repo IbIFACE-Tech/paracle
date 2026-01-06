@@ -1,0 +1,174 @@
+# Refactoring Workflow
+# Safe refactoring with comprehensive validation
+# Version: 1.0.0
+
+name: refactoring
+version: 1.0.0
+description: |
+  Safe refactoring workflow ensuring no behavioral changes.
+  Orchestrates: plan → refactor → validate → document
+
+metadata:
+  category: maintenance
+  tags: [refactoring, technical-debt, quality]
+  author: Paracle Team
+  created: "2026-01-06"
+
+inputs:
+  target_component:
+    type: string
+    description: Component to refactor (file/module/class)
+    required: true
+
+  refactoring_goal:
+    type: string
+    description: Goal of refactoring
+    enum: [simplify, performance, maintainability, extract, consolidate]
+    required: true
+
+  scope:
+    type: string
+    enum: [small, medium, large]
+    default: medium
+    required: false
+
+steps:
+  - id: analyze
+    name: refactoring_analysis
+    description: Analyze current code and plan refactoring
+    agent: architect
+    config:
+      model: gpt-4
+      temperature: 0.5
+    inputs:
+      target_component: "{{ inputs.target_component }}"
+      refactoring_goal: "{{ inputs.refactoring_goal }}"
+      scope: "{{ inputs.scope }}"
+    outputs:
+      - current_structure
+      - proposed_structure
+      - refactoring_steps
+      - affected_dependencies
+      - risk_assessment
+    tools:
+      - name: read_file
+      - name: search_dependencies
+
+  - id: backup_tests
+    name: create_test_baseline
+    description: Run tests before refactoring (baseline)
+    agent: tester
+    depends_on: [analyze]
+    config:
+      model: gpt-4
+      temperature: 0.1
+    inputs:
+      target_component: "{{ inputs.target_component }}"
+      affected_dependencies: "{{ steps.analyze.outputs.affected_dependencies }}"
+    outputs:
+      - baseline_test_results
+      - baseline_coverage
+    tools:
+      - name: run_tests
+      - name: coverage_report
+    validation:
+      must_pass: true # Tests must pass before refactoring
+      on_fail: abort
+
+  - id: refactor
+    name: apply_refactoring
+    description: Apply refactoring changes
+    agent: coder
+    depends_on: [backup_tests]
+    config:
+      model: gpt-4-turbo
+      temperature: 0.2
+    inputs:
+      current_structure: "{{ steps.analyze.outputs.current_structure }}"
+      proposed_structure: "{{ steps.analyze.outputs.proposed_structure }}"
+      refactoring_steps: "{{ steps.analyze.outputs.refactoring_steps }}"
+      target_component: "{{ inputs.target_component }}"
+    outputs:
+      - refactored_files
+      - changes_summary
+    tools:
+      - name: edit_file
+      - name: move_file
+
+  - id: validate
+    name: refactoring_validation
+    description: Validate refactoring preserves behavior
+    agent: tester
+    depends_on: [refactor]
+    config:
+      model: gpt-4
+      temperature: 0.1
+    inputs:
+      refactored_files: "{{ steps.refactor.outputs.refactored_files }}"
+      baseline_test_results: "{{ steps.backup_tests.outputs.baseline_test_results }}"
+      baseline_coverage: "{{ steps.backup_tests.outputs.baseline_coverage }}"
+    outputs:
+      - validation_test_results
+      - validation_coverage
+      - behavior_preserved
+      - regressions
+    tools:
+      - name: run_tests
+      - name: coverage_report
+      - name: compare_results
+    validation:
+      must_pass: true # All tests must still pass
+      on_fail: rollback
+
+  - id: review
+    name: refactoring_review
+    description: Review refactored code quality
+    agent: reviewer
+    depends_on: [validate]
+    config:
+      model: gpt-4
+      temperature: 0.4
+    inputs:
+      refactored_files: "{{ steps.refactor.outputs.refactored_files }}"
+      changes_summary: "{{ steps.refactor.outputs.changes_summary }}"
+      refactoring_goal: "{{ inputs.refactoring_goal }}"
+    outputs:
+      - review_status
+      - quality_improvement
+      - feedback
+    validation:
+      must_approve: true
+
+  - id: document
+    name: update_documentation
+    description: Update documentation if needed
+    agent: documenter
+    depends_on: [review]
+    config:
+      model: gpt-4
+      temperature: 0.5
+    inputs:
+      refactored_files: "{{ steps.refactor.outputs.refactored_files }}"
+      changes_summary: "{{ steps.refactor.outputs.changes_summary }}"
+      proposed_structure: "{{ steps.analyze.outputs.proposed_structure }}"
+    outputs:
+      - docs_updated
+      - changelog_entry
+    tools:
+      - name: edit_file
+
+outputs:
+  refactoring_status:
+    value: "{{ steps.validate.outputs.behavior_preserved }}"
+  refactored_files:
+    value: "{{ steps.refactor.outputs.refactored_files }}"
+  quality_improvement:
+    value: "{{ steps.review.outputs.quality_improvement }}"
+
+config:
+  timeout: 2400 # 40 minutes
+  retry:
+    max_attempts: 1 # No retry for refactoring
+  rollback_on_fail: true # Important!
+  logging:
+    level: INFO

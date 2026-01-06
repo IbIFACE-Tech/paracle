@@ -73,6 +73,24 @@ Advanced skill for CI/CD and containerization:
 - Deployment strategies
 - Structured logging
 
+#### git-management/
+Expert-level skill for git workflow management:
+- Conventional commits enforcement
+- Branching strategies (Gitflow)
+- Merge operations and conflict resolution
+- Git hooks automation
+- Pull request management
+- Tag and reference management
+
+#### release-automation/
+Expert-level skill for release orchestration:
+- Semantic versioning (major.minor.patch)
+- Changelog generation from commits
+- PyPI package publishing
+- Docker image publishing
+- GitHub release creation
+- Pre-release and hotfix workflows
+
 #### performance-optimization/
 Expert-level skill for system performance:
 - Profiling and bottleneck identification
@@ -175,22 +193,34 @@ When working on Paracle:
    - Docker configuration
    - Deployment automation
 
-8. **Performance**: Use `performance-optimization` skill
-   - Profiling code
-   - Optimizing queries
-   - Implementing caching
+8. **Git Workflows**: Use `git-management` skill
+   - Conventional commits
+   - Branch management
+   - Merge strategies
+   - Git hooks
 
-9. **Security**: Use `security-hardening` skill
-   - Authentication/authorization
-   - Input validation
-   - Security testing
+9. **Release Management**: Use `release-automation` skill
+   - Version bumping
+   - Changelog generation
+   - Package publishing
+   - Release orchestration
 
-10. **Configuration**: Use `agent-configuration`, `tool-integration`, `provider-integration`
+10. **Performance**: Use `performance-optimization` skill
+    - Profiling code
+    - Optimizing queries
+    - Implementing caching
+
+11. **Security**: Use `security-hardening` skill
+    - Authentication/authorization
+    - Input validation
+    - Security testing
+
+12. **Configuration**: Use `agent-configuration`, `tool-integration`, `provider-integration`
     - Configuring agents
     - Adding tools
     - Managing providers
 
-11. **Upgrades**: Use `migration-upgrading` skill
+13. **Upgrades**: Use `migration-upgrading` skill
     - Version migrations
     - Schema changes
     - Breaking changes

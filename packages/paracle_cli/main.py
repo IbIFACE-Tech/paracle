@@ -4,6 +4,7 @@ import click
 from rich.console import Console
 
 from paracle_cli.commands.adr import adr
+from paracle_cli.commands.agent_run import run as agent_run
 from paracle_cli.commands.agents import agents
 from paracle_cli.commands.cost import cost
 from paracle_cli.commands.ide import ide
@@ -58,8 +59,10 @@ cli.add_command(providers)  # Provider management (list, add, test, default)
 cli.add_command(cost)       # Cost tracking and budget management
 
 # File management commands
-cli.add_command(adr)        # ADR management (list, create, get, status, migrate)
-cli.add_command(roadmap)    # Roadmap management (list, show, add, validate, sync)
+# ADR management (list, create, get, status, migrate)
+cli.add_command(adr)
+# Roadmap management (list, show, add, validate, sync)
+cli.add_command(roadmap)
 
 # Legacy compatibility (hidden, deprecated)
 cli.add_command(parac)
@@ -79,8 +82,12 @@ def hello() -> None:
 
 @cli.group()
 def agent() -> None:
-    """Manage agents (singular alias)."""
+    """Manage and run individual agents."""
     pass
+
+
+# Add agent run command
+agent.add_command(agent_run)
 
 
 @agent.command("create")

@@ -1,0 +1,63 @@
+"""Git commit workflow for releasemanager agent with tool integration."""
+
+version: "1.0"
+id: "git_commit_workflow"
+name: "Git Commit Workflow"
+description: "Automated git commit workflow with releasemanager agent"
+
+metadata:
+  author: "paracle-system"
+  created: "2026-01-06"
+  tags: ["git", "commit", "release", "automation"]
+
+inputs:
+  message:
+    type: string
+    required: true
+    description: "Commit message (conventional commit format)"
+  files:
+    type: string
+    default: "."
+    description: "Files to stage (default: all changes)"
+
+steps:
+  - id: "check_status"
+    name: "Check Git Status"
+    agent: "releasemanager"
+    tool: "git_status"
+    inputs:
+      cwd: "."
+    outputs:
+      - status_result
+
+  - id: "stage_files"
+    name: "Stage Files"
+    agent: "releasemanager"
+    tool: "git_add"
+    inputs:
+      files: "{{ inputs.files }}"
+      cwd: "."
+    outputs:
+      - add_result
+    depends_on:
+      - check_status
+
+  - id: "create_commit"
+    name: "Create Commit"
+    agent: "releasemanager"
+    tool: "git_commit"
+    inputs:
+      message: "{{ inputs.message }}"
+      cwd: "."
+    outputs:
+      - commit_result
+    depends_on:
+      - stage_files
+
+outputs:
+  status: "{{ steps.check_status.status_result }}"
+  commit: "{{ steps.create_commit.commit_result }}"
+
+on_failure:
+  action: "rollback"
+  notify: true

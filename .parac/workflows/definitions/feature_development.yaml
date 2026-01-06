@@ -1,0 +1,376 @@
+# Feature Development Workflow
+# Complete feature implementation with design, coding, testing, review, docs
+# Version: 1.0.0
+
+name: feature_development
+version: 1.0.0
+description: |
+  End-to-end feature development workflow following best practices.
+  Orchestrates: Architect → Coder → Tester → Reviewer → Documenter → PM
+
+metadata:
+  category: development
+  tags: [feature, development, multi-agent, tdd]
+  author: Paracle Team
+  created: "2026-01-06"
+  governance: true
+
+inputs:
+  feature_name:
+    type: string
+    description: Feature name (snake_case)
+    required: true
+    example: "agent_skills"
+
+  feature_description:
+    type: string
+    description: Detailed feature requirements
+    required: true
+
+  target_package:
+    type: string
+    description: Target package for implementation
+    required: true
+    example: "paracle_orchestration"
+
+  priority:
+    type: string
+    enum: [P0, P1, P2]
+    default: P1
+    required: false
+
+steps:
+  # ============================================================================
+  # PHASE 0: PRE-FLIGHT & PLANNING
+  # ============================================================================
+  - id: preflight
+    name: pre_flight_validation
+    description: Validate task alignment with roadmap
+    agent: pm
+    config:
+      model: gpt-4
+      temperature: 0.1
+    inputs:
+      feature_name: "{{ inputs.feature_name }}"
+      feature_description: "{{ inputs.feature_description }}"
+      priority: "{{ inputs.priority }}"
+    outputs:
+      - validation_result
+      - phase_alignment
+      - dependencies
+    validation:
+      must_pass: true
+      on_fail: abort
+
+  # ============================================================================
+  # PHASE 1: ARCHITECTURE DESIGN
+  # ============================================================================
+  - id: design
+    name: architecture_design
+    description: Design feature architecture and interfaces
+    agent: architect
+    depends_on: [preflight]
+    config:
+      model: gpt-4
+      temperature: 0.7
+      system_prompt: |
+        You are the Architect Agent. Design the feature architecture:
+        - Read current architecture from docs/architecture.md
+        - Design: modules, classes, interfaces, data models
+        - Consider: hexagonal architecture, ports & adapters
+        - Document: architectural decisions (ADR if needed)
+        - Output: Design specification with diagrams (mermaid)
+    inputs:
+      feature_name: "{{ inputs.feature_name }}"
+      feature_description: "{{ inputs.feature_description }}"
+      target_package: "{{ inputs.target_package }}"
+      architecture_doc: "docs/architecture.md"
+    outputs:
+      - design_spec # Detailed design specification
+      - modules # List of modules to create
+      - interfaces # Interface definitions
+      - data_models # Pydantic models
+      - adr # Architecture Decision Record (if needed)
+    tools:
+      - name: read_file
+        description: Read existing architecture
+      - name: mermaid_diagram
+        description: Create architecture diagrams
+
+  # ============================================================================
+  # PHASE 2: TEST DESIGN (TDD)
+  # ============================================================================
+  - id: test_design
+    name: test_specification
+    description: Design tests before implementation (TDD)
+    agent: tester
+    depends_on: [design]
+    config:
+      model: gpt-4
+      temperature: 0.5
+      system_prompt: |
+        You are the Tester Agent. Design comprehensive tests (TDD):
+        - Unit tests for each module/class
+        - Integration tests for component interaction
+        - Edge cases and error handling
+        - Follow pytest conventions
+        - Use fixtures appropriately
+        - Aim for >90% coverage
+    inputs:
+      design_spec: "{{ steps.design.outputs.design_spec }}"
+      modules: "{{ steps.design.outputs.modules }}"
+      interfaces: "{{ steps.design.outputs.interfaces }}"
+      target_package: "{{ inputs.target_package }}"
+    outputs:
+      - test_plan # Test plan with scenarios
+      - test_files # List of test files to create
+      - fixtures # Required pytest fixtures
+      - coverage_target # Target coverage percentage
+    tools:
+      - name: read_file
+        description: Read testing policy
+
+  # ============================================================================
+  # PHASE 3: IMPLEMENTATION
+  # ============================================================================
+  - id: implement
+    name: feature_implementation
+    description: Implement feature following design and TDD
+    agent: coder
+    depends_on: [test_design]
+    config:
+      model: gpt-4-turbo
+      temperature: 0.3
+      system_prompt: |
+        You are the Coder Agent. Implement the feature:
+        - Follow design specification exactly
+        - Write clean, idiomatic Python 3.10+
+        - Use type hints everywhere
+        - Follow code style from .parac/policies/CODE_STYLE.md
+        - Implement interfaces from design
+        - Make tests pass (from test_design phase)
+        - Add docstrings (Google style)
+    inputs:
+      design_spec: "{{ steps.design.outputs.design_spec }}"
+      modules: "{{ steps.design.outputs.modules }}"
+      data_models: "{{ steps.design.outputs.data_models }}"
+      test_plan: "{{ steps.test_design.outputs.test_plan }}"
+      target_package: "{{ inputs.target_package }}"
+    outputs:
+      - implemented_files # List of created/modified files
+      - code_summary # Implementation summary
+      - public_api # Public API surface
+    tools:
+      - name: create_file
+        description: Create new files
+      - name: edit_file
+        description: Modify existing files
+      - name: read_file
+        description: Read code style policy
+
+  # ============================================================================
+  # PHASE 4: TEST IMPLEMENTATION
+  # ============================================================================
+  - id: implement_tests
+    name: test_implementation
+    description: Implement comprehensive test suite
+    agent: tester
+    depends_on: [implement]
+    config:
+      model: gpt-4
+      temperature: 0.3
+      system_prompt: |
+        You are the Tester Agent. Implement the test suite:
+        - Implement all tests from test_plan
+        - Use pytest with fixtures
+        - Test happy paths and edge cases
+        - Test error handling
+        - Mock external dependencies
+        - Run tests and ensure they pass
+        - Check coverage (aim >90%)
+    inputs:
+      test_plan: "{{ steps.test_design.outputs.test_plan }}"
+      test_files: "{{ steps.test_design.outputs.test_files }}"
+      fixtures: "{{ steps.test_design.outputs.fixtures }}"
+      implemented_files: "{{ steps.implement.outputs.implemented_files }}"
+      target_package: "{{ inputs.target_package }}"
+    outputs:
+      - test_files_created # Created test files
+      - test_results # pytest results
+      - coverage_report # Coverage percentage
+      - failing_tests # List of failing tests (if any)
+    tools:
+      - name: create_file
+        description: Create test files
+      - name: run_tests
+        description: Execute pytest
+      - name: coverage_report
+        description: Generate coverage report
+    validation:
+      must_pass: true # Tests must pass
+      on_fail: retry_implement
+
+  # ============================================================================
+  # PHASE 5: CODE REVIEW
+  # ============================================================================
+  - id: review
+    name: code_review
+    description: Review code quality, security, and best practices
+    agent: reviewer
+    depends_on: [implement_tests]
+    config:
+      model: gpt-4
+      temperature: 0.5
+      system_prompt: |
+        You are the Reviewer Agent. Review the implementation:
+        - Code quality: Clean, maintainable, DRY
+        - Security: Check .parac/policies/SECURITY.md
+        - Performance: Identify bottlenecks
+        - Best practices: Python idioms, type hints
+        - Test coverage: Ensure comprehensive tests
+        - Documentation: Docstrings, comments
+        - Architecture: Follows design spec
+        - Provide constructive feedback
+    inputs:
+      implemented_files: "{{ steps.implement.outputs.implemented_files }}"
+      test_files_created: "{{ steps.implement_tests.outputs.test_files_created }}"
+      design_spec: "{{ steps.design.outputs.design_spec }}"
+      coverage_report: "{{ steps.implement_tests.outputs.coverage_report }}"
+    outputs:
+      - review_status # approved/needs_changes
+      - feedback # List of feedback items
+      - security_issues # Security concerns (if any)
+      - performance_issues # Performance concerns (if any)
+      - suggestions # Improvement suggestions
+    tools:
+      - name: read_file
+        description: Read files for review
+      - name: run_lint
+        description: Run ruff linter
+      - name: run_typecheck
+        description: Run mypy
+    validation:
+      must_approve: true
+      on_reject: notify_coder
+
+  # ============================================================================
+  # PHASE 6: DOCUMENTATION
+  # ============================================================================
+  - id: document
+    name: documentation
+    description: Create comprehensive documentation
+    agent: documenter
+    depends_on: [review]
+    config:
+      model: gpt-4
+      temperature: 0.7
+      system_prompt: |
+        You are the Documenter Agent. Create documentation:
+        - API reference (from code)
+        - User guide (how to use the feature)
+        - Examples (practical usage examples)
+        - Update README if needed
+        - Update docs/ if appropriate
+        - Follow documentation standards
+    inputs:
+      feature_name: "{{ inputs.feature_name }}"
+      implemented_files: "{{ steps.implement.outputs.implemented_files }}"
+      public_api: "{{ steps.implement.outputs.public_api }}"
+      design_spec: "{{ steps.design.outputs.design_spec }}"
+    outputs:
+      - documentation_files # Created/updated docs
+      - examples # Example code snippets
+      - api_reference # API documentation
+    tools:
+      - name: create_file
+        description: Create documentation
+      - name: edit_file
+        description: Update existing docs
+
+  # ============================================================================
+  # PHASE 7: INTEGRATION
+  # ============================================================================
+  - id: integrate
+    name: integration_validation
+    description: Validate feature integration with platform
+    agent: tester
+    depends_on: [document]
+    config:
+      model: gpt-4
+      temperature: 0.3
+      system_prompt: |
+        You are the Tester Agent. Validate integration:
+        - Run full test suite (not just feature tests)
+        - Check for regression in existing features
+        - Validate imports and dependencies
+        - Test CLI if feature exposes commands
+        - Test API if feature exposes endpoints
+    inputs:
+      implemented_files: "{{ steps.implement.outputs.implemented_files }}"
+      target_package: "{{ inputs.target_package }}"
+    outputs:
+      - integration_status # pass/fail
+      - regression_tests # Results of regression tests
+      - breaking_changes # List of breaking changes (if any)
+    tools:
+      - name: run_tests
+        description: Run full test suite
+    validation:
+      must_pass: true
+      on_fail: abort
+
+  # ============================================================================
+  # PHASE 8: GOVERNANCE UPDATE
+  # ============================================================================
+  - id: update_governance
+    name: governance_update
+    description: Update .parac/ with feature completion
+    agent: pm
+    depends_on: [integrate]
+    config:
+      model: gpt-4
+      temperature: 0.1
+      system_prompt: |
+        You are the PM Agent. Update governance:
+        - Log to .parac/memory/logs/agent_actions.log (all agent actions)
+        - Update .parac/memory/context/current_state.yaml (add to completed)
+        - Create feature summary in .parac/memory/summaries/
+        - Update .parac/roadmap/roadmap.yaml if deliverable completed
+        - Log decision if ADR was created
+    inputs:
+      feature_name: "{{ inputs.feature_name }}"
+      implemented_files: "{{ steps.implement.outputs.implemented_files }}"
+      test_files_created: "{{ steps.implement_tests.outputs.test_files_created }}"
+      documentation_files: "{{ steps.document.outputs.documentation_files }}"
+      adr: "{{ steps.design.outputs.adr }}"
+    outputs:
+      - governance_updated # Updated governance files
+      - summary_path # Path to feature summary
+      - milestone_completed # Whether milestone was completed
+
+# Workflow outputs
+outputs:
+  feature_status:
+    description: Feature completion status
+    value: "{{ steps.integrate.outputs.integration_status }}"
+
+  implemented_files:
+    description: List of implemented files
+    value: "{{ steps.implement.outputs.implemented_files }}"
+
+  test_coverage:
+    description: Test coverage percentage
+    value: "{{ steps.implement_tests.outputs.coverage_report }}"
+
+  documentation:
+    description: Generated documentation
+    value: "{{ steps.document.outputs.documentation_files }}"
+
+config:
+  timeout: 3600 # 1 hour
+  retry:
+    max_attempts: 2
+    backoff: exponential
+  logging:
+    level: INFO
+    path: ".parac/memory/logs/feature_workflow.log"

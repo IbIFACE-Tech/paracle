@@ -1,5 +1,5 @@
 schema_version: '1.0'
-generated_at: '2026-01-05T13:37:38.647860'
+generated_at: '2026-01-06T02:54:00.876836'
 workspace:
   name: paracle-lite
   version: 0.0.1
@@ -49,6 +49,18 @@ agents:
   - team coordination
   description: Project coordination, roadmap management, progress tracking, and stakeholder
     communication.
+- id: releasemanager
+  name: Release Manager Agent
+  role: Manages git workflows, semantic versioning, releases, changelogs, and deployment
+    automation for the Paracle project.
+  spec_file: agents\specs\releasemanager.md
+  capabilities:
+  - version management
+  - git workflow
+  - release process
+  - bug/feature tracking
+  description: Manages git workflows, semantic versioning, releases, changelogs, and
+    deployment automation for the Paracle project.
 - id: reviewer
   name: Reviewer Agent
   role: Code review, quality assurance, and ensuring adherence to project standards
@@ -72,5 +84,5 @@ agents:
   description: Test design, implementation, and quality validation ensuring comprehensive
     coverage and reliability.
 metadata:
-  agent_count: 6
+  agent_count: 7
   specs_directory: agents/specs/

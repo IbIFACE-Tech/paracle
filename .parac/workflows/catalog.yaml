@@ -1,13 +1,42 @@
 # Workflows Catalog
-# Version: 1.0
+# Version: 2.0
 
 # Available Workflows
 workflows:
-  - name: hello_world
-    description: Simple hello world workflow
-    file: templates/hello_world.yaml
-    category: examples
+  # ============================================================================
+  # DEVELOPMENT WORKFLOWS
+  # ============================================================================
+  - name: feature_development
+    description: |
+      End-to-end feature development workflow.
+      Orchestrates: Architect → Coder → Tester → Reviewer → Documenter → PM
+      Includes: design, TDD, implementation, testing, review, documentation, integration
+    file: definitions/feature_development.yaml
+    category: development
     status: active
+    tags: [feature, development, multi-agent, tdd]
+    priority: P0
+
+  - name: bugfix
+    description: |
+      Streamlined bugfix workflow for production issues.
+      Faster than feature development but maintains quality standards.
+      Includes: analysis, fix, testing, review, documentation
+    file: definitions/bugfix.yaml
+    category: development
+    status: active
+    tags: [bugfix, hotfix, maintenance]
+    priority: P0
+
+  - name: refactoring
+    description: |
+      Safe refactoring workflow ensuring no behavioral changes.
+      Includes: analysis, baseline tests, refactoring, validation, review
+    file: definitions/refactoring.yaml
+    category: development
+    status: active
+    tags: [refactoring, technical-debt, quality]
+    priority: P1
 
   - name: paracle_build
     description: |
@@ -31,30 +60,105 @@ workflows:
       - Integration validation
       - ISO 42001 compliance
 
+  # ============================================================================
+  # QUALITY ASSURANCE WORKFLOWS
+  # ============================================================================
   - name: code_review
-    description: Automated code review process
-    file: templates/code_review.yaml
-    category: development
-    status: planned
+    description: |
+      Comprehensive code review workflow.
+      Checks: quality, security, performance, tests, documentation
+      Produces: verdict, summary, blocking issues, action items
+    file: definitions/code_review.yaml
+    category: quality
+    status: active
+    tags: [review, quality, security]
+    priority: P0
+
+  # ============================================================================
+  # DOCUMENTATION WORKFLOWS
+  # ============================================================================
+  - name: documentation
+    description: |
+      Documentation workflow for creating guides, API refs, and tutorials.
+      Orchestrates: research → write → review → publish
+      Supports: API reference, user guides, tutorials, quickstarts, architecture docs
+    file: definitions/documentation.yaml
+    category: documentation
+    status: active
+    tags: [docs, documentation, guides]
+    priority: P1
 
   - name: documentation_generator
-    description: Generate comprehensive documentation
+    description: Generate comprehensive documentation (PLANNED)
     file: templates/documentation.yaml
-    category: development
+    category: documentation
     status: planned
+
+  # ============================================================================
+  # RELEASE MANAGEMENT WORKFLOWS
+  # ============================================================================
+  - name: release
+    description: |
+      Complete release workflow following semantic versioning.
+      Orchestrates: validation → version bump → changelog → tagging → publishing → notification
+      Includes: PyPI publishing, GitHub releases, governance updates
+    file: definitions/release.yaml
+    category: release
+    status: active
+    tags: [release, versioning, publishing, pypi]
+    priority: P0
+    features:
+      - Pre-release validation (tests, linting, typecheck)
+      - Semantic versioning (major/minor/patch)
+      - Changelog generation (from conventional commits)
+      - Git tagging
+      - PyPI publishing
+      - GitHub release creation
+      - Governance updates
+      - Stakeholder notification
+
+  # ============================================================================
+  # EXAMPLES & TEMPLATES
+  # ============================================================================
+  - name: hello_world
+    description: Simple hello world workflow
+    file: templates/hello_world.yaml
+    category: examples
+    status: active
 
 # Workflow Categories
 categories:
+  development:
+    description: Workflows for feature development, bugfixes, and refactoring
+    workflows: [feature_development, bugfix, refactoring, paracle_build]
+
+  quality:
+    description: Quality assurance and code review workflows
+    workflows: [code_review]
+
+  documentation:
+    description: Documentation generation and maintenance workflows
+    workflows: [documentation, documentation_generator]
+
+  release:
+    description: Release management and publishing workflows
+    workflows: [release]
+
   dogfooding:
     description: Workflows for building Paracle using Paracle (dogfooding strategy)
+    workflows: [paracle_build]
+
   examples:
     description: Example workflows for learning
-  development:
-    description: Development and engineering workflows
+    workflows: [hello_world]
+
   analysis:
     description: Data and code analysis workflows
+    workflows: []
+
   deployment:
     description: Deployment and CI/CD workflows
+    workflows: []
 
 # Workflow Templates
 templates:

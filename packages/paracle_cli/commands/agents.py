@@ -157,7 +157,8 @@ def _list_direct(output_format: str) -> None:
                     "spec_file": str(spec_file.relative_to(parac_root.parent)),
                 })
         except Exception as e:
-            console.print(f"[yellow]Warning:[/yellow] Failed to load {spec_file.name}: {e}")
+            console.print(
+                f"[yellow]Warning:[/yellow] Failed to load {spec_file.name}: {e}")
 
     if not agents_list:
         console.print(
@@ -345,7 +346,8 @@ def get_agent(agent_id: str, output_format: str, spec: bool) -> None:
         paracle agents get coder --spec
         paracle agents get architect --format=json
     """
-    use_api_or_fallback(_get_via_api, _get_direct, agent_id, output_format, spec)
+    use_api_or_fallback(_get_via_api, _get_direct,
+                        agent_id, output_format, spec)
 
 
 # =============================================================================

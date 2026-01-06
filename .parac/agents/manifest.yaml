@@ -105,6 +105,27 @@ agents:
       - Architecture docs
       - Examples and tutorials
 
+  - id: releasemanager
+    name: Release Manager
+    role: devops_release
+    description: Manages git workflows, versioning, releases, and deployment automation
+    spec_file: specs/releasemanager.md
+    tools:
+      - git_operations
+      - version_management
+      - changelog_generation
+      - ci_cd_integration
+      - package_publishing
+    responsibilities:
+      - Semantic versioning management
+      - Conventional commits enforcement
+      - Changelog generation from commits
+      - Tag creation and release notes
+      - PyPI/Docker publishing
+      - Hotfix and bugfix workflow coordination
+      - Integration with CI/CD pipelines
+      - Deployment tracking
+
 # Agent Inheritance Examples (to be implemented)
 # inheritance:
 #   - child: security-expert

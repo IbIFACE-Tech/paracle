@@ -14,6 +14,155 @@ Each decision follows this structure:
 
 ---
 
+## ADR-017: Strategic Direction - Developer Experience & Community Focus
+
+**Date**: 2026-01-06
+**Status**: Accepted
+**Deciders**: PM Agent, Core Team
+
+### Context
+
+After completing Phase 5 (Execution Safety & Isolation), a comprehensive strategic assessment was conducted to evaluate Paracle's positioning and future direction. The assessment identified:
+
+**Validated Strengths:**
+- Meta approach (dogfooding - using Paracle to build Paracle)
+- Strong governance & traceability (.parac/ as source of truth, ADRs)
+- Production-ready architecture (hexagonal, modular monolith, 15+ packages)
+- Unique features (agent inheritance, 14+ LLM providers, MCP native, sandbox execution)
+- Quality metrics (771 tests, 97.2% pass, 87.5% coverage, ISO 42001 path)
+
+**Critical Findings:**
+1. **Complexity vs Accessibility** - Governance model is thorough but heavy for small projects
+2. **Learning Curve** - Many concepts (agents, workflows, tools, inheritance, MCP), dense documentation
+3. **Performance at Scale** - Focus on correctness (appropriate), need optimization plan
+4. **Community & Ecosystem** - Early stage (v0.0.1), framework ready but community nascent
+
+**Competitive Positioning:**
+- vs LangChain: Smaller community BUT better governance, agent inheritance, production safety
+- vs LlamaIndex: Different focus BUT multi-framework support, agent composition
+- vs AutoGen: No Microsoft backing BUT simpler model, better isolation, YAML-first
+
+**Key Insight:** Paracle has **strong potential** to become a leading multi-agent framework. Foundation is solid. **Challenge: Balance power with accessibility.**
+
+### Decision
+
+**Strategic Direction for v0.1.0-v1.0.0:** Focus on **Developer Experience (DX) + Community Growth + Performance**, maintaining production readiness and governance strengths.
+
+**Three-Phase Roadmap:**
+
+**Phase 6 (Weeks 21-24): Developer Experience**
+- **Priority:** HIGH - Critical for adoption
+- **Goal:** Reduce learning curve by ~50%
+- **Deliverables:**
+  1. Quick Start Mode (`paracle init --lite`) - Minimal .parac/ for prototyping
+  2. Interactive Tutorial (`paracle tutorial`) - Built-in step-by-step guide
+  3. Example Gallery - 10+ real-world, production-ready examples
+  4. Project Templates - Small/Medium/Enterprise templates
+  5. Video Guides - 4-5 screen recordings for visual learners
+
+**Phase 7 (Weeks 25-28): Community & Growth**
+- **Priority:** CRITICAL - Drives adoption
+- **Goal:** Build vibrant ecosystem with network effects
+- **Deliverables:**
+  1. Community Templates Marketplace - User-contributed agents/workflows
+  2. Plugin System - Extensibility SDK for community
+  3. Discord Community - Real-time support (500+ members target)
+  4. Monthly Webinars - Live demos, Q&A, community showcase
+  5. Blog Series - 11 technical posts (Getting Started, Advanced, Case Studies)
+
+**Phase 8 (Weeks 29-32): Performance & Scale**
+- **Priority:** MEDIUM - Important for scale
+- **Goal:** 2-3x performance improvement
+- **Deliverables:**
+  1. Response Caching - Redis/Valkey for LLM responses (30-50% cost reduction)
+  2. Connection Pooling - HTTP and DB connection reuse
+  3. Benchmarking Suite - Performance baselines, regression detection
+  4. Performance Documentation - Tuning guide, optimization patterns
+
+**Key Design Principles:**
+1. **Progressive Disclosure** - Start simple, add governance as needed
+2. **Lite Mode** - Minimal barrier to entry, graduate to full mode
+3. **Community-Driven** - Enable ecosystem contributions
+4. **Performance Without Compromise** - Optimize while maintaining safety
+
+### Implementation
+
+**Immediate (Post-Phase 5):**
+- ✅ Document strategic feedback (.parac/memory/knowledge/strategic_feedback_jan2026.md)
+- ✅ Create action plan (.parac/memory/knowledge/strategic_action_plan.md)
+- ✅ Add strategic questions Q13-Q16 to open_questions.md
+- ⏳ Update roadmap.yaml with Phase 6-8 details
+- ⏳ Create Phase 6 detailed specifications
+- ⏳ Prototype lite mode (`paracle init --lite`)
+
+**Resource Requirements:**
+- Personnel: ~36 developer-weeks over 12 weeks (1.5 FTE average)
+- Budget: ~$115K (development + video + community tools)
+- Timeline: 12 weeks (3 months) for Phases 6-8
+
+**Success Metrics (6 Months):**
+- Adoption: 1,000+ GitHub stars, 500+ weekly active users
+- Community: 500+ Discord members, 20+ PRs/month
+- Quality: >90% test coverage, <500ms p95 API latency, >70% tutorial completion
+- Business: 20+ examples, 50+ community templates, 50+ production deployments
+
+### Consequences
+
+#### Positive
+
+✅ **Clear Strategic Direction** - Phases 6-8 roadmap with concrete deliverables
+✅ **Balanced Approach** - Maintains production readiness while improving accessibility
+✅ **Differentiation Strategy** - Agent inheritance + BYO philosophy + production safety
+✅ **Community Focus** - Network effects through templates, plugins, engagement
+✅ **Resource Clarity** - Known costs, timeline, success metrics
+✅ **Measurable** - Clear KPIs for adoption, quality, business success
+
+#### Negative
+
+⚠️ **Resource Commitment** - 36 developer-weeks, $115K over 3 months
+⚠️ **Dual Focus** - Must maintain both power (enterprise) and simplicity (beginners)
+⚠️ **Community Risk** - Hard to bootstrap, requires sustained engagement
+⚠️ **Delayed Features** - Other features deferred to focus on DX/community
+
+#### Mitigations
+
+- **Lite Mode Exception** - Enterprise users keep full governance, beginners start lite
+- **Phased Approach** - Phase 6 first (highest ROI), can adjust 7-8 based on feedback
+- **Seed Community** - Core team creates initial examples/templates/content
+- **Prioritization Framework** - Defer non-critical features to maintain focus
+
+### Roadmap Integration
+
+**Phase 6 (Developer Experience)** - Q13, Q14 from open_questions.md
+- Week 21-22: Quick start mode + interactive tutorial
+- Week 22-23: Example gallery (10 examples)
+- Week 23-24: Project templates + video guides
+
+**Phase 7 (Community & Growth)** - Q16 from open_questions.md
+- Week 25-26: Templates marketplace + plugin system
+- Week 26-27: Discord community + blog series
+- Week 27-28: Monthly webinars
+
+**Phase 8 (Performance & Scale)** - Q15 from open_questions.md
+- Week 29-30: Response caching + connection pooling
+- Week 30-31: Benchmarking suite
+- Week 31-32: Performance documentation
+
+### Related Decisions
+
+- ADR-016: Pre-Flight Checklist - Ensures quality while reducing barrier
+- ADR-013: API-First CLI - Supports programmatic access for community
+- ADR-015: Persistence Strategy - Foundation for performance optimization
+
+### References
+
+- Strategic Assessment: .parac/memory/knowledge/strategic_feedback_jan2026.md
+- Action Plan: .parac/memory/knowledge/strategic_action_plan.md
+- Open Questions: Q13 (Complexity), Q14 (Learning), Q15 (Performance), Q16 (Community)
+- Assessment Summary: .parac/memory/summaries/strategic_assessment_response_2026-01-06.md
+
+---
+
 ## ADR-016: Mandatory Pre-Flight Checklist for AI Agents
 
 **Date**: 2026-01-04
@@ -3623,7 +3772,7 @@ task.complete() → workflow.resume()
 
 Paracle workflows can execute in various modes depending on requirements:
 - **Development**: Interactive debugging, step-by-step execution
-- **Testing**: Dry-run without real API calls, cost-free validation  
+- **Testing**: Dry-run without real API calls, cost-free validation
 - **CI/CD**: Automated execution without human approvals (YOLO mode)
 - **Production**: Full execution with proper approvals
 - **Planning**: Preview execution plan without running
@@ -3647,14 +3796,14 @@ Implement **execution modes as orchestration-level parameters** (not agent capab
 
 #### Currently Implemented Modes
 
-| Mode          | Parameter              | Description                        | Phase |
-|---------------|------------------------|------------------------------------|-------|
-| **Async**     | (default)              | Background execution               | 3     |
-| **Sync**      | `sync=True`          | Blocking execution                 | 3     |
-| **Watch**     | `watch=True`         | Live streaming of execution        | 3     |
-| **YOLO**      | `auto_approve=True`  | Auto-approve all approval gates    | 4     |
+| Mode            | Parameter                | Description                     | Phase |
+| --------------- | ------------------------ | ------------------------------- | ----- |
+| **Async**       | (default)                | Background execution            | 3     |
+| **Sync**        | `sync=True`              | Blocking execution              | 3     |
+| **Watch**       | `watch=True`             | Live streaming of execution     | 3     |
+| **YOLO**        | `auto_approve=True`      | Auto-approve all approval gates | 4     |
 | **Interactive** | (default with approvals) | Human-in-the-loop approvals     | 3     |
-| **Sandbox**   | (filesystem tools)     | Restricted filesystem access       | 2     |
+| **Sandbox**     | (filesystem tools)       | Restricted filesystem access    | 2     |
 
 #### New Modes (This ADR)
 

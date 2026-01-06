@@ -18,6 +18,10 @@ This document tracks unresolved questions and decisions pending.
 | Q10 | API Middlewares Stack         | Architect  | High     | Phase 3 End | **Resolved** |
 | Q11 | ISO 42001 Compliance Strategy | Architect  | High     | Phase 4 End | **Resolved** |
 | Q12 | Kanban Task Management        | Architect  | High     | Phase 6 End | **Resolved** |
+| Q13 | Complexity vs Accessibility   | PM         | High     | Phase 6 End | Open         |
+| Q14 | Learning Curve Reduction      | PM         | High     | Phase 6 End | Open         |
+| Q15 | Performance at Scale          | Architect  | Medium   | Phase 7 End | Open         |
+| Q16 | Community & Ecosystem Growth  | PM         | Critical | Phase 7 End | Open         |
 
 ---
 
@@ -91,6 +95,183 @@ See: [paracle_events](../../../packages/paracle_events/)
 **Recommendation:** URL versioning (/v1/) from start for stability
 
 **Decision Needed By:** End of Phase 2
+
+---
+
+### Q13: Complexity vs Accessibility
+
+**Status:** Open
+**Priority:** High
+**Owner:** PM Agent
+**Deadline:** End of Phase 6 (Week 24)
+**Context:** Governance model is thorough but may feel heavy for small projects. Need to balance power with accessibility.
+
+**Challenge:**
+- Multiple config files (project.yaml, manifest.yaml, roadmap.yaml, etc.)
+- Extensive .parac/ structure (10+ subdirectories)
+- Steep learning curve for simple use cases
+
+**Options:**
+1. **Lite Mode** - Minimal .parac/ for prototyping (`paracle init --lite`)
+2. **Progressive Disclosure** - Start simple, add governance as needed
+3. **Templates** - Small/Medium/Enterprise project templates
+4. **Wizard** - Interactive setup with questions
+
+**Discussion:**
+- Lite mode would reduce initial barrier
+- Templates provide clear paths for different scales
+- Progressive disclosure allows growth
+- Risk: fragmentation of approach
+
+**Recommendation:** Implement all three:
+- Lite mode for quick starts
+- 3 templates (Small/Medium/Enterprise)
+- Progressive disclosure via CLI prompts
+
+**Decision Needed By:** Phase 6 planning
+
+**Related:** Strategic feedback document (memory/knowledge/strategic_feedback_jan2026.md)
+
+---
+
+### Q14: Learning Curve Reduction
+
+**Status:** Open
+**Priority:** High
+**Owner:** PM Agent
+**Deadline:** End of Phase 6 (Week 24)
+**Context:** Many concepts to grasp (agents, workflows, tools, inheritance, MCP, governance)
+
+**Challenges:**
+- Documentation is comprehensive but dense
+- No visual guides or interactive tutorials
+- Multiple configuration files to understand
+- Concepts not introduced progressively
+
+**Options:**
+1. **Interactive Tutorial** - `paracle tutorial` command with step-by-step
+2. **Video Guides** - Screen recordings for common workflows
+3. **Visual Builder** - GUI for agent/workflow configuration
+4. **Simplified Examples** - Clear path from Hello World to production
+5. **Concept Map** - Visual diagram of relationships
+
+**Discussion:**
+- Interactive tutorial has highest ROI (build once, use always)
+- Videos require maintenance but very accessible
+- Visual builder is expensive but differentiating
+- Examples should show progression of complexity
+
+**Recommendation:** Phase 6 priorities:
+1. Interactive tutorial (high priority)
+2. 10+ simplified examples (high priority)
+3. 4-5 video guides (medium priority)
+4. Visual builder (Phase 7)
+
+**Decision Needed By:** Phase 6 planning
+
+**Related:** Strategic feedback document
+
+---
+
+### Q15: Performance at Scale
+
+**Status:** Open
+**Priority:** Medium
+**Owner:** Architect Agent
+**Deadline:** End of Phase 7 (Week 28)
+**Context:** Current focus on correctness over performance (appropriate for v0.0.1), but need plan for scale
+
+**Current State:**
+- Async/await throughout (good foundation)
+- No caching strategy
+- No connection pooling
+- Limited benchmarking
+
+**Roadmap Coverage:**
+- ✅ PostgreSQL migration planned (Phase 6)
+- ✅ pgvector planned (Phase 6)
+- ⚠️ Missing: Response caching, connection pooling
+
+**Options:**
+1. **Response Caching** - Redis/Valkey for LLM response cache
+2. **Connection Pooling** - Database and HTTP connection reuse
+3. **Async Optimization** - Review and optimize async patterns
+4. **Rate Limiting** - Smart rate limit management across providers
+5. **Benchmarking Suite** - Establish performance baselines
+
+**Discussion:**
+- Phase 6-7 is right time (after core features stable)
+- Response caching has biggest impact (LLM calls expensive)
+- Connection pooling prevents resource exhaustion
+- Benchmarking needed to measure improvements
+
+**Recommendation:**
+- Phase 7 focus on performance
+- Add items to roadmap:
+  - Response caching (Redis/Valkey)
+  - Connection pooling
+  - Benchmarking suite
+  - Performance documentation
+
+**Decision Needed By:** Phase 6 retrospective
+
+**Related:** Strategic feedback document
+
+---
+
+### Q16: Community & Ecosystem Growth
+
+**Status:** Open
+**Priority:** Critical
+**Owner:** PM Agent
+**Deadline:** End of Phase 7 (Week 28)
+**Context:** Framework is production-ready but community is nascent. Need strategy for growth.
+
+**Current State:**
+- v0.0.1 released
+- Limited examples
+- No community structure
+- No plugin marketplace
+
+**Options:**
+1. **Example Gallery** - 20+ real-world examples categorized
+2. **Plugin System** - Extensibility mechanism for community
+3. **Community Templates** - Agent/workflow marketplace
+4. **Developer Advocates** - Blog posts, tutorials, talks
+5. **Discord Community** - Real-time support and feedback
+6. **Monthly Webinars** - Feature demos and Q&A
+
+**Discussion:**
+- Example gallery has highest immediate impact
+- Plugin system enables long-term ecosystem
+- Community templates create network effects
+- Need balance between building and marketing
+
+**Recommendation:** Phased approach:
+- **Phase 6** (Foundation):
+  - 10+ example gallery
+  - Basic plugin system
+  - GitHub Discussions setup
+
+- **Phase 7** (Growth):
+  - Community templates marketplace
+  - Discord community
+  - Monthly webinars
+  - Blog series
+
+- **Phase 8** (Scale):
+  - Conference talks
+  - Developer advocates
+  - Enterprise success stories
+
+**Success Metrics:**
+- GitHub stars: 1,000+ (6 months)
+- Weekly active users: 500+ (6 months)
+- Community contributions: 20+ PRs/month
+
+**Decision Needed By:** Phase 6 planning
+
+**Related:** Strategic feedback document
 
 ---
 

@@ -32,6 +32,10 @@ MANIFEST
 *.manifest
 *.spec
 
+# Private documentation (internal workflows, credentials, etc.)
+.docs-private/
+private-docs/
+
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt

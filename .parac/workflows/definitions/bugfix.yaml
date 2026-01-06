@@ -1,0 +1,149 @@
+# Bugfix Workflow
+# Quick bugfix workflow with minimal overhead but proper validation
+# Version: 1.0.0
+
+name: bugfix
+version: 1.0.0
+description: |
+  Streamlined bugfix workflow for production issues.
+  Faster than feature development but maintains quality standards.
+
+metadata:
+  category: maintenance
+  tags: [bugfix, hotfix, maintenance]
+  author: Paracle Team
+  created: "2026-01-06"
+  governance: true
+
+inputs:
+  bug_description:
+    type: string
+    description: Description of the bug
+    required: true
+
+  affected_files:
+    type: array
+    description: List of potentially affected files
+    required: false
+    default: []
+
+  severity:
+    type: string
+    enum: [critical, high, medium, low]
+    default: high
+    required: false
+
+  issue_number:
+    type: string
+    description: GitHub issue number (e.g., #123)
+    required: false
+
+steps:
+  - id: analyze
+    name: bug_analysis
+    description: Analyze bug and identify root cause
+    agent: architect
+    config:
+      model: gpt-4
+      temperature: 0.3
+    inputs:
+      bug_description: "{{ inputs.bug_description }}"
+      affected_files: "{{ inputs.affected_files }}"
+      severity: "{{ inputs.severity }}"
+    outputs:
+      - root_cause
+      - fix_strategy
+      - affected_components
+      - test_scenarios
+    tools:
+      - name: read_file
+      - name: search_code
+
+  - id: fix
+    name: implement_fix
+    description: Implement bugfix
+    agent: coder
+    depends_on: [analyze]
+    config:
+      model: gpt-4
+      temperature: 0.2
+    inputs:
+      root_cause: "{{ steps.analyze.outputs.root_cause }}"
+      fix_strategy: "{{ steps.analyze.outputs.fix_strategy }}"
+      affected_components: "{{ steps.analyze.outputs.affected_components }}"
+    outputs:
+      - fixed_files
+      - fix_summary
+    tools:
+      - name: edit_file
+
+  - id: test_fix
+    name: regression_testing
+    description: Test fix and check for regressions
+    agent: tester
+    depends_on: [fix]
+    config:
+      model: gpt-4
+      temperature: 0.2
+    inputs:
+      fixed_files: "{{ steps.fix.outputs.fixed_files }}"
+      test_scenarios: "{{ steps.analyze.outputs.test_scenarios }}"
+    outputs:
+      - test_results
+      - regression_status
+    tools:
+      - name: run_tests
+    validation:
+      must_pass: true
+      on_fail: abort
+
+  - id: review
+    name: quick_review
+    description: Quick review of bugfix
+    agent: reviewer
+    depends_on: [test_fix]
+    config:
+      model: gpt-4
+      temperature: 0.3
+    inputs:
+      fixed_files: "{{ steps.fix.outputs.fixed_files }}"
+      fix_summary: "{{ steps.fix.outputs.fix_summary }}"
+      severity: "{{ inputs.severity }}"
+    outputs:
+      - review_status
+      - feedback
+    validation:
+      must_approve: true
+
+  - id: document_fix
+    name: update_docs
+    description: Document fix in appropriate places
+    agent: documenter
+    depends_on: [review]
+    config:
+      model: gpt-4
+      temperature: 0.5
+    inputs:
+      bug_description: "{{ inputs.bug_description }}"
+      fix_summary: "{{ steps.fix.outputs.fix_summary }}"
+      issue_number: "{{ inputs.issue_number }}"
+    outputs:
+      - changelog_entry
+      - doc_updates
+    tools:
+      - name: edit_file
+
+outputs:
+  fix_status:
+    value: "{{ steps.test_fix.outputs.regression_status }}"
+  fixed_files:
+    value: "{{ steps.fix.outputs.fixed_files }}"
+  changelog_entry:
+    value: "{{ steps.document_fix.outputs.changelog_entry }}"
+
+config:
+  timeout: 1800 # 30 minutes
+  retry:
+    max_attempts: 2
+  logging:
+    level: INFO

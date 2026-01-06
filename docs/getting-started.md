@@ -124,13 +124,30 @@ When working with Paracle, you can organize your project:
 
 ```
 my-paracle-project/
-├── .parac/              # Paracle workspace (optional)
+├── .parac/              # Paracle workspace (source of truth)
 │   ├── project.yaml     # Project configuration
-│   ├── agents/          # Agent definitions
-│   └── workflows/       # Workflow definitions
+│   ├── agents/
+│   │   ├── specs/       # Agent specifications
+│   │   └── skills/      # Reusable agent skills
+│   ├── workflows/       # Workflow definitions
+│   ├── policies/        # Project policies
+│   └── memory/          # Project state and logs
 ├── agents/              # Your agent code
 ├── workflows/           # Your workflow code
 └── requirements.txt     # Dependencies
+```
+
+Initialize a workspace with:
+
+```bash
+# Quick start - complete structure for rapid prototyping
+paracle init --lite
+
+# Standard workspace (recommended)
+paracle init
+
+# Full workspace with templates and policies
+paracle init --all
 ```
 
 ## Configuration

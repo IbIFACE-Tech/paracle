@@ -9,6 +9,12 @@
 
 Avant TOUTE action, consulte `.parac/` pour comprendre le contexte, les règles, et l'état actuel.
 
+> **⚠️ IMPORTANT: Les agents Paracle sont des PROGRAMMES EXÉCUTABLES, pas des personas à adopter.**
+>
+> - ✅ **Dire**: "Je vais exécuter CoderAgent..." ou "Suivant les standards CoderAgent..."
+> - ❌ **Ne PAS dire**: "J'adopte le persona CoderAgent..."
+> - 📖 **Voir**: `docs/agent-execution-model.md` pour explication complète
+
 ---
 
 ## 📖 LECTURE OBLIGATOIRE (Dans l'ordre)
@@ -35,19 +41,20 @@ Quand tu commences à travailler sur ce projet, lis ces 5 fichiers EN PREMIER:
 □ Quel est l'état actuel?    → .parac/memory/context/current_state.yaml
 □ Quelle phase sommes-nous?  → .parac/roadmap/roadmap.yaml
 □ Quelles sont les règles?   → .parac/GOVERNANCE.md
-□ Quel agent adopter?        → .parac/agents/specs/{agent}.md
+□ Quel agent exécuter?      → .parac/agents/specs/{agent}.md
 □ Y a-t-il des questions?    → .parac/memory/context/open_questions.md
 ```
 
 ### PENDANT la tâche:
 
-1. **Adopte le bon agent persona** (voir `.parac/agents/specs/`)
-   - Nouvelle feature → `coder`
-   - Architecture → `architect`
-   - Documentation → `documenter`
-   - Planification → `pm`
-   - Code review → `reviewer`
-   - Tests → `tester`
+1. **Sélectionne et exécute le bon agent** (voir `.parac/agents/specs/`)
+   - Nouvelle feature → `paracle agent run coder`
+   - Architecture → `paracle agent run architect`
+   - Documentation → `paracle agent run documenter`
+   - Planification → `paracle agent run pm`
+   - Code review → `paracle agent run reviewer`
+   - Tests → `paracle agent run tester`
+   - **OU** implémente manuellement en suivant les standards de l'agent
 
 2. **Suis les standards du projet**
    - Code style → `.parac/policies/CODE_STYLE.md`
@@ -225,8 +232,10 @@ Consulte `.parac/agents/specs/` pour les spécifications complètes:
 2. Lire .parac/roadmap/roadmap.yaml
    → Cette feature est planifiée? Quelle priorité?
 
-3. Adopter Coder persona
+3. Sélectionner et exécuter l'agent approprié
    → Lire .parac/agents/specs/coder.md
+   → Exécuter: paracle agent run coder --task "Ajouter feature X"
+   → OU implémenter manuellement en suivant standards CoderAgent
 
 4. Vérifier standards
    → Lire .parac/policies/CODE_STYLE.md
@@ -244,8 +253,10 @@ Consulte `.parac/agents/specs/` pour les spécifications complètes:
 ### Exemple 2: Demande "Review ce code"
 
 ```
-1. Adopter Reviewer persona
+1. Sélectionner et exécuter ReviewerAgent
    → Lire .parac/agents/specs/reviewer.md
+   → Exécuter: paracle agent run reviewer --task "Review PR #42"
+   → OU faire review manuelle suivant standards ReviewerAgent
 
 2. Vérifier standards
    → Lire .parac/policies/CODE_STYLE.md
@@ -264,8 +275,10 @@ Consulte `.parac/agents/specs/` pour les spécifications complètes:
 ### Exemple 3: Demande "Planifie la prochaine phase"
 
 ```
-1. Adopter PM persona
+1. Sélectionner et exécuter PM agent
    → Lire .parac/agents/specs/pm.md
+   → Exécuter: paracle agent run pm --task "Planifier phase suivante"
+   → OU planifier manuellement suivant standards PM
 
 2. Analyser l'état actuel
    → Lire .parac/memory/context/current_state.yaml

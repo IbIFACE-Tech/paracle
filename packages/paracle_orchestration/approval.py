@@ -578,8 +578,8 @@ class ApprovalManager:
         self._decided_approvals[request.id] = request
 
     def _signal_decision(self, approval_id: str) -> None:
-        """Signal that a decision has been made."""
-        event = self._decision_events.get(approval_id)
+        """Signal that a decision has been made and clean up event."""
+        event = self._decision_events.pop(approval_id, None)
         if event:
             event.set()
 

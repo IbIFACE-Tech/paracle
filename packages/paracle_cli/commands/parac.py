@@ -652,6 +652,416 @@ def session_end(
 # =============================================================================
 
 
+def _create_lite_workspace(
+    parac_dir: Path, target: Path, project_name: str
+) -> None:
+    """Create lite .parac/ workspace with complete structure.
+
+    Lite mode creates all essential folders and files for Paracle to function:
+    - agents/ with specs, skills, and manifest
+    - memory/ with context, logs
+    - roadmap/ with roadmap, decisions, constraints
+    - tools/ with custom and builtin folders
+    - integrations/ with IDE support
+
+    Perfect for:
+    - Quick prototyping with full structure
+    - Learning Paracle
+    - Single-agent projects ready to grow
+    - Experimenting with ideas
+
+    Can be upgraded to full mode later with: paracle init --all --force
+    """
+    from datetime import date
+
+    # Complete directory structure for lite mode
+    dirs_to_create = [
+        parac_dir / "agents" / "specs",
+        parac_dir / "agents" / "skills" / "my-first-skill",
+        parac_dir / "memory" / "context",
+        parac_dir / "memory" / "logs",
+        parac_dir / "roadmap",
+        parac_dir / "tools" / "custom",
+        parac_dir / "tools" / "builtin",
+        parac_dir / "integrations" / "ide",
+    ]
+
+    for dir_path in dirs_to_create:
+        dir_path.mkdir(parents=True, exist_ok=True)
+
+    console.print("  [dim]Created directory structure[/dim]")
+
+    # =========================================================================
+    # Root files
+    # =========================================================================
+
+    # .gitignore
+    gitignore_content = """# Paracle workspace ignores
+memory/logs/*.log
+*.pyc
+__pycache__/
+.env
+.env.local
+"""
+    (parac_dir / ".gitignore").write_text(gitignore_content, encoding="utf-8")
+
+    # project.yaml - Project configuration
+    project_content = f"""# Paracle Project (Lite Mode)
+# Upgrade to full mode: paracle init --all --force
+
+name: {project_name}
+version: 0.0.1
+
+# Default LLM settings
+defaults:
+  model: gpt-4o-mini
+  provider: openai
+  temperature: 0.7
+"""
+    (parac_dir / "project.yaml").write_text(project_content, encoding="utf-8")
+
+    # changelog.md
+    changelog_content = f"""# Changelog - {project_name}
+
+All notable changes to this project will be documented in this file.
+
+## [0.0.1] - {date.today().isoformat()}
+
+### Added
+- Initial project setup with Paracle lite mode
+"""
+    (parac_dir / "changelog.md").write_text(changelog_content, encoding="utf-8")
+
+    console.print("  [dim]Created[/dim] root files (.gitignore, project.yaml, changelog.md)")
+
+    # =========================================================================
+    # Agents files
+    # =========================================================================
+
+    # agents/manifest.yaml
+    manifest_content = f"""# Agent Manifest
+# AUTO-GENERATED - Regenerate with: paracle sync
+
+generated_at: '{date.today().isoformat()}'
+agents:
+  - id: myagent
+    name: My Agent
+    spec_file: agents/specs/myagent.md
+"""
+    (parac_dir / "agents" / "manifest.yaml").write_text(
+        manifest_content, encoding="utf-8"
+    )
+
+    # agents/SKILL_ASSIGNMENTS.md
+    skill_assignments = """# Skill Assignments
+
+Maps skills to agents in this project.
+
+## Assignments
+
+| Agent | Skills |
+|-------|--------|
+| myagent | my-first-skill |
+
+## How to Assign Skills
+
+1. Create a skill in `skills/` directory
+2. Reference it in the agent's spec file
+3. Update this table for documentation
+"""
+    (parac_dir / "agents" / "SKILL_ASSIGNMENTS.md").write_text(
+        skill_assignments, encoding="utf-8"
+    )
+
+    # agents/specs/myagent.md
+    agent_spec = """# My Agent
+
+A simple agent to get you started.
+
+## Role
+
+Describe what this agent does.
+
+## Capabilities
+
+- Answer questions
+- Help with tasks
+
+## Guidelines
+
+1. Be helpful and concise
+2. Ask for clarification when needed
+
+## Skills
+
+- my-first-skill
+
+## Model
+
+Uses the default model from project.yaml.
+"""
+    (parac_dir / "agents" / "specs" / "myagent.md").write_text(
+        agent_spec, encoding="utf-8"
+    )
+
+    # agents/skills/README.md
+    skills_readme = """# Agent Skills
+
+Reusable skills that can be assigned to agents.
+
+## What are Skills?
+
+Skills are reusable capabilities that can be shared across multiple agents.
+They define specific behaviors, prompts, or tool configurations.
+
+## Structure
+
+Each skill is a folder with its definition:
+
+```
+skills/
+└── my-first-skill/
+    └── skill.yaml  (or README.md)
+```
+
+## Using Skills
+
+Assign skills to agents in their spec files:
+
+```markdown
+## Skills
+
+- my-first-skill
+- another-skill
+```
+"""
+    (parac_dir / "agents" / "skills" / "README.md").write_text(
+        skills_readme, encoding="utf-8"
+    )
+
+    console.print("  [dim]Created[/dim] agents/* files")
+
+    # =========================================================================
+    # Memory files
+    # =========================================================================
+
+    # memory/index.yaml
+    memory_index = f"""# Memory Index
+created: '{date.today().isoformat()}'
+entries: []
+"""
+    (parac_dir / "memory" / "index.yaml").write_text(memory_index, encoding="utf-8")
+
+    # memory/context/current_state.yaml
+    state_content = f"""# Project State (Lite Mode)
+version: '1.0'
+snapshot_date: '{date.today().isoformat()}'
+project:
+  name: {project_name}
+  version: 0.0.1
+  phase: phase_0
+  status: in_progress
+  mode: lite
+current_phase:
+  id: phase_0
+  name: Setup
+  status: in_progress
+  progress: 0%
+"""
+    (parac_dir / "memory" / "context" / "current_state.yaml").write_text(
+        state_content, encoding="utf-8"
+    )
+
+    # memory/context/open_questions.md
+    questions_content = """# Open Questions
+
+Track unresolved questions and decisions here.
+
+## Questions
+
+(No open questions yet)
+"""
+    (parac_dir / "memory" / "context" / "open_questions.md").write_text(
+        questions_content, encoding="utf-8"
+    )
+
+    # memory/logs/README.md
+    logs_readme = """# Logging System
+
+## Files
+
+- `agent_actions.log` - Agent action history
+- `decisions.log` - Important decisions
+
+## Format
+
+```
+[TIMESTAMP] [AGENT] [ACTION] Description
+```
+
+## Example
+
+```
+[2026-01-06 10:00:00] [myagent] [TASK] Completed initial setup
+```
+"""
+    (parac_dir / "memory" / "logs" / "README.md").write_text(
+        logs_readme, encoding="utf-8"
+    )
+
+    # memory/logs/agent_actions.log
+    actions_log = f"# Agent Actions Log - {project_name}\n# Format: [TIMESTAMP] [AGENT] [ACTION] Description\n\n"
+    (parac_dir / "memory" / "logs" / "agent_actions.log").write_text(
+        actions_log, encoding="utf-8"
+    )
+
+    # memory/logs/decisions.log
+    decisions_log = f"# Decisions Log - {project_name}\n# Format: [TIMESTAMP] [DECISION] Description\n\n"
+    (parac_dir / "memory" / "logs" / "decisions.log").write_text(
+        decisions_log, encoding="utf-8"
+    )
+
+    console.print("  [dim]Created[/dim] memory/* files")
+
+    # =========================================================================
+    # Roadmap files
+    # =========================================================================
+
+    # roadmap/roadmap.yaml
+    roadmap_content = f"""# Project Roadmap
+version: '1.0'
+project: {project_name}
+
+phases:
+  - id: phase_0
+    name: Setup
+    status: in_progress
+    description: Initial project setup
+    deliverables:
+      - name: .parac/ workspace
+        status: completed
+"""
+    (parac_dir / "roadmap" / "roadmap.yaml").write_text(
+        roadmap_content, encoding="utf-8"
+    )
+
+    # roadmap/decisions.md
+    decisions_content = """# Architecture Decision Records
+
+## Index
+
+| ADR | Title | Status | Date |
+|-----|-------|--------|------|
+| - | - | - | - |
+
+## Records
+
+(No ADRs yet)
+"""
+    (parac_dir / "roadmap" / "decisions.md").write_text(
+        decisions_content, encoding="utf-8"
+    )
+
+    # roadmap/constraints.yaml
+    constraints_content = """# Project Constraints
+
+# Define project constraints and boundaries
+
+constraints:
+  - name: budget
+    type: resource
+    description: Project budget constraints
+    value: TBD
+
+  - name: timeline
+    type: time
+    description: Project timeline
+    value: TBD
+"""
+    (parac_dir / "roadmap" / "constraints.yaml").write_text(
+        constraints_content, encoding="utf-8"
+    )
+
+    console.print("  [dim]Created[/dim] roadmap/* files")
+
+    # =========================================================================
+    # Tools files
+    # =========================================================================
+
+    # tools/README.md
+    tools_readme = """# Tools
+
+Tool definitions and hooks for Paracle.
+
+## Structure
+
+- `custom/` - Custom tools you create
+- `builtin/` - Built-in Paracle tools
+- `registry.yaml` - Tool registry
+
+## Creating Custom Tools
+
+Create a YAML file in `custom/`:
+
+```yaml
+name: my_tool
+description: What this tool does
+parameters:
+  - name: param1
+    type: string
+    required: true
+```
+"""
+    (parac_dir / "tools" / "README.md").write_text(tools_readme, encoding="utf-8")
+
+    # tools/registry.yaml
+    (parac_dir / "tools" / "registry.yaml").write_text(
+        "# Tool Registry\ntools: []\n", encoding="utf-8"
+    )
+
+    # tools/custom/.gitkeep
+    (parac_dir / "tools" / "custom" / ".gitkeep").write_text("", encoding="utf-8")
+
+    console.print("  [dim]Created[/dim] tools/* files")
+
+    # =========================================================================
+    # Integrations files
+    # =========================================================================
+
+    # integrations/README.md
+    integrations_readme = """# Integrations
+
+External tool and IDE integrations.
+
+## IDE Support
+
+Run `paracle ide sync --copy` to generate IDE-specific configs:
+
+- `.cursorrules` - Cursor AI
+- `.claude/CLAUDE.md` - Claude Code
+- `.github/copilot-instructions.md` - GitHub Copilot
+- `.windsurfrules` - Windsurf
+- `.clinerules` - Cline
+"""
+    (parac_dir / "integrations" / "README.md").write_text(
+        integrations_readme, encoding="utf-8"
+    )
+
+    # integrations/ide/_manifest.yaml
+    ide_manifest = f"""# IDE Integration Manifest
+generated_at: '{date.today().isoformat()}'
+supported_ides:
+  - cursor
+  - claude
+  - copilot
+  - windsurf
+  - cline
+"""
+    (parac_dir / "integrations" / "ide" / "_manifest.yaml").write_text(
+        ide_manifest, encoding="utf-8"
+    )
+
+
 def _create_minimal_workspace(
     parac_dir: Path, target: Path, project_name: str
 ) -> None:
@@ -666,6 +1076,7 @@ def _create_minimal_workspace(
         parac_dir / "memory" / "logs",
         parac_dir / "roadmap",
         parac_dir / "agents" / "specs",
+        parac_dir / "agents" / "skills",
         parac_dir / "policies",
         parac_dir / "tools" / "hooks",
         parac_dir / "adapters",
@@ -717,6 +1128,51 @@ phases:
     roadmap_file.write_text(roadmap_content, encoding="utf-8")
     console.print(f"  [dim]Created[/dim] {roadmap_file.relative_to(target)}")
 
+    # Create skills README
+    skills_readme = """# Agent Skills
+
+Reusable skills that can be assigned to agents.
+
+## What are Skills?
+
+Skills are reusable capabilities that can be shared across multiple agents.
+They define specific behaviors, prompts, or tool configurations.
+
+## Structure
+
+Each skill is defined as a YAML file:
+
+```yaml
+name: code-review
+description: Review code for quality and best practices
+prompts:
+  system: "You are a code reviewer..."
+tools:
+  - read_file
+  - search_code
+```
+
+## Using Skills
+
+Assign skills to agents in their spec files:
+
+```yaml
+# In agents/specs/reviewer.md
+skills:
+  - code-review
+  - security-audit
+```
+
+## Creating Skills
+
+1. Create a YAML file in this directory
+2. Define the skill name, description, and capabilities
+3. Reference it in agent specifications
+"""
+    skills_file = parac_dir / "agents" / "skills" / "README.md"
+    skills_file.write_text(skills_readme, encoding="utf-8")
+    console.print(f"  [dim]Created[/dim] {skills_file.relative_to(target)}")
+
     # Create GOVERNANCE.md
     governance_content = """# .parac/ Governance
 
@@ -729,6 +1185,7 @@ This directory is the single source of truth for the project.
 - `memory/logs/` - Action logs
 - `roadmap/` - Project roadmap and decisions
 - `agents/specs/` - Agent specifications
+- `agents/skills/` - Reusable agent skills
 - `policies/` - Project policies
 - `tools/hooks/` - Automation hooks
 - `adapters/` - Framework adapters
@@ -1481,22 +1938,48 @@ paracle ide sync    # Generate IDE configs
     "--all", "full_init", is_flag=True,
     help="Create complete structure with all templates and policies"
 )
-def init(path: str, name: str | None, force: bool, full_init: bool) -> None:
+@click.option(
+    "--lite", "lite_init", is_flag=True,
+    help="Create lite workspace with complete folder structure"
+)
+def init(
+    path: str, name: str | None, force: bool, full_init: bool, lite_init: bool
+) -> None:
     """Initialize a new .parac/ workspace.
 
     Creates the .parac/ directory structure with default configuration.
 
-    Use --all for a complete workspace with:
-    - All directory structure
-    - Default agents (coder, reviewer)
-    - Policy templates (code style, testing, security)
-    - Workflow templates
-    - ADR structure
-    - IDE integration setup
+    \b
+    Modes (mutually exclusive):
+      (default)  Standard workspace with core structure
+      --lite     Lite workspace with complete folder structure
+      --all      Full workspace with all templates and examples
+
+    \b
+    --lite creates complete structure:
+      - project.yaml, changelog.md, .gitignore
+      - agents/ (specs, skills, manifest)
+      - memory/ (context, logs)
+      - roadmap/ (roadmap, decisions, constraints)
+      - tools/ (custom, builtin, registry)
+      - integrations/ (ide)
+
+    \b
+    --all creates everything including:
+      - Default agents (coder, reviewer)
+      - Policy templates (code style, testing, security)
+      - Workflow templates
+      - ADR structure with templates
+      - IDE integration setup
 
     Note: This command always runs locally (no API call) as it creates
     the workspace that the API would operate on.
     """
+    # Validate mutually exclusive options
+    if full_init and lite_init:
+        console.print("[red]Error:[/red] --all and --lite are mutually exclusive")
+        raise SystemExit(1)
+
     target = Path(path).resolve()
 
     # Create target directory if it doesn't exist
@@ -1514,7 +1997,26 @@ def init(path: str, name: str | None, force: bool, full_init: bool) -> None:
 
     project_name = name or target.name
 
-    if full_init:
+    if lite_init:
+        # Lite mode - complete structure for prototyping
+        console.print(
+            f"[bold cyan]Quick Start:[/bold cyan] "
+            f"Initializing lite .parac/ for: {project_name}\n"
+        )
+        _create_lite_workspace(parac_dir, target, project_name)
+        console.print(
+            f"\n[green]OK[/green] Lite workspace initialized at {target}"
+        )
+        console.print("\n[dim]Complete structure created - ready to prototype![/dim]")
+        console.print("\nNext steps:")
+        console.print("  - Edit .parac/agents/specs/myagent.md")
+        console.print("  - paracle agents list")
+        console.print("  - paracle sync  (after adding agents)")
+        console.print("  - paracle ide sync  (generate IDE configs)")
+        console.print("\n[dim]Upgrade later: paracle init --all --force[/dim]")
+
+    elif full_init:
+        # Full mode - complete workspace
         console.print(
             f"[bold]Initializing complete .parac/ workspace for: {project_name}[/bold]\n")
         _create_full_workspace(parac_dir, target, project_name)
@@ -1526,19 +2028,25 @@ def init(path: str, name: str | None, force: bool, full_init: bool) -> None:
         console.print("  - Policy templates")
         console.print("  - Workflow templates")
         console.print("  - ADR structure")
+        console.print("\nNext steps:")
+        console.print("  - paracle status     - View project state")
+        console.print("  - paracle sync       - Sync with reality")
+        console.print("  - paracle validate   - Check consistency")
+        console.print("  - paracle ide sync   - Generate IDE configs")
+
     else:
+        # Default mode - standard workspace
         console.print(
             f"[bold]Initializing .parac/ workspace for: {project_name}[/bold]\n")
         _create_minimal_workspace(parac_dir, target, project_name)
         console.print(
             f"\n[green]OK[/green] .parac/ workspace initialized at {target}")
-        console.print("\n[dim]Tip: Use --all for complete structure with templates[/dim]")
-
-    console.print("\nNext steps:")
-    console.print("  - paracle status     - View project state")
-    console.print("  - paracle sync       - Sync with reality")
-    console.print("  - paracle validate   - Check consistency")
-    console.print("  - paracle ide sync   - Generate IDE configs")
+        console.print("\nNext steps:")
+        console.print("  - paracle status     - View project state")
+        console.print("  - paracle sync       - Sync with reality")
+        console.print("  - paracle validate   - Check consistency")
+        console.print("  - paracle ide sync   - Generate IDE configs")
+        console.print("\n[dim]Tip: Use --lite for quick prototyping, --all for full structure[/dim]")
 
 
 # Legacy compatibility: keep 'parac' group for backward compatibility

@@ -50,20 +50,127 @@ Next steps:
 Initialize a new `.parac/` workspace.
 
 ```bash
-paracle init [OPTIONS]
+paracle init [PATH] [OPTIONS]
 ```
+
+**Arguments:**
+
+| Argument | Default | Description                                      |
+|----------|---------|--------------------------------------------------|
+| `PATH`   | `.`     | Directory to initialize (created if doesn't exist) |
 
 **Options:**
-| Option | Description |
-|--------|-------------|
-| `--force` | Overwrite existing workspace |
-| `--template NAME` | Use a project template |
+
+| Option        | Description                                         |
+|---------------|-----------------------------------------------------|
+| `--name NAME` | Project name (defaults to directory name)           |
+| `--force`     | Overwrite existing workspace                        |
+| `--lite`      | Minimal structure for quick prototyping             |
+| `--all`       | Complete workspace with all templates               |
+
+**Modes:**
+
+| Mode      | Files | Use Case                              |
+|-----------|-------|---------------------------------------|
+| (default) | ~15   | Standard projects                     |
+| `--lite`  | ~20   | Quick prototyping with full structure |
+| `--all`   | 40+   | Enterprise, full governance           |
 
 **Example:**
+
 ```bash
+# Quick start - minimal workspace
+paracle init --lite
+
+# Standard workspace (default)
 paracle init
-paracle init --force
+
+# Complete workspace with templates, policies, and agents
+paracle init --all
+
+# Initialize in a new directory
+paracle init my-project --name "My Project" --all
+
+# Overwrite existing workspace
+paracle init --force --all
+
+# Upgrade from lite to full
+paracle init --all --force
 ```
+
+**Workspace Structure (--lite):**
+
+```text
+.parac/
+├── .gitignore                # Git ignore patterns
+├── project.yaml              # Project config
+├── changelog.md              # Project changelog
+│
+├── agents/
+│   ├── manifest.yaml         # Agent registry
+│   ├── SKILL_ASSIGNMENTS.md  # Skill-to-agent mapping
+│   ├── specs/
+│   │   └── myagent.md        # Sample agent
+│   └── skills/
+│       ├── README.md
+│       └── my-first-skill/   # Sample skill folder
+│
+├── memory/
+│   ├── index.yaml            # Memory index
+│   ├── context/
+│   │   ├── current_state.yaml
+│   │   └── open_questions.md
+│   └── logs/
+│       ├── README.md
+│       ├── agent_actions.log
+│       └── decisions.log
+│
+├── roadmap/
+│   ├── roadmap.yaml          # Project roadmap
+│   ├── decisions.md          # ADR index
+│   └── constraints.yaml      # Project constraints
+│
+├── tools/
+│   ├── README.md
+│   ├── registry.yaml         # Tool registry
+│   ├── custom/               # Custom tools
+│   └── builtin/              # Built-in tools
+│
+└── integrations/
+    ├── README.md
+    └── ide/
+        └── _manifest.yaml    # IDE manifest
+```
+
+**Workspace Structure (default):**
+
+```text
+.parac/
+├── GOVERNANCE.md
+├── memory/
+│   ├── context/
+│   ├── knowledge/
+│   ├── summaries/
+│   └── logs/
+├── roadmap/
+├── agents/
+│   ├── specs/
+│   └── skills/
+├── policies/
+├── tools/hooks/
+├── adapters/
+└── integrations/ide/
+```
+
+**Workspace Structure (--all):**
+
+Includes all of the above plus:
+
+- Default agents (coder, reviewer)
+- Policy templates (CODE_STYLE.md, TESTING.md, SECURITY.md)
+- ADR templates
+- Workflow templates
+- Full directory structure with runtime logs
 
 ---
 

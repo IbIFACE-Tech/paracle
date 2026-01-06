@@ -1,0 +1,151 @@
+# MkDocs Configuration for Paracle Documentation
+
+site_name: Paracle Documentation
+site_url: https://paracle.readthedocs.io
+site_description: User-driven multi-agent framework for AI-native applications
+site_author: IbIFACE-Tech
+
+repo_name: IbIFACE-Tech/paracle-lite
+repo_url: https://github.com/IbIFACE-Tech/paracle-lite
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    # Light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+    - toc.follow
+    - toc.integrate
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - admonition
+  - pymdownx.details
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+      title: On this page
+  - tables
+  - footnotes
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+plugins:
+  - search:
+      separator: '[\s\-,:!=\[\]()"/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            show_source: true
+            show_root_heading: true
+            show_root_full_path: false
+            show_root_toc_entry: false
+            docstring_style: google
+            members_order: source
+            show_signature_annotations: true
+            separate_signature: true
+            merge_init_into_class: true
+
+extra:
+  version:
+    provider: mike
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/IbIFACE-Tech/paracle-lite
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/paracle/
+  analytics:
+    provider: google
+    property: G-XXXXXXXXXX # Replace with your Google Analytics ID
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Installation: getting-started.md
+      - Quick Start: quickstart.md
+      - First Agent: examples/hello-world.md
+
+  - User Guide:
+      - Core Concepts:
+          - Agents: user-guide/agents.md
+          - Workflows: workflow-guide.md
+          - Tools: builtin-tools.md
+          - Providers: providers.md
+      - Advanced Topics:
+          - Agent Skills: agent-skills.md
+          - Execution Modes: execution-modes.md
+          - Agent Discovery: agent-discovery.md
+          - MCP Integration: mcp-integration.md
+
+  - API Reference:
+      - REST API: api-reference.md
+      - CLI Commands: cli-reference.md
+      - Python SDK:
+          - Core: api/core.md
+          - Domain: api/domain.md
+          - Providers: api/providers.md
+          - Orchestration: api/orchestration.md
+
+  - Phase 5 Features:
+      - Overview: phase5-guide.md
+      - Sandbox Execution: phase5/sandbox.md
+      - Rollback System: phase5/rollback.md
+      - Artifact Review: phase5/review.md
+      - Isolation: phase5/isolation.md
+
+  - Development:
+      - Architecture: architecture.md
+      - Contributing: CONTRIBUTING.md
+      - API Keys: api-keys.md
+
+  - Reference:
+      - Changelog: CHANGELOG.md
+      - License: LICENSE.md
+
+copyright: Copyright &copy; 2026 IbIFACE-Tech
+
+extra_css:
+  - stylesheets/extra.css

@@ -4,7 +4,7 @@ import fnmatch
 import logging
 from datetime import datetime, timedelta
 
-from paracle_core.ids import generate_ulid
+from paracle_domain.models import generate_id
 
 from paracle_review.config import ReviewConfig
 from paracle_review.exceptions import (
@@ -68,7 +68,7 @@ class ReviewManager:
             raise ReviewError("Review not required for this artifact")
 
         # Generate review ID
-        review_id = generate_ulid()
+        review_id = generate_id("review")
 
         # Detect risk level if not provided
         if not risk_level:

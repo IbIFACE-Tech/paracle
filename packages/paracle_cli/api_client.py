@@ -509,6 +509,28 @@ class APIClient:
             )
             return self._handle_response(response)
 
+    def workflow_plan(
+        self,
+        workflow_id: str,
+        inputs: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Generate execution plan for a workflow.
+
+        Args:
+            workflow_id: Workflow identifier
+            inputs: Optional workflow inputs for better estimation
+
+        Returns:
+            ExecutionPlan as dict
+        """
+        with httpx.Client(timeout=self.timeout) as client:
+            response = client.post(
+                f"{self.base_url}/api/workflows/{workflow_id}/plan",
+                headers=self._get_headers(),
+                json={"inputs": inputs or {}},
+            )
+            return self._handle_response(response)
+
 
 class APIError(Exception):
     """API request error."""

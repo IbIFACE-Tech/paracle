@@ -174,9 +174,11 @@ all = [
 
 [project.urls]
 Homepage = "https://github.com/IbIFACE-Tech/paracle-lite"
-Documentation = "https://github.com/IbIFACE-Tech/paracle-lite/docs"
+Documentation = "https://paracle.readthedocs.io"
 Repository = "https://github.com/IbIFACE-Tech/paracle-lite"
 Issues = "https://github.com/IbIFACE-Tech/paracle-lite/issues"
+Changelog = "https://github.com/IbIFACE-Tech/paracle-lite/blob/main/CHANGELOG.md"
+PyPI = "https://pypi.org/project/paracle/"
 
 [project.scripts]
 paracle = "paracle_cli.main:cli"

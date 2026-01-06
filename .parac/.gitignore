@@ -1,2 +1,8 @@
 # Runtime logs (exécution)
 memory/logs/runtime/
+
+# Execution runs (keep structure, ignore run data)
+runs/agents/*/
+runs/workflows/*/
+!runs/agents/.gitkeep
+!runs/workflows/.gitkeep

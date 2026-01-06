@@ -240,7 +240,12 @@ paracle phase complete phase_1
 
 ### Règles pour l'Agent IA
 
-L'agent IA (Claude) DOIT:
+L'agent IA (Claude, GitHub Copilot, etc.) DOIT:
+
+**IMPORTANT**: Les agents Paracle sont des **programmes exécutables**, pas des personas à adopter.
+- ✅ **Dire**: "Je vais exécuter CoderAgent..." ou "Suivant les standards CoderAgent..."
+- ❌ **Ne PAS dire**: "J'adopte le persona CoderAgent..."
+- 📖 **Voir**: `docs/agent-execution-model.md` pour explication complète
 
 1. **Lire `.parac/` au début de chaque session**
    ```

@@ -1,11 +1,11 @@
 # Paracle v0.0.1 - Roadmap Canonique
-# Status: Active | Version: 1.1 | Verrouillable: true
+# Status: Active | Version: 1.2 | Verrouillable: true
 
 version: 0.0.1
-timeline: 32_weeks # Extended from 17 weeks
+timeline: 38_weeks # Extended from 32 weeks - Phase 6-8 strategic refocus
 status: in_progress
 current_phase: phase_5
-last_update: "2026-01-05"
+last_update: "2026-01-06"
 
 # =============================================================================
 # PERSISTENCE STRATEGY (ADR-015)
@@ -89,9 +89,9 @@ persistence_strategy:
 
 # CLI Commands Roadmap Summary
 cli_roadmap:
-  total_commands: 81 # +6 task/board commands (ADR-021)
+  total_commands: 89 # +8 MCP server commands (Phase 7)
   implemented: 31 # Updated: +6 cost commands
-  planned: 50 # Updated after cost implementation
+  planned: 58 # Updated after MCP server addition
 
   # Priority 0 - Essential (Phase 3-4)
   p0_essential:
@@ -459,61 +459,103 @@ phases:
         - paracle review reject # Reject with feedback
 
   - id: phase_6
-    name: "Iterative Execution & Agent Profiles"
-    duration: 3_weeks
+    name: "Developer Experience & Accessibility"
+    duration: 4_weeks # Extended from 3 weeks
     status: planned
-    priority: high
+    priority: critical # Upgraded from high - drives adoption
     completion: 0%
+    started_date: null
+    completed_date: null
+    strategic_focus: "ADR-017 - Reduce learning curve by ~50%"
     deliverables:
-      - execution_chains
-      - follow_up_mechanism
-      - agent_profiles
-      - human_in_the_loop
-      - conditional_retry
-      - kanban_task_management # ADR-021
+      - lite_mode_init # NEW: paracle init --lite
+      - interactive_tutorial # NEW: paracle tutorial
+      - example_gallery # NEW: 10+ production-ready examples
+      - project_templates # NEW: Small/Medium/Enterprise templates
+      - video_guides # NEW: 4-5 screen recordings
+      - execution_chains # KEPT: Follow-up execution
+      - agent_profiles # KEPT: Configuration variants
     focus_areas:
-      - "Follow-up execution with feedback loop"
-      - "Agent configuration profiles (variants)"
-      - "Human-in-the-loop workflows (pause/review/continue)"
-      - "Conditional retry based on validation"
-      - "Context accumulation across attempts"
-      - "Model switching per task type"
-      - "Kanban task management (ADR-021)"
+      - "Quick Start Mode - Minimal .parac/ for rapid prototyping (5 files vs 30+)"
+      - "Interactive Tutorial - Built-in step-by-step guide with checkpoints"
+      - "Example Gallery - Real-world examples (Support, DevOps, Data, Research)"
+      - "Project Templates - Small (lite), Medium (full), Enterprise (+ security)"
+      - "Video Guides - Visual learning (Getting Started, Inheritance, Deployment, MCP)"
+      - "Follow-up execution with feedback loop (legacy from old Phase 6)"
+      - "Agent configuration profiles for model variants"
+    success_metrics:
+      - "Time to first agent: < 2 minutes (down from ~10 min)"
+      - "Tutorial completion rate: >70%"
+      - "Example gallery: 10+ examples, each tested"
+      - "User feedback: 'Easy to get started'"
     cli_commands:
-      planned:
+      new:
+        - paracle init --lite # Create minimal .parac/ structure
+        - paracle upgrade --full # Graduate from lite to full mode
+        - paracle tutorial # Launch interactive tutorial
+        - paracle tutorial resume # Resume from checkpoint
+        - paracle examples list # List available examples
+        - paracle examples show # Show example details
+        - paracle examples create # Create project from example
+        - paracle templates list # List project templates
+        - paracle init --template # Initialize from template
+      kept:
         - paracle workflow retry # Retry with feedback
         - paracle workflow continue # Continue paused workflow
         - paracle profiles list # List agent profiles
         - paracle profiles create # Create profile variant
-        - paracle agents switch-model # Switch LLM mid-workflow
-        - paracle task list # List tasks by status
-        - paracle task create # Create new task
-        - paracle task move # Move task to status
-        - paracle task assign # Assign to agent
-        - paracle board show # Show Kanban board (CLI)
-        - paracle board stats # Board statistics
 
   - id: phase_7
-    name: "Git Integration & Change Tracking"
-    duration: 3_weeks
+    name: "Community Growth & Ecosystem"
+    duration: 5_weeks # Extended from 4 weeks - added MCP Server
     status: planned
-    priority: medium
+    priority: critical # Upgraded from medium - drives network effects
     completion: 0%
+    started_date: null
+    completed_date: null
+    strategic_focus: "ADR-017 - Build vibrant ecosystem with network effects"
     deliverables:
-      - git_workflow_manager
-      - branch_per_execution
-      - automatic_commits
-      - merge_request_generation
-      - conflict_resolution
+      - mcp_server_implementation # NEW: Expose Paracle as MCP server
+      - community_templates_marketplace # NEW: User-contributed templates
+      - plugin_system_sdk # NEW: Extensibility for community
+      - discord_community # NEW: Real-time support
+      - monthly_webinars # NEW: Live demos and Q&A
+      - blog_series # NEW: Technical content
+      - git_workflow_manager # MOVED from old Phase 7
+      - branch_per_execution # MOVED from old Phase 7
     focus_areas:
-      - "Git-backed workflow execution"
+      - "MCP Server - Expose Paracle agents, tools, workflows as MCP services"
+      - "Community Templates Marketplace - Agent/workflow sharing (GitHub-based)"
+      - "Plugin System - SDK for providers, tools, adapters, observers"
+      - "Discord Community - Setup channels, moderation, 500+ members target"
+      - "Monthly Webinars - Topics: Overview, Inheritance, Production, MCP, Showcase"
+      - "Blog Series - Getting Started (3), Advanced (5), Case Studies (3)"
+      - "Git-backed workflow execution (legacy from old Phase 7)"
       - "Branch per execution for isolation"
-      - "Automatic commit of agent changes"
-      - "GitHub/GitLab MR/PR generation"
-      - "Conflict resolution for concurrent executions"
-      - "Audit trail via git history"
+    success_metrics:
+      - "MCP Server: Expose all Paracle capabilities (agents, tools, workflows)"
+      - "MCP integrations: Claude Desktop, Cline, others"
+      - "Community templates: 50+ templates (core + community)"
+      - "Plugin ecosystem: 10+ plugins (6 months)"
+      - "Discord: 500+ members, <2hr response time"
+      - "Webinars: 50+ live attendees, >500 video views"
+      - "Blog: 20K+ total views (6 months)"
     cli_commands:
-      planned:
+      new:
+        - paracle mcp-server start # Start MCP server
+        - paracle mcp-server stop # Stop MCP server
+        - paracle mcp-server status # Server status
+        - paracle mcp-server config # Configure server
+        - paracle mcp-server tools # List exposed tools
+        - paracle mcp-server resources # List exposed resources
+        - paracle template search # Search community templates
+        - paracle template install # Install from marketplace
+        - paracle template publish # Publish to marketplace
+        - paracle plugin search # Search available plugins
+        - paracle plugin install # Install plugin
+        - paracle plugin list # List installed plugins
+        - paracle plugin dev # Developer mode for plugin
+      kept:
         - paracle git init # Initialize git workflow
         - paracle git branches # List execution branches
         - paracle git merge # Merge execution branch
@@ -521,32 +563,100 @@ phases:
         - paracle git cleanup # Cleanup merged branches
 
   - id: phase_8
-    name: "Real-time Monitoring & Templates"
-    duration: 2_weeks
+    name: "Performance Optimization & Scale"
+    duration: 4_weeks # Extended from 2 weeks
+    status: planned
+    priority: high # Upgraded from medium
+    completion: 0%
+    started_date: null
+    completed_date: null
+    strategic_focus: "ADR-017 - 2-3x performance improvement"
+    deliverables:
+      - response_caching # NEW: Redis/Valkey LLM response cache
+      - connection_pooling # NEW: HTTP and DB connection reuse
+      - benchmarking_suite # NEW: Performance baselines
+      - performance_documentation # NEW: Optimization guide
+      - websocket_streaming # KEPT: Real-time monitoring
+      - workflow_templates # KEPT: Pre-built templates
+    focus_areas:
+      - "Response Caching - Redis/Valkey for LLM responses (30-50% cost reduction)"
+      - "Connection Pooling - HTTP (providers) and DB connection reuse"
+      - "Benchmarking Suite - pytest-benchmark, locust, CI integration"
+      - "Performance Documentation - Tuning guide, profiling, troubleshooting"
+      - "WebSocket API for live execution streaming (legacy from old Phase 8)"
+      - "Pre-built workflow templates (RAG, multi-agent patterns)"
+    success_metrics:
+      - "Cache hit rate: >40%"
+      - "Response time: 2x faster for cached requests"
+      - "Cost reduction: >30% via caching"
+      - "Concurrent requests: 100+ handled"
+      - "Benchmark suite: Automated in CI"
+    cli_commands:
+      new:
+        - paracle cache stats # Show cache statistics
+        - paracle cache clear # Clear response cache
+        - paracle cache config # Configure cache settings
+        - paracle benchmark run # Run performance benchmarks
+        - paracle benchmark compare # Compare benchmark results
+        - paracle pool status # Show connection pool status
+      kept:
+        - paracle stream # Stream live execution logs
+        - paracle pause # Pause running workflow
+        - paracle resume # Resume paused workflow
+        - paracle init --template # Initialize from template (moved to Phase 6)
+        - paracle templates list # List available templates
+        - paracle history compare # Compare execution versions
+
+  - id: phase_9
+    name: "Advanced Workflows & Kanban"
+    duration: 3_weeks
     status: planned
     priority: medium
     completion: 0%
     deliverables:
-      - websocket_streaming
-      - process_control
-      - workflow_templates
-      - quick_start_wizards
-      - execution_history
+      - human_in_the_loop # MOVED from old Phase 6
+      - conditional_retry # MOVED from old Phase 6
+      - kanban_task_management # MOVED from old Phase 6 (ADR-021)
+      - automatic_commits # MOVED from old Phase 7
+      - conflict_resolution # MOVED from old Phase 7
     focus_areas:
-      - "WebSocket API for live execution streaming"
-      - "Pause/resume/cancel workflow controls"
-      - "Progress indicators and resource monitoring"
-      - "Pre-built workflow templates (RAG, multi-agent, etc.)"
-      - "Quick-start wizards for common patterns"
-      - "Execution versioning and comparison"
+      - "Human-in-the-loop workflows (pause/review/continue)"
+      - "Conditional retry based on validation"
+      - "Context accumulation across attempts"
+      - "Kanban task management (ADR-021)"
+      - "Automatic commit of agent changes"
+      - "Conflict resolution for concurrent executions"
     cli_commands:
-      planned:
-        - paracle stream # Stream live execution logs
-        - paracle pause # Pause running workflow
-        - paracle resume # Resume paused workflow
-        - paracle init --template # Initialize from template
-        - paracle templates list # List available templates
-        - paracle history compare # Compare execution versions
+      - paracle task list # List tasks by status
+      - paracle task create # Create new task
+      - paracle task move # Move task to status
+      - paracle task assign # Assign to agent
+      - paracle board show # Show Kanban board (CLI)
+      - paracle board stats # Board statistics
+      - paracle git commit # Commit agent changes
+      - paracle git resolve # Conflict resolution wizard
+
+  - id: phase_10
+    name: "Enterprise Features & Polish"
+    duration: 3_weeks
+    status: planned
+    priority: low
+    completion: 0%
+    deliverables:
+      - execution_versioning
+      - quick_start_wizards
+      - process_control_advanced
+      - merge_request_generation # MOVED from old Phase 7
+    focus_areas:
+      - "Execution versioning and comparison"
+      - "Quick-start wizards for common patterns"
+      - "Advanced process control (priority, scheduling)"
+      - "GitHub/GitLab MR/PR generation"
+    cli_commands:
+      - paracle history compare # Compare execution versions
+      - paracle wizard start # Launch setup wizard
+      - paracle priority set # Set workflow priority
+      - paracle schedule at # Schedule workflow execution
 
   - id: phase_9
     name: "Notifications & Advanced Features"
@@ -611,6 +721,312 @@ persistence_implementation:
       - workspace_path: "Path to .parac/ (default: .parac)"
       - database_url: "SQLite or PostgreSQL URL"
       - vector_store: "none | chroma | pgvector"
+
+# MCP Server Implementation Details (Phase 7)
+mcp_server_implementation:
+  package: "paracle_mcp_server"
+  description: "Expose Paracle capabilities as Model Context Protocol server"
+
+  purpose: |
+    Enable external AI applications (Claude Desktop, Cline, Continue, etc.)
+    to use Paracle agents, tools, and workflows as MCP services.
+
+  architecture:
+    protocol: "Model Context Protocol v1.0"
+    transport: "HTTP/JSON-RPC and stdio"
+    server_framework: "FastAPI + MCP SDK"
+    integration: "Standalone process or embedded in paracle serve"
+
+  implementation_strategy:
+    phase_1_core:
+      - "Core MCP server implementation (Python MCP SDK)"
+      - "Request/response handling with error handling"
+      - "Logging and observability integration"
+      - "Server lifecycle management"
+
+    phase_2_capabilities:
+      - "Core execution tools (8): agents, workflows, built-in tools"
+      - "Provider management tools (5): list, test, configure"
+      - "Cost tracking tools (6): reports, usage, budgets, estimates"
+      - "Governance tools (7): roadmap, ADRs, questions, state"
+
+    phase_3_advanced:
+      - "Session management tools (5): start/end/status/history"
+      - "IDE integration tools (4): sync, configure, init"
+      - "Validation tools (5): validate, sync, check, fix"
+      - "Log management tools (6): search, aggregate, analyze"
+      - "Template tools (5): list, create, examples"
+
+    phase_4_resources:
+      - "Configuration & specs resources (5)"
+      - "Runtime & state resources (4)"
+      - "Governance resources (5)"
+      - "Knowledge & memory resources (3)"
+      - "Templates & skills resources (3)"
+
+    phase_5_prompts:
+      - "Generation templates (4): agent, workflow, tool, skill"
+      - "Guidance templates (4): debugging, best practices, governance, inheritance"
+      - "Task-specific templates (4): feature, bugfix, deployment, cost optimization"
+
+    phase_6_integration:
+      - "Claude Desktop integration config"
+      - "Cline VS Code extension integration"
+      - "Continue.dev integration"
+      - "Generic MCP client integration guide"
+
+  coverage_matrix:
+    total_tools: 56
+    tool_categories:
+      - "Core Execution: 8 tools (agents, workflows, tools)"
+      - "Provider Management: 5 tools (list, test, configure)"
+      - "Cost Tracking: 6 tools (reports, usage, budgets)"
+      - "Governance: 7 tools (roadmap, ADRs, state)"
+      - "Sessions: 5 tools (lifecycle, history)"
+      - "IDE Integration: 4 tools (sync, configure)"
+      - "Validation: 5 tools (validate, sync, fix)"
+      - "Log Management: 6 tools (search, aggregate, analyze)"
+      - "Templates: 5 tools (list, create, examples)"
+
+    total_resources: 21
+    resource_categories:
+      - "Configuration & Specs: 5 resources"
+      - "Runtime & State: 4 resources"
+      - "Governance: 5 resources"
+      - "Knowledge: 3 resources"
+      - "Templates: 3 resources"
+
+    total_prompts: 12
+    prompt_categories:
+      - "Generation: 4 prompts"
+      - "Guidance: 4 prompts"
+      - "Task-Specific: 4 prompts"
+
+  exposed_capabilities:
+    tools:
+      # Core Execution (8 tools)
+      - "paracle_run_agent: Execute any Paracle agent with inputs"
+      - "paracle_run_workflow: Execute any Paracle workflow"
+      - "paracle_list_agents: List all available agents"
+      - "paracle_list_workflows: List all available workflows"
+      - "paracle_get_agent_spec: Get detailed agent specification"
+      - "paracle_get_workflow_spec: Get detailed workflow definition"
+      - "paracle_execute_tool: Call any Paracle built-in tool"
+      - "paracle_list_tools: List all available tools (built-in + MCP)"
+
+      # Provider Management (5 tools)
+      - "paracle_list_providers: List all LLM providers (OpenAI, Anthropic, etc.)"
+      - "paracle_test_provider: Test provider connection and API key"
+      - "paracle_get_provider_config: Get provider configuration details"
+      - "paracle_set_default_provider: Set default provider for agents"
+      - "paracle_get_provider_models: List available models for provider"
+
+      # Cost Tracking & Budgets (6 tools)
+      - "paracle_get_cost_report: Get cost report (daily/weekly/monthly)"
+      - "paracle_get_usage_stats: View token usage statistics"
+      - "paracle_get_budget_status: Check budget status and alerts"
+      - "paracle_estimate_cost: Estimate cost for agent/workflow execution"
+      - "paracle_set_budget: Set cost budget limits"
+      - "paracle_get_cost_breakdown: Detailed cost breakdown by agent/provider"
+
+      # Governance & Planning (7 tools)
+      - "paracle_query_roadmap: Query roadmap (phases, deliverables, status)"
+      - "paracle_get_current_phase: Get current project phase"
+      - "paracle_list_adrs: List Architecture Decision Records"
+      - "paracle_get_adr: Get specific ADR by ID"
+      - "paracle_get_open_questions: List open questions and blockers"
+      - "paracle_get_project_state: Get current project state from .parac/"
+      - "paracle_update_progress: Update phase progress and status"
+
+      # Session Management (5 tools)
+      - "paracle_session_start: Start new work session"
+      - "paracle_session_end: End current session with summary"
+      - "paracle_session_status: Get current session status"
+      - "paracle_list_sessions: List recent work sessions"
+      - "paracle_get_session_summary: Get session summary and actions"
+
+      # IDE Integration (4 tools)
+      - "paracle_sync_ide: Sync IDE instructions (.github/copilot-instructions.md)"
+      - "paracle_list_ide_configs: List IDE integration configurations"
+      - "paracle_get_ide_config: Get specific IDE configuration"
+      - "paracle_init_ide: Initialize IDE integration for project"
+
+      # Validation & Sync (5 tools)
+      - "paracle_validate_workspace: Validate .parac/ workspace integrity"
+      - "paracle_sync_workspace: Sync workspace state and regenerate manifest"
+      - "paracle_check_governance: Check governance alignment (roadmap/state)"
+      - "paracle_validate_yaml: Validate YAML file syntax"
+      - "paracle_fix_issues: Auto-fix common workspace issues"
+
+      # Log Management (6 tools)
+      - "paracle_search_logs: Search logs with filters (level, agent, date)"
+      - "paracle_aggregate_logs: Aggregate log metrics and statistics"
+      - "paracle_get_log_stats: Get log statistics (errors, warnings, info)"
+      - "paracle_detect_anomalies: Detect log anomalies and issues"
+      - "paracle_get_agent_actions: Get agent action log entries"
+      - "paracle_get_execution_logs: Get logs for specific execution"
+
+      # Templates & Examples (5 tools)
+      - "paracle_list_templates: List available project templates"
+      - "paracle_get_template: Get template details and structure"
+      - "paracle_create_from_template: Create project from template"
+      - "paracle_list_examples: List available examples"
+      - "paracle_get_example: Get example code and documentation"
+
+    resources:
+      # Configuration & Specs
+      - "parac://agents/{agent_id}: Agent specifications from .parac/agents/specs/"
+      - "parac://workflows/{workflow_id}: Workflow definitions from .parac/workflows/"
+      - "parac://tools/{tool_id}: Tool configurations"
+      - "parac://providers/{provider_id}: Provider configurations"
+      - "parac://policies/{policy_name}: Policy files (CODE_STYLE, TESTING, SECURITY)"
+
+      # Runtime & State
+      - "parac://executions/{exec_id}: Execution results and outputs"
+      - "parac://logs/{session_id}: Session logs"
+      - "parac://state/current: Current project state (current_state.yaml)"
+      - "parac://sessions/{session_id}: Session data and checkpoints"
+
+      # Governance & Planning
+      - "parac://roadmap/phases: Roadmap phases and deliverables"
+      - "parac://roadmap/current: Current phase information"
+      - "parac://adrs/{adr_id}: Architecture Decision Records"
+      - "parac://questions/open: Open questions from open_questions.md"
+      - "parac://decisions/log: Decision log entries"
+
+      # Knowledge & Memory
+      - "parac://knowledge/{topic}: Knowledge base articles"
+      - "parac://memory/context: Context files (current_state, open_questions)"
+      - "parac://memory/summaries: Session and phase summaries"
+
+      # Templates & Skills
+      - "parac://templates/{template_id}: Project templates"
+      - "parac://skills/{skill_id}: Agent skills"
+      - "parac://examples/{example_id}: Example projects
+
+    prompts:
+      # Templates & Generation
+      - "agent_template: Generate agent specification with inheritance"
+      - "workflow_template: Generate workflow definition with steps"
+      - "tool_template: Generate custom tool implementation"
+      - "skill_template: Generate agent skill definition"
+
+      # Guidance & Help
+      - "debugging_guide: Debug Paracle issues (common problems + solutions)"
+      - "best_practices: Paracle best practices and conventions"
+      - "governance_guide: Governance workflow and .parac/ management"
+      - "inheritance_guide: Agent inheritance patterns and examples"
+
+      # Task-Specific
+      - "feature_workflow: Generate feature development workflow"
+      - "bugfix_workflow: Generate bugfix workflow"
+      - "deployment_guide: Deployment and production setup"
+      - "cost_optimization: Cost optimization strategies"
+
+  files:
+    - "packages/paracle_mcp_server/__init__.py"
+    - "packages/paracle_mcp_server/server.py: Main MCP server"
+    - "packages/paracle_mcp_server/handlers.py: Request handlers"
+    - "packages/paracle_mcp_server/tools.py: Tool implementations"
+    - "packages/paracle_mcp_server/resources.py: Resource providers"
+    - "packages/paracle_mcp_server/prompts.py: Prompt templates"
+    - "packages/paracle_mcp_server/config.py: Server configuration"
+
+  configuration:
+    server_modes:
+      - standalone: "Run as separate process (paracle mcp-server start)"
+      - embedded: "Embed in paracle serve with /mcp endpoint"
+      - stdio: "Standard I/O for Claude Desktop integration"
+
+    options:
+      - port: "MCP server port (default: 3100)"
+      - host: "Bind address (default: 127.0.0.1)"
+      - mode: "http | stdio (default: http)"
+      - auth: "API key authentication (optional)"
+      - cors: "CORS configuration for web clients"
+      - rate_limit: "Rate limiting per client"
+
+  integration_examples:
+    claude_desktop:
+      config_file: "~/Library/Application Support/Claude/claude_desktop_config.json"
+      config:
+        mcpServers:
+          paracle:
+            command: "paracle"
+            args: ["mcp-server", "start", "--mode", "stdio"]
+
+    cline_vscode:
+      config_file: ".vscode/settings.json"
+      config:
+        cline.mcpServers:
+          - name: "paracle"
+            url: "http://localhost:3100"
+
+    continue_dev:
+      config_file: "~/.continue/config.json"
+      config:
+        mcpServers:
+          - name: "paracle"
+            url: "http://localhost:3100"
+
+  cli_commands:
+    - "paracle mcp-server start: Start MCP server"
+    - "paracle mcp-server stop: Stop MCP server"
+    - "paracle mcp-server status: Check server status"
+    - "paracle mcp-server config: Show/edit configuration"
+    - "paracle mcp-server tools: List exposed tools"
+    - "paracle mcp-server resources: List exposed resources"
+    - "paracle mcp-server test: Test MCP server connectivity"
+    - "paracle mcp-server integrate: Generate integration configs"
+
+  acceptance_criteria:
+    - "✅ MCP protocol v1.0 compliance"
+    - "✅ 56+ tools exposed covering ALL Paracle capabilities (9 categories)"
+    - "✅ Core execution tools (8): agents, workflows, built-in tools"
+    - "✅ Provider management tools (5): list, test, configure"
+    - "✅ Cost tracking tools (6): reports, usage, budgets, estimates"
+    - "✅ Governance tools (7): roadmap, ADRs, questions, state"
+    - "✅ Session management tools (5): lifecycle, history"
+    - "✅ IDE integration tools (4): sync, configure"
+    - "✅ Validation tools (5): validate, sync, fix"
+    - "✅ Log management tools (6): search, aggregate, analyze"
+    - "✅ Template tools (5): list, create, examples"
+    - "✅ 21+ resources exposed (specs, state, governance, knowledge, templates)"
+    - "✅ 12+ prompt templates (generation, guidance, workflows)"
+    - "✅ Resource access to .parac/ files (agents, workflows, state, governance)"
+    - "✅ HTTP and stdio transport support"
+    - "✅ Authentication and rate limiting"
+    - "✅ Integration configs for Claude, Cline, Continue"
+    - "✅ Comprehensive documentation (setup, API, tools, resources, prompts)"
+    - "✅ Capability coverage matrix"
+    - "✅ Example integrations and demos"
+    - "✅ Test suite for MCP endpoints (all tool categories)"
+
+  success_metrics:
+    - "MCP server starts in <2 seconds"
+    - "Tool calls respond in <500ms (excluding agent execution)"
+    - "Resource reads respond in <100ms"
+    - "Supports 50+ concurrent MCP clients"
+    - "56+ tools exposed covering ALL Paracle capabilities"
+    - "21+ resources exposed (specs, state, governance, knowledge)"
+    - "12+ prompt templates (generation, guidance, workflows)"
+    - "9 capability categories fully covered (execution, providers, costs, governance, sessions, IDE, validation, logs, templates)"
+    - "Integration with 3+ AI applications (Claude, Cline, Continue)"
+    - "Complete platform functionality accessible via MCP protocol"
+    - "Documentation with setup guides for each integration"
+    - "Comprehensive tool reference with examples"
+
+  documentation:
+    - "docs/mcp-server.md: MCP server overview and architecture"
+    - "docs/mcp-server-setup.md: Installation and setup guide"
+    - "docs/mcp-integrations.md: Integration guides (Claude, Cline, Continue)"
+    - "docs/mcp-server-api.md: Complete API reference (56+ tools)"
+    - "docs/mcp-server-tools.md: Tool reference by category (execution, providers, costs, etc.)"
+    - "docs/mcp-server-resources.md: Resource URI reference"
+    - "docs/mcp-server-prompts.md: Prompt template reference"
+    - "docs/mcp-capability-matrix.md: Capability coverage matrix"
+    - "examples/mcp_server_demo.py: Demo script"
+    - "examples/mcp_custom_integration.py: Custom integration example"
 
 # Error Management Roadmap
 error_management:

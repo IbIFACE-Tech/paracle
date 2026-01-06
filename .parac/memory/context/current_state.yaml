@@ -1,32 +1,69 @@
-version: "1.6"
-snapshot_date: "2026-01-05"
+version: "1.8"
+snapshot_date: "2026-01-06"
 project:
   name: paracle-lite
   version: 0.0.1
-  phase: phase_5
-  status: completed
+  phase: phase_6
+  status: planning
+strategic_direction:
+  adr: ADR-017
+  focus: Developer Experience & Community Growth
+  rationale: "Balance power with accessibility - reduce learning curve while maintaining production readiness"
+  phases:
+    phase_6: "Developer Experience & Accessibility"
+    phase_7: "Community Growth & Ecosystem"
+    phase_8: "Performance Optimization & Scale"
+recent_updates:
+  - date: "2026-01-06"
+    update: "Added execution runs tracking infrastructure (.parac/runs/)"
+    impact: "Enables debugging, tutorial replay, performance analysis"
+    strategic_alignment: "Phase 6 DX (debugging), Phase 8 Performance (observability)"
+next_phase:
+  id: phase_6
+  name: Developer Experience & Accessibility
+  status: planning
+  progress: 0%
+  started_date: null
+  target_start: "2026-01-07"
+  planned_duration: 4_weeks
+  priority: critical
+  strategic_focus: "ADR-017 - Reduce learning curve by ~50%"
+  deliverables:
+    - lite_mode_init
+    - interactive_tutorial
+    - example_gallery
+    - project_templates
+    - video_guides
+    - execution_chains
+    - agent_profiles
+  success_metrics:
+    time_to_first_agent: "< 2 minutes"
+    tutorial_completion: ">70%"
+    example_count: "10+ tested examples"
+    user_feedback_target: "Easy to get started"
 current_phase:
   id: phase_5
   name: Execution Safety & Isolation
   status: completed
   progress: 100%
   started_date: "2026-01-05"
-  completed_date: "2026-01-05"
+  completed_date: "2026-01-06"
   focus_areas:
     - Docker-based agent sandboxing
     - Resource limits (CPU, memory, timeout)
     - Filesystem isolation per execution
     - Automatic rollback on failure
     - Artifact review and approval workflow
-  pending: []
-  in_progress: []
   completed:
     - sandbox_execution_implementation
     - docker_isolation_with_networking
     - resource_limits_enforcement
     - rollback_mechanisms_on_failure
     - artifact_review_system_api
-
+    - release_manager_agent_creation
+    - git_workflow_policy_documentation
+    - version_bumping_automation_script
+    - changelog_generation_automation_script
 previous_phase:
   id: phase_4
   name: API Server & CLI Enhancement
@@ -80,7 +117,6 @@ previous_phase:
     - cost_management_system_implementation
     - pre_commit_hooks_configuration
     - ci_cd_workflow_testing_validation
-
 phase_1:
   id: phase_1
   name: Core Domain
@@ -98,7 +134,6 @@ phase_1:
     - cli_simplification
     - api_first_logging_system
     - full_crud_api_operations
-
 phase_0:
   id: phase_0
   name: Foundation & Setup
@@ -593,8 +628,8 @@ metrics:
   tests_failing: 8
   tests_skipped: 1
   test_pass_rate: 97.2%
-  python_files: 140
-  test_files: 41
+  python_files: 173
+  test_files: 53
   cost_management_tests: 22
   cost_management_passing: 22
   cost_management_pass_rate: 100%
@@ -614,5 +649,5 @@ repository:
   url: https://github.com/IbIFACE-Tech/paracle-lite
   branch: develop
   default_branch: main
-  last_commit: "ca162a4 docs: Add comprehensive API key management guide"
+  last_commit: "5e9b4cd feat: Implement skill loading and injection system"
   has_uncommitted_changes: true

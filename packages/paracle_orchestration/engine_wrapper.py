@@ -9,6 +9,7 @@ Phase 4 - API Server Enhancement.
 """
 
 import asyncio
+import logging
 from typing import Any
 
 from paracle_domain.models import Workflow
@@ -17,6 +18,8 @@ from paracle_events import EventBus
 from paracle_orchestration.context import ExecutionContext, ExecutionStatus
 from paracle_orchestration.engine import WorkflowOrchestrator
 from paracle_orchestration.exceptions import OrchestrationError, WorkflowNotFoundError
+
+logger = logging.getLogger(__name__)
 
 
 class WorkflowEngine:
@@ -58,7 +61,9 @@ class WorkflowEngine:
         )
 
         # Store completed executions for history
+        # Protected by _history_lock for thread-safe access
         self.execution_history: dict[str, ExecutionContext] = {}
+        self._history_lock = asyncio.Lock()
 
     async def execute(
         self, workflow: Workflow, inputs: dict[str, Any]
@@ -78,8 +83,9 @@ class WorkflowEngine:
         try:
             context = await self.orchestrator.execute(workflow, inputs)
 
-            # Store in history
-            self.execution_history[context.execution_id] = context
+            # Store in history with thread-safe access
+            async with self._history_lock:
+                self.execution_history[context.execution_id] = context
 
             return context
 
@@ -147,8 +153,9 @@ class WorkflowEngine:
                 workflow, inputs, execution_id=execution_id
             )
 
-            # Move to history after completion
-            self.execution_history[execution_id] = context
+            # Move to history after completion with thread-safe access
+            async with self._history_lock:
+                self.execution_history[execution_id] = context
 
             # Clean up task tracking
             if hasattr(self, "_pending_tasks") and execution_id in self._pending_tasks:
@@ -156,14 +163,22 @@ class WorkflowEngine:
 
         except Exception as e:
             # Log error and update context with failure status
+            logger.error(
+                f"Background execution failed for {execution_id}: {e}",
+                exc_info=True
+            )
             try:
                 context = self.orchestrator.get_execution(execution_id)
                 if context:
                     context.status = ExecutionStatus.FAILED
                     context.error = str(e)
-                    self.execution_history[execution_id] = context
-            except Exception:
-                pass  # Best effort error tracking
+                    async with self._history_lock:
+                        self.execution_history[execution_id] = context
+            except Exception as inner_e:
+                logger.error(
+                    f"Failed to update execution status for {execution_id}: {inner_e}",
+                    exc_info=True
+                )
 
     async def get_execution_status(self, execution_id: str) -> ExecutionStatus:
         """Get execution status (for polling).
@@ -181,8 +196,9 @@ class WorkflowEngine:
         context = self.orchestrator.get_execution(execution_id)
 
         if context is None:
-            # Check completed history
-            context = self.execution_history.get(execution_id)
+            # Check completed history with thread-safe access
+            async with self._history_lock:
+                context = self.execution_history.get(execution_id)
 
         if context is None:
             raise WorkflowNotFoundError(
@@ -236,8 +252,9 @@ class WorkflowEngine:
         cancelled = await self.orchestrator.cancel_execution(execution_id)
 
         if not cancelled:
-            # Check if it exists at all
-            context = self.execution_history.get(execution_id)
+            # Check if it exists at all with thread-safe access
+            async with self._history_lock:
+                context = self.execution_history.get(execution_id)
             if context is None:
                 raise WorkflowNotFoundError(
                     f"Execution '{execution_id}' not found")
@@ -267,11 +284,12 @@ class WorkflowEngine:
                 if status_filter is None or context.status.value == status_filter:
                     executions.append(self._context_to_status(context))
 
-        # Collect from history
-        for context in self.execution_history.values():
-            if context.workflow_id == workflow_id:
-                if status_filter is None or context.status.value == status_filter:
-                    executions.append(self._context_to_status(context))
+        # Collect from history with thread-safe access
+        async with self._history_lock:
+            for context in self.execution_history.values():
+                if context.workflow_id == workflow_id:
+                    if status_filter is None or context.status.value == status_filter:
+                        executions.append(self._context_to_status(context))
 
         # Sort by started_at (most recent first)
         executions.sort(
