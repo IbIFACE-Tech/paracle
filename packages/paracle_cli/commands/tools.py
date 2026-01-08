@@ -19,11 +19,16 @@ console = Console()
 _mcp_registry = MCPToolRegistry()
 
 
-@click.group()
-def tools() -> None:
+@click.group(invoke_without_command=True)
+@click.option("--list", "-l", "list_flag", is_flag=True, help="List all tools (shortcut for 'list')")
+@click.pass_context
+def tools(ctx: click.Context, list_flag: bool) -> None:
     """Manage tools (built-in and MCP).
 
     Examples:
+        # List all available tools (shortcut)
+        $ paracle tools -l
+
         # List all available tools
         $ paracle tools list
 
@@ -33,7 +38,10 @@ def tools() -> None:
         # Test a tool
         $ paracle tools test read_file --param path=README.md
     """
-    pass
+    if list_flag:
+        ctx.invoke(list_tools, category=None, output_json=False)
+    elif ctx.invoked_subcommand is None:
+        click.echo(ctx.get_help())
 
 
 @tools.command("list")

@@ -418,3 +418,271 @@ class ApprovalRequest(BaseModel):
     def is_approved(self) -> bool:
         """Check if approved."""
         return self.status == ApprovalStatus.APPROVED
+
+
+# =============================================================================
+# Retry Models
+# =============================================================================
+
+
+class BackoffStrategy(str, Enum):
+    """Backoff strategy for retries."""
+
+    CONSTANT = "constant"  # Same delay between retries
+    LINEAR = "linear"  # Linearly increasing delay
+    EXPONENTIAL = "exponential"  # Exponentially increasing delay
+    FIBONACCI = "fibonacci"  # Fibonacci sequence delay
+
+
+class ErrorCategory(str, Enum):
+    """Error categories for conditional retry."""
+
+    TRANSIENT = "transient"  # Temporary errors (network, rate limit)
+    TIMEOUT = "timeout"  # Timeout errors
+    VALIDATION = "validation"  # Validation errors (retry with different input)
+    RESOURCE = "resource"  # Resource errors (out of memory, quota)
+    PERMANENT = "permanent"  # Permanent errors (don't retry)
+    UNKNOWN = "unknown"  # Unknown errors (retry with caution)
+
+
+class RetryCondition(BaseModel):
+    """Condition for when to retry.
+
+    Attributes:
+        error_types: List of error types that should trigger retry
+        error_categories: List of error categories that should trigger retry
+        status_codes: List of HTTP status codes that should trigger retry
+        error_messages: List of error message patterns (regex) that should trigger retry
+    """
+
+    error_types: list[str] = Field(default_factory=list)
+    error_categories: list[ErrorCategory] = Field(default_factory=list)
+    status_codes: list[int] = Field(default_factory=list)
+    error_messages: list[str] = Field(default_factory=list)
+
+
+class RetryPolicy(BaseModel):
+    """Retry policy for workflow steps.
+
+    Defines how a workflow step should be retried on failure,
+    including max attempts, backoff strategy, and retry conditions.
+
+    Example:
+        ```python
+        policy = RetryPolicy(
+            max_attempts=3,
+            backoff_strategy=BackoffStrategy.EXPONENTIAL,
+            initial_delay=1.0,
+            max_delay=60.0,
+            retry_condition=RetryCondition(
+                error_categories=[ErrorCategory.TRANSIENT, ErrorCategory.TIMEOUT]
+            ),
+        )
+        ```
+
+    Attributes:
+        enabled: Whether retry is enabled
+        max_attempts: Maximum number of retry attempts
+        backoff_strategy: Strategy for calculating delay between retries
+        initial_delay: Initial delay in seconds
+        max_delay: Maximum delay in seconds
+        backoff_factor: Multiplier for exponential backoff
+        retry_condition: Conditions that must be met to retry
+        accumulate_context: Whether to accumulate context across attempts
+        timeout_per_attempt: Optional timeout for each attempt
+    """
+
+    enabled: bool = True
+    max_attempts: int = Field(default=3, ge=1, le=10)
+    backoff_strategy: BackoffStrategy = BackoffStrategy.EXPONENTIAL
+    initial_delay: float = Field(default=1.0, ge=0.1, le=60.0)
+    max_delay: float = Field(default=60.0, ge=1.0, le=3600.0)
+    backoff_factor: float = Field(default=2.0, ge=1.0, le=10.0)
+    retry_condition: RetryCondition = Field(default_factory=RetryCondition)
+    accumulate_context: bool = True
+    timeout_per_attempt: float | None = None
+
+    def calculate_delay(self, attempt: int) -> float:
+        """Calculate delay for the given attempt number.
+
+        Args:
+            attempt: Attempt number (1-based)
+
+        Returns:
+            Delay in seconds
+        """
+        if self.backoff_strategy == BackoffStrategy.CONSTANT:
+            delay = self.initial_delay
+
+        elif self.backoff_strategy == BackoffStrategy.LINEAR:
+            delay = self.initial_delay * attempt
+
+        elif self.backoff_strategy == BackoffStrategy.EXPONENTIAL:
+            delay = self.initial_delay * (self.backoff_factor ** (attempt - 1))
+
+        elif self.backoff_strategy == BackoffStrategy.FIBONACCI:
+            # Generate Fibonacci number for attempt
+            if attempt <= 2:
+                fib = 1
+            else:
+                a, b = 1, 1
+                for _ in range(attempt - 2):
+                    a, b = b, a + b
+                fib = b
+            delay = self.initial_delay * fib
+
+        else:
+            delay = self.initial_delay
+
+        # Cap at max_delay
+        return min(delay, self.max_delay)
+
+    def should_retry(
+        self,
+        attempt: int,
+        error: Exception,
+        error_category: ErrorCategory = ErrorCategory.UNKNOWN,
+    ) -> bool:
+        """Determine if we should retry based on attempt count and error.
+
+        Args:
+            attempt: Current attempt number (1-based)
+            error: The exception that occurred
+            error_category: Category of the error
+
+        Returns:
+            True if should retry, False otherwise
+        """
+        # Check if retry is enabled
+        if not self.enabled:
+            return False
+
+        # Check if we've exceeded max attempts
+        if attempt >= self.max_attempts:
+            return False
+
+        # Check retry conditions
+        condition = self.retry_condition
+
+        # If no conditions specified, retry all errors
+        if (
+            not condition.error_types
+            and not condition.error_categories
+            and not condition.status_codes
+            and not condition.error_messages
+        ):
+            return True
+
+        # Check error type
+        error_type_name = type(error).__name__
+        if condition.error_types and error_type_name in condition.error_types:
+            return True
+
+        # Check error category
+        if condition.error_categories and error_category in condition.error_categories:
+            return True
+
+        # Check status code (if error has one)
+        if condition.status_codes and hasattr(error, "status_code"):
+            if error.status_code in condition.status_codes:
+                return True
+
+        # Check error message patterns
+        if condition.error_messages:
+            error_message = str(error).lower()
+            for pattern in condition.error_messages:
+                if pattern.lower() in error_message:
+                    return True
+
+        return False
+
+
+class RetryAttempt(BaseModel):
+    """Record of a retry attempt.
+
+    Attributes:
+        attempt_number: Attempt number (1-based)
+        started_at: When attempt started
+        ended_at: When attempt ended
+        error: Error message if attempt failed
+        error_type: Type of error that occurred
+        error_category: Category of error
+        delay_before: Delay before this attempt (seconds)
+        context: Context accumulated for this attempt
+    """
+
+    attempt_number: int
+    started_at: datetime
+    ended_at: datetime | None = None
+    error: str | None = None
+    error_type: str | None = None
+    error_category: ErrorCategory = ErrorCategory.UNKNOWN
+    delay_before: float = 0.0
+    context: dict[str, Any] = Field(default_factory=dict)
+
+
+class RetryContext(BaseModel):
+    """Context for retry execution.
+
+    Tracks all retry attempts and accumulated context across attempts.
+
+    Attributes:
+        step_name: Name of the step being retried
+        workflow_id: ID of the workflow
+        execution_id: ID of the execution
+        policy: Retry policy being used
+        attempts: List of all retry attempts
+        accumulated_context: Context accumulated across attempts
+        total_retries: Total number of retries performed
+        succeeded: Whether the step eventually succeeded
+    """
+
+    step_name: str
+    workflow_id: str
+    execution_id: str
+    policy: RetryPolicy
+    attempts: list[RetryAttempt] = Field(default_factory=list)
+    accumulated_context: dict[str, Any] = Field(default_factory=dict)
+    total_retries: int = 0
+    succeeded: bool = False
+
+    def add_attempt(
+        self,
+        attempt_number: int,
+        started_at: datetime,
+        error: Exception | None = None,
+        error_category: ErrorCategory = ErrorCategory.UNKNOWN,
+        delay_before: float = 0.0,
+        context: dict[str, Any] | None = None,
+    ) -> None:
+        """Add a retry attempt to the context.
+
+        Args:
+            attempt_number: Attempt number (1-based)
+            started_at: When attempt started
+            error: Error that occurred (None if successful)
+            error_category: Category of error
+            delay_before: Delay before this attempt
+            context: Context for this attempt
+        """
+        attempt = RetryAttempt(
+            attempt_number=attempt_number,
+            started_at=started_at,
+            ended_at=datetime.utcnow(),
+            error=str(error) if error else None,
+            error_type=type(error).__name__ if error else None,
+            error_category=error_category,
+            delay_before=delay_before,
+            context=context or {},
+        )
+        self.attempts.append(attempt)
+        # First attempt is not a retry
+        self.total_retries = len(self.attempts) - 1
+
+        # Accumulate context if enabled
+        if self.policy.accumulate_context and context:
+            self.accumulated_context.update(context)
+
+        # Mark as succeeded if no error
+        if error is None:
+            self.succeeded = True

@@ -14,11 +14,16 @@ from rich.table import Table
 console = Console()
 
 
-@click.group()
-def providers() -> None:
+@click.group(invoke_without_command=True)
+@click.option("--list", "-l", "list_flag", is_flag=True, help="List all providers (shortcut for 'list')")
+@click.pass_context
+def providers(ctx: click.Context, list_flag: bool) -> None:
     """Manage LLM providers.
 
     Examples:
+        # List all providers (shortcut)
+        $ paracle providers -l
+
         # List all configured providers
         $ paracle providers list
 
@@ -31,7 +36,10 @@ def providers() -> None:
         # Set default provider
         $ paracle providers default anthropic
     """
-    pass
+    if list_flag:
+        ctx.invoke(list_providers, output_json=False)
+    elif ctx.invoked_subcommand is None:
+        click.echo(ctx.get_help())
 
 
 @providers.command("list")

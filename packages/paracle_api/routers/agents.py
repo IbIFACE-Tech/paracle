@@ -45,7 +45,13 @@ def get_parac_root_or_raise() -> Path:
     return parac_root
 
 
-@router.get("", response_model=AgentListResponse)
+@router.get(
+    "",
+    response_model=AgentListResponse,
+    operation_id="listAgents",
+    summary="List all discovered agents",
+    description="Discover and list all agents from .parac/agents/specs/"
+)
 async def list_agents() -> AgentListResponse:
     """List all discovered agents.
 
@@ -77,7 +83,13 @@ async def list_agents() -> AgentListResponse:
     )
 
 
-@router.get("/{agent_id}", response_model=AgentMetadataResponse)
+@router.get(
+    "/{agent_id}",
+    response_model=AgentMetadataResponse,
+    operation_id="getAgentById",
+    summary="Get agent metadata by ID",
+    description="Retrieve detailed metadata for a specific agent"
+)
 async def get_agent(agent_id: str) -> AgentMetadataResponse:
     """Get agent metadata by ID.
 
@@ -110,7 +122,12 @@ async def get_agent(agent_id: str) -> AgentMetadataResponse:
     )
 
 
-@router.get("/{agent_id}/spec", response_model=AgentSpecResponse)
+@router.get(
+    "/{agent_id}/spec",
+    response_model=AgentSpecResponse,
+    operation_id="getAgentSpec",
+    summary="Get agent specification"
+)
 async def get_agent_spec(agent_id: str) -> AgentSpecResponse:
     """Get agent specification content.
 
@@ -155,7 +172,13 @@ async def get_agent_spec(agent_id: str) -> AgentSpecResponse:
     )
 
 
-@router.get("/manifest", response_model=ManifestResponse, tags=["manifest"])
+@router.get(
+    "/manifest",
+    response_model=ManifestResponse,
+    tags=["manifest"],
+    operation_id="getManifest",
+    summary="Get agent manifest"
+)
 async def get_manifest() -> ManifestResponse:
     """Get manifest as JSON.
 
@@ -185,7 +208,13 @@ async def get_manifest() -> ManifestResponse:
     )
 
 
-@router.post("/manifest", response_model=ManifestWriteResponse, tags=["manifest"])
+@router.post(
+    "/manifest",
+    response_model=ManifestWriteResponse,
+    tags=["manifest"],
+    operation_id="writeManifest",
+    summary="Write agent manifest to file"
+)
 async def write_manifest(
     force: bool = Query(
         default=False,
@@ -214,7 +243,10 @@ async def write_manifest(
     if manifest_path.exists() and not force:
         raise HTTPException(
             status_code=409,
-            detail=f"Manifest already exists at {manifest_path}. Use ?force=true to overwrite.",
+            detail=(
+                f"Manifest already exists at {manifest_path}. "
+                "Use ?force=true to overwrite."
+            ),
         )
 
     generator.write_manifest()

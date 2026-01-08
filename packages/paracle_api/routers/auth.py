@@ -60,7 +60,7 @@ class PasswordChangeRequest(BaseModel):
 # =============================================================================
 
 
-@router.post("/token", response_model=Token)
+@router.post("/token", response_model=Token, operation_id="loginForAccessToken")
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     config: Annotated[SecurityConfig, Depends(get_security_config)],
@@ -99,7 +99,7 @@ async def login_for_access_token(
     )
 
 
-@router.post("/register", response_model=UserResponse, status_code=201)
+@router.post("/register", response_model=UserResponse, status_code=201, operation_id="registerUser")
 async def register_user(
     request: UserCreateRequest,
     config: Annotated[SecurityConfig, Depends(get_security_config)],
@@ -150,7 +150,7 @@ async def register_user(
     )
 
 
-@router.get("/me", response_model=UserResponse)
+@router.get("/me", response_model=UserResponse, operation_id="getCurrentUser")
 async def get_current_user_info(
     current_user: Annotated[User, Depends(get_current_active_user)],
 ) -> UserResponse:
@@ -170,7 +170,7 @@ async def get_current_user_info(
     )
 
 
-@router.post("/verify")
+@router.post("/verify", operation_id="verifyToken")
 async def verify_token(
     current_user: Annotated[User, Depends(get_current_active_user)],
 ) -> dict[str, str]:
@@ -188,7 +188,7 @@ async def verify_token(
     }
 
 
-@router.post("/logout")
+@router.post("/logout", operation_id="logout")
 async def logout(
     current_user: Annotated[User, Depends(get_current_active_user)],
 ) -> dict[str, str]:

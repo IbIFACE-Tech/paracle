@@ -4,14 +4,19 @@ Updated for LangChain 1.x / LangGraph compatibility.
 Supports both legacy LangChain agents and modern LangGraph agents.
 """
 
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 # Try modern imports first (LangChain 1.x + LangGraph)
 try:
     from langchain_core.language_models import BaseChatModel
-    from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
-    from langchain_core.tools import BaseTool, tool
+    from langchain_core.messages import (  # noqa: F401
+        AIMessage,
+        HumanMessage,
+        SystemMessage,
+    )
     from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+    from langchain_core.tools import BaseTool, tool
 
     LANGCHAIN_AVAILABLE = True
     LANGCHAIN_VERSION = "1.x"
@@ -22,8 +27,8 @@ except ImportError:
 
 # Try LangGraph for modern agent support
 try:
+    from langgraph.graph import StateGraph  # noqa: F401
     from langgraph.prebuilt import create_react_agent
-    from langgraph.graph import StateGraph
 
     LANGGRAPH_AVAILABLE = True
 except ImportError:
@@ -148,7 +153,7 @@ class LangChainAdapter(FrameworkAdapter):
                 }
 
         except Exception as e:
-            if isinstance(e, (AdapterConfigurationError, AdapterExecutionError)):
+            if isinstance(e, AdapterConfigurationError | AdapterExecutionError):
                 raise
             raise AdapterExecutionError(
                 f"Failed to create LangChain agent: {e}",
@@ -264,9 +269,10 @@ class LangChainAdapter(FrameworkAdapter):
             )
 
         try:
-            from langgraph.graph import StateGraph, END
-            from typing import TypedDict, Annotated
             from operator import add
+            from typing import Annotated, TypedDict
+
+            from langgraph.graph import END, StateGraph
 
             # Define state schema
             class WorkflowState(TypedDict):
@@ -309,7 +315,7 @@ class LangChainAdapter(FrameworkAdapter):
                         graph.add_edge(dep, step.id)
 
             # Find terminal nodes and connect to END
-            terminal_nodes = set(s.id for s in workflow_spec.steps)
+            terminal_nodes = {s.id for s in workflow_spec.steps}
             for step in workflow_spec.steps:
                 for dep in step.depends_on or []:
                     terminal_nodes.discard(dep)

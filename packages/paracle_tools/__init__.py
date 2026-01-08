@@ -12,7 +12,7 @@ All filesystem/shell tools now require explicit configuration.
 Use factory functions to create properly configured tools.
 """
 
-__version__ = "0.0.1"
+__version__ = "1.0.0"
 
 # MCP tools
 # Built-in tools
@@ -102,16 +102,6 @@ from paracle_tools.git_tools import (
     git_status,
     git_tag,
 )
-from paracle_tools.terminal_tools import (
-    TerminalExecuteTool,
-    TerminalInfoTool,
-    TerminalInteractiveTool,
-    TerminalWhichTool,
-    terminal_execute,
-    terminal_info,
-    terminal_interactive,
-    terminal_which,
-)
 from paracle_tools.pm_tools import (
     MilestoneManagementTool,
     TaskTrackingTool,
@@ -137,6 +127,16 @@ from paracle_tools.reviewer_tools import (
     code_review,
     security_scan,
     static_analysis,
+)
+from paracle_tools.terminal_tools import (
+    TerminalExecuteTool,
+    TerminalInfoTool,
+    TerminalInteractiveTool,
+    TerminalWhichTool,
+    terminal_execute,
+    terminal_info,
+    terminal_interactive,
+    terminal_which,
 )
 from paracle_tools.tester_tools import (
     CoverageAnalysisTool,

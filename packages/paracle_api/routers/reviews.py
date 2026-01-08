@@ -45,6 +45,7 @@ def get_review_manager() -> ReviewManager:
     status_code=status.HTTP_201_CREATED,
     summary="Create artifact review",
     description="Create a new review request for an artifact",
+    operation_id="createReview",
 )
 async def create_review(request: ReviewCreateRequest) -> ReviewResponse:
     """Create artifact review request."""
@@ -98,6 +99,7 @@ async def create_review(request: ReviewCreateRequest) -> ReviewResponse:
     response_model=ReviewResponse,
     summary="Get review",
     description="Get review details by ID",
+    operation_id="getReview",
 )
 async def get_review(review_id: str) -> ReviewResponse:
     """Get review by ID."""
@@ -148,6 +150,7 @@ async def get_review(review_id: str) -> ReviewResponse:
     response_model=ReviewListResponse,
     summary="List reviews",
     description="List reviews with optional filters",
+    operation_id="listReviews",
 )
 async def list_reviews(
     status_filter: str | None = None,
@@ -206,6 +209,7 @@ async def list_reviews(
     response_model=ReviewResponse,
     summary="Approve review",
     description="Approve an artifact review",
+    operation_id="approveReview",
 )
 async def approve_review(
     review_id: str,
@@ -275,6 +279,7 @@ async def approve_review(
     response_model=ReviewResponse,
     summary="Reject review",
     description="Reject an artifact review",
+    operation_id="rejectReview",
 )
 async def reject_review(
     review_id: str,
@@ -339,6 +344,7 @@ async def reject_review(
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Cancel review",
     description="Cancel a pending review",
+    operation_id="cancelReview",
 )
 async def cancel_review(review_id: str) -> None:
     """Cancel review."""
@@ -365,6 +371,7 @@ async def cancel_review(review_id: str) -> None:
     response_model=ReviewStatsResponse,
     summary="Get review statistics",
     description="Get aggregate review statistics",
+    operation_id="getReviewStats",
 )
 async def get_review_stats() -> ReviewStatsResponse:
     """Get review statistics."""

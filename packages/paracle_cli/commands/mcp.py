@@ -114,8 +114,10 @@ def _print_tools_table(
     console.print()
 
 
-@click.group()
-def mcp() -> None:
+@click.group(invoke_without_command=True)
+@click.option("--list", "-l", "list_flag", is_flag=True, help="List MCP tools (shortcut for 'list')")
+@click.pass_context
+def mcp(ctx: click.Context, list_flag: bool) -> None:
     """MCP server commands.
 
     Start and manage the Paracle MCP server for IDE tool integration.
@@ -129,9 +131,15 @@ def mcp() -> None:
     - Workflow tools (run, list)
     - Memory tools (log_action)
 
-    Configure your IDE to use: paracle mcp serve --stdio
+    Examples:
+        paracle mcp -l              - List MCP tools (shortcut)
+        paracle mcp list            - List all MCP tools
+        paracle mcp serve --stdio   - Start MCP server
     """
-    pass
+    if list_flag:
+        ctx.invoke(mcp_list, category="all", as_json=False)
+    elif ctx.invoked_subcommand is None:
+        click.echo(ctx.get_help())
 
 
 @mcp.command("serve")

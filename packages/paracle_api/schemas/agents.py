@@ -9,17 +9,31 @@ from pydantic import BaseModel, Field
 class AgentMetadataResponse(BaseModel):
     """Agent metadata response model."""
 
-    id: str = Field(description="Agent unique identifier (filename)")
-    name: str = Field(description="Agent display name")
-    role: str = Field(description="Agent primary role")
-    spec_file: str = Field(description="Path to agent specification file")
+    id: str = Field(
+        description="Agent unique identifier (filename)",
+        examples=["coder", "architect", "tester"]
+    )
+    name: str = Field(
+        description="Agent display name",
+        examples=["Coder Agent", "Architect Agent"]
+    )
+    role: str = Field(
+        description="Agent primary role",
+        examples=["Implementation", "Design", "Testing"]
+    )
+    spec_file: str = Field(
+        description="Path to agent specification file",
+        examples=[".parac/agents/specs/coder.md"]
+    )
     capabilities: list[str] = Field(
         default_factory=list,
         description="List of agent capabilities",
+        examples=[["code_implementation", "testing", "debugging"]]
     )
     description: str | None = Field(
         default=None,
         description="Agent description",
+        examples=["Implements features following architecture"]
     )
 
 

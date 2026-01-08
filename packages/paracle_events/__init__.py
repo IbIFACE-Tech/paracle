@@ -43,7 +43,7 @@ from paracle_events.events import (
 )
 from paracle_events.persistent_store import PersistentEventStore
 
-__version__ = "0.0.1"
+__version__ = "1.0.0"
 
 __all__ = [
     # Bus

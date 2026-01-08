@@ -154,10 +154,21 @@ def _print_log_line(line: str):
     console.print(line)
 
 
-@click.group()
-def logs():
-    """View and manage Paracle logs."""
-    pass
+@click.group(invoke_without_command=True)
+@click.option("--list", "-l", "list_flag", is_flag=True, help="List log files (shortcut for 'list')")
+@click.pass_context
+def logs(ctx: click.Context, list_flag: bool):
+    """View and manage Paracle logs.
+
+    Examples:
+        paracle logs -l         - List log files (shortcut)
+        paracle logs list       - List log files
+        paracle logs show       - Show log content
+    """
+    if list_flag:
+        ctx.invoke(list_logs)
+    elif ctx.invoked_subcommand is None:
+        click.echo(ctx.get_help())
 
 
 # =============================================================================

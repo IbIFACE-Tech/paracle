@@ -15,14 +15,19 @@ from paracle_cli.api_client import APIError, get_client
 console = Console()
 
 
-@click.group()
-def approvals() -> None:
+@click.group(invoke_without_command=True)
+@click.option("--list", "-l", "list_flag", is_flag=True, help="List pending approvals (shortcut for 'list')")
+@click.pass_context
+def approvals(ctx: click.Context, list_flag: bool) -> None:
     """Manage approval requests (Human-in-the-Loop).
 
     Approval requests are created when workflows require human oversight.
     Use these commands to list, approve, or reject pending requests.
 
     Examples:
+        # List pending approvals (shortcut)
+        $ paracle approvals -l
+
         # List pending approvals
         $ paracle approvals list
 
@@ -35,7 +40,10 @@ def approvals() -> None:
         # View approval statistics
         $ paracle approvals stats
     """
-    pass
+    if list_flag:
+        ctx.invoke(list_approvals, status="pending", workflow_id=None, priority=None, limit=100, output_json=False)
+    elif ctx.invoked_subcommand is None:
+        click.echo(ctx.get_help())
 
 
 @approvals.command("list")

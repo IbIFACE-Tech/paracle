@@ -1,0 +1,13 @@
+name: test-workflow
+description: Test workflow
+version: '1.0.0'
+
+steps:
+  - id: step1
+    agent: myagent
+    task: "{{ input.task }}"
+    inputs:
+      task: "{{ input.task }}"
+    
+outputs:
+  result: "{{ steps.step1.output }}"

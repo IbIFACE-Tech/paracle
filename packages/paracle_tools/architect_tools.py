@@ -75,7 +75,7 @@ class CodeAnalysisTool(BaseTool):
             imports = [
                 node.names[0].name if hasattr(node, "names") else node.module
                 for node in ast.walk(tree)
-                if isinstance(node, (ast.Import, ast.ImportFrom))
+                if isinstance(node, ast.Import | ast.ImportFrom)
             ]
 
             # Calculate metrics

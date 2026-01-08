@@ -15,6 +15,48 @@ from rich.table import Table
 console = Console()
 
 
+def _is_remote_agent(agent_name: str) -> bool:
+    """Check if agent name refers to a remote A2A agent.
+
+    Remote agents can be specified as:
+    - "remote:agent_id" - explicit remote prefix
+    - "agent_id" - if registered in remote agent registry
+
+    Args:
+        agent_name: Agent identifier
+
+    Returns:
+        True if agent is a remote A2A agent
+    """
+    if agent_name.startswith("remote:"):
+        return True
+    try:
+        from paracle_a2a.registry import get_remote_registry
+
+        registry = get_remote_registry()
+        return registry.is_remote(agent_name)
+    except ImportError:
+        return False
+
+
+def _get_remote_agent(agent_name: str) -> Any:
+    """Get remote agent configuration.
+
+    Args:
+        agent_name: Agent identifier (with or without 'remote:' prefix)
+
+    Returns:
+        RemoteAgentConfig or None if not found
+    """
+    try:
+        from paracle_a2a.registry import get_remote_registry
+
+        registry = get_remote_registry()
+        return registry.resolve(agent_name)
+    except ImportError:
+        return None
+
+
 @click.command("run")
 @click.argument("agent_name")
 @click.option(
@@ -124,6 +166,8 @@ def run(
 ) -> None:
     """Run a single agent for a specific task.
 
+    Supports both local Paracle agents and remote A2A agents.
+
     Examples:
 
         # Basic code review
@@ -153,6 +197,12 @@ def run(
             --task "Implement feature X" \\
             --cost-limit 2.50 \\
             --output result.json
+
+        # Run a remote A2A agent (defined in manifest)
+        paracle agents run remote:external-coder --task "Write unit tests"
+
+        # Run remote agent by ID (if in registry)
+        paracle agents run partner-analyst --task "Analyze sales data"
     """
     # Display header
     _display_header(agent_name, task, mode)
@@ -225,9 +275,22 @@ def _display_header(agent_name: str, task: str, mode: str) -> None:
     color = mode_colors.get(mode, "white")
     icon = mode_icons.get(mode, "⚙️")
 
+    # Check if remote agent
+    is_remote = _is_remote_agent(agent_name)
+    agent_type = "[magenta]REMOTE A2A[/magenta]" if is_remote else "LOCAL"
+
+    # Get remote agent info if applicable
+    remote_info = ""
+    if is_remote:
+        remote_agent = _get_remote_agent(agent_name)
+        if remote_agent:
+            remote_info = f"\nEndpoint: [dim]{remote_agent.url}[/dim]"
+            icon = "🌐"
+
     console.print(
         Panel(
-            f"[bold]{icon} Running Agent: {agent_name.upper()}[/bold]\n\n"
+            f"[bold]{icon} Running Agent: {agent_name.upper()}[/bold]\n"
+            f"Type: {agent_type}{remote_info}\n\n"
             f"Task: {task}\n"
             f"Mode: [{color}]{mode.upper()}[/{color}]",
             title="[bold cyan]Paracle Agent Execution[/bold cyan]",
@@ -284,15 +347,28 @@ def _dry_run(
     """Perform dry run validation."""
     console.print("\n[bold cyan]🔍 DRY RUN - Validation Only[/bold cyan]\n")
 
+    is_remote = _is_remote_agent(agent_name)
+
     table = Table(title="Execution Plan", show_header=True)
     table.add_column("Parameter", style="cyan")
     table.add_column("Value", style="white")
 
     table.add_row("Agent", agent_name)
+    table.add_row("Type", "[magenta]Remote A2A[/magenta]" if is_remote else "Local")
     table.add_row("Task", task)
     table.add_row("Mode", mode)
-    table.add_row("Model", model or "default (from agent spec)")
-    table.add_row("Provider", provider or "default (from agent spec)")
+
+    if is_remote:
+        remote_agent = _get_remote_agent(agent_name)
+        if remote_agent:
+            table.add_row("Endpoint", remote_agent.url)
+            table.add_row("Auth", remote_agent.auth_type or "none")
+        else:
+            table.add_row("Endpoint", "[red]NOT FOUND[/red]")
+    else:
+        table.add_row("Model", model or "default (from agent spec)")
+        table.add_row("Provider", provider or "default (from agent spec)")
+
     table.add_row("Inputs", str(len(inputs)) + " parameters")
 
     if verbose and inputs:
@@ -302,7 +378,121 @@ def _dry_run(
             table.add_row(f"  • {key}", value_str)
 
     console.print(table)
+
+    # Validate remote agent exists
+    if is_remote:
+        remote_agent = _get_remote_agent(agent_name)
+        if not remote_agent:
+            console.print(
+                f"\n[red]❌ Remote agent not found: {agent_name}[/red]"
+            )
+            console.print(
+                "[dim]Define remote agents in .parac/agents/manifest.yaml under remote_agents:[/dim]"
+            )
+            return
+
     console.print("\n[green]✅ Validation passed - ready for execution[/green]")
+
+
+async def _execute_remote_agent_task(
+    agent_name: str,
+    task: str,
+    inputs: dict[str, Any],
+    timeout: int,
+    stream: bool,
+    verbose: bool,
+) -> dict[str, Any]:
+    """Execute task on a remote A2A agent.
+
+    Args:
+        agent_name: Remote agent identifier
+        task: Task description
+        inputs: Input parameters
+        timeout: Timeout in seconds
+        stream: Whether to stream responses
+        verbose: Show verbose output
+
+    Returns:
+        Execution result dict
+    """
+    from paracle_a2a.client import ParacleA2AClient
+    from paracle_a2a.models import TaskState
+
+    remote_agent = _get_remote_agent(agent_name)
+    if not remote_agent:
+        raise RuntimeError(f"Remote agent not found: {agent_name}")
+
+    # Build message with task and inputs
+    message = task
+    if inputs:
+        import json
+
+        message += f"\n\nInputs:\n```json\n{json.dumps(inputs, indent=2)}\n```"
+
+    # Create client
+    config = remote_agent.get_client_config()
+    config.timeout_seconds = float(timeout)
+    client = ParacleA2AClient(remote_agent.url, config)
+
+    import time
+
+    start_time = time.time()
+
+    if stream:
+        # Streaming execution
+        result_text = ""
+        status = "unknown"
+
+        async for event in client.invoke_streaming(message=message):
+            from paracle_a2a.models import (
+                TaskArtifactUpdateEvent,
+                TaskStatusUpdateEvent,
+            )
+
+            if isinstance(event, TaskStatusUpdateEvent):
+                status = event.status.state.value
+                if verbose and event.status.message:
+                    console.print(f"[dim]Status: {event.status.message}[/dim]")
+            elif isinstance(event, TaskArtifactUpdateEvent):
+                for part in event.artifact.parts:
+                    if hasattr(part, "text"):
+                        result_text += part.text
+                        if verbose:
+                            console.print(part.text, end="")
+
+        execution_time = time.time() - start_time
+        return {
+            "outputs": {"result": result_text},
+            "status": status,
+            "execution_time": execution_time,
+            "remote_agent": {
+                "id": remote_agent.id,
+                "name": remote_agent.name,
+                "url": remote_agent.url,
+            },
+        }
+    else:
+        # Non-streaming execution
+        a2a_task = await client.invoke(message=message, wait=True)
+
+        execution_time = time.time() - start_time
+
+        result_text = ""
+        if a2a_task.status.state == TaskState.COMPLETED:
+            result_text = a2a_task.status.message or "Task completed"
+
+        return {
+            "outputs": {"result": result_text},
+            "status": a2a_task.status.state.value,
+            "task_id": a2a_task.id,
+            "context_id": a2a_task.context_id,
+            "execution_time": execution_time,
+            "remote_agent": {
+                "id": remote_agent.id,
+                "name": remote_agent.name,
+                "url": remote_agent.url,
+            },
+        }
 
 
 async def _execute_agent_task(
@@ -320,7 +510,18 @@ async def _execute_agent_task(
     verbose: bool,
 ) -> dict[str, Any]:
     """Execute agent task."""
-    # Initialize executor
+    # Check for remote agent
+    if _is_remote_agent(agent_name):
+        return await _execute_remote_agent_task(
+            agent_name=agent_name,
+            task=task,
+            inputs=inputs,
+            timeout=timeout,
+            stream=stream,
+            verbose=verbose,
+        )
+
+    # Initialize executor for local agent
     executor = AgentExecutor()
 
     # Build step configuration
@@ -387,6 +588,26 @@ async def _execute_agent_task(
 def _display_results(result: dict[str, Any], verbose: bool) -> None:
     """Display execution results."""
     console.print("\n[bold green]✅ Execution Complete[/bold green]\n")
+
+    # Display remote agent info if applicable
+    if "remote_agent" in result:
+        remote = result["remote_agent"]
+        console.print("[bold]Remote Agent:[/bold]")
+        console.print(f"  • ID: [magenta]{remote['id']}[/magenta]")
+        console.print(f"  • Name: {remote['name']}")
+        if verbose:
+            console.print(f"  • URL: [dim]{remote['url']}[/dim]")
+        if "task_id" in result:
+            console.print(f"  • Task ID: [dim]{result['task_id']}[/dim]")
+        if "context_id" in result and result["context_id"]:
+            console.print(f"  • Context ID: [dim]{result['context_id']}[/dim]")
+        console.print()
+
+    # Display status for remote agents
+    if "status" in result:
+        status = result["status"]
+        status_color = "green" if status == "completed" else "yellow"
+        console.print(f"[bold]Status:[/bold] [{status_color}]{status}[/{status_color}]")
 
     # Display outputs
     if "outputs" in result and result["outputs"]:

@@ -36,7 +36,23 @@
 
 > **`.parac/` is the single source of truth. Read it. Follow it. Log to it.**
 
-## 🚨 MANDATORY: Pre-Flight Checklist
+## � File Organization
+
+> **Before creating ANY file in `.parac/`, consult [.parac/STRUCTURE.md](.parac/STRUCTURE.md) for correct placement.**
+
+**Key Rules**:
+
+- Operational data (databases) → `.parac/memory/data/*.db`
+- Logs → `.parac/memory/logs/*.log`
+- Knowledge → `.parac/memory/knowledge/*.md`
+- Decisions (ADRs) → `.parac/roadmap/decisions.md`
+- Agent specs → `.parac/agents/specs/*.md`
+- Config → `.parac/project.yaml` or `.parac/config/`
+- Execution artifacts → `.parac/runs/` (gitignored)
+
+**See [.parac/STRUCTURE.md](.parac/STRUCTURE.md) for complete structure and validation rules.**
+
+## �🚨 MANDATORY: Pre-Flight Checklist
 
 **Before ANY implementation task:**
 

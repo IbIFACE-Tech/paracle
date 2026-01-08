@@ -49,7 +49,7 @@ def get_parac_root_or_raise() -> tuple:
     return parac_root, parac_root.parent
 
 
-@router.get("/status", response_model=StatusResponse)
+@router.get("/status", response_model=StatusResponse, operation_id="getParacStatus")
 async def get_status() -> StatusResponse:
     """Get current project status from .parac/.
 
@@ -90,7 +90,7 @@ async def get_status() -> StatusResponse:
     )
 
 
-@router.post("/sync", response_model=SyncResponse)
+@router.post("/sync", response_model=SyncResponse, operation_id="syncParacState")
 async def sync_state(request: SyncRequest | None = None) -> SyncResponse:
     """Synchronize .parac/ state with project reality.
 
@@ -114,7 +114,11 @@ async def sync_state(request: SyncRequest | None = None) -> SyncResponse:
     )
 
 
-@router.get("/validate", response_model=ValidationResponse)
+@router.get(
+    "/validate",
+    response_model=ValidationResponse,
+    operation_id="validateParacWorkspace",
+)
 async def validate_workspace() -> ValidationResponse:
     """Validate .parac/ workspace consistency.
 
@@ -142,7 +146,11 @@ async def validate_workspace() -> ValidationResponse:
     )
 
 
-@router.post("/session/start", response_model=SessionStartResponse)
+@router.post(
+    "/session/start",
+    response_model=SessionStartResponse,
+    operation_id="startParacSession",
+)
 async def start_session() -> SessionStartResponse:
     """Start a new work session.
 
@@ -172,7 +180,11 @@ async def start_session() -> SessionStartResponse:
     )
 
 
-@router.post("/session/end", response_model=SessionEndResponse)
+@router.post(
+    "/session/end",
+    response_model=SessionEndResponse,
+    operation_id="endParacSession",
+)
 async def end_session(request: SessionEndRequest) -> SessionEndResponse:
     """End work session with .parac/ updates.
 

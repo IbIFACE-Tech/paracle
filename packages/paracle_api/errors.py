@@ -290,11 +290,11 @@ def _serialize_validation_error(error: dict[str, Any]) -> dict[str, Any]:
         if key == "ctx" and isinstance(value, dict):
             # Serialize context values to strings
             result[key] = {
-                k: str(v) if not isinstance(v, (str, int, float, bool, type(None)))
+                k: str(v) if not isinstance(v, str | int | float | bool | type(None))
                 else v
                 for k, v in value.items()
             }
-        elif isinstance(value, (str, int, float, bool, type(None), list, tuple)):
+        elif isinstance(value, str | int | float | bool | type(None) | list | tuple):
             result[key] = value
         else:
             result[key] = str(value)

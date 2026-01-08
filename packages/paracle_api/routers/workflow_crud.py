@@ -13,7 +13,10 @@ Note: GET /api/workflows now loads from .parac/workflows/ YAML files
 
 from fastapi import APIRouter, HTTPException, Query
 from paracle_domain.models import EntityStatus, Workflow
-from paracle_orchestration.workflow_loader import WorkflowLoader, WorkflowLoadError
+from paracle_orchestration.workflow_loader import (
+    WorkflowLoader,
+    WorkflowLoadError,
+)
 from paracle_store.workflow_repository import WorkflowRepository
 
 from paracle_api.schemas.workflow_crud import (
@@ -98,7 +101,12 @@ async def create_workflow(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("", response_model=WorkflowListResponse)
+@router.get(
+    "",
+    response_model=WorkflowListResponse,
+    operation_id="listWorkflows",
+    summary="List all workflows"
+)
 async def list_workflows(
     status: str | None = Query(None, description="Filter by status"),
     category: str | None = Query(None, description="Filter by category"),
@@ -249,7 +257,12 @@ async def get_workflow(workflow_id: str) -> WorkflowResponse:
     return _workflow_to_response(workflow)
 
 
-@router.put("/{workflow_id}", response_model=WorkflowResponse)
+@router.put(
+    "/{workflow_id}",
+    response_model=WorkflowResponse,
+    operation_id="updateWorkflow",
+    summary="Update workflow"
+)
 async def update_workflow(
     workflow_id: str, request: WorkflowUpdateRequest
 ) -> WorkflowResponse:
@@ -305,7 +318,12 @@ async def update_workflow(
     return _workflow_to_response(workflow)
 
 
-@router.delete("/{workflow_id}", response_model=WorkflowDeleteResponse)
+@router.delete(
+    "/{workflow_id}",
+    response_model=WorkflowDeleteResponse,
+    operation_id="deleteWorkflow",
+    summary="Delete workflow"
+)
 async def delete_workflow(workflow_id: str) -> WorkflowDeleteResponse:
     """Delete a workflow.
 

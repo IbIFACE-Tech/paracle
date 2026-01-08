@@ -1,5 +1,7 @@
 # Paracle Governance Protocol
 
+> **📖 Quick Reference**: See [STRUCTURE.md](STRUCTURE.md) for canonical `.parac/` folder structure and file placement rules.
+
 ## Contexte : Paracle conçoit Paracle
 
 Ce projet utilise une approche **méta** : nous utilisons le framework Paracle pour concevoir Paracle lui-même.
@@ -206,6 +208,26 @@ Quand un deliverable majeur est complété:
 
 ---
 
+## Règle 4: File Placement (NEW)
+
+> **Toujours respecter la structure canonique définie dans `STRUCTURE.md`**
+
+Chaque fichier a une place spécifique dans `.parac/`:
+
+| Type de Fichier         | Emplacement Correct            | ❌ Erreur Commune        |
+| ----------------------- | ------------------------------ | ----------------------- |
+| **Operational Data**    | `.parac/memory/data/*.db`      | `.parac/*.db` (root)    |
+| **Logs**                | `.parac/memory/logs/*.log`     | `packages/*/logs/`      |
+| **Knowledge**           | `.parac/memory/knowledge/*.md` | `.parac/*.md`           |
+| **Decisions (ADRs)**    | `.parac/roadmap/decisions.md`  | `.parac/decisions.md`   |
+| **Agent Specs**         | `.parac/agents/specs/*.md`     | `.parac/agents/*.md`    |
+| **Execution Artifacts** | `.parac/runs/` (gitignored)    | `packages/*/artifacts/` |
+| **User Documentation**  | `docs/` (NOT in .parac)        | `.parac/docs/`          |
+
+**Before creating any new file in .parac/, consult [STRUCTURE.md](STRUCTURE.md) first.**
+
+---
+
 ## Commandes de Synchronisation
 
 ### Vérification de Cohérence
@@ -217,6 +239,12 @@ make parac-check
 # Valider la syntaxe YAML
 make parac-validate
 
+# Valider la structure .parac/ (NEW)
+paracle validate structure
+
+# Vérifier les fichiers mal placés (NEW)
+paracle validate structure --strict
+
 # Générer un rapport d'état
 make parac-status
 ```
@@ -226,6 +254,9 @@ make parac-status
 ```bash
 # Mettre à jour current_state depuis git
 paracle sync state
+
+# Corriger automatiquement les fichiers mal placés (NEW)
+paracle validate structure --fix
 
 # Générer le résumé hebdomadaire
 paracle summary weekly

@@ -10,13 +10,6 @@
         "serve",
         "--stdio"
       ]
-    },
-    "walksoda-crawl-mcp": {
-      "args": [
-        "-m",
-        "crawl4ai_mcp.server"
-      ],
-      "command": "python"
     }
   }
 }

@@ -1,0 +1,7 @@
+# Paracle workspace ignores
+memory/logs/*.log
+*.pyc
+__pycache__/
+.env
+.env.local
+.DS_Store

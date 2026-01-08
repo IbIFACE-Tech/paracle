@@ -15,6 +15,23 @@ import yaml
 from paracle_domain.models import WorkflowSpec, WorkflowStep
 from pydantic import ValidationError
 
+try:
+    from paracle_profiling import cached, profile
+    PROFILING_AVAILABLE = True
+except ImportError:
+    # Profiling not available - use no-op decorators
+    PROFILING_AVAILABLE = False
+
+    def cached(*args, **kwargs):
+        def decorator(func):
+            return func
+        return decorator
+
+    def profile(*args, **kwargs):
+        def decorator(func):
+            return func
+        return decorator
+
 
 class WorkflowLoadError(Exception):
     """Raised when workflow loading fails."""
@@ -163,6 +180,8 @@ class WorkflowLoader:
             f"Workflow '{workflow_name}' not found in definitions/ or templates/"
         )
 
+    @cached(ttl=120)  # Cache for 2 minutes
+    @profile()
     def load_workflow_yaml(self, workflow_name: str) -> dict[str, Any]:
         """Load workflow YAML as dictionary.
 
@@ -192,6 +211,7 @@ class WorkflowLoader:
         except Exception as e:
             raise WorkflowLoadError(f"Failed to load {file_path}: {e}")
 
+    @profile(track_memory=True)
     def load_workflow_spec(self, workflow_name: str) -> WorkflowSpec:
         """Load workflow as WorkflowSpec domain model.
 

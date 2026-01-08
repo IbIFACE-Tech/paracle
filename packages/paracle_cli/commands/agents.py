@@ -77,19 +77,25 @@ def use_api_or_fallback(api_func, fallback_func, *args, **kwargs):
     return fallback_func(*args, **kwargs)
 
 
-@click.group()
-def agents() -> None:
+@click.group(invoke_without_command=True)
+@click.option("--list", "-l", "list_flag", is_flag=True, help="List all agents (shortcut for 'list')")
+@click.pass_context
+def agents(ctx: click.Context, list_flag: bool) -> None:
     """Manage, discover, and run agents.
 
     Agents are AI-powered specialists defined in .parac/agents/ that can
     execute tasks like code review, testing, documentation, and more.
 
     Common commands:
-        paracle agents list          - List all available agents
+        paracle agents -l                - List all agents (shortcut)
+        paracle agents list              - List all available agents
         paracle agents run coder -t "Fix bug"  - Run an agent with a task
-        paracle agents skills --list-all       - Show available skills
+        paracle agents skills -l         - List all available skills
     """
-    pass
+    if list_flag:
+        ctx.invoke(list_agents, output_format="table", remote=False, remote_only=False)
+    elif ctx.invoked_subcommand is None:
+        click.echo(ctx.get_help())
 
 
 # =============================================================================
@@ -206,6 +212,82 @@ def _list_direct(output_format: str) -> None:
         console.print(table)
 
 
+def _list_remote_agents(output_format: str) -> None:
+    """List remote A2A agents from registry."""
+    try:
+        from paracle_a2a.registry import get_remote_registry
+    except ImportError:
+        console.print(
+            "[dim]Remote A2A agents not available "
+            "(install paracle[a2a])[/dim]"
+        )
+        return
+
+    registry = get_remote_registry()
+    remote_agents = registry.list_all()
+
+    if not remote_agents:
+        console.print(
+            "[dim]No remote A2A agents defined in manifest[/dim]"
+        )
+        console.print(
+            "[dim]Add remote_agents section to "
+            ".parac/agents/manifest.yaml[/dim]"
+        )
+        return
+
+    if output_format == "json":
+        import json
+
+        agents_data = [
+            {
+                "id": f"remote:{a.id}",
+                "name": a.name,
+                "url": a.url,
+                "description": a.description,
+                "auth_type": a.auth_type,
+                "type": "remote_a2a",
+            }
+            for a in remote_agents
+        ]
+        console.print(json.dumps(agents_data, indent=2))
+
+    elif output_format == "yaml":
+        import yaml
+
+        agents_data = [
+            {
+                "id": f"remote:{a.id}",
+                "name": a.name,
+                "url": a.url,
+                "description": a.description,
+                "auth_type": a.auth_type,
+                "type": "remote_a2a",
+            }
+            for a in remote_agents
+        ]
+        console.print(
+            yaml.dump(agents_data, default_flow_style=False, sort_keys=False)
+        )
+
+    else:  # table
+        table = Table(title=f"Remote A2A Agents ({len(remote_agents)} found)")
+        table.add_column("ID", style="magenta", no_wrap=True)
+        table.add_column("Name", style="bold")
+        table.add_column("Endpoint", style="cyan")
+        table.add_column("Auth", style="yellow")
+
+        for agent in remote_agents:
+            table.add_row(
+                f"remote:{agent.id}",
+                agent.name,
+                agent.url[:40] + "..." if len(agent.url) > 40 else agent.url,
+                agent.auth_type or "none",
+            )
+
+        console.print(table)
+
+
 @agents.command("list")
 @click.option(
     "--format",
@@ -213,15 +295,34 @@ def _list_direct(output_format: str) -> None:
     type=click.Choice(["table", "json", "yaml"]),
     default="table",
 )
-def list_agents(output_format: str) -> None:
+@click.option(
+    "--remote",
+    is_flag=True,
+    help="Include remote A2A agents defined in manifest",
+)
+@click.option(
+    "--remote-only",
+    is_flag=True,
+    help="Show only remote A2A agents",
+)
+def list_agents(output_format: str, remote: bool, remote_only: bool) -> None:
     """List all agents defined in .parac/agents/specs/.
 
     Examples:
         paracle agents list
         paracle agents list --format=json
+        paracle agents list --remote          # Include remote A2A agents
+        paracle agents list --remote-only     # Show only remote agents
         paracle agents list --format=yaml
     """
-    use_api_or_fallback(_list_via_api, _list_direct, output_format)
+    if remote_only:
+        _list_remote_agents(output_format)
+    elif remote:
+        use_api_or_fallback(_list_via_api, _list_direct, output_format)
+        console.print()  # Separator
+        _list_remote_agents(output_format)
+    else:
+        use_api_or_fallback(_list_via_api, _list_direct, output_format)
 
 
 # =============================================================================
@@ -451,89 +552,6 @@ def export_agents(output_format: str, output: str | None) -> None:
 
 
 # =============================================================================
-# SKILLS Command
-# =============================================================================
-
-
-@agents.command("skills")
-@click.argument("agent_id", required=False)
-@click.option(
-    "--list-all", "-l", is_flag=True, help="List all available skills"
-)
-def show_skills(agent_id: str | None, list_all: bool) -> None:
-    """Show skills for an agent or list all available skills.
-
-    Examples:
-        paracle agents skills --list-all
-        paracle agents skills coder
-        paracle agents skills architect
-    """
-    from paracle_orchestration.skill_loader import SkillLoader
-
-    skill_loader = SkillLoader()
-
-    if list_all:
-        # List all available skills
-        available = skill_loader.discover_skills()
-        if not available:
-            console.print(
-                "[yellow]No skills found in .parac/agents/skills/[/yellow]"
-            )
-            return
-
-        table = Table(title=f"Available Skills ({len(available)} found)")
-        table.add_column("Skill ID", style="cyan", no_wrap=True)
-        table.add_column("Status", style="green")
-
-        for skill_id in sorted(available):
-            try:
-                skill = skill_loader.load_skill(skill_id)
-                status = "[green]OK[/green]" if skill else "[red]Error[/red]"
-                table.add_row(skill_id, status)
-            except Exception:
-                table.add_row(skill_id, "[red]Error[/red]")
-
-        console.print(table)
-
-    elif agent_id:
-        # Show skills for specific agent
-        try:
-            skills = skill_loader.load_agent_skills(agent_id)
-            if not skills:
-                console.print(
-                    f"[yellow]No skills assigned to agent "
-                    f"'{agent_id}'[/yellow]"
-                )
-                console.print(
-                    "\nCheck .parac/agents/SKILL_ASSIGNMENTS.md "
-                    "for skill mappings."
-                )
-                return
-
-            console.print(
-                f"\n[bold]Skills for agent '{agent_id}':[/bold] "
-                f"({len(skills)} skills)\n"
-            )
-
-            for skill in skills:
-                console.print(
-                    f"[cyan]• {skill.name}[/cyan] ({skill.skill_id})"
-                )
-                console.print(f"  {skill.description}\n")
-
-        except Exception as e:
-            console.print(f"[red]Error loading skills:[/red] {e}")
-
-    else:
-        console.print(
-            "[yellow]Provide --list-all or specify an agent ID[/yellow]"
-        )
-        console.print("\nExamples:")
-        console.print("  paracle agents skills --list-all")
-        console.print("  paracle agents skills coder")
-
-
-# =============================================================================
 # RUN Command - Execute an agent for a task
 # =============================================================================
 
@@ -541,9 +559,10 @@ def show_skills(agent_id: str | None, list_all: bool) -> None:
 agents.add_command(_agent_run_cmd, name="run")
 
 # =============================================================================
-# SKILLS Subcommand Group - Full skill management
+# SKILLS Command - Unified skill management
 # =============================================================================
 
-# Add the skills subcommand group for advanced skill management
+# Add the skills subcommand group for skill management
 # This provides: list, export, validate, create, show
-agents.add_command(skills_group, name="skill")
+# Also supports -l/--list shortcut via the modified skills group
+agents.add_command(skills_group, name="skills")

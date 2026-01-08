@@ -18,7 +18,12 @@ try:
 except ImportError:
     try:
         # Fallback to legacy autogen/pyautogen
-        from autogen import AssistantAgent, UserProxyAgent, GroupChat, GroupChatManager
+        from autogen import (  # noqa: F401
+            AssistantAgent,
+            GroupChat,
+            GroupChatManager,
+            UserProxyAgent,
+        )
 
         AUTOGEN_AVAILABLE = True
         AUTOGEN_VERSION = "0.2.x"
@@ -42,7 +47,6 @@ from paracle_adapters.base import FrameworkAdapter
 from paracle_adapters.exceptions import (
     AdapterConfigurationError,
     AdapterExecutionError,
-    FeatureNotSupportedError,
 )
 
 
@@ -159,7 +163,7 @@ class AutoGenAdapter(FrameworkAdapter):
             }
 
         except Exception as e:
-            if isinstance(e, (AdapterConfigurationError, AdapterExecutionError)):
+            if isinstance(e, AdapterConfigurationError | AdapterExecutionError):
                 raise
             raise AdapterExecutionError(
                 f"Failed to create AutoGen agent: {e}",

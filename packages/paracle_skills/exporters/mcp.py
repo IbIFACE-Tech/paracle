@@ -57,7 +57,7 @@ class MCPExporter(BaseExporter):
 
     def export_skill(
         self,
-        skill: "SkillSpec",
+        skill: SkillSpec,
         output_dir: Path,
         overwrite: bool = False,
     ) -> ExportResult:
@@ -133,7 +133,7 @@ class MCPExporter(BaseExporter):
                 errors=errors,
             )
 
-    def _generate_mcp_content(self, skill: "SkillSpec") -> dict[str, Any]:
+    def _generate_mcp_content(self, skill: SkillSpec) -> dict[str, Any]:
         """Generate MCP-compatible content for a skill.
 
         Args:
@@ -151,7 +151,7 @@ class MCPExporter(BaseExporter):
 
     def generate_mcp_server_stub(
         self,
-        skill: "SkillSpec",
+        skill: SkillSpec,
         output_dir: Path,
     ) -> ExportResult:
         """Generate a Python MCP server stub for the skill.
@@ -198,7 +198,7 @@ class MCPExporter(BaseExporter):
                 errors=[str(e)],
             )
 
-    def _generate_server_code(self, skill: "SkillSpec") -> str:
+    def _generate_server_code(self, skill: SkillSpec) -> str:
         """Generate Python MCP server code.
 
         Args:

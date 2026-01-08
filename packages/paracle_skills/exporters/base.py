@@ -63,7 +63,7 @@ class BaseExporter(ABC):
     @abstractmethod
     def export_skill(
         self,
-        skill: "SkillSpec",
+        skill: SkillSpec,
         output_dir: Path,
         overwrite: bool = False,
     ) -> ExportResult:
@@ -81,7 +81,7 @@ class BaseExporter(ABC):
 
     def export_all(
         self,
-        skills: list["SkillSpec"],
+        skills: list[SkillSpec],
         output_dir: Path,
         overwrite: bool = False,
     ) -> list[ExportResult]:
@@ -111,7 +111,7 @@ class BaseExporter(ABC):
 
     def _copy_resources(
         self,
-        skill: "SkillSpec",
+        skill: SkillSpec,
         target_dir: Path,
     ) -> list[str]:
         """Copy skill resources (scripts, references, assets) to target.

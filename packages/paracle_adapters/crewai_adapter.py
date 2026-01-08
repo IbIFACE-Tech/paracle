@@ -8,7 +8,7 @@ from typing import Any
 
 # Try CrewAI imports
 try:
-    from crewai import Agent, Task, Crew, Process
+    from crewai import Agent, Crew, Process, Task
     from crewai.tools import BaseTool as CrewAIBaseTool
 
     CREWAI_AVAILABLE = True
@@ -30,7 +30,6 @@ from paracle_adapters.base import FrameworkAdapter
 from paracle_adapters.exceptions import (
     AdapterConfigurationError,
     AdapterExecutionError,
-    FeatureNotSupportedError,
 )
 
 
@@ -137,7 +136,7 @@ class CrewAIAdapter(FrameworkAdapter):
             }
 
         except Exception as e:
-            if isinstance(e, (AdapterConfigurationError, AdapterExecutionError)):
+            if isinstance(e, AdapterConfigurationError | AdapterExecutionError):
                 raise
             raise AdapterExecutionError(
                 f"Failed to create CrewAI agent: {e}",

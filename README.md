@@ -18,6 +18,7 @@ Paracle is a powerful framework for building **multi-agent AI applications** wit
 - **🎯 Write Once Skills**: Define skills once, export to Copilot, Cursor, Claude, Codex
 - **🌐 API-First**: RESTful API with FastAPI
 - **📡 MCP Native**: Model Context Protocol support
+- **🤝 A2A Protocol**: Agent-to-Agent interoperability with external agents
 - **🎭 BYO Philosophy**: Bring Your Own models, frameworks, tools
 
 ## 🚀 Quick Start
@@ -47,6 +48,24 @@ cp .env.example .env
 ```bash
 paracle hello
 ```
+
+### Interactive Tutorial (Recommended for Beginners)
+
+New to Paracle? Start with our 30-minute interactive tutorial:
+
+```bash
+paracle tutorial start
+```
+
+The tutorial guides you through:
+1. Creating your first agent
+2. Adding tools (filesystem, http, shell)
+3. Adding skills for specialized capabilities
+4. Creating project templates
+5. Testing your agent locally
+6. Building your first workflow
+
+Resume anytime with `paracle tutorial resume`
 
 ### Initialize & Run Your First Agent
 

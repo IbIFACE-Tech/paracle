@@ -24,7 +24,7 @@ services:
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-paracle}
       POSTGRES_USER: ${POSTGRES_USER:-paracle}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-paracle_dev_password}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-CHANGE_ME_IN_PRODUCTION}
     ports:
       - "5432:5432"
     volumes:
@@ -43,8 +43,8 @@ services:
       dockerfile: docker/Dockerfile.api
     container_name: paracle-api
     environment:
-      # Database
-      PARACLE_DATABASE_URL: postgresql://${POSTGRES_USER:-paracle}:${POSTGRES_PASSWORD:-paracle_dev_password}@postgres:5432/${POSTGRES_DB:-paracle}
+      # Database - Use secure connection string from .env
+      PARACLE_DATABASE_URL: ${PARACLE_DATABASE_URL:-postgresql://paracle:CHANGE_ME@postgres:5432/paracle}
 
       # Redis
       PARACLE_REDIS_URL: redis://redis:6379/0
@@ -52,15 +52,22 @@ services:
       # API configuration
       PARACLE_API_HOST: 0.0.0.0
       PARACLE_API_PORT: 8000
-      PARACLE_LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      PARACLE_LOG_LEVEL: ${PARACLE_LOG_LEVEL:-INFO}
+
+      # Paracle workspace
+      PARACLE_WORKSPACE_ROOT: /app/.parac
 
       # LLM Provider Keys (load from .env)
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+      XAI_API_KEY: ${XAI_API_KEY:-}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      MISTRAL_API_KEY: ${MISTRAL_API_KEY:-}
 
       # Security
-      PARACLE_SECRET_KEY: ${PARACLE_SECRET_KEY:-change-me-in-production}
+      PARACLE_SECRET_KEY: ${PARACLE_SECRET_KEY:-CHANGE_ME_IN_PRODUCTION}
     ports:
       - "8000:8000"
     depends_on:
@@ -69,6 +76,8 @@ services:
       redis:
         condition: service_healthy
     volumes:
+      # Mount .parac workspace directory
+      - paracle-workspace:/app/.parac
       # Mount data directory for persistence
       - paracle-data:/app/data
       # Mount Docker socket for sandbox execution (Phase 5)
@@ -85,25 +94,35 @@ services:
       dockerfile: docker/Dockerfile.worker
     container_name: paracle-worker
     environment:
-      # Database
-      PARACLE_DATABASE_URL: postgresql://${POSTGRES_USER:-paracle}:${POSTGRES_PASSWORD:-paracle_dev_password}@postgres:5432/${POSTGRES_DB:-paracle}
+      # Database - Use secure connection string from .env
+      PARACLE_DATABASE_URL: ${PARACLE_DATABASE_URL:-postgresql://paracle:CHANGE_ME@postgres:5432/paracle}
 
       # Redis
       PARACLE_REDIS_URL: redis://redis:6379/0
 
       # Worker configuration
-      PARACLE_LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      PARACLE_LOG_LEVEL: ${PARACLE_LOG_LEVEL:-INFO}
+
+      # Paracle workspace
+      PARACLE_WORKSPACE_ROOT: /app/.parac
 
       # LLM Provider Keys
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+      XAI_API_KEY: ${XAI_API_KEY:-}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      MISTRAL_API_KEY: ${MISTRAL_API_KEY:-}
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
     volumes:
+      # Mount .parac workspace directory (shared with API)
+      - paracle-workspace:/app/.parac
+      # Mount data directory
       - paracle-data:/app/data
     restart: unless-stopped
 
@@ -113,6 +132,8 @@ volumes:
   redis-data:
     driver: local
   paracle-data:
+    driver: local
+  paracle-workspace:
     driver: local
   sandbox-cache:
     driver: local

@@ -140,7 +140,14 @@ class ExecutionListResponse(BaseModel):
 # =============================================================================
 
 
-@router.post("/execute", response_model=WorkflowExecuteResponse, status_code=202)
+@router.post(
+    "/execute",
+    response_model=WorkflowExecuteResponse,
+    status_code=202,
+    operation_id="executeWorkflow",
+    summary="Execute a workflow",
+    description="Create and execute a workflow (async by default)"
+)
 async def execute_workflow(request: WorkflowExecuteRequest) -> WorkflowExecuteResponse:
     """Execute a workflow using the orchestration engine.
 
@@ -246,7 +253,13 @@ async def execute_workflow(request: WorkflowExecuteRequest) -> WorkflowExecuteRe
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/{workflow_id}/plan", response_model=dict)
+@router.post(
+    "/{workflow_id}/plan",
+    response_model=dict,
+    operation_id="planWorkflow",
+    summary="Plan workflow execution",
+    description="Generate execution plan with cost/time estimates"
+)
 async def plan_workflow(workflow_id: str) -> dict:
     """Analyze workflow and generate execution plan.
 
@@ -417,7 +430,12 @@ async def cancel_execution(execution_id: str) -> ExecutionCancelResponse:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get("/{workflow_id}/executions", response_model=ExecutionListResponse)
+@router.get(
+    "/{workflow_id}/executions",
+    response_model=ExecutionListResponse,
+    operation_id="listWorkflowExecutions",
+    summary="List workflow executions"
+)
 async def list_workflow_executions(
     workflow_id: str,
     status: str | None = Query(None, description="Filter by status"),
@@ -471,8 +489,14 @@ async def list_workflow_executions(
                     current_step=ex.current_step,
                     completed_steps=ex.completed_steps,
                     failed_steps=ex.failed_steps,
-                    started_at=ex.started_at.isoformat() if ex.started_at else None,
-                    completed_at=ex.completed_at.isoformat() if ex.completed_at else None,
+                    started_at=(
+                        ex.started_at.isoformat()
+                        if ex.started_at else None
+                    ),
+                    completed_at=(
+                        ex.completed_at.isoformat()
+                        if ex.completed_at else None
+                    ),
                     error=ex.error,
                     result=ex.result,
                 )

@@ -12,7 +12,6 @@ from typing import TYPE_CHECKING
 
 from paracle_skills.exporters.agent_skills import (
     AgentSkillsExporter,
-    create_exporters_for_platforms,
 )
 from paracle_skills.exporters.base import ExportResult
 from paracle_skills.exporters.mcp import MCPExporter
@@ -83,7 +82,7 @@ class SkillExporter:
         ...     print(f"{result.skill_name}: {result.success_count} platforms")
     """
 
-    def __init__(self, skills: list["SkillSpec"]):
+    def __init__(self, skills: list[SkillSpec]):
         """Initialize with skills to export.
 
         Args:
@@ -119,7 +118,7 @@ class SkillExporter:
 
     def export_skill(
         self,
-        skill: "SkillSpec",
+        skill: SkillSpec,
         output_dir: Path,
         platforms: list[str] | None = None,
         overwrite: bool = False,

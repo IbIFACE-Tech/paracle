@@ -29,17 +29,16 @@ from paracle_store.models import (
     AgentModel,
     EventModel,
     ExecutionModel,
-    SessionModel,
     ToolModel,
     WorkflowModel,
 )
 from paracle_store.repository import DuplicateError, NotFoundError, Repository
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
 
     from paracle_domain.models import Agent, ToolSpec, WorkflowSpec
     from paracle_events.events import DomainEvent
+
     from paracle_store.database import Database
 
 

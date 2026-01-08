@@ -8,7 +8,6 @@ Provides commands for viewing and managing LLM costs:
 """
 
 from datetime import datetime, timedelta
-from pathlib import Path
 
 import click
 from rich.console import Console

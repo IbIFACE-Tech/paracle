@@ -7,7 +7,11 @@
       "Bash(done)",
       "Bash(timeout 2 uv run:*)",
       "Bash(timeout 10 uv run python:*)",
-      "Bash(timeout 15 uv run python:*)"
+      "Bash(timeout 15 uv run python:*)",
+      "Bash(taskkill:*)",
+      "Bash(tasklist:*)",
+      "Bash(rm:*)",
+      "Bash(dir \"c:\\\\Projets\\\\paracle\\\\paracle-lite\\\\docs\\\\index.md\")"
     ]
   }
 }

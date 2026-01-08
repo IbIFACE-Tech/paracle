@@ -59,7 +59,8 @@ class APIClient:
         if response.status_code >= 400:
             try:
                 detail = response.json().get("detail", response.text)
-            except Exception:
+            except (ValueError, KeyError, AttributeError):
+                # JSON decode error or missing 'detail' key
                 detail = response.text
             raise APIError(response.status_code, detail)
 
@@ -84,7 +85,8 @@ class APIClient:
         try:
             self.health()
             return True
-        except Exception:
+        except (APIError, ConnectionError, TimeoutError):
+            # Expected errors when API is unavailable
             return False
 
     # =========================================================================
@@ -474,8 +476,12 @@ class APIClient:
             ExecutionCancelResponse as dict
         """
         with httpx.Client(timeout=self.timeout) as client:
+            url = (
+                f"{self.base_url}/api/workflows/"
+                f"executions/{execution_id}/cancel"
+            )
             response = client.post(
-                f"{self.base_url}/api/workflows/executions/{execution_id}/cancel",
+                url,
                 headers=self._get_headers(),
             )
             return self._handle_response(response)
@@ -572,7 +578,8 @@ class APIClient:
 
         Args:
             workflow_id: Optional filter by workflow ID
-            status: Optional filter by status (approved, rejected, expired, cancelled)
+            status: Optional filter by status
+                (approved, rejected, expired, cancelled)
             limit: Maximum number of results
 
         Returns:
@@ -696,7 +703,8 @@ class APIClient:
         """List artifact reviews.
 
         Args:
-            status: Optional filter by status (pending, approved, rejected, timeout)
+            status: Optional filter by status
+                (pending, approved, rejected, timeout)
             sandbox_id: Optional filter by sandbox ID
 
         Returns:

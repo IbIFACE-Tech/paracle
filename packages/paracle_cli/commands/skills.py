@@ -32,8 +32,11 @@ def get_skills_dir() -> Path:
     return parac_root / "agents" / "skills"
 
 
-@click.group()
-def skills() -> None:
+@click.group(invoke_without_command=True)
+@click.option("--list", "-l", "list_skills_flag", is_flag=True, help="List all available skills (shortcut for 'list')")
+@click.option("--verbose", "-v", is_flag=True, help="Show detailed information (with -l)")
+@click.pass_context
+def skills(ctx: click.Context, list_skills_flag: bool, verbose: bool) -> None:
     """Manage agent skills (write once, export anywhere).
 
     Skills are reusable capabilities that can be assigned to agents
@@ -47,11 +50,22 @@ def skills() -> None:
         - MCP (Model Context Protocol)
 
     Common commands:
+        paracle agents skills -l                - List all skills (shortcut)
         paracle agents skills list              - List all skills
         paracle agents skills export --all      - Export to all platforms
         paracle agents skills create my-skill   - Create new skill
+
+    Examples:
+        paracle agents skills -l                - Quick list of all skills
+        paracle agents skills -l -v             - Detailed list with descriptions
+        paracle agents skills list --format=json
     """
-    pass
+    # Handle -l/--list shortcut
+    if list_skills_flag:
+        ctx.invoke(list_skills, output_format="table", verbose=verbose)
+    elif ctx.invoked_subcommand is None:
+        # No subcommand and no flags - show help
+        click.echo(ctx.get_help())
 
 
 @skills.command("list")
@@ -173,9 +187,9 @@ def export_skills(
         paracle agents skills export -p claude --skill code-review
         paracle agents skills export --dry-run
     """
-    from paracle_skills import SkillLoader, SkillExporter
-    from paracle_skills.exporter import ALL_PLATFORMS
     from paracle_core.parac.state import find_parac_root
+    from paracle_skills import SkillExporter, SkillLoader
+    from paracle_skills.exporter import ALL_PLATFORMS
 
     # Determine platforms
     platforms = list(platform)
@@ -321,9 +335,9 @@ def validate_skill(skill_name: str | None, validate_all: bool) -> None:
 
             # Show warnings
             if len(skill.description) < 20:
-                console.print(f"  [yellow]Warning:[/yellow] Description is very short")
+                console.print("  [yellow]Warning:[/yellow] Description is very short")
             if not skill.instructions:
-                console.print(f"  [yellow]Warning:[/yellow] No instructions in SKILL.md body")
+                console.print("  [yellow]Warning:[/yellow] No instructions in SKILL.md body")
 
             valid_count += 1
 
@@ -457,13 +471,13 @@ Use this skill when:
     console.print(f"\n[green]OK[/green] Created skill: {skill_name}")
     console.print(f"\n[bold]Location:[/bold] {skill_dir}")
     console.print("\n[bold]Files created:[/bold]")
-    console.print(f"  + SKILL.md")
+    console.print("  + SKILL.md")
     if with_scripts:
-        console.print(f"  + scripts/")
+        console.print("  + scripts/")
     if with_references:
-        console.print(f"  + references/")
+        console.print("  + references/")
     if with_assets:
-        console.print(f"  + assets/")
+        console.print("  + assets/")
 
     console.print("\n[bold]Next steps:[/bold]")
     console.print(f"  1. Edit {skill_dir / 'SKILL.md'}")
@@ -518,7 +532,7 @@ def show_skill(skill_name: str, raw: bool) -> None:
         console.print(f"[bold]Tags:[/bold] {', '.join(skill.metadata.tags)}")
 
     if skill.metadata.capabilities:
-        console.print(f"\n[bold]Capabilities:[/bold]")
+        console.print("\n[bold]Capabilities:[/bold]")
         for cap in skill.metadata.capabilities:
             console.print(f"  - {cap}")
 

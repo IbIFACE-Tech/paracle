@@ -74,7 +74,13 @@ def _spec_to_response(spec: AgentSpec) -> SpecResponse:
 # =============================================================================
 
 
-@router.post("/agents", response_model=AgentResponse, status_code=201)
+@router.post(
+    "/agents",
+    response_model=AgentResponse,
+    status_code=201,
+    operation_id="createAgent",
+    summary="Create a new agent"
+)
 async def create_agent(request: AgentCreateRequest) -> AgentResponse:
     """Create a new agent.
 
@@ -127,7 +133,12 @@ async def create_agent(request: AgentCreateRequest) -> AgentResponse:
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/agents", response_model=AgentListResponse)
+@router.get(
+    "/agents",
+    response_model=AgentListResponse,
+    operation_id="listAgentsCrud",
+    summary="List agents with filters"
+)
 async def list_agents(
     status: str | None = Query(None, description="Filter by status"),
     provider: str | None = Query(None, description="Filter by provider"),
@@ -174,7 +185,7 @@ async def list_agents(
     total = len(agents)
 
     # Apply pagination
-    agents = agents[offset : offset + limit]
+    agents = agents[offset:offset + limit]
 
     return AgentListResponse(
         agents=[_agent_to_response(a) for a in agents],
@@ -184,7 +195,12 @@ async def list_agents(
     )
 
 
-@router.get("/agents/{agent_id}", response_model=AgentResponse)
+@router.get(
+    "/agents/{agent_id}",
+    response_model=AgentResponse,
+    operation_id="getAgentDetails",
+    summary="Get agent details by ID"
+)
 async def get_agent(agent_id: str) -> AgentResponse:
     """Get agent details by ID.
 
@@ -350,7 +366,10 @@ async def register_spec(request: SpecRegisterRequest) -> SpecResponse:
     if existing is not None and not request.overwrite:
         raise HTTPException(
             status_code=409,
-            detail=f"Spec '{spec.name}' already exists. Use overwrite=true to replace.",
+            detail=(
+                f"Spec '{spec.name}' already exists. "
+                "Use overwrite=true to replace."
+            ),
         )
 
     # Register spec

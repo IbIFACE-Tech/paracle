@@ -1,0 +1,75 @@
+---
+# Example workflow definition
+name: data-processing
+description: Process and analyze data from multiple sources
+
+steps:
+  # Step 1: Fetch data from source
+  - id: fetch-data
+    agent: data-fetcher
+    input:
+      source: api
+      endpoint: /data
+    timeout: 30
+
+  # Step 2: Validate data quality
+  - id: validate-data
+    agent: data-validator
+    depends_on: [fetch-data]
+    input:
+      data: "{fetch-data.output}"
+      rules: validation_rules.yaml
+    on_error: fail
+
+  # Step 3: Transform data (parallel processing)
+  - id: transform-csv
+    agent: csv-transformer
+    depends_on: [validate-data]
+    input:
+      data: "{validate-data.output}"
+      format: csv
+
+  - id: transform-json
+    agent: json-transformer
+    depends_on: [validate-data]
+    input:
+      data: "{validate-data.output}"
+      format: json
+
+  - id: transform-parquet
+    agent: parquet-transformer
+    depends_on: [validate-data]
+    input:
+      data: "{validate-data.output}"
+      format: parquet
+
+  # Step 4: Merge results
+  - id: merge-results
+    agent: data-merger
+    depends_on: [transform-csv, transform-json, transform-parquet]
+    input:
+      csv: "{transform-csv.output}"
+      json: "{transform-json.output}"
+      parquet: "{transform-parquet.output}"
+
+  # Step 5: Store results
+  - id: store-results
+    agent: data-storer
+    depends_on: [merge-results]
+    input:
+      data: "{merge-results.output}"
+      destination: warehouse
+    retry:
+      max_attempts: 3
+      backoff: exponential
+
+# Global configuration
+retry:
+  max_attempts: 2
+  backoff: linear
+
+timeout: 600 # 10 minutes
+
+on_failure:
+  notify: team@example.com
+  rollback: true

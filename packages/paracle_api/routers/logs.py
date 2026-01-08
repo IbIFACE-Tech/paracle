@@ -34,7 +34,7 @@ def get_logger_or_404() -> AgentLogger:
     return AgentLogger(parac_root)
 
 
-@router.post("/action", response_model=LogActionResponse)
+@router.post("/action", response_model=LogActionResponse, operation_id="logAction")
 def log_action(request: LogActionRequest) -> LogActionResponse:
     """Log an action.
 
@@ -62,7 +62,11 @@ def log_action(request: LogActionRequest) -> LogActionResponse:
     )
 
 
-@router.post("/decision", response_model=LogDecisionResponse)
+@router.post(
+    "/decision",
+    response_model=LogDecisionResponse,
+    operation_id="logDecision",
+)
 def log_decision(request: LogDecisionRequest) -> LogDecisionResponse:
     """Log a decision.
 
@@ -89,7 +93,7 @@ def log_decision(request: LogDecisionRequest) -> LogDecisionResponse:
     )
 
 
-@router.get("/recent", response_model=RecentLogsResponse)
+@router.get("/recent", response_model=RecentLogsResponse, operation_id="getRecentLogs")
 def get_recent_logs(count: int = 10) -> RecentLogsResponse:
     """Get the N most recent log entries.
 
@@ -106,7 +110,7 @@ def get_recent_logs(count: int = 10) -> RecentLogsResponse:
     )
 
 
-@router.get("/today", response_model=RecentLogsResponse)
+@router.get("/today", response_model=RecentLogsResponse, operation_id="getTodayLogs")
 def get_today_logs() -> RecentLogsResponse:
     """Get all log entries from today."""
     logger = get_logger_or_404()
@@ -119,7 +123,11 @@ def get_today_logs() -> RecentLogsResponse:
     )
 
 
-@router.get("/agent/{agent}", response_model=AgentLogsResponse)
+@router.get(
+    "/agent/{agent}",
+    response_model=AgentLogsResponse,
+    operation_id="getAgentLogs",
+)
 def get_agent_logs(agent: str) -> AgentLogsResponse:
     """Get all log entries for a specific agent.
 

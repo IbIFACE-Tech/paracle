@@ -1,5 +1,18 @@
 # Paracle Agent System
 
+## 📁 IMPORTANT: File Organization
+
+**Before creating ANY file in `.parac/`, read `.parac/STRUCTURE.md` for correct placement.**
+
+**Quick Reference**:
+- Databases → `.parac/memory/data/*.db` (NOT `.parac/*.db`)
+- Logs → `.parac/memory/logs/*.log` (NOT `packages/*/logs/`)
+- Knowledge → `.parac/memory/knowledge/*.md`
+- Decisions → `.parac/roadmap/decisions.md`
+- Config → `.parac/project.yaml` or `.parac/config/`
+
+See `.parac/STRUCTURE.md` for complete rules and validation.
+
 ## Agent Selection
 
 Select the appropriate agent by prefixing with @tag:

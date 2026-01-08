@@ -27,7 +27,7 @@ Install optional dependencies with:
     pip install paracle[adapters]  # All adapters
 """
 
-__version__ = "0.0.1"
+__version__ = "1.0.0"
 
 from paracle_adapters.base import FrameworkAdapter
 from paracle_adapters.exceptions import (

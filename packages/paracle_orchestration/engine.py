@@ -41,8 +41,9 @@ from paracle_orchestration.exceptions import (
     StepExecutionError,
 )
 
+# TYPE_CHECKING block intentionally empty - reserved for future type imports
 if TYPE_CHECKING:
-    pass
+    ...  # noqa: PIE790
 
 
 class WorkflowOrchestrator:
@@ -184,13 +185,16 @@ class WorkflowOrchestrator:
             context.complete()
             await self._emit_event("workflow.completed", context)
 
-        except asyncio.TimeoutError:
+        except asyncio.TimeoutError as timeout_err:
             context.timeout_exceeded()
             await self._emit_event("workflow.timeout", context)
-            raise ExecutionTimeoutError(context.execution_id, timeout_seconds)
+            raise ExecutionTimeoutError(
+                context.execution_id, timeout_seconds
+            ) from timeout_err
 
-        except Exception as e:
-            context.fail(str(e))
+        except (StepExecutionError, InvalidWorkflowError) as exec_err:
+            # Known workflow/step execution errors
+            context.fail(str(exec_err))
             await self._emit_event("workflow.failed", context)
             # Return context with failed status instead of raising
             # This allows callers to inspect the failure
@@ -223,7 +227,7 @@ class WorkflowOrchestrator:
             tasks = []
             for step_name in step_names:
                 step = dag.steps[step_name]
-                task = self._execute_step(workflow, step, context, dag)
+                task = self._execute_step(workflow, step, context)
                 tasks.append(task)
 
             # Wait for all steps in this level to complete
@@ -242,7 +246,6 @@ class WorkflowOrchestrator:
         workflow: Workflow,
         step: WorkflowStep,
         context: ExecutionContext,
-        dag: DAG,
     ) -> Any:
         """Execute a single workflow step with optional approval gate.
 
@@ -253,7 +256,6 @@ class WorkflowOrchestrator:
             workflow: Parent workflow
             step: Step to execute
             context: Execution context
-            dag: DAG for dependency resolution
 
         Returns:
             Step execution result
@@ -381,7 +383,11 @@ class WorkflowOrchestrator:
             if not is_approved:
                 # Get the decided request to include rejection reason
                 decided = self.approval_manager.get_request(request.id)
-                reason = decided.decision_reason if decided else "Rejected by approver"
+                reason = (
+                    decided.decision_reason
+                    if decided
+                    else "Rejected by approver"
+                )
 
                 await self._emit_event(
                     "workflow.step.approval_rejected",
@@ -468,7 +474,7 @@ class WorkflowOrchestrator:
             if isinstance(value, str) and value.startswith("$"):
                 # Reference to a previous step
                 ref = value[1:]  # Remove $
-                # Extract step name (may have .output or other suffix, ignore it)
+                # Extract step name (may have suffix, ignore it)
                 step_name = ref.split(".")[0] if "." in ref else ref
 
                 if step_name in step_results:
@@ -502,34 +508,84 @@ class WorkflowOrchestrator:
 
         # Collect specified outputs
         for output_name, output_spec in workflow.spec.outputs.items():
-            if isinstance(output_spec, dict) and "source" in output_spec:
-                # Extract source reference
-                source = output_spec["source"]
-
-                # Parse source: "steps.step_id.outputs.output_key"
-                if source.startswith("steps."):
-                    parts = source.split(".")
-                    if len(parts) >= 4:
-                        step_id = parts[1]
-                        output_key = parts[3]
-
-                        # Get from step results
-                        if step_id in context.step_results:
-                            step_result = context.step_results[step_id]
-                            if isinstance(step_result, dict):
-                                if "outputs" in step_result:
-                                    outputs_dict = step_result["outputs"]
-                                    if output_key in outputs_dict:
-                                        context.outputs[output_name] = (
-                                            outputs_dict[output_key]
-                                        )
-                                elif output_key in step_result:
-                                    context.outputs[output_name] = (
-                                        step_result[output_key]
-                                    )
+            output_value = self._resolve_output_spec(
+                output_spec, context.step_results
+            )
+            if output_value is not None:
+                context.outputs[output_name] = output_value
             else:
                 # Direct reference or simple mapping
                 context.outputs[output_name] = output_spec
+
+    def _resolve_output_spec(
+        self, output_spec: Any, step_results: dict[str, Any]
+    ) -> Any | None:
+        """Resolve an output specification to its value.
+
+        Args:
+            output_spec: Output specification (dict or value)
+            step_results: Step execution results
+
+        Returns:
+            Resolved output value or None if not found
+        """
+        if not isinstance(output_spec, dict) or "source" not in output_spec:
+            return None
+
+        source = output_spec["source"]
+        if not source.startswith("steps."):
+            return None
+
+        return self._extract_from_step_results(source, step_results)
+
+    def _extract_from_step_results(
+        self, source: str, step_results: dict[str, Any]
+    ) -> Any | None:
+        """Extract value from step results using source path.
+
+        Args:
+            source: Source path (e.g., "steps.step_id.outputs.key")
+            step_results: Step execution results
+
+        Returns:
+            Extracted value or None if not found
+        """
+        parts = source.split(".")
+        if len(parts) < 4:
+            return None
+
+        step_id = parts[1]
+        output_key = parts[3]
+
+        step_result = step_results.get(step_id)
+        if not step_result or not isinstance(step_result, dict):
+            return None
+
+        return self._get_output_from_result(step_result, output_key)
+
+    def _get_output_from_result(
+        self, step_result: dict[str, Any], output_key: str
+    ) -> Any | None:
+        """Get output value from step result dict.
+
+        Args:
+            step_result: Step execution result
+            output_key: Output key to extract
+
+        Returns:
+            Output value or None if not found
+        """
+        # Check in nested outputs dict first
+        if "outputs" in step_result:
+            outputs_dict = step_result["outputs"]
+            if output_key in outputs_dict:
+                return outputs_dict[output_key]
+
+        # Check in top-level result dict
+        if output_key in step_result:
+            return step_result[output_key]
+
+        return None
 
     async def _emit_event(
         self,

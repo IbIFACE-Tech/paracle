@@ -790,6 +790,64 @@ def _interactive_init() -> tuple[str, str | None, str | None]:
     return template, project_name, provider
 
 
+def _install_git_hooks(target: Path, parac_dir: Path, verbose: bool) -> None:
+    """Install git hooks for governance enforcement.
+
+    Args:
+        target: Project root directory
+        parac_dir: .parac/ directory
+        verbose: Whether to show detailed output
+    """
+    import shutil
+    import stat
+
+    # Check if git repository exists
+    git_dir = target / ".git"
+    if not git_dir.exists():
+        if verbose:
+            console.print(
+                "[dim]No git repository found, skipping hook installation[/dim]")
+        return
+
+    # Create hooks directory if it doesn't exist
+    hooks_dir = git_dir / "hooks"
+    hooks_dir.mkdir(parents=True, exist_ok=True)
+
+    # Source hook in .parac/tools/hooks/
+    source_hook = parac_dir / "tools" / "hooks" / "validate-structure.py"
+    target_hook = hooks_dir / "pre-commit"
+
+    if not source_hook.exists():
+        if verbose:
+            console.print(
+                f"[yellow]Warning:[/yellow] Hook source not found at {source_hook}")
+        return
+
+    try:
+        # Copy hook to .git/hooks/pre-commit
+        shutil.copy2(source_hook, target_hook)
+
+        # Make executable (Unix/Mac)
+        if hasattr(os, 'chmod'):
+            current_perms = stat.S_IMODE(os.lstat(target_hook).st_mode)
+            os.chmod(target_hook, current_perms |
+                     stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+
+        if verbose:
+            console.print(
+                f"[green]✓[/green] Installed pre-commit hook: {target_hook}")
+        else:
+            console.print("[dim]+ Git pre-commit hook installed[/dim]")
+
+    except Exception as e:
+        console.print(
+            f"[yellow]Warning:[/yellow] Could not install git hook: {e}")
+        if verbose:
+            console.print("[dim]You can manually install it later with:[/dim]")
+            console.print(f"[dim]  cp {source_hook} {target_hook}[/dim]")
+            console.print(f"[dim]  chmod +x {target_hook}[/dim]")
+
+
 def _create_lite_workspace(
     parac_dir: Path, target: Path, project_name: str
 ) -> None:
@@ -2319,6 +2377,9 @@ def init(
             _create_full_workspace(parac_dir, target, project_name)
         else:  # standard
             _create_minimal_workspace(parac_dir, target, project_name)
+
+    # Install git hooks for governance enforcement
+    _install_git_hooks(target, parac_dir, verbose)
 
     # Success message
     console.print(f"\n[green]+ {info['name']} initialized[/green] at {target}")

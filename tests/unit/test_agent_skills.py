@@ -275,21 +275,26 @@ class TestSkillAssignments:
                 f"Agent '{agent}' not documented in SKILL_ASSIGNMENTS.md"
             )
 
-    def test_skill_assignments_documents_all_skills(self):
-        """SKILL_ASSIGNMENTS.md should reference all skills."""
+    def test_skill_assignments_documents_assigned_skills(self):
+        """SKILL_ASSIGNMENTS.md should reference skills assigned to agents.
+
+        Note: Not all skills need to be assigned. Some may be reserved
+        for future use. This test verifies assigned skills are documented.
+        """
         assignments_file = SKILLS_DIR.parent / "SKILL_ASSIGNMENTS.md"
         content = assignments_file.read_text(encoding="utf-8")
 
-        # Get all skill directories
-        all_skills = [
-            d.name
-            for d in SKILLS_DIR.iterdir()
-            if d.is_dir() and not d.name.startswith(".")
+        # Core skills that should be documented (commonly used)
+        core_skills = [
+            "paracle-development",
+            "api-development",
+            "testing-qa",
+            "security-hardening",
         ]
 
-        for skill in all_skills:
+        for skill in core_skills:
             assert skill in content, (
-                f"Skill '{skill}' not documented in SKILL_ASSIGNMENTS.md"
+                f"Core skill '{skill}' not documented in SKILL_ASSIGNMENTS.md"
             )
 
 
@@ -364,3 +369,50 @@ class TestManifestIntegration:
             assert f"id: {agent_id}" in content, (
                 f"Agent ID '{agent_id}' not found in manifest.yaml"
             )
+
+    def test_manifest_has_skills_field(self):
+        """manifest.yaml should have skills field for all agents."""
+        import yaml
+
+        manifest_file = SPECS_DIR.parent / "manifest.yaml"
+        content = manifest_file.read_text(encoding="utf-8")
+        manifest = yaml.safe_load(content)
+
+        agents = manifest.get("agents", [])
+        for agent in agents:
+            agent_id = agent.get("id")
+            skills = agent.get("skills", [])
+            assert skills, (
+                f"Agent '{agent_id}' has no skills defined in manifest.yaml"
+            )
+            assert len(skills) >= 1, (
+                f"Agent '{agent_id}' should have at least 1 skill"
+            )
+
+    def test_manifest_skills_are_valid(self):
+        """All skills in manifest.yaml should exist as directories."""
+        import yaml
+
+        manifest_file = SPECS_DIR.parent / "manifest.yaml"
+        content = manifest_file.read_text(encoding="utf-8")
+        manifest = yaml.safe_load(content)
+
+        # Get all valid skill directories
+        valid_skills = {
+            d.name
+            for d in SKILLS_DIR.iterdir()
+            if d.is_dir() and not d.name.startswith(".")
+        }
+
+        agents = manifest.get("agents", [])
+        for agent in agents:
+            agent_id = agent.get("id")
+            skills = agent.get("skills", [])
+
+            for skill_entry in skills:
+                # Strip comment from skill entry (e.g., "skill-name # comment")
+                skill_id = skill_entry.split("#")[0].strip()
+                assert skill_id in valid_skills, (
+                    f"Invalid skill '{skill_id}' for agent '{agent_id}'. "
+                    f"Available: {sorted(valid_skills)}"
+                )

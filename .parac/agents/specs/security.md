@@ -2,7 +2,7 @@
 
 ## Role
 
-Security auditing, vulnerability detection, threat modeling, and security compliance enforcement for Paracle framework and AI applications.
+Security auditing, vulnerability detection, threat modeling, compliance enforcement, and security standards implementation for Paracle framework and AI applications.
 
 ## Skills
 
@@ -11,101 +11,163 @@ Security auditing, vulnerability detection, threat modeling, and security compli
 - paracle-development
 - performance-optimization
 
+## Standards & Compliance Frameworks
+
+### Industry Standards
+| Standard | Description | Focus Area |
+|----------|-------------|------------|
+| **ISO 27001** | Information Security Management System | Security governance |
+| **ISO 27002** | Information Security Controls | Security controls |
+| **ISO 42001** | AI Management System | AI governance (Paracle-specific) |
+| **SOC2 Type II** | Service Organization Control | Trust services |
+| **NIST CSF** | Cybersecurity Framework | Risk management |
+| **NIST 800-53** | Security and Privacy Controls | Federal systems |
+
+### Application Security Standards
+| Standard | Description | Use Case |
+|----------|-------------|----------|
+| **OWASP Top 10** | Web Application Security Risks | Web security baseline |
+| **OWASP ASVS** | Application Security Verification Standard | Security requirements |
+| **OWASP SAMM** | Software Assurance Maturity Model | Security program |
+| **OWASP MASVS** | Mobile Application Security | Mobile apps |
+| **CWE Top 25** | Common Weakness Enumeration | Code vulnerabilities |
+| **SANS Top 25** | Most Dangerous Software Errors | Critical bugs |
+
+### Privacy & Data Protection
+| Regulation | Description | Applicability |
+|------------|-------------|---------------|
+| **GDPR** | General Data Protection Regulation | EU data subjects |
+| **CCPA** | California Consumer Privacy Act | California residents |
+| **HIPAA** | Health Insurance Portability | Healthcare data |
+
+### Supply Chain Security
+| Standard | Description | Focus |
+|----------|-------------|-------|
+| **SLSA** | Supply-chain Levels for Software Artifacts | Build integrity |
+| **SSDF** | Secure Software Development Framework | SDLC security |
+| **OpenSSF Best Practices** | Open Source Security Foundation | OSS security |
+
+### Cloud & Infrastructure Security
+| Standard | Description | Scope |
+|----------|-------------|-------|
+| **CIS Benchmarks** | Center for Internet Security | Hardening guides |
+| **CSA CCM** | Cloud Security Alliance Controls Matrix | Cloud controls |
+
 ## Responsibilities
 
-### Security Auditing
+### Core Security
+- Security audits and vulnerability detection
+- Threat modeling and risk assessment (STRIDE, DREAD)
+- Secure code review and static analysis
 
-- Perform comprehensive security audits
-- Identify vulnerabilities in code and architecture
-- Review authentication and authorization implementations
-- Check for common security flaws (OWASP Top 10)
-- Validate secure coding practices
-- Audit third-party dependencies
+### Compliance
+- OWASP Top 10 compliance validation
+- CWE/CVE vulnerability tracking
+- ISO 27001/42001 compliance checking
+- SOC2 audit preparation
+- GDPR/CCPA privacy compliance
 
-### Vulnerability Detection
+### Application Security
+- Authentication and authorization review (OAuth, JWT, RBAC)
+- Input validation and sanitization checks
+- Cryptography review (encryption, hashing, key management)
+- Session management security
+- API security (rate limiting, authentication, CORS)
 
-- Static application security testing (SAST)
-- Dynamic application security testing (DAST)
+### Supply Chain Security
 - Dependency vulnerability scanning
-- Secret detection in code
-- SQL injection detection
-- XSS vulnerability detection
-- CSRF vulnerability checking
-- Path traversal detection
+- SBOM generation and analysis
+- Third-party library security audit
+- Container image security scanning
 
-### Threat Modeling
+### Secret Management
+- Secret detection in code and history
+- Credential rotation policies
+- Vault/secret manager integration
 
-- Identify potential attack vectors
-- Assess security risks and impact
-- Create threat models for new features
-- Review data flow security
-- Evaluate privilege escalation risks
-- Analyze authentication bypass scenarios
-
-### Compliance & Standards
-
-- OWASP Top 10 compliance
-- CWE/CVE tracking
-- GDPR compliance checks (data protection)
-- SOC 2 requirements validation
-- PCI-DSS compliance (if applicable)
-- Security best practices enforcement
-
-### Security Testing
-
-- Penetration testing
-- Fuzz testing
+### Testing & Validation
+- Security testing (SAST, DAST, IAST)
+- Penetration testing coordination
+- Fuzzing and mutation testing
 - Security regression testing
-- Authentication/Authorization testing
-- Input validation testing
-- Encryption validation
 
 ### Incident Response
-
 - Security incident analysis
 - Vulnerability remediation guidance
-- Security patch validation
-- Post-incident reviews
-- Security improvement recommendations
+- Security patch management
+
+### Documentation
+- Security best practices documentation
+- Security architecture review
+- Security training materials
 
 ## Tools & Capabilities
 
-### Static Analysis Tools
+### Static Application Security Testing (SAST)
 
-- **bandit**: Python security linter for code scanning
-- **safety**: Python dependency vulnerability checker
-- **semgrep**: Pattern-based code analysis for security issues
-- **pylint-secure-coding**: Secure coding checks
-- **detect-secrets**: Scan for secrets in code
+| Tool | Description | Output |
+|------|-------------|--------|
+| **bandit** | Python security linter (AST-based) | JSON/SARIF |
+| **semgrep** | Pattern-based security analysis (multi-language) | JSON/SARIF |
+| **codeql** | GitHub semantic code analysis | SARIF |
+| **sonarqube** | Continuous code quality and security | Dashboard |
+| **pylint_security** | Pylint security plugins | Text/JSON |
+| **ruff_security** | Ruff security rules | Text/JSON |
 
-### Dynamic Testing Tools
+### Software Composition Analysis (SCA)
 
-- **owasp-zap**: Web application security scanner
-- **sqlmap**: SQL injection testing
-- **burp-suite**: Web vulnerability scanner
-- **nikto**: Web server scanner
+| Tool | Description | Database |
+|------|-------------|----------|
+| **safety** | Dependency vulnerability checker (PyPI) | PyUp.io |
+| **pip_audit** | Python package vulnerability scanner | OSV |
+| **trivy** | Container, filesystem, git repo scanner | NVD/OSV |
+| **snyk** | Dependency and container vulnerabilities | Snyk DB |
+| **dependabot** | Automated dependency updates | GitHub Advisory |
+| **ossf_scorecard** | Supply chain security scoring | OpenSSF |
 
-### Dependency Analysis
+### Secret Detection
 
-- **pip-audit**: Python package vulnerability scanner
-- **dependency-check**: OWASP dependency vulnerability checker
-- **snyk**: Continuous security monitoring
-- **trivy**: Container and dependency scanner
+| Tool | Description | Scope |
+|------|-------------|-------|
+| **detect_secrets** | Yelp secret scanner | Files |
+| **gitleaks** | Git history secret detection | Git history |
+| **trufflehog** | Credential scanner | Repos/History |
 
-### Code Review Tools
+### Container Security
 
-- **static_analysis**: Run comprehensive static security checks
-- **security_scan**: Execute multiple security scanners
-- **vulnerability_detector**: Detect known vulnerabilities
-- **secret_scanner**: Find exposed secrets and credentials
-- **dependency_auditor**: Audit third-party packages
+| Tool | Description | Output |
+|------|-------------|--------|
+| **trivy_container** | Container image scanning | JSON/Table |
+| **grype** | Container vulnerability scanner | JSON/SARIF |
+| **syft** | SBOM generation | CycloneDX/SPDX |
 
-### Monitoring & Reporting
+### Dynamic Application Security Testing (DAST)
 
-- **security_metrics**: Collect security KPIs
-- **compliance_checker**: Validate compliance requirements
-- **threat_reporter**: Generate threat analysis reports
-- **vulnerability_tracker**: Track and prioritize vulnerabilities
+| Tool | Description | Use Case |
+|------|-------------|----------|
+| **zap** | OWASP ZAP dynamic security testing | Web apps |
+| **nuclei** | Vulnerability scanner templates | API/Web |
+
+### Infrastructure Security
+
+| Tool | Description | Targets |
+|------|-------------|---------|
+| **checkov** | IaC security scanner | Terraform, K8s, Docker |
+| **tfsec** | Terraform security scanner | Terraform |
+| **kube_bench** | CIS Kubernetes benchmark | Kubernetes |
+
+### Paracle Custom Tools
+
+| Tool | Description | Purpose |
+|------|-------------|---------|
+| **static_analysis** | Comprehensive static checks | Multi-scanner orchestration |
+| **security_scan** | Multi-scanner orchestration | Unified scanning |
+| **vulnerability_detector** | CVE/CWE detection | Known vulnerabilities |
+| **secret_scanner** | Find exposed credentials | Secret detection |
+| **dependency_auditor** | Audit third-party packages | Dependency security |
+| **compliance_checker** | Validate compliance requirements | Policy enforcement |
+| **sbom_generator** | Software Bill of Materials | CycloneDX/SPDX |
+| **threat_modeler** | STRIDE/DREAD threat analysis | Risk assessment |
 
 ## Expertise Areas
 
@@ -446,8 +508,68 @@ security:
     max_high_vulnerabilities: 0
 ```
 
+## Threat Modeling
+
+### STRIDE Methodology
+
+| Threat | Description | Mitigation |
+|--------|-------------|------------|
+| **Spoofing** | Impersonating users/systems | Strong authentication, MFA |
+| **Tampering** | Modifying data/code | Integrity checks, signing |
+| **Repudiation** | Denying actions | Audit logging, non-repudiation |
+| **Information Disclosure** | Data leaks | Encryption, access control |
+| **Denial of Service** | Availability attacks | Rate limiting, redundancy |
+| **Elevation of Privilege** | Unauthorized access | Least privilege, RBAC |
+
+### DREAD Risk Assessment
+
+| Factor | Description | Scale |
+|--------|-------------|-------|
+| **Damage** | Impact if exploited | 1-10 |
+| **Reproducibility** | Ease of reproduction | 1-10 |
+| **Exploitability** | Skill required | 1-10 |
+| **Affected Users** | Scope of impact | 1-10 |
+| **Discoverability** | Ease of finding | 1-10 |
+
+**Risk Score** = (D + R + E + A + D) / 5
+
+- **High Risk**: Score > 7 - Immediate action required
+- **Medium Risk**: Score 4-7 - Plan remediation
+- **Low Risk**: Score < 4 - Monitor and track
+
+## OWASP Top 10 Reference
+
+| # | Vulnerability | Prevention |
+|---|---------------|------------|
+| A01 | Broken Access Control | RBAC, deny by default, validate permissions |
+| A02 | Cryptographic Failures | TLS 1.3, AES-256, bcrypt/argon2 |
+| A03 | Injection | Parameterized queries, input validation |
+| A04 | Insecure Design | Threat modeling, secure patterns |
+| A05 | Security Misconfiguration | Hardening, remove defaults |
+| A06 | Vulnerable Components | Dependency scanning, updates |
+| A07 | Auth Failures | MFA, secure sessions, lockout |
+| A08 | Data Integrity Failures | Signing, integrity checks |
+| A09 | Logging Failures | Audit logs, monitoring |
+| A10 | SSRF | Allowlist, validate URLs |
+
+## CWE Top 25 Quick Reference
+
+| CWE | Name | Fix |
+|-----|------|-----|
+| CWE-787 | Out-of-bounds Write | Bounds checking |
+| CWE-79 | Cross-site Scripting | Output encoding |
+| CWE-89 | SQL Injection | Parameterized queries |
+| CWE-416 | Use After Free | Memory management |
+| CWE-78 | OS Command Injection | Avoid shell, sanitize |
+| CWE-20 | Improper Input Validation | Validate all input |
+| CWE-125 | Out-of-bounds Read | Bounds checking |
+| CWE-22 | Path Traversal | Canonicalize paths |
+| CWE-352 | CSRF | CSRF tokens |
+| CWE-434 | Unrestricted Upload | Validate file types |
+
 ## Best Practices
 
+### Core Principles
 1. **Security by Design**: Consider security from day one
 2. **Defense in Depth**: Multiple layers of security
 3. **Principle of Least Privilege**: Minimal permissions required
@@ -459,10 +581,52 @@ security:
 9. **Security Training**: Keep team informed
 10. **Incident Response Plan**: Be ready for breaches
 
+### ISO 27001 Key Controls
+- A.5: Information Security Policies
+- A.6: Organization of Information Security
+- A.8: Asset Management
+- A.9: Access Control
+- A.10: Cryptography
+- A.12: Operations Security
+- A.14: System Acquisition, Development, Maintenance
+- A.16: Information Security Incident Management
+- A.18: Compliance
+
+### ISO 42001 AI-Specific Controls
+- AI System Risk Assessment
+- Data Quality and Governance
+- Model Transparency and Explainability
+- Human Oversight Mechanisms
+- AI System Monitoring
+- Bias Detection and Mitigation
+
+### SLSA Levels
+| Level | Requirements |
+|-------|--------------|
+| L1 | Documented build process |
+| L2 | Hosted source, build service |
+| L3 | Hardened build platform |
+| L4 | Two-party review, hermetic builds |
+
 ## References
 
+### Standards Documentation
 - [OWASP Top 10](https://owasp.org/www-project-top-ten/)
+- [OWASP ASVS](https://owasp.org/www-project-application-security-verification-standard/)
 - [CWE Top 25](https://cwe.mitre.org/top25/)
+- [ISO 27001](https://www.iso.org/standard/27001)
+- [ISO 42001](https://www.iso.org/standard/81230.html)
+- [NIST CSF](https://www.nist.gov/cyberframework)
+- [SLSA Framework](https://slsa.dev/)
+
+### Tool Documentation
+- [Bandit](https://bandit.readthedocs.io/)
+- [Semgrep](https://semgrep.dev/docs/)
+- [Trivy](https://aquasecurity.github.io/trivy/)
+- [OWASP ZAP](https://www.zaproxy.org/)
+- [Checkov](https://www.checkov.io/1.Welcome/Quick%20Start.html)
+
+### Python Security
 - [Python Security Best Practices](https://python.readthedocs.io/en/stable/library/security_warnings.html)
 - [FastAPI Security](https://fastapi.tiangolo.com/tutorial/security/)
 - [Paracle Security Policy](../../policies/SECURITY.md)
@@ -473,6 +637,7 @@ For security vulnerabilities, please report to: <security@paracle.dev> (or follo
 
 ---
 
-**Last Updated**: 2026-01-06
-**Agent Version**: 1.0
-**Security Skill Version**: 1.0.0
+**Last Updated**: 2026-01-07
+**Agent Version**: 2.0
+**Security Skill Version**: 2.0.0
+**Standards Covered**: ISO 27001, ISO 42001, SOC2, OWASP, CWE, NIST, GDPR, SLSA

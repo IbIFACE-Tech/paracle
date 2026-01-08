@@ -109,13 +109,13 @@ class CostTracker:
             self._init_database()
 
     def _find_default_db_path(self) -> Path:
-        """Find default database path in .parac/ directory."""
+        """Find default database path in .parac/memory/data/ directory."""
         current = Path.cwd()
         for parent in [current, *current.parents]:
             parac_dir = parent / ".parac"
             if parac_dir.is_dir():
-                return parac_dir / "costs.db"
-        return Path.cwd() / ".parac" / "costs.db"
+                return parac_dir / "memory" / "data" / "costs.db"
+        return Path.cwd() / ".parac" / "memory" / "data" / "costs.db"
 
     def _init_database(self) -> None:
         """Initialize SQLite database for cost persistence."""
@@ -414,7 +414,8 @@ class CostTracker:
 
         # Create alert if needed
         if status != BudgetStatus.OK:
-            self._create_alert(budget_type, limit, current, usage_percent, status)
+            self._create_alert(budget_type, limit, current,
+                               usage_percent, status)
 
         # Block if exceeded and blocking enabled
         if status == BudgetStatus.EXCEEDED and block_on_exceed:
@@ -433,7 +434,8 @@ class CostTracker:
         Respects minimum interval between alerts of same type.
         """
         # Check if we should suppress this alert
-        min_interval = timedelta(minutes=self.config.alerts.min_interval_minutes)
+        min_interval = timedelta(
+            minutes=self.config.alerts.min_interval_minutes)
         last_alert_time = self._last_alerts.get(budget_type)
 
         if last_alert_time and (_utcnow() - last_alert_time) < min_interval:
@@ -726,9 +728,11 @@ class CostTracker:
 
         # Get breakdowns
         if self.config.tracking.persist_to_db and self._db_path.exists():
-            report.by_provider = self._get_usage_by_field("provider", start, end)
+            report.by_provider = self._get_usage_by_field(
+                "provider", start, end)
             report.by_model = self._get_usage_by_field("model", start, end)
-            report.by_workflow = self._get_usage_by_field("workflow_id", start, end)
+            report.by_workflow = self._get_usage_by_field(
+                "workflow_id", start, end)
             report.by_agent = self._get_usage_by_field("agent_id", start, end)
 
             # Get top consumers
@@ -739,7 +743,8 @@ class CostTracker:
             )[:10]
 
             report.top_workflows = sorted(
-                [(k, v.total_cost) for k, v in report.by_workflow.items() if k],
+                [(k, v.total_cost)
+                 for k, v in report.by_workflow.items() if k],
                 key=lambda x: x[1],
                 reverse=True,
             )[:10]

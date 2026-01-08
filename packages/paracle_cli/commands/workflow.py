@@ -66,11 +66,16 @@ def _use_local_fallback() -> bool:
     return False
 
 
-@click.group()
-def workflow() -> None:
+@click.group(invoke_without_command=True)
+@click.option("--list", "-l", "list_flag", is_flag=True, help="List all workflows (shortcut for 'list')")
+@click.pass_context
+def workflow(ctx: click.Context, list_flag: bool) -> None:
     """Manage workflows and workflow executions.
 
     Examples:
+        # List all workflows (shortcut)
+        $ paracle workflow -l
+
         # List all workflows
         $ paracle workflow list
 
@@ -83,7 +88,10 @@ def workflow() -> None:
         # Cancel running execution
         $ paracle workflow cancel exec_abc123
     """
-    pass
+    if list_flag:
+        ctx.invoke(list_workflows, status=None, limit=100, offset=0, output_json=False)
+    elif ctx.invoked_subcommand is None:
+        click.echo(ctx.get_help())
 
 
 @workflow.command("list")
@@ -710,7 +718,7 @@ def _run_workflow_local(
                     table.add_column("Value", style="white")
 
                     for key, value in context.outputs.items():
-                        if isinstance(value, (dict, list)):
+                        if isinstance(value, dict | list):
                             value_str = json.dumps(value, indent=2)
                         else:
                             value_str = str(value)

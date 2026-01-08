@@ -22,14 +22,46 @@ class WorkflowCreateRequest(BaseModel):
 class WorkflowResponse(BaseModel):
     """Response containing workflow details."""
 
-    id: str = Field(..., description="Workflow ID")
-    name: str = Field(..., description="Workflow name")
-    description: str | None = Field(None, description="Workflow description")
-    status: EntityStatus = Field(..., description="Current status")
-    steps_count: int = Field(..., description="Number of steps")
-    progress: float = Field(..., description="Completion progress (0-100)")
-    created_at: datetime = Field(..., description="Creation timestamp")
-    updated_at: datetime = Field(..., description="Last update timestamp")
+    id: str = Field(
+        ...,
+        description="Workflow ID",
+        examples=["wf_01HQKZJ8XYQF2VWRGS7DTKHM3"]
+    )
+    name: str = Field(
+        ...,
+        description="Workflow name",
+        examples=["data-processing", "agent-orchestration"]
+    )
+    description: str | None = Field(
+        None,
+        description="Workflow description",
+        examples=["Process CSV data and generate reports"]
+    )
+    status: EntityStatus = Field(
+        ...,
+        description="Current status",
+        examples=["active"]
+    )
+    steps_count: int = Field(
+        ...,
+        description="Number of steps",
+        examples=[5]
+    )
+    progress: float = Field(
+        ...,
+        description="Completion progress (0-100)",
+        examples=[75.5]
+    )
+    created_at: datetime = Field(
+        ...,
+        description="Creation timestamp",
+        examples=["2026-01-07T14:30:00Z"]
+    )
+    updated_at: datetime = Field(
+        ...,
+        description="Last update timestamp",
+        examples=["2026-01-07T15:45:00Z"]
+    )
 
 
 # =============================================================================
@@ -93,10 +125,14 @@ class WorkflowExecuteRequest(BaseModel):
     """Request to execute a workflow."""
 
     inputs: dict = Field(
-        default_factory=dict, description="Input values for workflow"
+        default_factory=dict,
+        description="Input values for workflow",
+        examples=[{"source": "data.csv", "target": "output.json"}]
     )
     config: dict = Field(
-        default_factory=dict, description="Execution configuration"
+        default_factory=dict,
+        description="Execution configuration",
+        examples=[{"timeout": 300, "retry_count": 3}]
     )
 
 

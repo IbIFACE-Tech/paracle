@@ -50,8 +50,38 @@ clean: ## Clean build artifacts
 build: clean ## Build package
 	uv build
 
-publish: build ## Publish to PyPI
+publish-test: build ## Publish to TestPyPI (for testing)
+	uv publish --publish-url https://test.pypi.org/legacy/
+
+publish: build ## Publish to PyPI (requires authentication)
+	@echo "⚠️  Publishing to PyPI. Make sure version is bumped!"
+	@echo "Press Ctrl+C to cancel, or Enter to continue..."
+	@read dummy
 	uv publish
+
+release-check: ## Check if ready for release
+	@echo "🔍 Running release checks..."
+	@echo "\n1. Running tests..."
+	uv run pytest -v
+	@echo "\n2. Checking governance..."
+	uv run paracle governance health
+	@echo "\n3. Building package..."
+	uv build
+	@echo "\n4. Checking package..."
+	uv run twine check dist/*
+	@echo "\n✅ Release checks passed!"
+
+release-patch: ## Create patch release (0.0.X) [Windows: powershell scripts/bump-version.ps1 patch]
+	@echo "Creating patch release..."
+	@scripts/bump-version.sh patch
+
+release-minor: ## Create minor release (0.X.0) [Windows: powershell scripts/bump-version.ps1 minor]
+	@echo "Creating minor release..."
+	@scripts/bump-version.sh minor
+
+release-major: ## Create major release (X.0.0) [Windows: powershell scripts/bump-version.ps1 major]
+	@echo "Creating major release..."
+	@scripts/bump-version.sh major
 
 docs-serve: ## Serve documentation locally
 	uv run mkdocs serve

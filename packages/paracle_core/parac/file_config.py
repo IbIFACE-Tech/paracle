@@ -12,7 +12,6 @@ from typing import Any, Literal
 import yaml
 from pydantic import BaseModel, ConfigDict, Field
 
-
 # =============================================================================
 # LOG CONFIGURATION MODELS
 # =============================================================================
@@ -33,7 +32,8 @@ class LogGlobalConfig(BaseModel):
     timezone: str = "UTC"
 
     # Rotation settings (defaults)
-    default_rotation: Literal["none", "daily", "weekly", "monthly", "size"] = "none"
+    default_rotation: Literal["none", "daily",
+                              "weekly", "monthly", "size"] = "none"
     default_retention_days: int | None = None
     compress_rotated: bool = True
     backup_count: int = 10
@@ -94,7 +94,8 @@ class PredefinedLogsConfig(BaseModel):
             format="[{timestamp}] [{agent}] [DECISION] {decision} | {rationale} | {impact}",
             description="Important decisions made by agents",
             required_fields=["timestamp", "agent", "decision"],
-            optional_fields=["rationale", "impact", "alternatives", "references"],
+            optional_fields=["rationale", "impact",
+                             "alternatives", "references"],
         )
     )
     security: LogFileConfig = Field(
@@ -106,7 +107,8 @@ class PredefinedLogsConfig(BaseModel):
             rotation="daily",
             retention_days=365,
             required_fields=["timestamp", "level", "event_type", "actor"],
-            optional_fields=["resource", "action", "outcome", "ip_address", "user_agent"],
+            optional_fields=["resource", "action",
+                             "outcome", "ip_address", "user_agent"],
             redact_sensitive=True,
         )
     )
@@ -145,7 +147,8 @@ class PredefinedLogsConfig(BaseModel):
             rotation="daily",
             retention_days=90,
             required_fields=["timestamp", "level", "message", "error_type"],
-            optional_fields=["stack_trace", "context", "request_id", "user_id"],
+            optional_fields=["stack_trace",
+                             "context", "request_id", "user_id"],
             include_stack_trace=True,
         )
     )
@@ -182,7 +185,8 @@ class LogsConfig(BaseModel):
     global_config: LogGlobalConfig = Field(
         default_factory=LogGlobalConfig, alias="global"
     )
-    predefined: PredefinedLogsConfig = Field(default_factory=PredefinedLogsConfig)
+    predefined: PredefinedLogsConfig = Field(
+        default_factory=PredefinedLogsConfig)
     custom: list[CustomLogConfig] = Field(default_factory=list)
 
     model_config = ConfigDict(populate_by_name=True)
@@ -338,7 +342,8 @@ class ADRConfig(BaseModel):
     backup_before_migrate: bool = True
 
     # Validation
-    validation: ADRValidationConfig = Field(default_factory=ADRValidationConfig)
+    validation: ADRValidationConfig = Field(
+        default_factory=ADRValidationConfig)
 
 
 # =============================================================================
@@ -407,7 +412,8 @@ class DeliverablesConfig(BaseModel):
     """Deliverable configuration for roadmaps."""
 
     statuses: list[str] = Field(
-        default_factory=lambda: ["pending", "in_progress", "completed", "blocked", "cancelled"]
+        default_factory=lambda: [
+            "pending", "in_progress", "completed", "blocked", "cancelled"]
     )
     default_status: str = "pending"
     track_completion_date: bool = True
@@ -448,7 +454,8 @@ class RoadmapValidationConfig(BaseModel):
 class RoadmapExportConfig(BaseModel):
     """Export settings for roadmaps."""
 
-    formats: list[str] = Field(default_factory=lambda: ["yaml", "json", "markdown", "html"])
+    formats: list[str] = Field(default_factory=lambda: [
+                               "yaml", "json", "markdown", "html"])
     default_format: str = "yaml"
     include_metadata: bool = True
 
@@ -469,7 +476,8 @@ class RoadmapConfig(BaseModel):
     phases: PhasesConfig = Field(default_factory=PhasesConfig)
 
     # Deliverable configuration
-    deliverables: DeliverablesConfig = Field(default_factory=DeliverablesConfig)
+    deliverables: DeliverablesConfig = Field(
+        default_factory=DeliverablesConfig)
 
     # Additional roadmaps
     additional: list[RoadmapFileConfig] = Field(default_factory=list)
@@ -478,7 +486,8 @@ class RoadmapConfig(BaseModel):
     sync: RoadmapSyncConfig = Field(default_factory=RoadmapSyncConfig)
 
     # Validation
-    validation: RoadmapValidationConfig = Field(default_factory=RoadmapValidationConfig)
+    validation: RoadmapValidationConfig = Field(
+        default_factory=RoadmapValidationConfig)
 
     # Export
     export: RoadmapExportConfig = Field(default_factory=RoadmapExportConfig)
@@ -511,7 +520,14 @@ class FileManagementConfig(BaseModel):
 
     @classmethod
     def from_project_yaml(cls, parac_root: Path) -> FileManagementConfig:
-        """Load configuration from project.yaml.
+        """Load configuration from project.yaml with support for includes.
+
+        Supports split configuration via include directive:
+        ```yaml
+        include:
+          - config/logging.yaml
+          - config/file-management.yaml
+        ```
 
         Args:
             parac_root: Path to .parac/ directory.
@@ -527,11 +543,84 @@ class FileManagementConfig(BaseModel):
         if not project_yaml.exists():
             return cls.get_defaults()
 
+        # Load main project.yaml
         with open(project_yaml, encoding="utf-8") as f:
             data = yaml.safe_load(f) or {}
 
+        # Process includes (merge additional config files)
+        data = cls._process_includes(parac_root, data)
+
         file_management = data.get("file_management", {})
         return cls.from_dict(file_management)
+
+    @classmethod
+    def _process_includes(
+        cls, parac_root: Path, base_data: dict[str, Any]
+    ) -> dict[str, Any]:
+        """Process include directives and merge configurations.
+
+        Args:
+            parac_root: Path to .parac/ directory.
+            base_data: Base configuration dictionary.
+
+        Returns:
+            Merged configuration dictionary.
+        """
+        includes = base_data.get("include", [])
+        if not includes:
+            return base_data
+
+        # Start with base data
+        merged = base_data.copy()
+
+        # Load and merge each included file
+        for include_path in includes:
+            include_file = parac_root / include_path
+
+            if not include_file.exists():
+                # Skip missing includes (optional configs)
+                continue
+
+            try:
+                with open(include_file, encoding="utf-8") as f:
+                    include_data = yaml.safe_load(f) or {}
+
+                # Deep merge included data
+                merged = cls._deep_merge(merged, include_data)
+            except Exception:
+                # Skip invalid include files
+                continue
+
+        return merged
+
+    @classmethod
+    def _deep_merge(
+        cls, base: dict[str, Any], overlay: dict[str, Any]
+    ) -> dict[str, Any]:
+        """Deep merge two dictionaries.
+
+        Args:
+            base: Base dictionary.
+            overlay: Overlay dictionary (takes precedence).
+
+        Returns:
+            Merged dictionary.
+        """
+        result = base.copy()
+
+        for key, value in overlay.items():
+            if (
+                key in result
+                and isinstance(result[key], dict)
+                and isinstance(value, dict)
+            ):
+                # Recursively merge nested dicts
+                result[key] = cls._deep_merge(result[key], value)
+            else:
+                # Overlay value takes precedence
+                result[key] = value
+
+        return result
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> FileManagementConfig:
@@ -568,7 +657,8 @@ class FileManagementConfig(BaseModel):
 
         # Parse global config
         global_data = data.get("global", {})
-        global_config = LogGlobalConfig(**global_data) if global_data else LogGlobalConfig()
+        global_config = LogGlobalConfig(
+            **global_data) if global_data else LogGlobalConfig()
 
         # Parse predefined logs
         predefined_data = data.get("predefined", {})
@@ -577,11 +667,13 @@ class FileManagementConfig(BaseModel):
         if predefined_data:
             for name in ["actions", "decisions", "security", "performance", "risk", "errors"]:
                 if name in predefined_data:
-                    setattr(predefined, name, LogFileConfig(**predefined_data[name]))
+                    setattr(predefined, name, LogFileConfig(
+                        **predefined_data[name]))
 
         # Parse custom logs
         custom_data = data.get("custom", [])
-        custom = [CustomLogConfig(**c) for c in custom_data] if custom_data else []
+        custom = [CustomLogConfig(**c)
+                  for c in custom_data] if custom_data else []
 
         return LogsConfig(
             base_path=data.get("base_path", "memory/logs"),
@@ -598,10 +690,12 @@ class FileManagementConfig(BaseModel):
 
         # Parse nested configs
         limits_data = data.get("limits", {})
-        limits = ADRLimitsConfig(**limits_data) if limits_data else ADRLimitsConfig()
+        limits = ADRLimitsConfig(
+            **limits_data) if limits_data else ADRLimitsConfig()
 
         defaults_data = data.get("defaults", {})
-        defaults = ADRDefaultsConfig(**defaults_data) if defaults_data else ADRDefaultsConfig()
+        defaults = ADRDefaultsConfig(
+            **defaults_data) if defaults_data else ADRDefaultsConfig()
 
         validation_data = data.get("validation", {})
         validation = (
@@ -648,10 +742,12 @@ class FileManagementConfig(BaseModel):
 
         # Parse nested configs
         limits_data = data.get("limits", {})
-        limits = RoadmapLimitsConfig(**limits_data) if limits_data else RoadmapLimitsConfig()
+        limits = RoadmapLimitsConfig(
+            **limits_data) if limits_data else RoadmapLimitsConfig()
 
         phases_data = data.get("phases", {})
-        phases = cls._parse_phases_config(phases_data) if phases_data else PhasesConfig()
+        phases = cls._parse_phases_config(
+            phases_data) if phases_data else PhasesConfig()
 
         deliverables_data = data.get("deliverables", {})
         deliverables = (
@@ -661,7 +757,8 @@ class FileManagementConfig(BaseModel):
         )
 
         sync_data = data.get("sync", {})
-        sync = RoadmapSyncConfig(**sync_data) if sync_data else RoadmapSyncConfig()
+        sync = RoadmapSyncConfig(
+            **sync_data) if sync_data else RoadmapSyncConfig()
 
         validation_data = data.get("validation", {})
         validation = (
@@ -671,18 +768,21 @@ class FileManagementConfig(BaseModel):
         )
 
         export_data = data.get("export", {})
-        export = RoadmapExportConfig(**export_data) if export_data else RoadmapExportConfig()
+        export = RoadmapExportConfig(
+            **export_data) if export_data else RoadmapExportConfig()
 
         # Parse additional roadmaps
         additional_data = data.get("additional", [])
         additional = (
-            [RoadmapFileConfig(**r) for r in additional_data] if additional_data else []
+            [RoadmapFileConfig(**r)
+             for r in additional_data] if additional_data else []
         )
 
         return RoadmapConfig(
             base_path=data.get("base_path", "roadmap"),
             primary=data.get("primary", "roadmap.yaml"),
-            primary_description=data.get("primary_description", "Main project roadmap"),
+            primary_description=data.get(
+                "primary_description", "Main project roadmap"),
             limits=limits,
             phases=phases,
             deliverables=deliverables,
@@ -703,7 +803,8 @@ class FileManagementConfig(BaseModel):
 
         progress_data = data.get("progress", {})
         progress = (
-            PhaseProgressConfig(**progress_data) if progress_data else PhaseProgressConfig()
+            PhaseProgressConfig(
+                **progress_data) if progress_data else PhaseProgressConfig()
         )
 
         return PhasesConfig(

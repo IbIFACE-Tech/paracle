@@ -9,7 +9,15 @@
 
 > **`.parac/` is the single source of truth. Read it. Follow it. Log to it.**
 
-## 🚨 MANDATORY: Pre-Flight Checklist
+## � File Organization
+
+**Before creating ANY file in `.parac/`, consult `.parac/STRUCTURE.md`**
+- Data/DBs: `.parac/memory/data/`
+- Logs: `.parac/memory/logs/`
+- Knowledge: `.parac/memory/knowledge/`
+- Decisions: `.parac/roadmap/decisions.md`
+
+## �🚨 MANDATORY: Pre-Flight Checklist
 
 **Before ANY implementation task:**
 

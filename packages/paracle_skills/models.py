@@ -195,7 +195,7 @@ class SkillSpec(BaseModel):
         return v.strip()
 
     @model_validator(mode="after")
-    def set_display_name(self) -> "SkillSpec":
+    def set_display_name(self) -> SkillSpec:
         """Set display_name from name if not provided."""
         if self.metadata.display_name is None:
             # Convert kebab-case to Title Case

@@ -9,6 +9,7 @@ Subpackages:
 
 Modules:
 - storage: Multi-layer storage configuration
+- ids: ULID and unique identifier generation
 
 The subpackages are intentionally not re-exported at this level to:
 1. Encourage explicit imports from subpackages
@@ -20,7 +21,16 @@ Usage:
     from paracle_core.governance import log_action, log_decision
     from paracle_core.parac import ParacState, ParacValidator
     from paracle_core.storage import StorageConfig, get_storage_config
+    from paracle_core.ids import generate_ulid
 """
+
+# ID generation utilities
+from paracle_core.ids import (
+    generate_correlation_id,
+    generate_session_id,
+    generate_short_id,
+    generate_ulid,
+)
 
 # Storage configuration is safe to export at top level
 from paracle_core.storage import (
@@ -31,9 +41,14 @@ from paracle_core.storage import (
     set_storage_config,
 )
 
-__version__ = "0.0.1"
+__version__ = "1.0.0"
 
 __all__ = [
+    # ID generation
+    "generate_ulid",
+    "generate_short_id",
+    "generate_correlation_id",
+    "generate_session_id",
     # Storage configuration
     "StorageConfig",
     "StorageSettings",

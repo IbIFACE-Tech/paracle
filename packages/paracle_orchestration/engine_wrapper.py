@@ -14,6 +14,7 @@ from typing import Any
 
 from paracle_domain.models import Workflow
 from paracle_events import EventBus
+from paracle_profiling import profile_async
 
 from paracle_orchestration.context import ExecutionContext, ExecutionStatus
 from paracle_orchestration.engine import WorkflowOrchestrator
@@ -136,6 +137,7 @@ class WorkflowEngine:
 
         return execution_id
 
+    @profile_async(track_memory=True)
     async def _background_execute(
         self, execution_id: str, workflow: Workflow, inputs: dict[str, Any]
     ) -> None:

@@ -7,10 +7,10 @@ Manages git workflows, semantic versioning, releases, changelogs, and deployment
 ## Skills
 
 - cicd-devops
-- git-management (conventional commits, branching strategy)
-- release-automation (versioning, packaging, publishing)
-- workflow-orchestration (coordinating release process)
-- paracle-development (framework knowledge)
+- git-management
+- release-automation
+- workflow-orchestration
+- paracle-development
 
 ## Responsibilities
 

@@ -12,12 +12,11 @@ Architecture: CLI -> Core (direct access for local file operations)
 """
 
 import sys
-from datetime import date, datetime
+from datetime import date
 from pathlib import Path
 
 import click
 from rich.console import Console
-from rich.markdown import Markdown
 from rich.panel import Panel
 from rich.table import Table
 
@@ -53,10 +52,21 @@ def get_adr_manager():
     return ADRManager(parac_root)
 
 
-@click.group()
-def adr():
-    """Manage Architecture Decision Records (ADRs)."""
-    pass
+@click.group(invoke_without_command=True)
+@click.option("--list", "-l", "list_flag", is_flag=True, help="List all ADRs (shortcut for 'list')")
+@click.pass_context
+def adr(ctx: click.Context, list_flag: bool):
+    """Manage Architecture Decision Records (ADRs).
+
+    Examples:
+        paracle adr -l              - List all ADRs (shortcut)
+        paracle adr list            - List all ADRs
+        paracle adr create "Title"  - Create new ADR
+    """
+    if list_flag:
+        ctx.invoke(list_adrs, status=None, since=None, as_json=False)
+    elif ctx.invoked_subcommand is None:
+        click.echo(ctx.get_help())
 
 
 # =============================================================================
@@ -360,7 +370,7 @@ def update_status(adr_id: str, new_status: str):
             f"[green]OK[/green] {adr_id}: {old_status} -> {new_status}"
         )
     else:
-        console.print(f"[red]Error:[/red] Failed to update status.")
+        console.print("[red]Error:[/red] Failed to update status.")
         sys.exit(1)
 
 

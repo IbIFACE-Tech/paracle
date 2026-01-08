@@ -427,7 +427,7 @@ class IDEConfigGenerator:
             Dictionary mapping platform to list of exported skill names
         """
         try:
-            from paracle_skills import SkillLoader, SkillExporter
+            from paracle_skills import SkillExporter, SkillLoader
             from paracle_skills.exporter import AGENT_SKILLS_PLATFORMS
         except ImportError:
             # paracle_skills not available
@@ -481,7 +481,7 @@ class IDEConfigGenerator:
             List of exported skill names
         """
         try:
-            from paracle_skills import SkillLoader, SkillExporter
+            from paracle_skills import SkillExporter, SkillLoader
         except ImportError:
             return []
 

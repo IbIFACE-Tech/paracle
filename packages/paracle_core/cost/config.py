@@ -76,7 +76,7 @@ class TrackingConfig(BaseModel):
     )
     db_path: str | None = Field(
         default=None,
-        description="Path to cost database. Relative paths are resolved from .parac/ directory (default: .parac/costs.db)",
+        description="Path to cost database. Relative paths are resolved from .parac/ directory (default: .parac/memory/data/costs.db)",
     )
 
     # Retention

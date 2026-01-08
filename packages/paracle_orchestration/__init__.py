@@ -10,7 +10,7 @@ This package provides:
 - Workflow loading from YAML definitions
 """
 
-__version__ = "0.0.1"
+__version__ = "1.0.0"
 
 from paracle_orchestration.agent_executor import AgentExecutor
 from paracle_orchestration.approval import (
@@ -41,6 +41,16 @@ from paracle_orchestration.planner import (
     ExecutionGroup,
     ExecutionPlan,
     WorkflowPlanner,
+)
+from paracle_orchestration.retry import (
+    AGGRESSIVE_RETRY_POLICY,
+    CONSERVATIVE_RETRY_POLICY,
+    DEFAULT_RETRY_POLICY,
+    TRANSIENT_ONLY_POLICY,
+    MaxRetriesExceededError,
+    RetryError,
+    RetryManager,
+    classify_error,
 )
 from paracle_orchestration.skill_injector import SkillInjector
 from paracle_orchestration.skill_loader import Skill, SkillLoader
@@ -80,6 +90,15 @@ __all__ = [
     "ApprovalAlreadyDecidedError",
     "ApprovalTimeoutError",
     "UnauthorizedApproverError",
+    # Retry
+    "RetryManager",
+    "RetryError",
+    "MaxRetriesExceededError",
+    "classify_error",
+    "DEFAULT_RETRY_POLICY",
+    "AGGRESSIVE_RETRY_POLICY",
+    "CONSERVATIVE_RETRY_POLICY",
+    "TRANSIENT_ONLY_POLICY",
     # Workflow Loading
     "WorkflowLoader",
     "WorkflowLoadError",

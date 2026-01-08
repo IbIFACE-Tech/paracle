@@ -68,7 +68,7 @@ def get_generator():
     return IDEConfigGenerator(parac_root)
 
 
-@router.get("/list", response_model=IDEListResponse)
+@router.get("/list", response_model=IDEListResponse, operation_id="listIDEs")
 async def list_ides() -> IDEListResponse:
     """List all supported IDEs.
 
@@ -139,7 +139,7 @@ async def list_ides() -> IDEListResponse:
     return IDEListResponse(ides=ides)
 
 
-@router.get("/status", response_model=IDEStatusResponse)
+@router.get("/status", response_model=IDEStatusResponse, operation_id="getIDEStatus")
 async def get_status() -> IDEStatusResponse:
     """Get IDE integration status.
 
@@ -173,7 +173,7 @@ async def get_status() -> IDEStatusResponse:
     )
 
 
-@router.post("/init", response_model=IDEInitResponse)
+@router.post("/init", response_model=IDEInitResponse, operation_id="initIDEConfigs")
 async def init_ides(request: IDEInitRequest | None = None) -> IDEInitResponse:
     """Initialize IDE configuration files.
 
@@ -260,7 +260,7 @@ async def init_ides(request: IDEInitRequest | None = None) -> IDEInitResponse:
     )
 
 
-@router.post("/sync", response_model=IDESyncResponse)
+@router.post("/sync", response_model=IDESyncResponse, operation_id="syncIDEConfigs")
 async def sync_ides(request: IDESyncRequest | None = None) -> IDESyncResponse:
     """Synchronize IDE configs with .parac/ state.
 
@@ -303,7 +303,11 @@ async def sync_ides(request: IDESyncRequest | None = None) -> IDESyncResponse:
     )
 
 
-@router.post("/generate", response_model=IDEGenerateResponse)
+@router.post(
+    "/generate",
+    response_model=IDEGenerateResponse,
+    operation_id="generateIDEConfig",
+)
 async def generate_ide(request: IDEGenerateRequest) -> IDEGenerateResponse:
     """Generate configuration for a single IDE.
 

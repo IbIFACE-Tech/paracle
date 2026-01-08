@@ -277,7 +277,7 @@ class AnthropicProvider(LLMProvider, RetryableProvider):
 
         if "temperature" in config:
             temp = config["temperature"]
-            if not isinstance(temp, (int, float)) or not 0 <= temp <= 1:
+            if not isinstance(temp, int | float) or not 0 <= temp <= 1:
                 raise ValueError("temperature must be between 0 and 1 for Anthropic")
 
         if "max_tokens" in config:

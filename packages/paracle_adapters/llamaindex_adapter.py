@@ -9,14 +9,14 @@ from typing import Any
 # Try LlamaIndex imports
 try:
     from llama_index.core import (
-        VectorStoreIndex,
         Settings,
-        SimpleDirectoryReader,
+        SimpleDirectoryReader,  # noqa: F401
+        VectorStoreIndex,
     )
     from llama_index.core.agent import ReActAgent
-    from llama_index.core.tools import FunctionTool, QueryEngineTool, ToolMetadata
     from llama_index.core.llms import LLM
-    from llama_index.core.query_engine import BaseQueryEngine
+    from llama_index.core.query_engine import BaseQueryEngine  # noqa: F401
+    from llama_index.core.tools import FunctionTool, QueryEngineTool, ToolMetadata
 
     # BaseChatEngine may not be available in all versions
     try:
@@ -43,7 +43,6 @@ from paracle_adapters.base import FrameworkAdapter
 from paracle_adapters.exceptions import (
     AdapterConfigurationError,
     AdapterExecutionError,
-    FeatureNotSupportedError,
 )
 
 
@@ -97,7 +96,7 @@ class LlamaIndexAdapter(FrameworkAdapter):
         # Register pre-configured tools
         if "tools" in config:
             for t in config["tools"]:
-                if isinstance(t, (FunctionTool, QueryEngineTool)):
+                if isinstance(t, FunctionTool | QueryEngineTool):
                     self._tools_registry[t.metadata.name] = t
 
     async def create_agent(self, agent_spec: AgentSpec) -> Any:
@@ -147,7 +146,7 @@ class LlamaIndexAdapter(FrameworkAdapter):
             }
 
         except Exception as e:
-            if isinstance(e, (AdapterConfigurationError, AdapterExecutionError)):
+            if isinstance(e, AdapterConfigurationError | AdapterExecutionError):
                 raise
             raise AdapterExecutionError(
                 f"Failed to create LlamaIndex agent: {e}",
@@ -374,7 +373,7 @@ class LlamaIndexAdapter(FrameworkAdapter):
                     )
                     tools.append(tool)
 
-            elif isinstance(tool_item, (FunctionTool, QueryEngineTool)):
+            elif isinstance(tool_item, FunctionTool | QueryEngineTool):
                 tools.append(tool_item)
 
         return tools

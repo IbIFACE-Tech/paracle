@@ -53,7 +53,13 @@ def _tool_to_response(tool: Tool) -> ToolResponse:
 # =============================================================================
 
 
-@router.post("", response_model=ToolResponse, status_code=201)
+@router.post(
+    "",
+    response_model=ToolResponse,
+    status_code=201,
+    operation_id="createTool",
+    summary="Register a new tool"
+)
 async def create_tool(request: ToolCreateRequest) -> ToolResponse:
     """Register a new tool.
 
@@ -84,7 +90,12 @@ async def create_tool(request: ToolCreateRequest) -> ToolResponse:
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("", response_model=ToolListResponse)
+@router.get(
+    "",
+    response_model=ToolListResponse,
+    operation_id="listTools",
+    summary="List tools with filters"
+)
 async def list_tools(
     enabled: bool | None = Query(None, description="Filter by enabled status"),
     is_mcp: bool | None = Query(None, description="Filter by MCP tools only"),
@@ -121,7 +132,7 @@ async def list_tools(
     total = len(tools)
 
     # Apply pagination
-    tools = tools[offset : offset + limit]
+    tools = tools[offset:offset + limit]
 
     return ToolListResponse(
         tools=[_tool_to_response(t) for t in tools],
@@ -131,7 +142,12 @@ async def list_tools(
     )
 
 
-@router.get("/{tool_id}", response_model=ToolResponse)
+@router.get(
+    "/{tool_id}",
+    response_model=ToolResponse,
+    operation_id="getToolById",
+    summary="Get tool details by ID"
+)
 async def get_tool(tool_id: str) -> ToolResponse:
     """Get tool details by ID.
 

@@ -239,7 +239,7 @@ class RollbackManager:
         self.snapshots.pop(snapshot_id, None)
 
         # Remove from sandbox tracking
-        for sandbox_id, ids in self._sandbox_snapshots.items():
+        for _sandbox_id, ids in self._sandbox_snapshots.items():
             if snapshot_id in ids:
                 ids.remove(snapshot_id)
 

@@ -74,13 +74,23 @@ def use_api_or_fallback(api_func, fallback_func, *args, **kwargs):
     return fallback_func(*args, **kwargs)
 
 
-@click.group()
-def ide() -> None:
+@click.group(invoke_without_command=True)
+@click.option("--list", "-l", "list_flag", is_flag=True, help="List supported IDEs (shortcut for 'list')")
+@click.pass_context
+def ide(ctx: click.Context, list_flag: bool) -> None:
     """IDE and AI assistant integration commands.
 
     Generate and manage IDE configuration files from .parac/ context.
+
+    Examples:
+        paracle ide -l      - List supported IDEs (shortcut)
+        paracle ide list    - List supported IDEs
+        paracle ide sync    - Sync IDE configs
     """
-    pass
+    if list_flag:
+        ctx.invoke(ide_list)
+    elif ctx.invoked_subcommand is None:
+        click.echo(ctx.get_help())
 
 
 # =============================================================================
@@ -452,7 +462,9 @@ def ide_init(ide_names: tuple[str, ...], force: bool, copy: bool) -> None:
 # =============================================================================
 
 
-def _sync_via_api(client: APIClient, copy: bool, watch: bool) -> None:
+def _sync_via_api(
+    client: APIClient, copy: bool, watch: bool, with_skills: bool
+) -> None:
     """Sync IDEs via API."""
     if watch:
         console.print(
@@ -479,8 +491,12 @@ def _sync_via_api(client: APIClient, copy: bool, watch: bool) -> None:
         f"\n[green]OK[/green] Synced {len(result['synced'])} IDE configuration(s)"
     )
 
+    # Export skills if requested (API doesn't support this yet, fall back)
+    if with_skills:
+        _export_skills_to_platforms()
 
-def _sync_direct(copy: bool, watch: bool) -> None:
+
+def _sync_direct(copy: bool, watch: bool, with_skills: bool) -> None:
     """Sync IDEs via direct core access."""
     if watch:
         console.print(
@@ -519,22 +535,98 @@ def _sync_direct(copy: bool, watch: bool) -> None:
     except Exception:
         pass
 
-    console.print(f"\n[green]OK[/green] Synced {len(generated)} IDE configuration(s)")
+    console.print(
+        f"\n[green]OK[/green] Synced {len(generated)} IDE configuration(s)"
+    )
+
+    # Export skills to IDE platforms if requested
+    if with_skills:
+        _export_skills_to_platforms()
+
+
+def _export_skills_to_platforms() -> None:
+    """Export skills to IDE platform directories."""
+    parac_root = get_parac_root_or_exit()
+    skills_dir = parac_root / "agents" / "skills"
+
+    if not skills_dir.exists():
+        console.print("\n[dim]No skills directory found, skipping.[/dim]")
+        return
+
+    try:
+        from paracle_skills import SkillExporter, SkillLoader
+        from paracle_skills.exporter import AGENT_SKILLS_PLATFORMS
+    except ImportError:
+        console.print(
+            "\n[yellow]Warning:[/yellow] paracle_skills not available. "
+            "Skills export skipped."
+        )
+        return
+
+    # Load skills
+    loader = SkillLoader(skills_dir)
+    try:
+        skills = loader.load_all()
+    except Exception as e:
+        console.print(f"\n[yellow]Warning:[/yellow] Failed to load skills: {e}")
+        return
+
+    if not skills:
+        console.print("\n[dim]No skills found to export.[/dim]")
+        return
+
+    console.print(f"\n[bold]Exporting {len(skills)} skill(s) to platforms...[/bold]\n")
+
+    # Export to Agent Skills platforms (copilot, cursor, claude, codex)
+    exporter = SkillExporter(skills)
+    project_root = parac_root.parent
+
+    try:
+        results = exporter.export_all(project_root, AGENT_SKILLS_PLATFORMS, True)
+
+        # Count successes per platform
+        platform_counts: dict[str, int] = {}
+        for result in results:
+            for platform, export_result in result.results.items():
+                if export_result.success:
+                    platform_counts[platform] = platform_counts.get(platform, 0) + 1
+
+        for platform, count in platform_counts.items():
+            platform_dirs = {
+                "copilot": ".github/skills/",
+                "cursor": ".cursor/skills/",
+                "claude": ".claude/skills/",
+                "codex": ".codex/skills/",
+            }
+            dest = platform_dirs.get(platform, f".{platform}/skills/")
+            console.print(f"  [green]OK[/green] {platform}: {count} skill(s) -> {dest}")
+
+    except Exception as e:
+        console.print(f"  [red]Error:[/red] Skills export failed: {e}")
 
 
 @ide.command("sync")
 @click.option("--copy/--no-copy", default=True, help="Copy to project root")
-@click.option("--watch", is_flag=True, help="Watch for changes (not yet implemented)")
-def ide_sync(copy: bool, watch: bool) -> None:
+@click.option("--watch", is_flag=True, help="Watch for changes (not implemented)")
+@click.option(
+    "--with-skills/--no-skills",
+    default=True,
+    help="Export skills to IDE platforms (default: yes)"
+)
+def ide_sync(copy: bool, watch: bool, with_skills: bool) -> None:
     """Synchronize IDE configs with .parac/ state.
 
     Regenerates all IDE configuration files from current .parac/ context.
+    Also exports skills to platform-specific directories when available.
 
     Examples:
         paracle ide sync
         paracle ide sync --no-copy
+        paracle ide sync --no-skills
     """
-    use_api_or_fallback(_sync_via_api, _sync_direct, copy, watch)
+    use_api_or_fallback(
+        _sync_via_api, _sync_direct, copy, watch, with_skills
+    )
 
 
 # =============================================================================

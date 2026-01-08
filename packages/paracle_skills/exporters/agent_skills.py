@@ -70,7 +70,7 @@ class AgentSkillsExporter(BaseExporter):
 
     def export_skill(
         self,
-        skill: "SkillSpec",
+        skill: SkillSpec,
         output_dir: Path,
         overwrite: bool = False,
     ) -> ExportResult:

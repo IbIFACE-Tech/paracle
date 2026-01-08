@@ -16,9 +16,11 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.openapi.utils import get_openapi
 from paracle_core.logging import create_request_logging_middleware, get_logger
 from paracle_domain.inheritance import InheritanceError
 from paracle_orchestration.exceptions import OrchestrationError
+from paracle_profiling import ProfilerMiddleware
 from paracle_providers.exceptions import LLMProviderError
 
 from paracle_api.errors import (
@@ -28,6 +30,7 @@ from paracle_api.errors import (
     provider_error_to_problem,
     validation_error_to_problem,
 )
+from paracle_api.middleware.cache import ResponseCacheMiddleware
 from paracle_api.routers import (
     agent_crud_router,
     agents_router,
@@ -95,8 +98,26 @@ def create_app(config: SecurityConfig | None = None) -> FastAPI:
 
     app = FastAPI(
         title="Paracle API",
-        description="User-driven multi-agent framework API with enterprise security",
-        version="0.0.1",
+        description="""User-driven multi-agent framework API with enterprise security.
+
+        Build autonomous AI agent systems with:
+        - Multi-agent orchestration and workflows
+        - LLM provider abstraction (12+ providers)
+        - Human-in-the-loop approvals (ISO 42001)
+        - Comprehensive security (JWT, rate limiting, CORS)
+        - Real-time execution tracking and observability
+        """,
+        version="1.0.0",
+        contact={
+            "name": "Paracle Support",
+            "url": "https://github.com/IbIFACE-Tech/paracle-lite",
+            "email": "support@paracle.ai",
+        },
+        license_info={
+            "name": "MIT License",
+            "url": "https://opensource.org/licenses/MIT",
+        },
+        terms_of_service="https://github.com/IbIFACE-Tech/paracle-lite/blob/main/LICENSE",
         docs_url="/docs" if not config.is_production() else None,
         redoc_url="/redoc" if not config.is_production() else None,
         openapi_url="/openapi.json" if not config.is_production() else None,
@@ -123,6 +144,19 @@ def create_app(config: SecurityConfig | None = None) -> FastAPI:
 
     # 3. Request logging middleware with correlation IDs
     app.add_middleware(create_request_logging_middleware())
+
+    # 4. Performance profiling middleware (Phase 8)
+    app.add_middleware(ProfilerMiddleware, slow_threshold=1.0)
+
+    # 5. Response caching middleware (Phase 8 - Multi-level caching)
+    app.add_middleware(
+        ResponseCacheMiddleware,
+        default_ttl=60,  # 1 minute default TTL
+        cache_paths=["/api/agents", "/api/specs",
+                     "/api/workflows", "/api/tools"],
+        exclude_paths=["/health", "/docs", "/redoc",
+                       "/openapi.json", "/auth", "/api/executions"],
+    )
 
     # =========================================================================
     # Global Exception Handlers (RFC 7807 Problem Details)
@@ -175,42 +209,119 @@ def create_app(config: SecurityConfig | None = None) -> FastAPI:
     # Register Routers
     # =========================================================================
 
+    # =========================================================================
+    # Register Routers with /v1 API Versioning
+    # =========================================================================
+
     # Public endpoints (no auth required)
-    app.include_router(health_router)
+    app.include_router(health_router, prefix="/v1")
 
     # Protected endpoints
-    app.include_router(parac_router)
-    app.include_router(ide_router)
-    app.include_router(agents_router)
-    app.include_router(logs_router)
+    app.include_router(parac_router, prefix="/v1")
+    app.include_router(ide_router, prefix="/v1")
+    app.include_router(agents_router, prefix="/v1")
+    app.include_router(logs_router, prefix="/v1")
 
     # CRUD routers (protected)
-    app.include_router(agent_crud_router)
-    app.include_router(workflow_crud_router)
+    app.include_router(agent_crud_router, prefix="/v1")
+    app.include_router(workflow_crud_router, prefix="/v1")
     # Phase 4: Workflow execution
-    app.include_router(workflow_execution_router)
-    app.include_router(tool_crud_router)
+    app.include_router(workflow_execution_router, prefix="/v1")
+    app.include_router(tool_crud_router, prefix="/v1")
     # Human-in-the-Loop approvals (ISO 42001)
-    app.include_router(approvals_router)
+    app.include_router(approvals_router, prefix="/v1")
     # Phase 5: Artifact reviews
-    app.include_router(reviews_router)
+    app.include_router(reviews_router, prefix="/v1")
 
     # Auth router
     from paracle_api.routers.auth import router as auth_router
-    app.include_router(auth_router)
+    app.include_router(auth_router, prefix="/v1")
+
+    # =========================================================================
+    # Custom OpenAPI Schema with Security Schemes
+    # =========================================================================
+
+    def custom_openapi():
+        """Generate custom OpenAPI schema with security schemes and extensions."""
+        if app.openapi_schema:
+            return app.openapi_schema
+
+        openapi_schema = get_openapi(
+            title=app.title,
+            version=app.version,
+            description=app.description,
+            routes=app.routes,
+            contact=app.contact,
+            license_info=app.license_info,
+            terms_of_service=app.terms_of_service,
+        )
+
+        # Add security schemes
+        openapi_schema["components"]["securitySchemes"] = {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT",
+                "description": "JWT token obtained from /v1/auth/token endpoint",
+            }
+        }
+
+        # Add global rate limit headers to all responses
+        rate_limit_headers = {
+            "X-RateLimit-Limit": {
+                "description": "Maximum requests allowed per window",
+                "schema": {"type": "integer"},
+            },
+            "X-RateLimit-Remaining": {
+                "description": "Requests remaining in current window",
+                "schema": {"type": "integer"},
+            },
+            "X-RateLimit-Reset": {
+                "description": "Unix timestamp when rate limit resets",
+                "schema": {"type": "integer"},
+            },
+        }
+
+        # Add rate limit headers to all path responses
+        for path_data in openapi_schema["paths"].values():
+            for operation in path_data.values():
+                if isinstance(operation, dict) and "responses" in operation:
+                    for response_data in operation["responses"].values():
+                        if isinstance(response_data, dict):
+                            if "headers" not in response_data:
+                                response_data["headers"] = {}
+                            response_data["headers"].update(rate_limit_headers)
+
+        # Add API version info to OpenAPI schema
+        openapi_schema["info"]["x-api-version"] = "v1"
+        openapi_schema["info"]["x-api-status"] = "stable"
+
+        app.openapi_schema = openapi_schema
+        return app.openapi_schema
+
+    app.openapi = custom_openapi
 
     # =========================================================================
     # Root Endpoint
     # =========================================================================
 
-    @app.get("/", tags=["root"])
-    async def root() -> dict[str, str]:
-        """Root endpoint with API information."""
+    @app.get("/", tags=["root"], operation_id="getRoot")
+    async def root() -> dict:
+        """Root endpoint with API information and version details."""
         return {
             "message": "Welcome to Paracle API",
+            "version": "1.0.0",
+            "api_version": "v1",
+            "status": "stable",
             "docs": "/docs" if not config.is_production() else "disabled",
-            "version": "0.0.1",
             "security": "enabled",
+            "features": [
+                "multi-agent orchestration",
+                "12+ LLM providers",
+                "JWT authentication",
+                "rate limiting",
+                "real-time execution tracking",
+            ],
         }
 
     return app

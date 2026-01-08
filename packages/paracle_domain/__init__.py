@@ -22,7 +22,14 @@ from paracle_domain.models import (
     ApprovalPriority,
     ApprovalRequest,
     ApprovalStatus,
+    # Retry models
+    BackoffStrategy,
     EntityStatus,
+    ErrorCategory,
+    RetryAttempt,
+    RetryCondition,
+    RetryContext,
+    RetryPolicy,
     Tool,
     ToolSpec,
     Workflow,
@@ -31,7 +38,7 @@ from paracle_domain.models import (
     WorkflowStep,
 )
 
-__version__ = "0.0.1"
+__version__ = "1.0.0"
 
 __all__ = [
     # Models
@@ -48,6 +55,15 @@ __all__ = [
     # Approval (Human-in-the-Loop)
     "ApprovalConfig",
     "ApprovalPriority",
+    "ApprovalRequest",
+    "ApprovalStatus",
+    # Retry
+    "BackoffStrategy",
+    "ErrorCategory",
+    "RetryAttempt",
+    "RetryCondition",
+    "RetryContext",
+    "RetryPolicy",
     "ApprovalRequest",
     "ApprovalStatus",
     # Factory

@@ -23,6 +23,12 @@ agents:
       - code_analysis # CodeAnalysisTool - analyze code structure and metrics
       - diagram_generation # DiagramGenerationTool - generate Mermaid/PlantUML diagrams
       - pattern_matching # PatternMatchingTool - detect design patterns
+    skills:
+      - framework-architecture # System design and architectural patterns
+      - api-development # API design and RESTful patterns
+      - performance-optimization # Performance profiling and optimization
+      - security-hardening # Security architecture and best practices
+      - paracle-development # Framework-specific development patterns
     responsibilities:
       - Module structure design
       - Interface definition
@@ -43,6 +49,12 @@ agents:
       - git_status # GitStatusTool - check git status
       - git_push # GitPushTool - push to remote
       - git_tag # GitTagTool - create tags
+    skills:
+      - paracle-development # Framework-specific implementation patterns
+      - api-development # FastAPI endpoints and schemas
+      - tool-integration # Custom tool development
+      - provider-integration # LLM provider integration
+      - testing-qa # Unit testing and test-driven development
     responsibilities:
       - Feature implementation
       - Bug fixes
@@ -58,6 +70,11 @@ agents:
       - static_analysis # StaticAnalysisTool - run ruff, mypy, pylint
       - security_scan # SecurityScanTool - scan with bandit, safety
       - code_review # CodeReviewTool - comprehensive review checks
+    skills:
+      - security-hardening # Security review and vulnerability detection
+      - performance-optimization # Performance analysis and bottleneck identification
+      - testing-qa # Test coverage and quality validation
+      - paracle-development # Framework standards enforcement
     responsibilities:
       - Code review
       - Security audit
@@ -73,6 +90,11 @@ agents:
       - test_generation # TestGenerationTool - generate test scaffolds
       - test_execution # TestExecutionTool - execute tests with pytest
       - coverage_analysis # CoverageAnalysisTool - analyze test coverage
+    skills:
+      - testing-qa # Test strategies, pytest, coverage
+      - security-hardening # Security testing and validation
+      - performance-optimization # Performance testing and benchmarking
+      - paracle-development # Framework-specific testing patterns
     responsibilities:
       - Test case design
       - Test implementation
@@ -88,6 +110,11 @@ agents:
       - task_tracking # TaskTrackingTool - track tasks and progress
       - milestone_management # MilestoneManagementTool - manage milestones
       - team_coordination # TeamCoordinationTool - coordinate team activities
+    skills:
+      - workflow-orchestration # Workflow and task coordination
+      - agent-configuration # Agent spec management
+      - paracle-development # Framework understanding for planning
+      - cicd-devops # CI/CD pipelines and deployment
     responsibilities:
       - Roadmap management
       - Priority setting
@@ -103,6 +130,10 @@ agents:
       - markdown_generation # MarkdownGenerationTool - generate markdown docs
       - api_doc_generation # ApiDocGenerationTool - generate API docs
       - diagram_creation # DiagramCreationTool - create diagrams
+    skills:
+      - technical-documentation # README, tutorials, API docs
+      - paracle-development # Framework knowledge for documentation
+      - api-development # API documentation patterns
     responsibilities:
       - API documentation
       - User guides
@@ -124,6 +155,12 @@ agents:
       - changelog_generation # ChangelogGenerationTool - generate changelogs
       - cicd_integration # CICDIntegrationTool - CI/CD pipeline integration
       - package_publishing # PackagePublishingTool - publish to PyPI/Docker
+    skills:
+      - cicd-devops # CI/CD pipelines and deployment automation
+      - git-management # Conventional commits, branching strategy, git operations
+      - release-automation # Semantic versioning, packaging, publishing
+      - workflow-orchestration # Coordinating release process across teams
+      - paracle-development # Framework knowledge for version management
     responsibilities:
       - Semantic versioning management
       - Conventional commits enforcement
@@ -137,33 +174,117 @@ agents:
   - id: security
     name: Security Expert
     role: security_audit
-    description: Security auditing, vulnerability detection, and compliance enforcement
+    description: Security auditing, vulnerability detection, compliance enforcement, and security standards implementation
     spec_file: specs/security.md
     tools:
-      - bandit # Bandit - Python security linter
-      - safety # Safety - dependency vulnerability checker
-      - semgrep # Semgrep - pattern-based security analysis
-      - detect_secrets # DetectSecrets - scan for exposed secrets
+      # === Static Application Security Testing (SAST) ===
+      - bandit # Bandit - Python security linter (AST-based)
+      - semgrep # Semgrep - pattern-based security analysis (multi-language)
+      - codeql # CodeQL - GitHub semantic code analysis (SARIF output)
+      - sonarqube # SonarQube - continuous code quality and security
+      - pylint_security # Pylint security plugins
+      - ruff_security # Ruff security rules
+      # === Software Composition Analysis (SCA) ===
+      - safety # Safety - dependency vulnerability checker (PyPI)
       - pip_audit # PipAudit - Python package vulnerability scanner
-      - trivy # Trivy - container and dependency scanner
+      - trivy # Trivy - container, filesystem, git repo scanner
+      - snyk # Snyk - dependency and container vulnerabilities
+      - dependabot # Dependabot - automated dependency updates
+      - ossf_scorecard # OSSF Scorecard - supply chain security
+      # === Secret Detection ===
+      - detect_secrets # DetectSecrets - Yelp secret scanner
+      - gitleaks # Gitleaks - git history secret detection
+      - trufflehog # TruffleHog - credential scanner
+      # === Container Security ===
+      - trivy_container # Trivy container image scanning
+      - grype # Grype - container vulnerability scanner
+      - syft # Syft - SBOM generation
+      # === Dynamic Application Security Testing (DAST) ===
+      - zap # OWASP ZAP - dynamic security testing
+      - nuclei # Nuclei - vulnerability scanner templates
+      # === Infrastructure Security ===
+      - checkov # Checkov - IaC security scanner (Terraform, K8s, Docker)
+      - tfsec # TFSec - Terraform security scanner
+      - kube_bench # Kube-bench - CIS Kubernetes benchmark
+      # === Paracle Custom Tools ===
       - static_analysis # StaticAnalysisTool - comprehensive static checks
-      - security_scan # SecurityScanTool - multi-scanner execution
-      - vulnerability_detector # VulnerabilityDetectorTool - known vulnerability detection
+      - security_scan # SecurityScanTool - multi-scanner orchestration
+      - vulnerability_detector # VulnerabilityDetectorTool - CVE/CWE detection
       - secret_scanner # SecretScannerTool - find exposed credentials
       - dependency_auditor # DependencyAuditorTool - audit third-party packages
       - compliance_checker # ComplianceCheckerTool - validate compliance requirements
+      - sbom_generator # SBOMGeneratorTool - Software Bill of Materials (CycloneDX, SPDX)
+      - threat_modeler # ThreatModelerTool - STRIDE/DREAD threat analysis
+    skills:
+      - security-hardening # Security best practices, authentication, authorization, encryption
+      - testing-qa # Security testing, penetration testing, fuzzing
+      - paracle-development # Framework security patterns
+      - performance-optimization # DoS prevention, rate limiting, resource protection
+    standards:
+      # === Industry Standards ===
+      - ISO_27001 # Information Security Management System
+      - ISO_27002 # Information Security Controls
+      - ISO_42001 # AI Management System (Paracle-specific)
+      - SOC2_Type_II # Service Organization Control
+      - NIST_CSF # Cybersecurity Framework
+      - NIST_800_53 # Security and Privacy Controls
+      # === Application Security Standards ===
+      - OWASP_Top_10 # Web Application Security Risks
+      - OWASP_ASVS # Application Security Verification Standard
+      - OWASP_SAMM # Software Assurance Maturity Model
+      - OWASP_MASVS # Mobile Application Security
+      - CWE_Top_25 # Common Weakness Enumeration
+      - SANS_Top_25 # Most Dangerous Software Errors
+      # === Privacy & Data Protection ===
+      - GDPR # General Data Protection Regulation
+      - CCPA # California Consumer Privacy Act
+      - HIPAA # Health Insurance Portability (if applicable)
+      # === Supply Chain Security ===
+      - SLSA # Supply-chain Levels for Software Artifacts
+      - SSDF # Secure Software Development Framework
+      - OpenSSF_Best_Practices # Open Source Security Foundation
+      # === Cloud Security ===
+      - CIS_Benchmarks # Center for Internet Security
+      - CSA_CCM # Cloud Security Alliance Controls Matrix
     responsibilities:
+      # === Core Security ===
       - Security audits and vulnerability detection
-      - Threat modeling and risk assessment
-      - OWASP Top 10 compliance checking
-      - Authentication and authorization review
+      - Threat modeling and risk assessment (STRIDE, DREAD)
+      - Secure code review and static analysis
+      # === Compliance ===
+      - OWASP Top 10 compliance validation
+      - CWE/CVE vulnerability tracking
+      - ISO 27001/42001 compliance checking
+      - SOC2 audit preparation
+      - GDPR/CCPA privacy compliance
+      # === Application Security ===
+      - Authentication and authorization review (OAuth, JWT, RBAC)
       - Input validation and sanitization checks
+      - Cryptography review (encryption, hashing, key management)
+      - Session management security
+      - API security (rate limiting, authentication, CORS)
+      # === Supply Chain Security ===
       - Dependency vulnerability scanning
-      - Secret detection in code
-      - Security testing and penetration testing
-      - Compliance validation (GDPR, SOC2)
+      - SBOM generation and analysis
+      - Third-party library security audit
+      - Container image security scanning
+      # === Secret Management ===
+      - Secret detection in code and history
+      - Credential rotation policies
+      - Vault/secret manager integration
+      # === Testing & Validation ===
+      - Security testing (SAST, DAST, IAST)
+      - Penetration testing coordination
+      - Fuzzing and mutation testing
+      - Security regression testing
+      # === Incident Response ===
       - Security incident analysis
-      - Security best practices enforcement
+      - Vulnerability remediation guidance
+      - Security patch management
+      # === Documentation ===
+      - Security best practices documentation
+      - Security architecture review
+      - Security training materials
 
 # Agent Inheritance Examples (to be implemented)
 # inheritance:

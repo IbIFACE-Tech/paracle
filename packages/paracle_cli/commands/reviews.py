@@ -16,8 +16,10 @@ from paracle_cli.api_client import APIError, get_client
 console = Console()
 
 
-@click.group()
-def reviews() -> None:
+@click.group(invoke_without_command=True)
+@click.option("--list", "-l", "list_flag", is_flag=True, help="List artifact reviews (shortcut for 'list')")
+@click.pass_context
+def reviews(ctx: click.Context, list_flag: bool) -> None:
     """Manage artifact reviews (sandbox execution).
 
     Artifact reviews are created when agents generate changes in sandboxed
@@ -25,6 +27,9 @@ def reviews() -> None:
     before they are applied.
 
     Examples:
+        # List reviews (shortcut)
+        $ paracle reviews -l
+
         # List pending reviews
         $ paracle reviews list
 
@@ -37,7 +42,10 @@ def reviews() -> None:
         # View review statistics
         $ paracle reviews stats
     """
-    pass
+    if list_flag:
+        ctx.invoke(list_reviews, status=None, sandbox_id=None, output_json=False)
+    elif ctx.invoked_subcommand is None:
+        click.echo(ctx.get_help())
 
 
 @reviews.command("list")

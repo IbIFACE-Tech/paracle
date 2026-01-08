@@ -52,10 +52,21 @@ def get_roadmap_manager():
     return RoadmapManager(parac_root)
 
 
-@click.group()
-def roadmap():
-    """Manage project roadmaps."""
-    pass
+@click.group(invoke_without_command=True)
+@click.option("--list", "-l", "list_flag", is_flag=True, help="List all roadmaps (shortcut for 'list')")
+@click.pass_context
+def roadmap(ctx: click.Context, list_flag: bool):
+    """Manage project roadmaps.
+
+    Examples:
+        paracle roadmap -l      - List all roadmaps (shortcut)
+        paracle roadmap list    - List all roadmaps
+        paracle roadmap show    - Show current roadmap
+    """
+    if list_flag:
+        ctx.invoke(list_roadmaps, as_json=False)
+    elif ctx.invoked_subcommand is None:
+        click.echo(ctx.get_help())
 
 
 # =============================================================================
@@ -278,7 +289,7 @@ def add_roadmap(name: str, path: str, description: str, no_create: bool):
           description: "{description or name}"
 """)
     else:
-        console.print(f"[red]Error:[/red] Failed to add roadmap.")
+        console.print("[red]Error:[/red] Failed to add roadmap.")
         sys.exit(1)
 
 

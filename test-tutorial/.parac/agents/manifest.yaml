@@ -1,0 +1,9 @@
+# Agent Manifest
+# AUTO-GENERATED - Regenerate with: paracle sync
+
+generated_at: "2026-01-07"
+agents:
+  - id: myagent
+    name: My Agent
+    spec_file: agents/specs/myagent.md
+    description: A simple agent to get you started

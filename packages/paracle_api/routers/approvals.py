@@ -16,8 +16,6 @@ Endpoints:
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel, Field
-
 from paracle_domain.models import ApprovalPriority, ApprovalStatus
 from paracle_orchestration.approval import (
     ApprovalAlreadyDecidedError,
@@ -26,6 +24,7 @@ from paracle_orchestration.approval import (
     ApprovalNotFoundError,
     UnauthorizedApproverError,
 )
+from pydantic import BaseModel, Field
 
 router = APIRouter(prefix="/approvals", tags=["approvals"])
 
@@ -133,7 +132,7 @@ def _to_response(request: Any) -> ApprovalRequestResponse:
 # =============================================================================
 
 
-@router.get("/pending", response_model=ApprovalListResponse)
+@router.get("/pending", response_model=ApprovalListResponse, operation_id="listPendingApprovals")
 async def list_pending_approvals(
     workflow_id: str | None = None,
     priority: str | None = None,
@@ -166,7 +165,7 @@ async def list_pending_approvals(
     )
 
 
-@router.get("/decided", response_model=ApprovalListResponse)
+@router.get("/decided", response_model=ApprovalListResponse, operation_id="listDecidedApprovals")
 async def list_decided_approvals(
     workflow_id: str | None = None,
     approval_status: str | None = None,
@@ -203,7 +202,7 @@ async def list_decided_approvals(
     )
 
 
-@router.get("/stats", response_model=ApprovalStatsResponse)
+@router.get("/stats", response_model=ApprovalStatsResponse, operation_id="getApprovalStats")
 async def get_approval_stats(
     manager: ApprovalManager = Depends(get_approval_manager),
 ) -> ApprovalStatsResponse:
@@ -216,7 +215,7 @@ async def get_approval_stats(
     return ApprovalStatsResponse(**stats)
 
 
-@router.get("/{approval_id}", response_model=ApprovalRequestResponse)
+@router.get("/{approval_id}", response_model=ApprovalRequestResponse, operation_id="getApproval")
 async def get_approval(
     approval_id: str,
     manager: ApprovalManager = Depends(get_approval_manager),
@@ -241,7 +240,7 @@ async def get_approval(
     return _to_response(request)
 
 
-@router.post("/{approval_id}/approve", response_model=ApprovalRequestResponse)
+@router.post("/{approval_id}/approve", response_model=ApprovalRequestResponse, operation_id="approveRequest")
 async def approve_request(
     approval_id: str,
     body: ApproveRequest,
@@ -292,7 +291,11 @@ async def approve_request(
         )
 
 
-@router.post("/{approval_id}/reject", response_model=ApprovalRequestResponse)
+@router.post(
+    "/{approval_id}/reject",
+    response_model=ApprovalRequestResponse,
+    operation_id="rejectRequest",
+)
 async def reject_request(
     approval_id: str,
     body: RejectRequest,
@@ -343,7 +346,11 @@ async def reject_request(
         )
 
 
-@router.post("/{approval_id}/cancel", response_model=ApprovalRequestResponse)
+@router.post(
+    "/{approval_id}/cancel",
+    response_model=ApprovalRequestResponse,
+    operation_id="cancelApproval",
+)
 async def cancel_request(
     approval_id: str,
     manager: ApprovalManager = Depends(get_approval_manager),

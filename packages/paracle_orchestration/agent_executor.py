@@ -9,6 +9,7 @@ import logging
 from pathlib import Path
 from typing import Any
 
+from paracle_core.governance import log_agent_action
 from paracle_domain.models import WorkflowStep
 from paracle_providers.registry import ProviderRegistry
 from rich.console import Console
@@ -243,6 +244,7 @@ class AgentExecutor:
 
         return "\n".join(prompt_parts)
 
+    @log_agent_action("AgentExecutor", "EXECUTION")
     async def execute_step(
         self,
         step: WorkflowStep,

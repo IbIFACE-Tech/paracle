@@ -141,7 +141,7 @@ class MSAFAdapter(FrameworkAdapter):
                 return await self._create_agent_azure(agent_spec)
 
         except Exception as e:
-            if isinstance(e, (AdapterConfigurationError, AdapterExecutionError)):
+            if isinstance(e, AdapterConfigurationError | AdapterExecutionError):
                 raise
             raise AdapterExecutionError(
                 f"Failed to create MSAF agent: {e}",
