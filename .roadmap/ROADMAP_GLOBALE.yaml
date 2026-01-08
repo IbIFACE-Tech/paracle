@@ -1,0 +1,921 @@
+# PARACLE - Roadmap Globale Complète
+# Vision: Enterprise-Grade Multi-Agent Framework
+# Standard: ISO/IEC 42001 Compliance
+# Timeline: ~50 semaines (v0.0.1 → v1.0.0)
+
+version: "1.3"
+created: "2025-12-24"
+updated: "2026-01-08"
+status: active
+release_status: "v1.0.0 released"
+total_timeline: "50_weeks"
+
+# =============================================================================
+# STRATEGIC DIRECTION (ADR-017 - January 2026)
+# =============================================================================
+strategic_direction:
+  decision: "ADR-017: Developer Experience & Community Focus"
+  date: "2026-01-06"
+  context: |
+    Strategic assessment identified complexity barrier preventing adoption.
+    Current state: Production-ready framework (Phase 5 complete)
+    Challenge: Steep learning curve, governance overhead
+    Opportunity: Progressive disclosure to balance power with accessibility
+
+  strategy: "Three-Phase Approach (DX → Community → Performance)"
+
+  phases:
+    phase_6:
+      focus: "Developer Experience & Accessibility"
+      goal: "Reduce learning curve by ~50%"
+      key_initiatives:
+        - "Lite Mode (progressive disclosure)"
+        - "Interactive tutorial (Time to First Agent < 5 min)"
+        - "Example gallery (10+ real-world use cases)"
+        - "Project templates (5+ starter templates)"
+        - "Video guides (5+ tutorials)"
+
+    phase_7:
+      focus: "Community Building & Ecosystem"
+      goal: "Establish community foundation"
+      key_initiatives:
+        - "Discord community launch"
+        - "Community agent templates"
+        - "Contribution guidelines"
+        - "Blog and case studies"
+
+    phase_8:
+      focus: "Performance & Scale"
+      goal: "Production-grade performance"
+      key_initiatives:
+        - "Performance optimization"
+        - "Monitoring & observability"
+        - "Load testing & benchmarks"
+        - "Production deployment guides"
+
+  success_metrics:
+    onboarding:
+      time_to_first_agent: "< 5 minutes (vs current 15-30 min)"
+      completion_rate: "> 80% finish tutorial"
+      satisfaction: "> 4.5/5 stars"
+
+    community:
+      active_users: "> 100 first month"
+      community_templates: "> 20 in 3 months"
+      contributors: "> 10 in 6 months"
+
+    performance:
+      api_latency_p95: "< 500ms"
+      concurrent_agents: "> 100"
+      resource_efficiency: "< 100MB RAM per agent"
+
+# =============================================================================
+# ACTUAL v1.0.0 RELEASE (January 8, 2026)
+# =============================================================================
+actual_v1_0_release:
+  date: "2026-01-08"
+  tag: "v1.0.0"
+  commit: "a9e3a1e"
+  status: "released"
+  decision: "Accelerated release with core features, deferred DX/Community to post-1.0"
+  
+  what_was_delivered:
+    core_system:
+      - "8 specialized agents (architect, coder, documenter, pm, reviewer, tester, releasemanager, security)"
+      - "16 agent skills system"
+      - "Agent inheritance and composition"
+      - "5-layer governance enforcement"
+      - "Workflow orchestration (8+ workflows)"
+      - "MCP protocol integration"
+    
+    infrastructure:
+      - "REST API server (FastAPI)"
+      - "CLI with 20+ commands"
+      - "Multi-provider LLM support (OpenAI, Anthropic, Google, Ollama, Azure)"
+      - "SQLite persistence (operational data)"
+    
+    advanced_features:
+      - "Performance profiling (paracle_profiling)"
+      - "Response caching (paracle_cache)"
+      - "Knowledge engine + RAG (paracle_knowledge)"
+      - "Vector stores - ChromaDB, pgvector (paracle_vector)"
+      - "Memory system (paracle_memory)"
+      - "Agent-to-agent communication (paracle_a2a)"
+      - "Kanban board management (paracle_kanban)"
+      - "Conflict resolution (paracle_conflicts)"
+      - "Audit trail (paracle_audit)"
+      - "Connection pooling (paracle_connection_pool)"
+      - "Git workflows (paracle_git_workflows)"
+      - "Plugin system (paracle_plugins)"
+    
+    quality:
+      - "Comprehensive test suite (unit + integration)"
+      - "Automatic governance monitoring"
+      - "AI compliance checking"
+      - "Pre-commit validation hooks"
+    
+    integrations:
+      - "VS Code (GitHub Copilot)"
+      - "Claude Desktop"
+      - "Cursor IDE"
+      - "GitHub Codex"
+      - "Universal AI instructions"
+    
+    documentation:
+      - "Technical documentation (50+ guides)"
+      - "API reference"
+      - "Architecture documentation"
+      - "Phase implementation guides"
+      - "23+ working examples"
+  
+  what_was_deferred:
+    post_v1_0:
+      phase_6_dx:
+        items:
+          - "Lite mode (progressive disclosure)"
+          - "Interactive tutorials"
+          - "Example gallery web UI"
+          - "Project templates system"
+          - "Video guides"
+        reason: "Core framework prioritized, DX enhancements for v1.1+"
+      
+      phase_7_community:
+        items:
+          - "Discord community"
+          - "Community template marketplace"
+          - "Blog and case studies"
+          - "Newsletter"
+        reason: "Community building post-release"
+      
+      phase_8_monitoring:
+        items:
+          - "Prometheus/Grafana integration"
+          - "OpenTelemetry distributed tracing"
+          - "Intelligent alerting"
+          - "Production load testing"
+        reason: "Basic profiling included, full observability for v1.2+"
+        note: "paracle_profiling provides profiling, caching, benchmarks"
+  
+  statistics:
+    files_changed: 598
+    insertions: 126504
+    deletions: 2077
+    packages: 30
+    cli_commands: 20
+    examples: 23
+    tests: "100+ unit + integration"
+    documentation_files: "50+"
+
+# =============================================================================
+# PERSISTENCE STRATEGY (Cross-Phase Architecture Decision)
+# =============================================================================
+persistence_strategy:
+  principle: |
+    Hybrid persistence with progressive complexity:
+    - YAML files for human-readable configuration (source of truth)
+    - SQLite/PostgreSQL for runtime data (ACID, queryable)
+    - ChromaDB/pgvector for AI-native storage (embeddings, RAG)
+
+  architecture: |
+    ┌─────────────────────────────────────────────────────────────────┐
+    │                    PERSISTENCE LAYERS                           │
+    ├─────────────────────────────────────────────────────────────────┤
+    │  YAML/Markdown Files     │  SQLite/PostgreSQL  │  ChromaDB      │
+    │  (.parac/ workspace)     │  (Relational)       │  (Vector)      │
+    ├──────────────────────────┼─────────────────────┼────────────────┤
+    │  • Agent specs           │  • Agent instances  │  • Embeddings  │
+    │  • Workflow definitions  │  • Execution logs   │  • RAG indexes │
+    │  • Tool configs          │  • Event history    │  • Semantic    │
+    │  • Governance state      │  • Session data     │    search      │
+    │  • Roadmap/decisions     │  • Audit trail      │  • Memory      │
+    └──────────────────────────┴─────────────────────┴────────────────┘
+            ↑                           ↑                    ↑
+       Human-readable            Transactional         AI-native
+       Version-controlled        ACID compliant        Similarity
+       Declarative               Queryable             search
+
+  implementation_phases:
+    v1.0.0_actual:
+      - layer: "File Layer"
+        status: "implemented"
+        completed: "2026-01-08"
+        description: "YAML/Markdown in .parac/"
+        location: ".parac/ workspace"
+      
+      - layer: "SQLite"
+        status: "implemented"
+        completed: "2026-01-08"
+        description: "Runtime operational data"
+        packages: ["paracle_core", "paracle_audit", "paracle_kanban", "paracle_agent_comm"]
+      
+      - layer: "ChromaDB"
+        status: "implemented"
+        completed: "2026-01-08"
+        description: "Vector store for embeddings and RAG"
+        package: "paracle_vector"
+      
+      - layer: "pgvector"
+        status: "implemented"
+        completed: "2026-01-08"
+        description: "PostgreSQL with vector extensions"
+        package: "paracle_vector"
+      
+      - layer: "Memory System"
+        status: "implemented"
+        completed: "2026-01-08"
+        description: "Multi-level agent memory persistence"
+        package: "paracle_memory"
+    
+    v1.1_planned:
+      - layer: "PostgreSQL Production"
+        status: "planned"
+        description: "Production-grade PostgreSQL deployment"
+        note: "HA, replication, backup strategies"
+      
+      - layer: "Distributed Cache"
+        status: "planned"
+        description: "Redis/Memcached for distributed caching"
+        note: "Currently using in-memory cache"
+
+# =============================================================================
+# MÉTRIQUES GLOBALES
+# =============================================================================
+global_metrics:
+  test_coverage: ">90%"
+  documentation_coverage: "100%"
+  security_audit: "ISO 42001 compliant"
+  api_stability: "Semantic versioning"
+  breaking_changes_policy: "Major versions only"
+
+# =============================================================================
+# VUE D'ENSEMBLE DES PHASES
+# =============================================================================
+phases_overview:
+  # --- COMPLETED: v1.0.0 Release (January 8, 2026) ---
+  - id: phase_0_5
+    name: "Foundation Through Production"
+    version: "0.0.1-1.0.0"
+    duration: "accelerated"
+    status: "completed"
+    completed_date: "2026-01-08"
+    note: "Phases 0-5 + 9 + 10 delivered together in v1.0.0"
+    included:
+      - "Core domain and agent system"
+      - "Multi-provider LLM support"
+      - "Orchestration and API"
+      - "Production features (caching, profiling, pooling)"
+      - "Knowledge engine + RAG (phase 9 content)"
+      - "Governance and audit (phase 10 content)"
+      - "23+ examples and comprehensive documentation"
+
+  # --- POST v1.0.0: Enhancement Phases ---
+  - id: phase_6
+    name: "Developer Experience & Accessibility"
+    version: "1.1.0"
+    duration: "6_weeks"
+    status: "next"
+    focus: "Progressive disclosure, lite mode, tutorials"
+    strategic_priority: "critical"
+    scheduled: "Q1 2026"
+    rationale: "Reduce adoption friction, make framework accessible to all skill levels"
+
+  - id: phase_7
+    name: "Community Building & Ecosystem"
+    version: "1.2.0"
+    duration: "5_weeks"
+    status: "planned"
+    focus: "Discord, templates, contributions, content"
+    strategic_priority: "high"
+    scheduled: "Q2 2026"
+    rationale: "Build community foundation, encourage contributions"
+
+  - id: phase_8
+    name: "Production Observability"
+    version: "1.3.0"
+    duration: "6_weeks"
+    status: "planned"
+    focus: "Prometheus, OpenTelemetry, distributed tracing, alerting"
+    strategic_priority: "high"
+    scheduled: "Q2 2026"
+    rationale: "Full observability stack for production deployments"
+    note: "Basic profiling/monitoring in v1.0.0, full stack in v1.3.0"
+
+  - id: phase_11
+    name: "Enterprise Features"
+    version: "1.4.0"
+    duration: "8_weeks"
+    status: "future"
+    focus: "Multi-tenancy, RBAC, SSO, compliance reporting"
+    strategic_priority: "medium"
+    scheduled: "Q3 2026"
+
+# =============================================================================
+# PHASE 6: DEVELOPER EXPERIENCE & ACCESSIBILITY (6 weeks) - ADR-017
+# =============================================================================
+phase_6:
+  name: "Developer Experience & Accessibility"
+  version: "0.5.0"
+  duration: "6_weeks"
+  priority: "critical"
+  strategic_context: "ADR-017 - Address complexity barrier via progressive disclosure"
+  description: |
+    Focus on reducing learning curve by ~50% through lite mode,
+    interactive tutorials, comprehensive examples, and video guides.
+    Goal: Make Paracle accessible to all skill levels while preserving power.
+
+  deliverables:
+    lite_mode:
+      - id: progressive_disclosure
+        name: "Progressive Disclosure System"
+        description: "Lite → Standard → Full mode progression"
+        priority: critical
+        week: 1-2
+        success_metric: "3-mode system working, seamless upgrades"
+
+      - id: lite_cli
+        name: "Lite Mode CLI"
+        description: "Simplified commands (init, run, test)"
+        priority: critical
+        week: 1
+        success_metric: "5 essential commands, zero config needed"
+
+      - id: auto_config
+        name: "Auto-Configuration"
+        description: "Smart defaults, detect project type"
+        priority: high
+        week: 2
+        success_metric: "80% projects work with zero config"
+
+    interactive_tutorial:
+      - id: tutorial_framework
+        name: "Interactive Tutorial Framework"
+        description: "Step-by-step guided learning system"
+        priority: critical
+        week: 2-3
+        success_metric: "Tutorial completion < 15 minutes"
+
+      - id: first_agent_tutorial
+        name: "Build Your First Agent (5 min)"
+        description: "Hello World → Basic Agent → Tool Usage"
+        priority: critical
+        week: 3
+        success_metric: "Time to First Agent < 5 minutes"
+
+      - id: advanced_tutorials
+        name: "Advanced Tutorials Set"
+        description: "Inheritance, workflows, multi-agent, safety"
+        priority: high
+        week: 3-4
+        success_metric: "4+ tutorials, progressive complexity"
+
+    example_gallery:
+      - id: gallery_platform
+        name: "Example Gallery Platform"
+        description: "Web + CLI browseable examples"
+        priority: high
+        week: 4
+        success_metric: "Gallery accessible, searchable, filterable"
+
+      - id: real_world_examples
+        name: "Real-World Examples (10+)"
+        description: |
+          - Code review agent
+          - Documentation generator
+          - Test automation agent
+          - Data analysis agent
+          - API client generator
+          - Database migration assistant
+          - Log analyzer agent
+          - Deployment orchestrator
+          - Multi-agent research team
+          - Customer support bot
+        priority: critical
+        week: 4-5
+        success_metric: "10+ working examples, documented"
+
+    project_templates:
+      - id: template_system
+        name: "Project Template System"
+        description: "paracle init --template <name>"
+        priority: high
+        week: 5
+        success_metric: "Template system working, extensible"
+
+      - id: starter_templates
+        name: "Starter Templates (5+)"
+        description: |
+          - Simple agent (hello-world)
+          - Code assistant
+          - Data pipeline
+          - Multi-agent team
+          - Enterprise workflow
+        priority: high
+        week: 5
+        success_metric: "5+ templates, fully documented"
+
+    video_guides:
+      - id: video_production
+        name: "Video Guide Production (5+)"
+        description: |
+          - Getting Started (5 min)
+          - Building Your First Agent (10 min)
+          - Agent Inheritance Explained (8 min)
+          - Multi-Agent Workflows (12 min)
+          - Production Deployment (15 min)
+        priority: medium
+        week: 6
+        success_metric: "5+ videos, professional quality"
+
+  new_packages:
+    - name: "paracle_lite"
+      description: "Lite mode implementation, auto-config"
+      dependencies: ["paracle_core", "paracle_cli"]
+
+    - name: "paracle_tutorial"
+      description: "Interactive tutorial framework"
+      dependencies: ["paracle_core", "paracle_cli"]
+
+    - name: "paracle_templates"
+      description: "Project templates system"
+      dependencies: ["paracle_core", "paracle_cli"]
+
+  success_criteria:
+    - "Time to First Agent: < 5 minutes (measured)"
+    - "Tutorial completion rate: > 80%"
+    - "Example gallery: 10+ working examples"
+    - "User satisfaction: > 4.5/5 stars"
+    - "Zero-config success rate: > 80%"
+
+  resources:
+    team: "2 developers (full-time)"
+    budget: "$42,000"
+    dev_weeks: "14 dev-weeks"
+    external: "Video production contractor ($5K)"
+
+# =============================================================================
+# PHASE 7: COMMUNITY BUILDING & ECOSYSTEM (5 weeks) - ADR-017
+# =============================================================================
+phase_7:
+  name: "Community Building & Ecosystem"
+  version: "0.7.0"
+  duration: "5_weeks"
+  priority: "high"
+  strategic_context: "ADR-017 - Build community foundation and contribution ecosystem"
+  description: |
+    Establish community infrastructure, templates, contribution workflows,
+    and content to support ecosystem growth and adoption.
+
+  deliverables:
+    community_infrastructure:
+      - id: discord_setup
+        name: "Discord Community Launch"
+        description: "Server setup, channels, moderation, bots"
+        priority: critical
+        week: 1
+        success_metric: "Discord live, 100+ members first month"
+
+      - id: contribution_guide
+        name: "Contribution Guidelines"
+        description: "CONTRIBUTING.md, PR templates, code review guide"
+        priority: critical
+        week: 1
+        success_metric: "Guide complete, first external PR merged"
+
+      - id: community_docs
+        name: "Community Documentation"
+        description: "FAQ, troubleshooting, best practices"
+        priority: high
+        week: 2
+        success_metric: "20+ FAQ entries, searchable"
+
+    community_templates:
+      - id: template_submission
+        name: "Community Template Submission"
+        description: "System for community to submit templates"
+        priority: high
+        week: 2
+        success_metric: "Submission workflow live, 5+ templates submitted"
+
+      - id: template_marketplace
+        name: "Template Marketplace"
+        description: "Browse, rate, download community templates"
+        priority: high
+        week: 3
+        success_metric: "Marketplace live, 20+ templates in 3 months"
+
+    content_creation:
+      - id: blog_launch
+        name: "Blog Launch"
+        description: "Technical blog with tutorials, case studies"
+        priority: high
+        week: 3-4
+        success_metric: "Blog live, 5+ articles published"
+
+      - id: case_studies
+        name: "Case Studies (3+)"
+        description: "Real-world success stories with metrics"
+        priority: high
+        week: 4
+        success_metric: "3+ case studies, showcasing ROI"
+
+      - id: newsletter
+        name: "Community Newsletter"
+        description: "Biweekly updates, tips, showcase"
+        priority: medium
+        week: 5
+        success_metric: "Newsletter setup, 100+ subscribers"
+
+  new_packages:
+    - name: "paracle_community"
+      description: "Community features, template marketplace"
+      dependencies: ["paracle_core", "paracle_api"]
+
+  success_criteria:
+    - "Discord: 100+ active members first month"
+    - "Templates: 20+ community templates in 3 months"
+    - "Contributors: 10+ external contributors in 6 months"
+    - "Blog: 5+ technical articles published"
+    - "Satisfaction: > 4.5/5 stars community feedback"
+
+  resources:
+    team: "1 community manager + 1 developer (part-time)"
+    budget: "$28,000"
+    dev_weeks: "7 dev-weeks"
+
+# =============================================================================
+# PHASE 8: PERFORMANCE & SCALE (6 weeks) - ADR-017
+# =============================================================================
+phase_8:
+  name: "Performance & Scale"
+  version: "0.8.0"
+  duration: "6_weeks"
+  priority: "high"
+  strategic_context: "ADR-017 - Production-grade performance and observability"
+  description: |
+    Performance optimization, comprehensive monitoring,
+    load testing, and production deployment guides.
+
+  deliverables:
+    performance_optimization:
+      - id: profiling
+        name: "Performance Profiling"
+        description: "CPU, memory, I/O profiling tooling"
+        priority: critical
+        week: 1
+        success_metric: "Profiling dashboard, bottlenecks identified"
+
+      - id: caching_layer
+        name: "Multi-Level Caching"
+        description: "Response cache, query cache, LLM cache"
+        priority: critical
+        week: 2
+        success_metric: "50% latency reduction on cached queries"
+
+      - id: async_optimization
+        name: "Async Optimization"
+        description: "Connection pooling, batch processing, parallelization"
+        priority: high
+        week: 2-3
+        success_metric: "2x throughput improvement"
+
+      - id: resource_optimization
+        name: "Resource Optimization"
+        description: "Memory footprint, startup time, disk usage"
+        priority: high
+        week: 3
+        success_metric: "< 100MB RAM per agent"
+
+    monitoring_observability:
+      - id: metrics_system
+        name: "Comprehensive Metrics"
+        description: "Prometheus, Grafana integration"
+        priority: critical
+        week: 3-4
+        success_metric: "20+ key metrics tracked"
+
+      - id: distributed_tracing
+        name: "Distributed Tracing"
+        description: "OpenTelemetry, Jaeger integration"
+        priority: high
+        week: 4
+        success_metric: "End-to-end trace visibility"
+
+      - id: alerting
+        name: "Intelligent Alerting"
+        description: "Error rates, latency spikes, resource exhaustion"
+        priority: high
+        week: 4
+        success_metric: "Alert system working, < 1% false positives"
+
+    load_testing:
+      - id: benchmark_suite
+        name: "Benchmark Suite"
+        description: "Standard benchmarks, regression detection"
+        priority: critical
+        week: 5
+        success_metric: "Benchmark CI integrated"
+
+      - id: load_tests
+        name: "Load Testing"
+        description: "Locust, K6 tests for scale validation"
+        priority: critical
+        week: 5
+        success_metric: "> 100 concurrent agents validated"
+
+    production_deployment:
+      - id: deployment_guides
+        name: "Production Deployment Guides"
+        description: "Docker, Kubernetes, cloud platforms"
+        priority: high
+        week: 6
+        success_metric: "5+ deployment guides published"
+
+      - id: scaling_guide
+        name: "Horizontal Scaling Guide"
+        description: "Multi-node, load balancing, HA"
+        priority: high
+        week: 6
+        success_metric: "Scaling guide validated in production"
+
+  new_packages:
+    - name: "paracle_monitoring"
+      description: "Metrics, tracing, alerting"
+      dependencies: ["paracle_core", "paracle_api"]
+
+    - name: "paracle_benchmarks"
+      description: "Benchmark suite, load tests"
+      dependencies: ["paracle_core", "paracle_domain"]
+
+  success_criteria:
+    - "API latency (p95): < 500ms"
+    - "Concurrent agents: > 100"
+    - "Resource efficiency: < 100MB RAM per agent"
+    - "Cache hit rate: > 70%"
+    - "Production deployment validated"
+
+  resources:
+    team: "2 developers (full-time)"
+    budget: "$36,000"
+    dev_weeks: "12 dev-weeks"
+
+# =============================================================================
+# PHASE 9: KNOWLEDGE ENGINE & MEMORY (6 weeks)
+# =============================================================================
+phase_9:
+  name: "Knowledge Engine & Memory"
+  version: "0.9.0"
+  duration: "6_weeks"
+  priority: "medium"
+  description: |
+    Advanced features: RAG, vector stores, memory management.
+    Deferred after DX/Community/Performance priorities.
+
+  deliverables:
+    knowledge_engine:
+      - id: vector_store
+        name: "Vector Store Integration"
+        description: "Support Chroma, Pinecone, Weaviate, Qdrant"
+        priority: critical
+        week: 1-2
+
+      - id: rag_engine
+        name: "RAG Engine"
+        description: "Retrieval Augmented Generation for agents"
+        priority: critical
+        week: 2-3
+
+    memory_system:
+      - id: project_memory
+        name: "Project Memory"
+        description: "Architecture decisions, patterns, anti-patterns"
+        priority: high
+        week: 4-5
+
+      - id: agent_memory
+        name: "Agent Memory"
+        description: "Performance history, feedback, preferences"
+        priority: high
+        week: 5-6
+
+  new_packages:
+    - name: "paracle_knowledge"
+      description: "Knowledge engine, RAG, vector stores"
+      dependencies: ["paracle_core", "paracle_domain"]
+
+    - name: "paracle_memory"
+      description: "Multi-level memory management"
+      dependencies: ["paracle_core", "paracle_domain", "paracle_knowledge"]
+
+  success_criteria:
+    - "RAG functional with < 500ms latency"
+    - "Full codebase indexation"
+    - "Reliable memory persistence"
+    - "Test coverage > 85%"
+
+# =============================================================================
+# PHASE 10: GOVERNANCE & V1.0 RELEASE (6 weeks)
+# =============================================================================
+phase_10:
+  name: "Governance & v1.0 Release"
+  version: "1.0.0"
+  duration: "6_weeks"
+  priority: "critical"
+  description: |
+    ISO/IEC 42001 compliance, governance layer, security audit,
+    and stable v1.0 release.
+
+  deliverables:
+    governance_layer:
+      - id: policy_engine
+        name: "Policy Engine"
+        description: "AI policy evaluation engine"
+        priority: critical
+        week: 1-2
+
+      - id: approval_workflow
+        name: "Human Approval Workflow"
+        description: "Configurable human validation workflow"
+        priority: critical
+        week: 2
+
+      - id: risk_scoring
+        name: "Risk Scoring System"
+        description: "Risk score per agent action"
+        priority: critical
+        week: 3
+
+    audit_system:
+      - id: audit_trail
+        name: "Audit Trail"
+        description: "Legally exploitable journal (ISO 42001)"
+        priority: critical
+        week: 4
+
+      - id: compliance_reports
+        name: "Compliance Reports"
+        description: "ISO 42001 compliance reports"
+        priority: high
+        week: 5
+
+    release:
+      - id: security_audit_final
+        name: "Final Security Audit"
+        description: "Complete security audit for v1.0"
+        priority: critical
+        week: 5
+
+      - id: documentation_final
+        name: "Final Documentation"
+        description: "Complete v1.0 documentation"
+        priority: critical
+        week: 5-6
+
+      - id: v1_release
+        name: "v1.0.0 Release"
+        description: "Stable v1.0.0 release"
+        priority: critical
+        week: 6
+
+  new_packages:
+    - name: "paracle_governance"
+      description: "Governance layer, policies, approvals"
+      dependencies: ["paracle_core", "paracle_domain", "paracle_events"]
+
+    - name: "paracle_audit"
+      description: "Audit trail, logging, compliance"
+      dependencies: ["paracle_core", "paracle_governance"]
+
+  success_criteria:
+    - "Complete audit trail operational"
+    - "Risk scoring functional"
+    - "ISO 42001 compliance verifiable"
+    - "Security audit passed"
+    - "Documentation 100% complete"
+    - "v1.0.0 released and stable"
+
+# =============================================================================
+# DÉPENDANCES ENTRE PHASES
+# =============================================================================
+dependencies:
+  phase_1: [phase_0]
+  phase_2: [phase_1]
+  phase_3: [phase_2]
+  phase_4: [phase_3]
+  phase_5: [phase_4]
+  phase_6: [phase_5] # DX after stable MVP
+  phase_7: [phase_6] # Community after DX improvements
+  phase_8: [phase_7] # Performance after community foundation
+  phase_9: [phase_8] # Knowledge after performance optimization
+  phase_10: [phase_9] # Governance & v1.0 release
+
+# =============================================================================
+# PACKAGES FINAUX (v1.0.0)
+# =============================================================================
+final_packages:
+  # Core Foundation (v0.0.1)
+  - paracle_core # Shared utilities
+  - paracle_domain # Pure business logic
+  - paracle_store # Persistence (SQLAlchemy)
+  - paracle_events # Event bus (Redis/Valkey)
+  - paracle_providers # LLM abstraction
+  - paracle_adapters # Framework integration
+  - paracle_orchestration # Workflow engine
+  - paracle_tools # Tool & MCP management
+  - paracle_api # REST API (FastAPI)
+  - paracle_cli # CLI (Click)
+
+  # Execution Safety (v0.0.1 - Phase 5)
+  - paracle_sandbox # Docker sandboxing
+  - paracle_isolation # Resource isolation
+  - paracle_rollback # Rollback mechanisms
+  - paracle_review # Artifact review
+
+  # Developer Experience (v0.5.0 - Phase 6)
+  - paracle_lite # Lite mode, auto-config
+  - paracle_tutorial # Interactive tutorials
+  - paracle_templates # Project templates
+
+  # Community (v0.7.0 - Phase 7)
+  - paracle_community # Community features, marketplace
+
+  # Performance (v0.8.0 - Phase 8)
+  - paracle_monitoring # Metrics, tracing, alerting
+  - paracle_benchmarks # Benchmark suite
+
+  # Knowledge (v0.9.0 - Phase 9)
+  - paracle_knowledge # RAG, vector stores
+  - paracle_memory # Memory management
+
+  # Governance (v1.0.0 - Phase 10)
+  - paracle_governance # Policies, approvals, risk
+  - paracle_audit # Audit trail, compliance
+
+# =============================================================================
+# TIMELINE COMPLÈTE (Updated per ADR-017)
+# =============================================================================
+timeline:
+  "2025-Q1":
+    phases: [phase_0, phase_1]
+    version: "0.0.1"
+    milestone: "Foundation & Core Domain"
+
+  "2025-Q2":
+    phases: [phase_2, phase_3]
+    version: "0.1.0 - 0.2.0"
+    milestone: "Multi-Provider & Orchestration"
+
+  "2025-Q3":
+    phases: [phase_4, phase_5]
+    version: "0.3.0 - 0.0.1-final"
+    milestone: "Production Scale & MVP Release"
+
+  "2026-Q1":
+    phases: [phase_6]
+    version: "0.5.0"
+    milestone: "Developer Experience & Accessibility"
+    strategic_focus: "ADR-017 - Reduce learning curve"
+
+  "2026-Q2":
+    phases: [phase_7, phase_8]
+    version: "0.7.0 - 0.8.0"
+    milestone: "Community & Performance"
+    strategic_focus: "ADR-017 - Build ecosystem"
+
+  "2026-Q3":
+    phases: [phase_9]
+    version: "0.9.0"
+    milestone: "Knowledge Engine"
+
+  "2026-Q4":
+    phases: [phase_10]
+    version: "1.0.0"
+    milestone: "Governance & v1.0 Release"
+    strategic_focus: "ISO 42001 compliance"
+
+# =============================================================================
+# RISQUES & MITIGATION
+# =============================================================================
+risks:
+  - id: scope_creep
+    description: "Extension incontrôlée du périmètre"
+    probability: high
+    impact: high
+    mitigation: "Phases strictement définies, validation par phase"
+
+  - id: complexity
+    description: "Complexité technique excessive"
+    probability: medium
+    impact: high
+    mitigation: "Architecture modulaire, packages indépendants"
+
+  - id: market_timing
+    description: "Concurrence avance plus vite"
+    probability: medium
+    impact: medium
+    mitigation: "Focus sur différenciateurs (héritage, ISO 42001)"
+
+  - id: resources
+    description: "Ressources insuffisantes"
+    probability: medium
+    impact: high
+    mitigation: "Priorisation stricte, MVP first"
