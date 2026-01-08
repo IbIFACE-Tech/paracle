@@ -2,8 +2,23 @@
 
 import logging
 import subprocess
-import xml.etree.ElementTree as ET
 from typing import Any
+
+try:
+    # SECURITY: Use defusedxml to prevent XML external entity attacks
+    import defusedxml.ElementTree as ET  # type: ignore
+except ImportError:
+    # Fallback to standard library with warning
+    import warnings
+    import xml.etree.ElementTree as ET
+
+    warnings.warn(
+        "defusedxml not installed. Using xml.etree.ElementTree which "
+        "may be vulnerable to XML attacks. Install defusedxml for "
+        "production use: pip install defusedxml",
+        UserWarning,
+        stacklevel=2,
+    )
 
 from paracle_tools.builtin.base import BaseTool
 
@@ -352,7 +367,8 @@ class TestExecutionTool(BaseTool):
             tree = ET.parse(xml_path)
             root = tree.getroot()
 
-            testsuite = root if root.tag == "testsuite" else root.find("testsuite")
+            testsuite = root if root.tag == "testsuite" else root.find(
+                "testsuite")
             if testsuite is None:
                 return {"error": "Invalid JUnit XML format"}
 

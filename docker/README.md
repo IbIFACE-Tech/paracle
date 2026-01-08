@@ -478,6 +478,6 @@ See `Dockerfile.api` for optimized multi-stage builds that reduce image size.
 
 ## Support
 
-- **Documentation**: [docs/](../docs/)
+- **Documentation**: [docs/](../content/docs/)
 - **Issues**: [GitHub Issues](https://github.com/anthropics/paracle/issues)
 - **Roadmap**: [.roadmap/](../.roadmap/)

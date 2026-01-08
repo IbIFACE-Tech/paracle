@@ -16,9 +16,15 @@ from paracle_domain.models import Workflow
 from paracle_events import EventBus
 from paracle_profiling import profile_async
 
-from paracle_orchestration.context import ExecutionContext, ExecutionStatus
+from paracle_orchestration.context import (
+    ExecutionContext,
+    ExecutionStatus,
+)
 from paracle_orchestration.engine import WorkflowOrchestrator
-from paracle_orchestration.exceptions import OrchestrationError, WorkflowNotFoundError
+from paracle_orchestration.exceptions import (
+    OrchestrationError,
+    WorkflowNotFoundError,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -88,10 +94,15 @@ class WorkflowEngine:
             async with self._history_lock:
                 self.execution_history[context.execution_id] = context
 
+            # Save run to storage
+            await self._save_run(context, workflow, inputs)
+
             return context
 
         except Exception as e:
-            raise OrchestrationError(f"Workflow execution failed: {e}") from e
+            raise OrchestrationError(
+                f"Workflow execution failed: {e}"
+            ) from e
 
     async def execute_async(
         self, workflow: Workflow, inputs: dict[str, Any]
@@ -158,6 +169,9 @@ class WorkflowEngine:
             # Move to history after completion with thread-safe access
             async with self._history_lock:
                 self.execution_history[execution_id] = context
+
+            # Save run to storage
+            await self._save_run(context, workflow, inputs)
 
             # Clean up task tracking
             if hasattr(self, "_pending_tasks") and execution_id in self._pending_tasks:
@@ -299,3 +313,96 @@ class WorkflowEngine:
         )
 
         return executions
+
+    async def _save_run(
+        self,
+        context: ExecutionContext,
+        workflow: Workflow,
+        inputs: dict[str, Any],
+    ) -> None:
+        """Save workflow run to storage.
+
+        Args:
+            context: Execution context
+            workflow: Workflow definition
+            inputs: Workflow inputs
+        """
+        try:
+            from datetime import datetime
+
+            from paracle_runs import (
+                RunStatus,
+                WorkflowRunMetadata,
+                get_run_storage,
+            )
+
+            # Convert execution status to run status
+            status_map = {
+                ExecutionStatus.PENDING: RunStatus.PENDING,
+                ExecutionStatus.RUNNING: RunStatus.RUNNING,
+                ExecutionStatus.COMPLETED: RunStatus.COMPLETED,
+                ExecutionStatus.FAILED: RunStatus.FAILED,
+                ExecutionStatus.TIMEOUT: RunStatus.TIMEOUT,
+            }
+            run_status = status_map.get(context.status, RunStatus.FAILED)
+
+            # Calculate duration
+            duration = None
+            if context.completed_at and context.started_at:
+                duration = (
+                    context.completed_at - context.started_at
+                ).total_seconds()
+
+            # Count successful and failed steps
+            successful = [
+                s for s in context.step_results.values()
+                if s.get("success")
+            ]
+            failed = [
+                s
+                for s in context.step_results.values()
+                if not s.get("success")
+            ]
+
+            # Get unique agent IDs
+            agent_ids = {
+                s.get("agent_id")
+                for s in context.step_results.values()
+                if s.get("agent_id")
+            }
+
+            # Create metadata
+            metadata = WorkflowRunMetadata(
+                run_id=context.execution_id,
+                workflow_id=workflow.id,
+                workflow_name=workflow.spec.name,
+                started_at=context.started_at or datetime.now(),
+                completed_at=context.completed_at,
+                duration_seconds=duration,
+                status=run_status,
+                steps_total=context.metadata.get("total_steps", 0),
+                steps_completed=len(successful),
+                steps_failed=len(failed),
+                agents_used=list(agent_ids),
+                artifacts_count=len(context.outputs),
+                metadata=context.metadata,
+            )
+
+            # Save to storage
+            storage = get_run_storage()
+            storage.save_workflow_run(
+                metadata=metadata,
+                inputs=inputs,
+                outputs=context.outputs,
+                steps=context.step_results,
+            )
+
+            logger.info(
+                f"Saved workflow run {context.execution_id} to storage"
+            )
+
+        except Exception as e:
+            # Don't fail the workflow if storage fails
+            logger.warning(
+                f"Failed to save run to storage: {e}", exc_info=True
+            )

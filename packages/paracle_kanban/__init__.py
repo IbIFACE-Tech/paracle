@@ -9,6 +9,10 @@ from paracle_kanban.task import AssigneeType, Task, TaskPriority, TaskStatus, Ta
 
 __version__ = "1.0.0"
 
+# Aliases for backward compatibility with tests
+TaskBoard = Board
+TaskManager = BoardRepository
+
 __all__ = [
     # Task
     "Task",
@@ -19,4 +23,7 @@ __all__ = [
     # Board
     "Board",
     "BoardRepository",
+    # Aliases
+    "TaskBoard",
+    "TaskManager",
 ]

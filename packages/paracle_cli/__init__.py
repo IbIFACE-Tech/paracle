@@ -9,12 +9,14 @@ This package provides the Click-based CLI for Paracle:
 - API server (serve)
 - IDE integration (ide generate, sync)
 - Logging (logs recent, agent, clear)
+- AI-powered generation (generate agent, skill, workflow, docs) - optional
 
 Usage:
     paracle --help
     paracle init
     paracle agents list
     paracle workflow run my-workflow
+    paracle generate agent "description"  # Requires AI provider
 """
 
 from paracle_cli.main import cli

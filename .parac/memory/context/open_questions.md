@@ -22,6 +22,7 @@ This document tracks unresolved questions and decisions pending.
 | Q14 | Learning Curve Reduction      | PM         | High     | Phase 6 End | Open         |
 | Q15 | Performance at Scale          | Architect  | Medium   | Phase 7 End | Open         |
 | Q16 | Community & Ecosystem Growth  | PM         | Critical | Phase 7 End | Open         |
+| Q17 | Remote Development SSH        | Architect  | High     | Phase 8 End | **Resolved** |
 
 ---
 
@@ -720,3 +721,39 @@ Questions will be moved here once decided, with reference to decision document.
 **ADR:** [Reference to decisions.md entry]
 **Implemented:** [Yes/No/Partial]
 ```
+
+
+---
+
+## Resolved Questions (Post-v1.0.0)
+
+### Q17: Remote Development SSH Support ✅
+
+**Status:** Resolved
+**Priority:** High
+**Owner:** Architect Agent
+**Deadline:** Phase 8 End
+**Resolved Date:** 2026-01-08
+**Decision:** Workaround available now (manual SSH tunneling), native support in Phase 8 (v1.3.0)
+
+**Context:** Users want to run Paracle on remote servers while editing locally in their IDE.
+
+**Implementation Plan:**
+1. **Now (v1.0.0)**: Manual SSH tunneling workaround documented
+2. **Phase 8 (v1.3.0)**: Native SSH transport with automatic tunnel management
+
+**Components:**
+- SSH Transport Layer (\paracle_transport\ package)
+- WebSocket MCP Transport (replaces unreliable stdio over SSH)
+- CLI Remote Commands (\paracle agents list --remote prod\)
+- Remote Configuration (\.parac/config/remotes.yaml\)
+- IDE Integration (auto-connect from settings)
+
+**Documentation:**
+- \docs/technical/remote-development-ssh-guide.md\ - Complete guide with examples
+- \.parac/roadmap/adr/ADR-019-Remote-SSH-Support.md\ - Architecture decision record
+
+**ADR:** ADR-019
+**Timeline:** Phase 8 (8 weeks, Q2 2026)
+**Implemented:** Partial (workaround documented, native support planned)
+

@@ -17,29 +17,9 @@ from rich.table import Table
 from rich.text import Text
 
 from paracle_cli.api_client import APIClient, APIError, get_client
+from paracle_cli.utils import get_parac_root_or_exit
 
 console = Console()
-
-
-def find_parac_root() -> Path | None:
-    """Find .parac/ directory from current working directory."""
-    current = Path.cwd()
-    while current != current.parent:
-        parac_dir = current / ".parac"
-        if parac_dir.exists():
-            return parac_dir
-        current = current.parent
-    return None
-
-
-def get_parac_root_or_exit() -> Path:
-    """Get .parac/ root or exit with error."""
-    parac_root = find_parac_root()
-    if parac_root is None:
-        console.print("[red]Error:[/red] No .parac/ workspace found.")
-        console.print("Run 'paracle init' first.")
-        sys.exit(1)
-    return parac_root
 
 
 def get_api_client() -> APIClient | None:
@@ -220,7 +200,8 @@ def _list_direct() -> None:
     for name, path in sorted(log_files.items()):
         stat = path.stat()
         size = f"{stat.st_size:,} bytes"
-        modified = datetime.fromtimestamp(stat.st_mtime).strftime("%Y-%m-%d %H:%M")
+        modified = datetime.fromtimestamp(
+            stat.st_mtime).strftime("%Y-%m-%d %H:%M")
         table.add_row(name, str(path.relative_to(parac_root)), size, modified)
 
     console.print(table)
@@ -247,12 +228,14 @@ def _show_via_api(
 ) -> None:
     """Show logs via API."""
     if follow:
-        console.print("[yellow]Warning:[/yellow] Follow mode not supported via API.")
+        console.print(
+            "[yellow]Warning:[/yellow] Follow mode not supported via API.")
         console.print("[dim]Falling back to direct access...[/dim]")
         _show_direct(log_name, tail, follow, as_json, grep_pattern)
         return
 
-    result = client.logs_show(log_name=log_name, tail=tail, pattern=grep_pattern)
+    result = client.logs_show(
+        log_name=log_name, tail=tail, pattern=grep_pattern)
     lines = result.get("lines", [])
 
     if not lines:
@@ -272,7 +255,8 @@ def _show_via_api(
     else:
         # Pretty print with formatting
         for line in lines:
-            _print_log_line(line.strip() if isinstance(line, str) else str(line))
+            _print_log_line(line.strip() if isinstance(
+                line, str) else str(line))
 
 
 def _show_direct(
@@ -349,7 +333,8 @@ def _follow_log(log_path: Path, pattern: str | None):
     """Follow log file in real-time."""
     import time
 
-    console.print(f"[cyan]Following {log_path.name}... (Ctrl+C to stop)[/cyan]")
+    console.print(
+        f"[cyan]Following {log_path.name}... (Ctrl+C to stop)[/cyan]")
     console.print()
 
     # Get current file size
@@ -536,7 +521,8 @@ def _export_direct(
                 writer.writeheader()
                 writer.writerows(entries)
 
-    console.print(f"[green]OK[/green] Exported {len(entries)} entries to {output_path}")
+    console.print(
+        f"[green]OK[/green] Exported {len(entries)} entries to {output_path}")
 
 
 @logs.command("export")
@@ -576,7 +562,8 @@ def _audit_direct(
     audit_dir = parac_root / "memory" / "logs" / "audit"
 
     if not audit_dir.exists():
-        console.print("[yellow]No audit logs found. Audit logging may not be configured.[/yellow]")
+        console.print(
+            "[yellow]No audit logs found. Audit logging may not be configured.[/yellow]")
         console.print("\nTo enable audit logging, configure it at startup:")
         console.print("  from paracle_core.logging import configure_logging")
         console.print("  configure_logging(audit_enabled=True)")

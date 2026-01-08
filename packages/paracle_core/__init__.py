@@ -24,6 +24,19 @@ Usage:
     from paracle_core.ids import generate_ulid
 """
 
+# Exceptions
+from paracle_core.exceptions import (
+    ConfigurationError,
+    DependencyError,
+    InitializationError,
+    ParacleError,
+    PermissionError,
+    ResourceError,
+    StateError,
+    ValidationError,
+    WorkspaceError,
+)
+
 # ID generation utilities
 from paracle_core.ids import (
     generate_correlation_id,
@@ -41,9 +54,30 @@ from paracle_core.storage import (
     set_storage_config,
 )
 
+# System paths (cross-platform)
+from paracle_core.paths import (
+    Platform,
+    SystemPaths,
+    detect_platform,
+    ensure_system_directories,
+    get_system_info,
+    get_system_paths,
+    get_system_skills_dir,
+)
+
 __version__ = "1.0.0"
 
 __all__ = [
+    # Exceptions
+    "ParacleError",
+    "ConfigurationError",
+    "InitializationError",
+    "ValidationError",
+    "WorkspaceError",
+    "DependencyError",
+    "ResourceError",
+    "StateError",
+    "PermissionError",
     # ID generation
     "generate_ulid",
     "generate_short_id",
@@ -55,6 +89,14 @@ __all__ = [
     "get_storage_config",
     "set_storage_config",
     "reset_storage_config",
+    # System paths (cross-platform)
+    "Platform",
+    "SystemPaths",
+    "detect_platform",
+    "get_system_paths",
+    "get_system_skills_dir",
+    "ensure_system_directories",
+    "get_system_info",
 ]
 
 # Note: Other subpackages are not re-exported to avoid circular imports.

@@ -87,6 +87,19 @@ class AutomaticStateManager:
             # Load roadmap for progress calculation
             roadmap = self._load_roadmap()
 
+            # Update deliverable status in roadmap
+            phases = roadmap.get('phases', [])
+            for p in phases:
+                if p['id'] == phase:
+                    for d in p.get('deliverables', []):
+                        if isinstance(d, dict) and d.get('id') == deliverable_id:
+                            d['status'] = 'completed'
+                            d['completed_date'] = datetime.now().strftime(
+                                "%Y-%m-%d")
+                            d['completed_by'] = agent
+                            break
+                    break
+
             # Update current_phase.completed
             if deliverable_id not in state['current_phase'].get('completed', []):
                 state['current_phase'].setdefault(
@@ -126,8 +139,9 @@ class AutomaticStateManager:
             # Update snapshot date
             state['snapshot_date'] = datetime.now().strftime("%Y-%m-%d")
 
-            # Save atomically
+            # Save both state and roadmap atomically
             self._save_state(state)
+            self._save_roadmap(roadmap)
 
             # Log the auto-update
             self.logger.log(
@@ -157,6 +171,15 @@ class AutomaticStateManager:
         """
         async with self._lock:
             state = self._load_state()
+
+            # Save previous phase if exists
+            if 'current_phase' in state:
+                state['previous_phase'] = {
+                    'id': state['current_phase']['id'],
+                    'name': state['current_phase']['name'],
+                    'status': state['current_phase'].get('status', 'completed'),
+                    'progress': state['current_phase'].get('progress', 100),
+                }
 
             # Update current phase
             state['project']['phase'] = phase_id
@@ -337,6 +360,27 @@ class AutomaticStateManager:
         # Atomic rename
         temp_file.replace(self.state_file)
 
+    def _save_roadmap(self, roadmap: dict) -> None:
+        """Save roadmap atomically.
+
+        Args:
+            roadmap: Roadmap dictionary to save
+        """
+        # Write to temp file first
+        temp_file = self.roadmap_file.with_suffix('.yaml.tmp')
+
+        with open(temp_file, 'w', encoding='utf-8') as f:
+            yaml.dump(
+                roadmap,
+                f,
+                default_flow_style=False,
+                allow_unicode=True,
+                sort_keys=False,
+            )
+
+        # Atomic rename
+        temp_file.replace(self.roadmap_file)
+
 
 # Global instance
 _state_manager: AutomaticStateManager | None = None
@@ -376,7 +420,17 @@ def _find_parac_root() -> Path:
     raise FileNotFoundError("Could not find .parac/ directory")
 
 
+def reset_state_manager() -> None:
+    """Reset global state manager instance.
+
+    Useful for testing to ensure clean state between tests.
+    """
+    global _state_manager
+    _state_manager = None
+
+
 __all__ = [
     "AutomaticStateManager",
     "get_state_manager",
+    "reset_state_manager",
 ]

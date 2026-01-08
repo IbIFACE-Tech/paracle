@@ -126,6 +126,41 @@ services:
       - paracle-data:/app/data
     restart: unless-stopped
 
+  # Paracle MCP Server (Model Context Protocol)
+  # Exposes Paracle tools to AI assistants (Claude Code, Cursor, etc.)
+  mcp:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.mcp
+    container_name: paracle-mcp
+    environment:
+      # Redis for event bus
+      PARACLE_REDIS_URL: redis://redis:6379/0
+
+      # MCP configuration
+      PARACLE_LOG_LEVEL: ${PARACLE_LOG_LEVEL:-INFO}
+
+      # Paracle workspace
+      PARACLE_WORKSPACE_ROOT: /app/.parac
+
+      # API URL for MCP to call Paracle API
+      PARACLE_API_URL: http://api:8000
+    depends_on:
+      - api
+      - redis
+    volumes:
+      # Mount .parac workspace directory (shared)
+      - paracle-workspace:/app/.parac
+      # Mount data directory
+      - paracle-data:/app/data
+    # For stdio transport (default), use: docker attach paracle-mcp
+    # For HTTP transport, uncomment below and change CMD in Dockerfile
+    # ports:
+    #   - "3000:3000"
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+
 volumes:
   postgres-data:
     driver: local

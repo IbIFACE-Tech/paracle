@@ -11,7 +11,7 @@ from enum import Enum
 from typing import Any
 from uuid import uuid4
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_serializer
 
 
 def utc_now() -> datetime:
@@ -70,12 +70,15 @@ class Event(BaseModel):
 
     model_config = ConfigDict(
         frozen=True,  # Immutable
-        json_encoders={datetime: lambda v: v.isoformat()},
     )
 
     id: str = Field(default_factory=generate_event_id)
     type: EventType = Field(..., description="Event type")
     timestamp: datetime = Field(default_factory=utc_now)
+
+    @field_serializer('timestamp', when_used='json')
+    def serialize_datetime(self, dt: datetime) -> str:
+        return dt.isoformat()
     source: str = Field(..., description="Event source (e.g., agent ID)")
     payload: dict[str, Any] = Field(default_factory=dict)
     metadata: dict[str, Any] = Field(default_factory=dict)
@@ -113,7 +116,9 @@ def agent_started(agent_id: str, **metadata: Any) -> Event:
     )
 
 
-def agent_completed(agent_id: str, result: Any = None, **metadata: Any) -> Event:
+def agent_completed(
+    agent_id: str, result: Any = None, **metadata: Any
+) -> Event:
     """Create an agent.completed event."""
     return Event(
         type=EventType.AGENT_COMPLETED,

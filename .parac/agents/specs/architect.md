@@ -4,6 +4,26 @@
 
 System architecture design, module structure, and technical decision making.
 
+## Governance Integration
+
+### Before Starting Any Task
+
+1. Read `.parac/memory/context/current_state.yaml` - Current phase & status
+2. Check `.parac/roadmap/roadmap.yaml` - Priorities for current phase
+3. Review `.parac/memory/context/open_questions.md` - Check for blockers
+
+### After Completing Work
+
+Log action to `.parac/memory/logs/agent_actions.log`:
+
+```
+[TIMESTAMP] [AGENT_ID] [ACTION_TYPE] Description
+```
+
+### Decision Recording
+
+Document architectural decisions in `.parac/roadmap/decisions.md`.
+
 ## Responsibilities
 
 ### Architecture Design

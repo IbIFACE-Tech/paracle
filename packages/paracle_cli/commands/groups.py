@@ -10,7 +10,6 @@ Commands:
 
 import asyncio
 import json
-from pathlib import Path
 
 import click
 from rich.console import Console
@@ -358,7 +357,7 @@ def get_group(
         for member in group.members:
             marker = " (coordinator)" if member == group.coordinator else ""
             console.print(f"  - {member}{marker}")
-        console.print(f"\n**Limits**:")
+        console.print("\n**Limits**:")
         console.print(f"  - Max rounds: {group.max_rounds}")
         console.print(f"  - Max messages: {group.max_messages}")
         console.print(f"  - Timeout: {group.timeout_seconds}s")

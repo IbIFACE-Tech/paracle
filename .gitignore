@@ -32,9 +32,6 @@ MANIFEST
 *.manifest
 *.spec
 
-# Private documentation (internal workflows, credentials, etc.)
-.docs-private/
-private-docs/
 
 # Installer logs
 pip-log.txt
@@ -211,10 +208,19 @@ marimo/_lsp/
 __marimo__/
 
 
-#paracle
+#paracle framework
 #.parac/
 .roadmap/
 temp_example/
+test-tutorial/
+test-tutorial/.parac/
+.benchmarks/
+content/docs/technical/
+packages/paracle_meta/
+tests/unit/meta/
+# Private documentation (internal workflows, credentials, etc.)
+.docs-private/
+private-docs/
 
 # API Keys and Secrets (IMPORTANT!)
 .env

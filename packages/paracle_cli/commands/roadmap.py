@@ -12,7 +12,6 @@ Architecture: CLI -> Core (direct access for local file operations)
 """
 
 import sys
-from pathlib import Path
 
 import click
 from rich.console import Console
@@ -20,28 +19,9 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.tree import Tree
 
+from paracle_cli.utils import get_parac_root_or_exit
+
 console = Console()
-
-
-def find_parac_root() -> Path | None:
-    """Find .parac/ directory from current working directory."""
-    current = Path.cwd()
-    while current != current.parent:
-        parac_dir = current / ".parac"
-        if parac_dir.exists():
-            return parac_dir
-        current = current.parent
-    return None
-
-
-def get_parac_root_or_exit() -> Path:
-    """Get .parac/ root or exit with error."""
-    parac_root = find_parac_root()
-    if parac_root is None:
-        console.print("[red]Error:[/red] No .parac/ workspace found.")
-        console.print("Run 'paracle init' first.")
-        sys.exit(1)
-    return parac_root
 
 
 def get_roadmap_manager():
@@ -209,7 +189,8 @@ def show_roadmap(name: str, as_json: bool):
 
         # Progress bar
         progress_filled = int(phase.progress / 100 * 10)
-        progress_bar = "[" + "=" * progress_filled + "-" * (10 - progress_filled) + "]"
+        progress_bar = "[" + "=" * progress_filled + \
+            "-" * (10 - progress_filled) + "]"
 
         phase_label = (
             f"[{status_style}]{phase.id}[/{status_style}]: {phase.name} "
@@ -221,12 +202,15 @@ def show_roadmap(name: str, as_json: bool):
         # Add deliverables if any
         if phase.deliverables:
             for d in phase.deliverables[:3]:  # Show max 3
-                d_name = d.get("name", str(d)) if isinstance(d, dict) else str(d)
-                d_status = d.get("status", "pending") if isinstance(d, dict) else "pending"
+                d_name = d.get("name", str(d)) if isinstance(
+                    d, dict) else str(d)
+                d_status = d.get("status", "pending") if isinstance(
+                    d, dict) else "pending"
                 d_style = "green" if d_status == "completed" else "dim"
                 branch.add(f"[{d_style}]- {d_name}[/{d_style}]")
             if len(phase.deliverables) > 3:
-                branch.add(f"[dim]... and {len(phase.deliverables) - 3} more[/dim]")
+                branch.add(
+                    f"[dim]... and {len(phase.deliverables) - 3} more[/dim]")
 
     console.print(tree)
 
@@ -443,7 +427,8 @@ def show_stats():
     # Overview
     console.print(f"\n[bold]Roadmaps:[/bold] {stats['total_roadmaps']}")
     console.print(f"[bold]Total Phases:[/bold] {stats['total_phases']}")
-    console.print(f"[bold]Average Progress:[/bold] {stats['average_progress']:.1f}%")
+    console.print(
+        f"[bold]Average Progress:[/bold] {stats['average_progress']:.1f}%")
 
     # Phases by status
     console.print("\n[bold]Phases by Status:[/bold]")
@@ -504,7 +489,8 @@ def manage_phase(action: str, roadmap_name: str):
     if action == "next":
         next_phase = manager.get_next_phase(roadmap_name)
         if next_phase:
-            console.print(f"[bold]Next phase:[/bold] {next_phase.id} - {next_phase.name}")
+            console.print(
+                f"[bold]Next phase:[/bold] {next_phase.id} - {next_phase.name}")
         else:
             console.print("[dim]No pending phases.[/dim]")
         return
@@ -523,8 +509,10 @@ def manage_phase(action: str, roadmap_name: str):
             next_phase = manager.get_next_phase(roadmap_name)
             if next_phase:
                 if click.confirm(f"Start next phase ({next_phase.id})?"):
-                    manager.update_phase_status(roadmap_name, next_phase.id, "in_progress")
-                    console.print(f"[green]OK[/green] Started {next_phase.id}.")
+                    manager.update_phase_status(
+                        roadmap_name, next_phase.id, "in_progress")
+                    console.print(
+                        f"[green]OK[/green] Started {next_phase.id}.")
         else:
             console.print("[red]Error:[/red] Failed to update status.")
             sys.exit(1)

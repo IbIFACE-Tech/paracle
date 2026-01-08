@@ -4,6 +4,7 @@ This module contains all CLI command groups:
 - agents: Agent management (create, list, show, delete)
 - groups: Agent group management (multi-agent collaboration)
 - workflow: Workflow management (list, run, status, cancel)
+- runs: Execution run management (list, get, replay, cleanup)
 - tools: Tool management (list, info, test, register)
 - providers: Provider management (list, add, test, default)
 - ide: IDE integration (generate, sync)
@@ -23,9 +24,11 @@ from paracle_cli.commands.governance import governance
 from paracle_cli.commands.groups import groups
 from paracle_cli.commands.ide import ide
 from paracle_cli.commands.logs import logs
+from paracle_cli.commands.meta import meta
 from paracle_cli.commands.parac import init, parac, session, status, sync, validate
 from paracle_cli.commands.pool import pool
 from paracle_cli.commands.providers import providers
+from paracle_cli.commands.runs import runs_group
 from paracle_cli.commands.serve import serve
 from paracle_cli.commands.tools import tools
 from paracle_cli.commands.workflow import workflow
@@ -40,9 +43,11 @@ __all__ = [
     "groups",
     "ide",
     "logs",
+    "meta",
     "parac",
     "pool",
     "providers",
+    "runs_group",
     "serve",
     "tools",
     "workflow",

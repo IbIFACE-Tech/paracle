@@ -1,4 +1,8 @@
-"""CLI commands for task management."""
+"""CLI commands for task management.
+
+Follows API-first pattern: CLI -> API -> Core
+Falls back to direct core access when API unavailable.
+"""
 
 import json
 
@@ -8,7 +12,289 @@ from paracle_kanban.board import BoardRepository
 from rich.console import Console
 from rich.table import Table
 
+from paracle_cli.api_client import APIClient, use_api_or_fallback
+
 console = Console()
+
+
+# =============================================================================
+# API Functions
+# =============================================================================
+
+
+def _api_create_task(
+    client: APIClient,
+    board_id: str,
+    title: str,
+    description: str,
+    priority: str,
+    task_type: str,
+    assignee: str | None,
+    tags: list[str],
+) -> dict:
+    """Create task via API."""
+    return client.tasks_create(
+        board_id=board_id,
+        title=title,
+        description=description,
+        priority=priority,
+        task_type=task_type,
+        assigned_to=assignee,
+        tags=tags,
+    )
+
+
+def _api_list_tasks(
+    client: APIClient,
+    board_id: str | None,
+    status: str | None,
+    assignee: str | None,
+    priority: str | None,
+) -> dict:
+    """List tasks via API."""
+    return client.tasks_list(
+        board_id=board_id,
+        status=status,
+        assigned_to=assignee,
+        priority=priority,
+    )
+
+
+def _api_get_task(client: APIClient, task_id: str) -> dict:
+    """Get task via API."""
+    return client.tasks_get(task_id)
+
+
+def _api_move_task(
+    client: APIClient, task_id: str, status: str, reason: str | None
+) -> dict:
+    """Move task via API."""
+    return client.tasks_move(task_id, status, reason)
+
+
+def _api_assign_task(client: APIClient, task_id: str, agent_id: str) -> dict:
+    """Assign task via API."""
+    return client.tasks_assign(task_id, agent_id)
+
+
+def _api_unassign_task(client: APIClient, task_id: str) -> dict:
+    """Unassign task via API."""
+    return client.tasks_unassign(task_id)
+
+
+def _api_delete_task(client: APIClient, task_id: str) -> dict:
+    """Delete task via API."""
+    return client.tasks_delete(task_id)
+
+
+# =============================================================================
+# Fallback Functions (direct core access)
+# =============================================================================
+
+
+def _fallback_create_task(
+    board_id: str,
+    title: str,
+    description: str,
+    priority: str,
+    task_type: str,
+    assignee: str | None,
+    tags: list[str],
+) -> dict:
+    """Create task directly from core."""
+    repo = BoardRepository()
+
+    # Verify board exists
+    board = repo.get_board(board_id)
+    if not board:
+        raise ValueError(f"Board '{board_id}' not found")
+
+    # Create task
+    task = Task(
+        board_id=board_id,
+        title=title,
+        description=description,
+        priority=TaskPriority[priority.upper()],
+        task_type=TaskType[task_type.upper()],
+        assigned_to=assignee,
+        tags=tags,
+    )
+
+    task = repo.create_task(task)
+
+    return {
+        "id": task.id,
+        "board_id": task.board_id,
+        "title": task.title,
+        "description": task.description,
+        "status": task.status.value,
+        "priority": task.priority.value,
+        "task_type": task.task_type.value,
+        "assigned_to": task.assigned_to,
+        "tags": task.tags,
+        "created_at": task.created_at.isoformat(),
+        "updated_at": task.updated_at.isoformat(),
+    }
+
+
+def _fallback_list_tasks(
+    board_id: str | None,
+    status: str | None,
+    assignee: str | None,
+    priority: str | None,
+) -> dict:
+    """List tasks directly from core."""
+    repo = BoardRepository()
+
+    # Convert string filters to enums
+    status_filter = TaskStatus[status.upper()] if status else None
+    priority_filter = TaskPriority[priority.upper()] if priority else None
+
+    tasks = repo.list_tasks(
+        board_id=board_id,
+        status=status_filter,
+        assigned_to=assignee,
+        priority=priority_filter,
+    )
+
+    return {
+        "tasks": [
+            {
+                "id": t.id,
+                "board_id": t.board_id,
+                "title": t.title,
+                "description": t.description,
+                "status": t.status.value,
+                "priority": t.priority.value,
+                "task_type": t.task_type.value,
+                "assigned_to": t.assigned_to,
+                "tags": t.tags,
+                "created_at": t.created_at.isoformat(),
+                "updated_at": t.updated_at.isoformat(),
+            }
+            for t in tasks
+        ],
+        "total": len(tasks),
+    }
+
+
+def _fallback_get_task(task_id: str) -> dict:
+    """Get task directly from core."""
+    repo = BoardRepository()
+    task = repo.get_task(task_id)
+
+    if not task:
+        raise ValueError(f"Task '{task_id}' not found")
+
+    return {
+        "id": task.id,
+        "board_id": task.board_id,
+        "title": task.title,
+        "description": task.description,
+        "status": task.status.value,
+        "priority": task.priority.value,
+        "task_type": task.task_type.value,
+        "assigned_to": task.assigned_to,
+        "tags": task.tags,
+        "depends_on": task.depends_on,
+        "blocked_by": task.blocked_by,
+        "created_at": task.created_at.isoformat(),
+        "updated_at": task.updated_at.isoformat(),
+        "started_at": task.started_at.isoformat() if task.started_at else None,
+        "completed_at": task.completed_at.isoformat() if task.completed_at else None,
+        "cycle_time_hours": task.cycle_time() if task.completed_at else None,
+        "lead_time_hours": task.lead_time() if task.completed_at else None,
+    }
+
+
+def _fallback_move_task(task_id: str, status: str, reason: str | None) -> dict:
+    """Move task directly via core."""
+    repo = BoardRepository()
+    task = repo.get_task(task_id)
+
+    if not task:
+        raise ValueError(f"Task '{task_id}' not found")
+
+    new_status = TaskStatus[status.upper()]
+
+    # Validate transition
+    if not task.can_transition_to(new_status):
+        raise ValueError(f"Cannot move from {task.status.value} to {new_status.value}")
+
+    # Check blocked reason
+    if new_status == TaskStatus.BLOCKED and not reason:
+        raise ValueError("Reason required when moving to BLOCKED status")
+
+    # Move task
+    old_status = task.status
+    task.move_to(new_status, reason=reason)
+    task = repo.update_task(task)
+
+    return {
+        "id": task.id,
+        "title": task.title,
+        "old_status": old_status.value,
+        "status": task.status.value,
+    }
+
+
+def _fallback_assign_task(task_id: str, agent_id: str) -> dict:
+    """Assign task directly via core."""
+    repo = BoardRepository()
+    task = repo.get_task(task_id)
+
+    if not task:
+        raise ValueError(f"Task '{task_id}' not found")
+
+    task.assign(agent_id)
+    task = repo.update_task(task)
+
+    return {
+        "id": task.id,
+        "title": task.title,
+        "assigned_to": task.assigned_to,
+    }
+
+
+def _fallback_unassign_task(task_id: str) -> dict:
+    """Unassign task directly via core."""
+    repo = BoardRepository()
+    task = repo.get_task(task_id)
+
+    if not task:
+        raise ValueError(f"Task '{task_id}' not found")
+
+    task.unassign()
+    task = repo.update_task(task)
+
+    return {
+        "id": task.id,
+        "title": task.title,
+        "assigned_to": task.assigned_to,
+    }
+
+
+def _fallback_delete_task(task_id: str) -> dict:
+    """Delete task directly via core."""
+    repo = BoardRepository()
+    task = repo.get_task(task_id)
+
+    if not task:
+        raise ValueError(f"Task '{task_id}' not found")
+
+    title = task.title
+    repo.delete_task(task_id)
+
+    return {
+        "success": True,
+        "task_id": task_id,
+        "message": f"Task '{title}' deleted successfully",
+    }
+
+
+# =============================================================================
+# CLI Commands
+# =============================================================================
 
 
 @click.group()
@@ -24,8 +310,7 @@ def task() -> None:
 @click.option(
     "--priority",
     "-p",
-    type=click.Choice(["LOW", "MEDIUM", "HIGH", "CRITICAL"],
-                      case_sensitive=False),
+    type=click.Choice(["LOW", "MEDIUM", "HIGH", "CRITICAL"], case_sensitive=False),
     default="MEDIUM",
     help="Task priority",
 )
@@ -54,36 +339,27 @@ def create_task(
 ) -> None:
     """Create a new task."""
     try:
-        repo = BoardRepository()
-
-        # Verify board exists
-        board = repo.get_board(board_id)
-        if not board:
-            console.print(f"[red]Error: Board '{board_id}' not found[/red]")
-            raise SystemExit(1)
-
-        # Create task
-        task = Task(
-            board_id=board_id,
-            title=title,
-            description=description,
-            priority=TaskPriority[priority.upper()],
-            task_type=TaskType[task_type.upper()],
-            assigned_to=assignee,
-            tags=list(tags),
+        result = use_api_or_fallback(
+            _api_create_task,
+            _fallback_create_task,
+            board_id,
+            title,
+            description,
+            priority,
+            task_type,
+            assignee,
+            list(tags),
         )
 
-        task = repo.create_task(task)
-
         if as_json:
-            click.echo(task.model_dump_json(indent=2))
+            click.echo(json.dumps(result, indent=2, default=str))
         else:
-            console.print(f"[green]✓[/green] Created task: {task.id}")
-            console.print(f"  Title: {task.title}")
-            console.print(f"  Status: {task.status.value}")
-            console.print(f"  Priority: {task.priority.value}")
-            if task.assigned_to:
-                console.print(f"  Assigned to: {task.assigned_to}")
+            console.print(f"[green]✓[/green] Created task: {result['id']}")
+            console.print(f"  Title: {result['title']}")
+            console.print(f"  Status: {result['status']}")
+            console.print(f"  Priority: {result['priority']}")
+            if result.get("assigned_to"):
+                console.print(f"  Assigned to: {result['assigned_to']}")
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -105,8 +381,7 @@ def create_task(
 @click.option(
     "--priority",
     "-p",
-    type=click.Choice(["LOW", "MEDIUM", "HIGH", "CRITICAL"],
-                      case_sensitive=False),
+    type=click.Choice(["LOW", "MEDIUM", "HIGH", "CRITICAL"], case_sensitive=False),
     help="Filter by priority",
 )
 @click.option("--json", "as_json", is_flag=True, help="Output as JSON")
@@ -119,23 +394,19 @@ def list_tasks(
 ) -> None:
     """List tasks with optional filters."""
     try:
-        repo = BoardRepository()
-
-        # Convert string filters to enums
-        status_filter = TaskStatus[status.upper()] if status else None
-        priority_filter = TaskPriority[priority.upper()] if priority else None
-
-        tasks = repo.list_tasks(
-            board_id=board,
-            status=status_filter,
-            assigned_to=assignee,
-            priority=priority_filter,
+        result = use_api_or_fallback(
+            _api_list_tasks,
+            _fallback_list_tasks,
+            board,
+            status,
+            assignee,
+            priority,
         )
 
         if as_json:
-            click.echo(json.dumps([t.model_dump()
-                       for t in tasks], indent=2, default=str))
+            click.echo(json.dumps(result, indent=2, default=str))
         else:
+            tasks = result.get("tasks", [])
             if not tasks:
                 console.print("[yellow]No tasks found[/yellow]")
                 return
@@ -151,30 +422,30 @@ def list_tasks(
             for t in tasks:
                 # Color status based on value
                 status_color = {
-                    TaskStatus.BACKLOG: "dim",
-                    TaskStatus.TODO: "cyan",
-                    TaskStatus.IN_PROGRESS: "yellow",
-                    TaskStatus.REVIEW: "blue",
-                    TaskStatus.BLOCKED: "red",
-                    TaskStatus.DONE: "green",
-                    TaskStatus.ARCHIVED: "dim",
-                }.get(t.status, "white")
+                    "BACKLOG": "dim",
+                    "TODO": "cyan",
+                    "IN_PROGRESS": "yellow",
+                    "REVIEW": "blue",
+                    "BLOCKED": "red",
+                    "DONE": "green",
+                    "ARCHIVED": "dim",
+                }.get(t["status"], "white")
 
                 # Color priority
                 priority_color = {
-                    TaskPriority.LOW: "dim",
-                    TaskPriority.MEDIUM: "white",
-                    TaskPriority.HIGH: "yellow",
-                    TaskPriority.CRITICAL: "red bold",
-                }.get(t.priority, "white")
+                    "LOW": "dim",
+                    "MEDIUM": "white",
+                    "HIGH": "yellow",
+                    "CRITICAL": "red bold",
+                }.get(t["priority"], "white")
 
                 table.add_row(
-                    t.id[:8] + "...",
-                    t.title[:40],
-                    f"[{status_color}]{t.status.value}[/{status_color}]",
-                    f"[{priority_color}]{t.priority.value}[/{priority_color}]",
-                    t.task_type.value,
-                    t.assigned_to or "-",
+                    t["id"][:8] + "...",
+                    t["title"][:40],
+                    f"[{status_color}]{t['status']}[/{status_color}]",
+                    f"[{priority_color}]{t['priority']}[/{priority_color}]",
+                    t["task_type"],
+                    t.get("assigned_to") or "-",
                 )
 
             console.print(table)
@@ -190,49 +461,43 @@ def list_tasks(
 def get_task(task_id: str, as_json: bool) -> None:
     """Get task details."""
     try:
-        repo = BoardRepository()
-        task = repo.get_task(task_id)
-
-        if not task:
-            console.print(f"[red]Error: Task '{task_id}' not found[/red]")
-            raise SystemExit(1)
+        result = use_api_or_fallback(
+            _api_get_task,
+            _fallback_get_task,
+            task_id,
+        )
 
         if as_json:
-            click.echo(task.model_dump_json(indent=2))
+            click.echo(json.dumps(result, indent=2, default=str))
         else:
-            console.print(f"\n[bold cyan]Task: {task.title}[/bold cyan]")
-            console.print(f"  ID: {task.id}")
-            console.print(f"  Board: {task.board_id}")
-            console.print(f"  Description: {task.description or '(none)'}")
-            console.print(f"  Status: [{task.status.value}]")
-            console.print(f"  Priority: [{task.priority.value}]")
-            console.print(f"  Type: {task.task_type.value}")
-            console.print(
-                f"  Assigned to: {task.assigned_to or '(unassigned)'}")
-            console.print(f"  Created: {task.created_at.isoformat()}")
-            console.print(f"  Updated: {task.updated_at.isoformat()}")
+            console.print(f"\n[bold cyan]Task: {result['title']}[/bold cyan]")
+            console.print(f"  ID: {result['id']}")
+            console.print(f"  Board: {result['board_id']}")
+            console.print(f"  Description: {result.get('description') or '(none)'}")
+            console.print(f"  Status: [{result['status']}]")
+            console.print(f"  Priority: [{result['priority']}]")
+            console.print(f"  Type: {result['task_type']}")
+            console.print(f"  Assigned to: {result.get('assigned_to') or '(unassigned)'}")
+            console.print(f"  Created: {result['created_at']}")
+            console.print(f"  Updated: {result['updated_at']}")
 
-            if task.started_at:
-                console.print(f"  Started: {task.started_at.isoformat()}")
-            if task.completed_at:
-                console.print(f"  Completed: {task.completed_at.isoformat()}")
+            if result.get("started_at"):
+                console.print(f"  Started: {result['started_at']}")
+            if result.get("completed_at"):
+                console.print(f"  Completed: {result['completed_at']}")
 
-            if task.tags:
-                console.print(f"  Tags: {', '.join(task.tags)}")
-            if task.depends_on:
-                console.print(f"  Depends on: {', '.join(task.depends_on)}")
-            if task.blocked_by:
-                console.print(f"  Blocked by: {task.blocked_by}")
+            if result.get("tags"):
+                console.print(f"  Tags: {', '.join(result['tags'])}")
+            if result.get("depends_on"):
+                console.print(f"  Depends on: {', '.join(result['depends_on'])}")
+            if result.get("blocked_by"):
+                console.print(f"  Blocked by: {result['blocked_by']}")
 
             # Show metrics if available
-            if task.completed_at:
-                if task.started_at:
-                    cycle_time = task.cycle_time()
-                    if cycle_time:
-                        console.print(f"  Cycle time: {cycle_time:.1f} hours")
-                lead_time = task.lead_time()
-                if lead_time:
-                    console.print(f"  Lead time: {lead_time:.1f} hours")
+            if result.get("cycle_time_hours"):
+                console.print(f"  Cycle time: {result['cycle_time_hours']:.1f} hours")
+            if result.get("lead_time_hours"):
+                console.print(f"  Lead time: {result['lead_time_hours']:.1f} hours")
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -252,36 +517,17 @@ def get_task(task_id: str, as_json: bool) -> None:
 def move_task(task_id: str, status: str, reason: str | None) -> None:
     """Move task to a different status."""
     try:
-        repo = BoardRepository()
-        task = repo.get_task(task_id)
-
-        if not task:
-            console.print(f"[red]Error: Task '{task_id}' not found[/red]")
-            raise SystemExit(1)
-
-        new_status = TaskStatus[status.upper()]
-
-        # Validate transition
-        if not task.can_transition_to(new_status):
-            console.print(
-                f"[red]Error: Cannot move from {task.status.value} to {new_status.value}[/red]"
-            )
-            raise SystemExit(1)
-
-        # Check blocked reason
-        if new_status == TaskStatus.BLOCKED and not reason:
-            console.print(
-                "[red]Error: --reason required when moving to BLOCKED[/red]")
-            raise SystemExit(1)
-
-        # Move task
-        old_status = task.status
-        task.move_to(new_status, reason=reason)
-        repo.update_task(task)
-
-        console.print(
-            f"[green]✓[/green] Moved task from {old_status.value} to {new_status.value}"
+        result = use_api_or_fallback(
+            _api_move_task,
+            _fallback_move_task,
+            task_id,
+            status,
+            reason,
         )
+
+        old_status = result.get("old_status", "unknown")
+        new_status = result.get("status", status)
+        console.print(f"[green]✓[/green] Moved task from {old_status} to {new_status}")
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -294,15 +540,12 @@ def move_task(task_id: str, status: str, reason: str | None) -> None:
 def assign_task(task_id: str, agent_id: str) -> None:
     """Assign task to an agent."""
     try:
-        repo = BoardRepository()
-        task = repo.get_task(task_id)
-
-        if not task:
-            console.print(f"[red]Error: Task '{task_id}' not found[/red]")
-            raise SystemExit(1)
-
-        task.assign(agent_id)
-        repo.update_task(task)
+        use_api_or_fallback(
+            _api_assign_task,
+            _fallback_assign_task,
+            task_id,
+            agent_id,
+        )
 
         console.print(f"[green]✓[/green] Assigned task to {agent_id}")
 
@@ -316,15 +559,11 @@ def assign_task(task_id: str, agent_id: str) -> None:
 def unassign_task(task_id: str) -> None:
     """Unassign task."""
     try:
-        repo = BoardRepository()
-        task = repo.get_task(task_id)
-
-        if not task:
-            console.print(f"[red]Error: Task '{task_id}' not found[/red]")
-            raise SystemExit(1)
-
-        task.unassign()
-        repo.update_task(task)
+        use_api_or_fallback(
+            _api_unassign_task,
+            _fallback_unassign_task,
+            task_id,
+        )
 
         console.print("[green]✓[/green] Unassigned task")
 
@@ -339,15 +578,13 @@ def unassign_task(task_id: str) -> None:
 def delete_task(task_id: str) -> None:
     """Delete a task."""
     try:
-        repo = BoardRepository()
-        task = repo.get_task(task_id)
+        result = use_api_or_fallback(
+            _api_delete_task,
+            _fallback_delete_task,
+            task_id,
+        )
 
-        if not task:
-            console.print(f"[red]Error: Task '{task_id}' not found[/red]")
-            raise SystemExit(1)
-
-        repo.delete_task(task_id)
-        console.print(f"[green]✓[/green] Deleted task: {task.title}")
+        console.print(f"[green]✓[/green] {result.get('message', 'Task deleted')}")
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")

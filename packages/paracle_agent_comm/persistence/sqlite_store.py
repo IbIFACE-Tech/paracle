@@ -13,7 +13,6 @@ from paracle_agent_comm.exceptions import GroupNotFoundError, SessionNotFoundErr
 from paracle_agent_comm.models import (
     AgentGroup,
     CommunicationPattern,
-    GroupConfig,
     GroupMessage,
     GroupSession,
     GroupSessionStatus,

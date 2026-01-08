@@ -33,6 +33,9 @@ class GovernanceActionType(str, Enum):
     SYNC = "SYNC"  # Synchronization actions
     VALIDATION = "VALIDATION"  # Validation checks
     INIT = "INIT"  # Initialization
+    ERROR = "ERROR"  # Error logging and recovery
+    START = "START"  # Operation start
+    COMPLETION = "COMPLETION"  # Operation completion
 
 
 class GovernanceAgentType(str, Enum):

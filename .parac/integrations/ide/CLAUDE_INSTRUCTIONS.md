@@ -2,7 +2,7 @@
 # Claude Instructions for Paracle Project
 # Auto-generated from .parac/ - DO NOT EDIT MANUALLY
 # Regenerate with: paracle ide sync --copy
-# Generated: 2026-01-07T15:37:18.767231
+# Generated: 2026-01-08T16:50:18.732188
 #
 # HOW TO USE:
 # 1. Copy this entire file content
@@ -91,11 +91,23 @@ This checklist ensures:
 - **Capabilities**: code review, quality assurance, knowledge transfer
 - **Description**: Code review, quality assurance, and ensuring adherence to project standards and best practices.
 
+### Agent Specification Schema (`SCHEMA`)
+
+- **Role**: One-paragraph description of what this agent does.
+- **Capabilities**: category name
+- **Description**: One-paragraph description of what this agent does.
+
 ### Security Agent (`security`)
 
-- **Role**: Security auditing, vulnerability detection, threat modeling, and security compliance enforcement for Paracle framework and AI applications.
-- **Capabilities**: security auditing, vulnerability detection, threat modeling, compliance & standards, security testing
-- **Description**: Security auditing, vulnerability detection, threat modeling, and security compliance enforcement for Paracle framework and AI applications.
+- **Role**: Security auditing, vulnerability detection, threat modeling, compliance enforcement, and security standards implementation for Paracle framework and AI applications.
+- **Capabilities**: core security, compliance, application security, supply chain security, secret management
+- **Description**: Security auditing, vulnerability detection, threat modeling, compliance enforcement, and security standards implementation for Paracle framework and AI applications.
+
+### Agent Specification Template (`TEMPLATE`)
+
+- **Role**: [Describe the agent's primary function in 1-2 sentences]
+- **Capabilities**: [primary category], [secondary category]
+- **Description**: [Describe the agent's primary function in 1-2 sentences]
 
 ### Tester Agent (`tester`)
 
@@ -389,7 +401,9 @@ When discussing this project, ask me to read:
 **Project Manager Agent**: Project coordination, roadmap management, progress tracking, and stakeholder communication.
 **Release Manager Agent**: Manages git workflows, semantic versioning, releases, changelogs, and deployment automation for the Paracle project.
 **Reviewer Agent**: Code review, quality assurance, and ensuring adherence to project standards and best practices.
-**Security Agent**: Security auditing, vulnerability detection, threat modeling, and security compliance enforcement for Paracle framework and AI applications.
+**Agent Specification Schema**: One-paragraph description of what this agent does.
+**Security Agent**: Security auditing, vulnerability detection, threat modeling, compliance enforcement, and security standards implementation for Paracle framework and AI applications.
+**Agent Specification Template**: [Describe the agent's primary function in 1-2 sentences]
 **Tester Agent**: Test design, implementation, and quality validation ensuring comprehensive coverage and reliability.
 
 ### Commands

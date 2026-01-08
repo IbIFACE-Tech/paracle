@@ -13,24 +13,14 @@ Falls back to direct core access if API is unavailable.
 from pathlib import Path
 
 import click
-from paracle_core.parac.state import find_parac_root
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
 from paracle_cli.api_client import APIClient, APIError, get_client
+from paracle_cli.utils import get_parac_root_or_exit
 
 console = Console()
-
-
-def get_parac_root_or_exit() -> Path:
-    """Get .parac/ root or exit with error."""
-    parac_root = find_parac_root()
-    if parac_root is None:
-        console.print("[red]Error:[/red] No .parac/ directory found.")
-        console.print("Run 'paracle init' to create one, or navigate to a project.")
-        raise SystemExit(1)
-    return parac_root
 
 
 def get_api_client() -> APIClient | None:
@@ -194,17 +184,20 @@ def _status_via_api(client: APIClient, as_json: bool) -> None:
         if project_path != "-":
             project_path = Path(project_path).name
 
-        table.add_row(ide_item["name"].title(), generated, copied, project_path)
+        table.add_row(ide_item["name"].title(),
+                      generated, copied, project_path)
 
     console.print(table)
 
     # Summary
     console.print()
-    console.print(f"Generated: {result['generated_count']}/{len(result['ides'])}")
+    console.print(
+        f"Generated: {result['generated_count']}/{len(result['ides'])}")
     console.print(f"Copied: {result['copied_count']}/{len(result['ides'])}")
 
     if result["generated_count"] == 0:
-        console.print("\n[dim]Run 'paracle ide init' to generate configs[/dim]")
+        console.print(
+            "\n[dim]Run 'paracle ide init' to generate configs[/dim]")
 
 
 def _status_direct(as_json: bool) -> None:
@@ -264,7 +257,8 @@ def _status_direct(as_json: bool) -> None:
     console.print(f"Copied: {copied_count}/{len(status['ides'])}")
 
     if generated_count == 0:
-        console.print("\n[dim]Run 'paracle ide init' to generate configs[/dim]")
+        console.print(
+            "\n[dim]Run 'paracle ide init' to generate configs[/dim]")
 
 
 @ide.command("status")
@@ -309,7 +303,8 @@ def _init_via_api(
         if item["generated"]:
             console.print(f"  [green]OK[/green] Generated: {item['ide']}")
             if item["copied"]:
-                console.print(f"    [blue]->[/blue] Copied to: {item['project_path']}")
+                console.print(
+                    f"    [blue]->[/blue] Copied to: {item['project_path']}")
         elif item.get("error"):
             console.print(f"  [red]FAIL[/red] {item['ide']}: {item['error']}")
 
@@ -328,13 +323,16 @@ def _init_via_api(
             f"[blue]->[/blue] Copied {result['copied_count']} config(s) to project root"
         )
     if result["failed_count"] > 0:
-        console.print(f"[red]FAIL[/red] {result['failed_count']} config(s) failed")
+        console.print(
+            f"[red]FAIL[/red] {result['failed_count']} config(s) failed")
 
 
 def _init_direct(
     ide_names: tuple[str, ...],
     force: bool,
     copy: bool,
+    no_format: bool = False,
+    strict: bool = False,
 ) -> None:
     """Initialize IDEs via direct core access."""
     parac_root = get_parac_root_or_exit()
@@ -392,7 +390,9 @@ def _init_direct(
     for ide_name in ides_to_init:
         try:
             # Generate to .parac/integrations/ide/
-            path = generator.generate_to_file(ide_name)
+            path = generator.generate_to_file(
+                ide_name, skip_format=no_format, strict=strict
+            )
             results["generated"].append((ide_name, path))
             console.print(f"  [green]OK[/green] Generated: {path.name}")
 
@@ -411,7 +411,8 @@ def _init_direct(
         manifest_path = generator.generate_manifest()
         console.print(f"\n  [dim]Manifest: {manifest_path}[/dim]")
     except Exception as e:
-        console.print(f"\n  [yellow]Warning:[/yellow] Could not generate manifest: {e}")
+        console.print(
+            f"\n  [yellow]Warning:[/yellow] Could not generate manifest: {e}")
 
     # Summary
     console.print()
@@ -425,7 +426,8 @@ def _init_direct(
             f"[blue]->[/blue] Copied {len(results['copied'])} config(s) to project root"
         )
     if results["failed"]:
-        console.print(f"[red]FAIL[/red] {len(results['failed'])} config(s) failed")
+        console.print(
+            f"[red]FAIL[/red] {len(results['failed'])} config(s) failed")
 
 
 @ide.command("init")
@@ -437,11 +439,32 @@ def _init_direct(
 )
 @click.option("--force", is_flag=True, help="Overwrite existing files")
 @click.option("--copy/--no-copy", default=True, help="Copy to project root")
-def ide_init(ide_names: tuple[str, ...], force: bool, copy: bool) -> None:
+@click.option(
+    "--no-format",
+    is_flag=True,
+    help="Skip agent spec formatting (only validate)",
+)
+@click.option(
+    "--strict",
+    is_flag=True,
+    help="Treat validation warnings as errors",
+)
+def ide_init(
+    ide_names: tuple[str, ...],
+    force: bool,
+    copy: bool,
+    no_format: bool,
+    strict: bool,
+) -> None:
     """Initialize IDE configuration files.
 
     Generates IDE-specific configuration files from .parac/ context
     and optionally copies them to the project root.
+
+    Validation:
+    - Validates .parac/ workspace structure before generation
+    - Auto-formats agent specs (use --no-format to skip)
+    - Use --strict to treat warnings as errors
 
     Supported IDEs (13 total):
     - MCP Native: cursor, claude, windsurf, zed
@@ -454,7 +477,15 @@ def ide_init(ide_names: tuple[str, ...], force: bool, copy: bool) -> None:
         paracle ide init --ide=all
         paracle ide init --ide=cursor --ide=claude --ide=zed
     """
-    use_api_or_fallback(_init_via_api, _init_direct, ide_names, force, copy)
+    use_api_or_fallback(
+        _init_via_api,
+        _init_direct,
+        ide_names,
+        force,
+        copy,
+        no_format,
+        strict,
+    )
 
 
 # =============================================================================
@@ -496,7 +527,13 @@ def _sync_via_api(
         _export_skills_to_platforms()
 
 
-def _sync_direct(copy: bool, watch: bool, with_skills: bool) -> None:
+def _sync_direct(
+    copy: bool,
+    watch: bool,
+    with_skills: bool,
+    no_format: bool = False,
+    strict: bool = False,
+) -> None:
     """Sync IDEs via direct core access."""
     if watch:
         console.print(
@@ -517,7 +554,7 @@ def _sync_direct(copy: bool, watch: bool, with_skills: bool) -> None:
     console.print("\n[bold]Syncing IDE configurations...[/bold]\n")
 
     # Generate all configs
-    generated = generator.generate_all()
+    generated = generator.generate_all(skip_format=no_format, strict=strict)
 
     for _ide_name, path in generated.items():
         console.print(f"  [green]OK[/green] Synced: {path.name}")
@@ -568,28 +605,32 @@ def _export_skills_to_platforms() -> None:
     try:
         skills = loader.load_all()
     except Exception as e:
-        console.print(f"\n[yellow]Warning:[/yellow] Failed to load skills: {e}")
+        console.print(
+            f"\n[yellow]Warning:[/yellow] Failed to load skills: {e}")
         return
 
     if not skills:
         console.print("\n[dim]No skills found to export.[/dim]")
         return
 
-    console.print(f"\n[bold]Exporting {len(skills)} skill(s) to platforms...[/bold]\n")
+    console.print(
+        f"\n[bold]Exporting {len(skills)} skill(s) to platforms...[/bold]\n")
 
     # Export to Agent Skills platforms (copilot, cursor, claude, codex)
     exporter = SkillExporter(skills)
     project_root = parac_root.parent
 
     try:
-        results = exporter.export_all(project_root, AGENT_SKILLS_PLATFORMS, True)
+        results = exporter.export_all(
+            project_root, AGENT_SKILLS_PLATFORMS, True)
 
         # Count successes per platform
         platform_counts: dict[str, int] = {}
         for result in results:
             for platform, export_result in result.results.items():
                 if export_result.success:
-                    platform_counts[platform] = platform_counts.get(platform, 0) + 1
+                    platform_counts[platform] = platform_counts.get(
+                        platform, 0) + 1
 
         for platform, count in platform_counts.items():
             platform_dirs = {
@@ -599,7 +640,8 @@ def _export_skills_to_platforms() -> None:
                 "codex": ".codex/skills/",
             }
             dest = platform_dirs.get(platform, f".{platform}/skills/")
-            console.print(f"  [green]OK[/green] {platform}: {count} skill(s) -> {dest}")
+            console.print(
+                f"  [green]OK[/green] {platform}: {count} skill(s) -> {dest}")
 
     except Exception as e:
         console.print(f"  [red]Error:[/red] Skills export failed: {e}")
@@ -613,19 +655,43 @@ def _export_skills_to_platforms() -> None:
     default=True,
     help="Export skills to IDE platforms (default: yes)"
 )
-def ide_sync(copy: bool, watch: bool, with_skills: bool) -> None:
+@click.option(
+    "--no-format",
+    is_flag=True,
+    help="Skip agent spec formatting (only validate)",
+)
+@click.option(
+    "--strict",
+    is_flag=True,
+    help="Treat validation warnings as errors",
+)
+def ide_sync(
+    copy: bool, watch: bool, with_skills: bool, no_format: bool, strict: bool
+) -> None:
     """Synchronize IDE configs with .parac/ state.
 
     Regenerates all IDE configuration files from current .parac/ context.
     Also exports skills to platform-specific directories when available.
 
+    Validation:
+    - Validates .parac/ workspace structure before generation
+    - Auto-formats agent specs (use --no-format to skip)
+    - Use --strict to treat warnings as errors
+
     Examples:
         paracle ide sync
         paracle ide sync --no-copy
         paracle ide sync --no-skills
+        paracle ide sync --strict
     """
     use_api_or_fallback(
-        _sync_via_api, _sync_direct, copy, watch, with_skills
+        _sync_via_api,
+        _sync_direct,
+        copy,
+        watch,
+        with_skills,
+        no_format,
+        strict,
     )
 
 
@@ -821,7 +887,8 @@ def ide_setup(ide_name: str | None, setup_all: bool, force: bool) -> None:
         console.print(f"  {len(detected) + 1}. All")
         console.print(f"  {len(detected) + 2}. Cancel")
 
-        choice = click.prompt("Enter choice", type=int, default=len(detected) + 1)
+        choice = click.prompt("Enter choice", type=int,
+                              default=len(detected) + 1)
         if choice == len(detected) + 2:
             console.print("[dim]Cancelled.[/dim]")
             return
@@ -857,7 +924,8 @@ def ide_setup(ide_name: str | None, setup_all: bool, force: bool) -> None:
             # IDE-specific MCP setup hints
             mcp_ides = ["cursor", "claude", "windsurf", "zed", "vscode"]
             if ide in mcp_ides:
-                console.print(f"  [dim]MCP: Add paracle server to {ide} settings[/dim]")
+                console.print(
+                    f"  [dim]MCP: Add paracle server to {ide} settings[/dim]")
 
         except Exception as e:
             console.print(f"  [red]FAIL[/red] {ide}: {e}")
@@ -932,7 +1000,8 @@ def ide_instructions(ide_name: str) -> None:
     else:
         console.print("This IDE uses file-based configuration.\n")
         console.print("[bold]Steps:[/bold]")
-        console.print(f"1. Run: paracle ide init --ide={ide_name.lower()} --copy")
+        console.print(
+            f"1. Run: paracle ide init --ide={ide_name.lower()} --copy")
         console.print(f"2. Config copied to: {config.destination_dir}/")
 
         # MCP setup hint
@@ -941,3 +1010,593 @@ def ide_instructions(ide_name: str) -> None:
             console.print("\n[bold]MCP Setup:[/bold]")
             console.print("Add Paracle MCP server to your IDE settings:")
             console.print("  Command: paracle mcp serve --stdio")
+
+
+# =============================================================================
+# MCP Command - Generate MCP configurations for all IDEs
+# =============================================================================
+
+
+def _mcp_list_direct() -> None:
+    """List MCP-supported IDEs via direct core access."""
+    try:
+        from paracle_core.parac.ide_generator import IDEConfigGenerator
+    except ImportError as e:
+        console.print(f"[red]Error:[/red] {e}")
+        raise SystemExit(1)
+
+    generator = IDEConfigGenerator(Path(".parac"))
+
+    console.print("\n[bold]IDEs with MCP Support:[/bold]\n")
+
+    table = Table(show_header=True, header_style="bold")
+    table.add_column("IDE", style="cyan")
+    table.add_column("Config File")
+    table.add_column("Location")
+    table.add_column("Scope")
+
+    for _ide_name, config in generator.SUPPORTED_MCP.items():
+        scope = "Home (~)" if config.uses_home_dir else "Project"
+        dest = f"{config.destination_dir}/{config.file_name}"
+        table.add_row(config.display_name, config.file_name, dest, scope)
+
+    console.print(table)
+
+
+def _mcp_status_direct(as_json: bool) -> None:
+    """Get MCP status via direct core access."""
+    parac_root = get_parac_root_or_exit()
+
+    try:
+        from paracle_core.parac.ide_generator import IDEConfigGenerator
+    except ImportError as e:
+        console.print(f"[red]Error:[/red] {e}")
+        raise SystemExit(1)
+
+    generator = IDEConfigGenerator(parac_root)
+    status = generator.get_mcp_status()
+
+    if as_json:
+        import json
+        console.print(json.dumps(status, indent=2))
+        return
+
+    # Rich formatted output
+    console.print()
+    console.print(
+        Panel(
+            "[bold]MCP Configuration Status[/bold]",
+            subtitle=".parac/integrations/mcp/",
+        )
+    )
+
+    table = Table(show_header=True, header_style="bold")
+    table.add_column("IDE", style="cyan")
+    table.add_column("Generated", justify="center")
+    table.add_column("Installed", justify="center")
+    table.add_column("Location")
+
+    for ide_name, info in status["configs"].items():
+        generated = "[green]Yes[/green]" if info["generated"] else "[dim]-[/dim]"
+        installed = "[green]Yes[/green]" if info["installed"] else "[dim]-[/dim]"
+        scope = "(home)" if info["uses_home_dir"] else ""
+        location = f"{info['display_name']} {scope}"
+
+        table.add_row(ide_name, generated, installed, location)
+
+    console.print(table)
+
+    # Summary
+    gen_count = sum(1 for s in status["configs"].values() if s["generated"])
+    inst_count = sum(1 for s in status["configs"].values() if s["installed"])
+
+    console.print()
+    console.print(f"Generated: {gen_count}/{len(status['configs'])}")
+    console.print(f"Installed: {inst_count}/{len(status['configs'])}")
+
+    if gen_count == 0:
+        console.print(
+            "\n[dim]Run 'paracle ide mcp --generate' to create configs[/dim]")
+
+
+def _mcp_generate_direct(
+    ide_names: tuple[str, ...],
+    copy: bool,
+    force: bool,
+    include_home: bool,
+) -> None:
+    """Generate MCP configs via direct core access."""
+    parac_root = get_parac_root_or_exit()
+
+    try:
+        from paracle_core.parac.ide_generator import IDEConfigGenerator
+    except ImportError as e:
+        console.print(f"[red]Error:[/red] {e}")
+        raise SystemExit(1)
+
+    generator = IDEConfigGenerator(parac_root)
+    supported = generator.get_supported_mcp_ides()
+
+    # Determine which IDEs to generate for
+    if not ide_names or "all" in ide_names:
+        ides_to_generate = supported
+    else:
+        ides_to_generate = []
+        for name in ide_names:
+            if name.lower() in supported:
+                ides_to_generate.append(name.lower())
+            else:
+                console.print(
+                    f"[yellow]Warning:[/yellow] Unknown MCP IDE '{name}'. "
+                    f"Supported: {', '.join(supported)}"
+                )
+
+    if not ides_to_generate:
+        console.print("[red]Error:[/red] No valid MCP IDEs specified.")
+        raise SystemExit(1)
+
+    # Generate configs
+    console.print("\n[bold]Generating MCP configurations...[/bold]\n")
+
+    results = {"generated": [], "copied": [], "skipped": [], "failed": []}
+
+    for ide_name in ides_to_generate:
+        config = generator.get_mcp_config(ide_name)
+        if not config:
+            continue
+
+        # Skip home directory configs unless requested
+        if config.uses_home_dir and not include_home:
+            results["skipped"].append(ide_name)
+            console.print(
+                f"  [dim]SKIP[/dim] {config.display_name} (use --include-home)")
+            continue
+
+        try:
+            # Generate to .parac/integrations/mcp/
+            path = generator.generate_mcp_to_file(ide_name)
+            results["generated"].append((ide_name, path))
+            console.print(f"  [green]OK[/green] Generated: {path.name}")
+
+            # Copy to destination if requested
+            if copy:
+                dest = generator.copy_mcp_to_project(ide_name)
+                results["copied"].append((ide_name, dest))
+                console.print(f"    [blue]->[/blue] Copied to: {dest}")
+
+        except Exception as e:
+            results["failed"].append((ide_name, str(e)))
+            console.print(f"  [red]FAIL[/red] {ide_name}: {e}")
+
+    # Summary
+    console.print()
+    if results["generated"]:
+        console.print(
+            f"[green]OK[/green] Generated {len(results['generated'])} MCP config(s) "
+            f"in .parac/integrations/mcp/"
+        )
+    if results["copied"]:
+        console.print(
+            f"[blue]->[/blue] Copied {len(results['copied'])} config(s) to IDE directories"
+        )
+    if results["skipped"]:
+        console.print(
+            f"[dim]Skipped {len(results['skipped'])} home-directory config(s)[/dim]"
+        )
+    if results["failed"]:
+        console.print(
+            f"[red]FAIL[/red] {len(results['failed'])} config(s) failed")
+
+    # MCP server hint
+    console.print(
+        "\n[dim]Start MCP server: paracle mcp serve --stdio[/dim]"
+    )
+
+
+@ide.command("mcp")
+@click.option(
+    "--ide",
+    "ide_names",
+    multiple=True,
+    help="IDE(s) to generate MCP config for. Use 'paracle ide mcp --list' to see all.",
+)
+@click.option("--list", "-l", "list_flag", is_flag=True, help="List MCP-supported IDEs")
+@click.option("--status", "-s", "status_flag", is_flag=True, help="Show MCP config status")
+@click.option("--generate", "-g", "generate_flag", is_flag=True, help="Generate MCP configs")
+@click.option("--copy/--no-copy", default=True, help="Copy to IDE directories")
+@click.option("--force", is_flag=True, help="Overwrite existing files")
+@click.option(
+    "--include-home/--no-include-home",
+    default=False,
+    help="Include configs for home directory (Windsurf, Claude Desktop)",
+)
+@click.option("--json", "as_json", is_flag=True, help="Output status as JSON")
+def ide_mcp(
+    ide_names: tuple[str, ...],
+    list_flag: bool,
+    status_flag: bool,
+    generate_flag: bool,
+    copy: bool,
+    force: bool,
+    include_home: bool,
+    as_json: bool,
+) -> None:
+    """Generate MCP (Model Context Protocol) configurations for IDEs.
+
+    Creates mcp.json/mcp_config.json files that connect your IDE to the
+    Paracle MCP server, enabling access to Paracle tools from your IDE.
+
+    \b
+    Supported IDEs:
+    - Project-level: vscode, cursor, cline, zed, rovodev
+    - Home directory: windsurf (~/.codeium/windsurf/), claude_desktop
+
+    \b
+    Generated config enables these MCP tools:
+    - Agent execution and workflow management
+    - .parac/ governance tools
+    - Memory and context tools
+    - Skill invocation
+
+    Examples:
+        paracle ide mcp --list              # List MCP-supported IDEs
+        paracle ide mcp --status            # Show current status
+        paracle ide mcp --generate          # Generate all project-level configs
+        paracle ide mcp --generate --copy   # Generate and install
+        paracle ide mcp --ide cursor        # Generate for specific IDE
+        paracle ide mcp --generate --include-home  # Include Windsurf/Claude Desktop
+    """
+    if list_flag:
+        _mcp_list_direct()
+    elif status_flag:
+        _mcp_status_direct(as_json)
+    elif generate_flag or ide_names:
+        _mcp_generate_direct(ide_names, copy, force, include_home)
+    else:
+        # Default: show status
+        _mcp_status_direct(as_json)
+
+
+# =============================================================================
+# Skills Command - Export skills for IDE/AI platforms
+# =============================================================================
+
+# Supported platforms for skill export
+SKILL_PLATFORMS = ["copilot", "cursor", "claude", "codex", "rovodev"]
+
+
+def _skills_list_direct(output_format: str, verbose: bool) -> None:
+    """List skills via direct core access."""
+    parac_root = get_parac_root_or_exit()
+
+    try:
+        from paracle_skills import SkillLoader
+    except ImportError as e:
+        console.print(f"[red]Error:[/red] {e}")
+        raise SystemExit(1)
+
+    skills_dir = parac_root / "agents" / "skills"
+    loader = SkillLoader(skills_dir)
+
+    try:
+        skill_list = loader.load_all()
+    except Exception as e:
+        console.print(f"[red]Error loading skills:[/red] {e}")
+        raise SystemExit(1)
+
+    if not skill_list:
+        console.print(
+            "[yellow]No skills found in .parac/agents/skills/[/yellow]")
+        console.print(
+            "\nCreate a skill with: paracle ide skills create my-skill")
+        return
+
+    if output_format == "json":
+        import json
+        data = [
+            {
+                "name": s.name,
+                "description": s.description,
+                "category": s.metadata.category.value,
+                "level": s.metadata.level.value,
+                "tools": len(s.tools),
+            }
+            for s in skill_list
+        ]
+        console.print(json.dumps(data, indent=2))
+
+    elif output_format == "yaml":
+        import yaml
+        data = [
+            {
+                "name": s.name,
+                "description": s.description,
+                "category": s.metadata.category.value,
+                "level": s.metadata.level.value,
+            }
+            for s in skill_list
+        ]
+        console.print(yaml.dump(data, default_flow_style=False))
+
+    else:  # table
+        table = Table(title=f"Skills ({len(skill_list)} found)")
+        table.add_column("Name", style="cyan", no_wrap=True)
+        table.add_column("Category", style="green")
+        table.add_column("Level", style="yellow")
+        if verbose:
+            table.add_column("Tools", justify="right")
+            table.add_column("Description")
+
+        for skill in sorted(skill_list, key=lambda s: s.name):
+            if verbose:
+                desc = skill.description[:50] + "..." if len(
+                    skill.description) > 50 else skill.description
+                table.add_row(
+                    skill.name,
+                    skill.metadata.category.value,
+                    skill.metadata.level.value,
+                    str(len(skill.tools)),
+                    desc,
+                )
+            else:
+                table.add_row(
+                    skill.name,
+                    skill.metadata.category.value,
+                    skill.metadata.level.value,
+                )
+
+        console.print(table)
+
+
+def _skills_status_direct() -> None:
+    """Show skill export status for each platform."""
+    parac_root = get_parac_root_or_exit()
+    project_root = parac_root.parent
+
+    try:
+        from paracle_skills import SkillLoader
+    except ImportError as e:
+        console.print(f"[red]Error:[/red] {e}")
+        raise SystemExit(1)
+
+    skills_dir = parac_root / "agents" / "skills"
+    loader = SkillLoader(skills_dir)
+
+    try:
+        skill_list = loader.load_all()
+    except Exception:
+        skill_list = []
+
+    skill_count = len(skill_list)
+
+    # Platform directories
+    platform_dirs = {
+        "copilot": ".github/skills",
+        "cursor": ".cursor/skills",
+        "claude": ".claude/skills",
+        "codex": ".codex/skills",
+        "rovodev": ".rovodev/subagents",
+    }
+
+    console.print()
+    console.print(
+        Panel(
+            f"[bold]Skill Export Status[/bold]\n{skill_count} skills in .parac/agents/skills/",
+            subtitle="paracle ide skills",
+        )
+    )
+
+    table = Table(show_header=True, header_style="bold")
+    table.add_column("Platform", style="cyan")
+    table.add_column("Directory")
+    table.add_column("Exported", justify="center")
+
+    for platform, directory in platform_dirs.items():
+        platform_path = project_root / directory
+        if platform_path.exists():
+            # Count exported skills
+            if platform == "rovodev":
+                exported = len(list(platform_path.glob("*.md")))
+            else:
+                exported = len(list(platform_path.glob("*/SKILL.md")))
+            status = f"[green]{exported}[/green]" if exported > 0 else "[dim]0[/dim]"
+        else:
+            status = "[dim]-[/dim]"
+
+        table.add_row(platform, directory, status)
+
+    console.print(table)
+
+    if skill_count == 0:
+        console.print(
+            "\n[dim]No skills found. Create with: paracle ide skills create my-skill[/dim]")
+    else:
+        console.print(
+            "\n[dim]Export with: paracle ide skills export --platform copilot[/dim]")
+
+
+def _skills_export_direct(
+    platforms: tuple[str, ...],
+    skill_names: tuple[str, ...],
+    overwrite: bool,
+    dry_run: bool,
+) -> None:
+    """Export skills to IDE platforms."""
+    parac_root = get_parac_root_or_exit()
+    project_root = parac_root.parent
+
+    try:
+        from paracle_skills import SkillExporter, SkillLoader
+    except ImportError as e:
+        console.print(f"[red]Error:[/red] {e}")
+        raise SystemExit(1)
+
+    # Determine platforms
+    platform_list = list(platforms)
+    if not platform_list or "all" in platform_list:
+        platform_list = SKILL_PLATFORMS
+
+    # Remove 'all' if present
+    platform_list = [p for p in platform_list if p != "all"]
+
+    # Validate platforms
+    invalid = [p for p in platform_list if p not in SKILL_PLATFORMS]
+    if invalid:
+        console.print(
+            f"[yellow]Warning:[/yellow] Unknown platform(s): {', '.join(invalid)}")
+        platform_list = [p for p in platform_list if p in SKILL_PLATFORMS]
+
+    if not platform_list:
+        console.print("[red]Error:[/red] No valid platforms specified.")
+        console.print(f"Available: {', '.join(SKILL_PLATFORMS)}")
+        raise SystemExit(1)
+
+    # Load skills
+    skills_dir = parac_root / "agents" / "skills"
+    loader = SkillLoader(skills_dir)
+
+    try:
+        all_skills = loader.load_all()
+    except Exception as e:
+        console.print(f"[red]Error loading skills:[/red] {e}")
+        raise SystemExit(1)
+
+    # Filter skills if specified
+    if skill_names:
+        skill_name_set = set(skill_names)
+        all_skills = [s for s in all_skills if s.name in skill_name_set]
+        not_found = skill_name_set - {s.name for s in all_skills}
+        if not_found:
+            console.print(
+                f"[yellow]Skills not found:[/yellow] {', '.join(not_found)}")
+
+    if not all_skills:
+        console.print("[yellow]No skills to export.[/yellow]")
+        return
+
+    # Show export plan
+    console.print(Panel(
+        f"[bold]Exporting {len(all_skills)} skill(s) to {len(platform_list)} platform(s)[/bold]",
+        title="Skill Export",
+    ))
+
+    console.print(
+        f"\n[bold]Skills:[/bold] {', '.join(s.name for s in all_skills)}")
+    console.print(f"[bold]Platforms:[/bold] {', '.join(platform_list)}")
+    console.print(f"[bold]Output:[/bold] {project_root}")
+
+    if dry_run:
+        console.print("\n[yellow]Dry run - no files will be created.[/yellow]")
+        console.print("\n[bold]Would create:[/bold]")
+        platform_dirs = {
+            "copilot": ".github/skills",
+            "cursor": ".cursor/skills",
+            "claude": ".claude/skills",
+            "codex": ".codex/skills",
+            "rovodev": ".rovodev/subagents",
+        }
+        for skill in all_skills:
+            for p in platform_list:
+                if p == "rovodev":
+                    console.print(
+                        f"  {project_root}/{platform_dirs[p]}/{skill.name}.md")
+                else:
+                    console.print(
+                        f"  {project_root}/{platform_dirs[p]}/{skill.name}/SKILL.md")
+        return
+
+    # Export skills
+    exporter = SkillExporter(all_skills)
+    results = exporter.export_all(project_root, platform_list, overwrite)
+
+    # Show results
+    console.print("\n[bold]Export Results:[/bold]\n")
+
+    success_count = 0
+    error_count = 0
+
+    for result in results:
+        if result.all_success:
+            console.print(f"[green]OK[/green] {result.skill_name}")
+            success_count += 1
+        else:
+            for platform_name, export_result in result.results.items():
+                if export_result.success:
+                    console.print(
+                        f"  [green]OK[/green] {platform_name}: {export_result.output_path}")
+                else:
+                    console.print(
+                        f"  [red]FAIL[/red] {platform_name}: {', '.join(export_result.errors)}")
+                    error_count += 1
+
+    console.print(
+        f"\n[bold]Summary:[/bold] {success_count} succeeded, {error_count} failed")
+
+
+@ide.command("skills")
+@click.option("--list", "-l", "list_flag", is_flag=True, help="List available skills")
+@click.option("--status", "-s", "status_flag", is_flag=True, help="Show export status per platform")
+@click.option("--export", "-e", "export_flag", is_flag=True, help="Export skills to platforms")
+@click.option(
+    "--platform", "-p",
+    "platforms",
+    multiple=True,
+    type=click.Choice(SKILL_PLATFORMS + ["all"]),
+    help="Target platform(s) for export",
+)
+@click.option("--skill", "skill_names", multiple=True, help="Specific skill(s) to export")
+@click.option("--all", "export_all", is_flag=True, help="Export to all platforms")
+@click.option("--overwrite", is_flag=True, help="Overwrite existing files")
+@click.option("--dry-run", is_flag=True, help="Show what would be exported")
+@click.option("--verbose", "-v", is_flag=True, help="Show detailed information")
+@click.option(
+    "--format", "output_format",
+    type=click.Choice(["table", "json", "yaml"]),
+    default="table",
+    help="Output format for list",
+)
+def ide_skills(
+    list_flag: bool,
+    status_flag: bool,
+    export_flag: bool,
+    platforms: tuple[str, ...],
+    skill_names: tuple[str, ...],
+    export_all: bool,
+    overwrite: bool,
+    dry_run: bool,
+    verbose: bool,
+    output_format: str,
+) -> None:
+    """Export skills to IDE/AI platforms.
+
+    Skills are reusable capabilities that can be assigned to agents
+    and exported to multiple IDE/AI platforms.
+
+    \b
+    Supported platforms:
+    - copilot: GitHub Copilot (.github/skills/)
+    - cursor: Cursor (.cursor/skills/)
+    - claude: Claude Code (.claude/skills/)
+    - codex: OpenAI Codex (.codex/skills/)
+    - rovodev: Atlassian Rovo Dev (.rovodev/subagents/)
+
+    \b
+    Examples:
+        paracle ide skills --list              # List all skills
+        paracle ide skills --status            # Show export status
+        paracle ide skills --export --all      # Export to all platforms
+        paracle ide skills -e -p copilot       # Export to Copilot
+        paracle ide skills -e -p cursor -p claude  # Export to multiple
+        paracle ide skills -e --skill my-skill # Export specific skill
+    """
+    if list_flag:
+        _skills_list_direct(output_format, verbose)
+    elif status_flag:
+        _skills_status_direct()
+    elif export_flag or export_all or platforms:
+        if export_all:
+            platforms = tuple(SKILL_PLATFORMS)
+        _skills_export_direct(platforms, skill_names, overwrite, dry_run)
+    else:
+        # Default: show status
+        _skills_status_direct()

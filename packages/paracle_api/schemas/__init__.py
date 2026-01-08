@@ -12,6 +12,21 @@ from paracle_api.schemas.agent_crud import (
     SpecResponse,
 )
 from paracle_api.schemas.health import HealthResponse
+from paracle_api.schemas.kanban import (
+    BoardCreateRequest,
+    BoardDeleteResponse,
+    BoardListResponse,
+    BoardResponse,
+    BoardStatsResponse,
+    BoardUpdateRequest,
+    TaskAssignRequest,
+    TaskCreateRequest,
+    TaskDeleteResponse,
+    TaskListResponse,
+    TaskMoveRequest,
+    TaskResponse,
+    TaskUpdateRequest,
+)
 from paracle_api.schemas.logs import (
     AgentLogsResponse,
     LogActionRequest,
@@ -19,6 +34,22 @@ from paracle_api.schemas.logs import (
     LogDecisionRequest,
     LogDecisionResponse,
     RecentLogsResponse,
+)
+from paracle_api.schemas.observability import (
+    AlertEvaluateResponse,
+    AlertListResponse,
+    AlertResponse,
+    AlertRuleListResponse,
+    AlertRuleResponse,
+    AlertSilenceRequest,
+    AlertSilenceResponse,
+    MetricsExportResponse,
+    MetricsListResponse,
+    MetricValue,
+    SpanEvent,
+    SpanResponse,
+    TraceExportResponse,
+    TraceListResponse,
 )
 from paracle_api.schemas.parac import (
     SessionEndRequest,
@@ -92,4 +123,33 @@ __all__ = [
     "ToolListResponse",
     "ToolEnableRequest",
     "ToolEnableResponse",
+    # Kanban
+    "BoardCreateRequest",
+    "BoardResponse",
+    "BoardUpdateRequest",
+    "BoardDeleteResponse",
+    "BoardListResponse",
+    "BoardStatsResponse",
+    "TaskCreateRequest",
+    "TaskResponse",
+    "TaskUpdateRequest",
+    "TaskDeleteResponse",
+    "TaskListResponse",
+    "TaskMoveRequest",
+    "TaskAssignRequest",
+    # Observability
+    "MetricValue",
+    "MetricsListResponse",
+    "MetricsExportResponse",
+    "SpanEvent",
+    "SpanResponse",
+    "TraceListResponse",
+    "TraceExportResponse",
+    "AlertRuleResponse",
+    "AlertRuleListResponse",
+    "AlertResponse",
+    "AlertListResponse",
+    "AlertSilenceRequest",
+    "AlertSilenceResponse",
+    "AlertEvaluateResponse",
 ]

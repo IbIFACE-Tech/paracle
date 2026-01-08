@@ -18,22 +18,9 @@ from rich.table import Table
 from paracle_cli.api_client import APIClient, APIError, get_client
 from paracle_cli.commands.agent_run import run as _agent_run_cmd
 from paracle_cli.commands.skills import skills as skills_group
+from paracle_cli.utils import get_parac_root_or_exit
 
 console = Console()
-
-
-def get_parac_root_or_exit() -> Path:
-    """Get .parac/ root or exit with error."""
-    from paracle_core.parac.state import find_parac_root
-
-    parac_root = find_parac_root()
-    if parac_root is None:
-        console.print("[red]Error:[/red] No .parac/ directory found.")
-        console.print(
-            "Run 'paracle init' to create one, or navigate to a project."
-        )
-        raise SystemExit(1)
-    return parac_root
 
 
 def get_api_client() -> APIClient | None:
@@ -93,7 +80,8 @@ def agents(ctx: click.Context, list_flag: bool) -> None:
         paracle agents skills -l         - List all available skills
     """
     if list_flag:
-        ctx.invoke(list_agents, output_format="table", remote=False, remote_only=False)
+        ctx.invoke(list_agents, output_format="table",
+                   remote=False, remote_only=False)
     elif ctx.invoked_subcommand is None:
         click.echo(ctx.get_help())
 
@@ -549,6 +537,372 @@ def export_agents(output_format: str, output: str | None) -> None:
         paracle agents export --format=yaml --output=agents.yaml
     """
     use_api_or_fallback(_export_via_api, _export_direct, output_format, output)
+
+
+# =============================================================================
+# VALIDATE Command - Validate agent specifications
+# =============================================================================
+
+
+@agents.command("validate")
+@click.argument("agent_id", required=False)
+@click.option(
+    "--strict",
+    is_flag=True,
+    help="Treat warnings as errors",
+)
+@click.option(
+    "--format",
+    "output_format",
+    type=click.Choice(["text", "json"]),
+    default="text",
+)
+def validate_agents(
+    agent_id: str | None,
+    strict: bool,
+    output_format: str,
+) -> None:
+    """Validate agent specifications against schema.
+
+    Checks that agent specs have required sections and .parac/ references.
+
+    Examples:
+        paracle agents validate           # Validate all agents
+        paracle agents validate coder     # Validate specific agent
+        paracle agents validate --strict  # Treat warnings as errors
+    """
+    from paracle_core.agents.validator import AgentSpecValidator
+
+    parac_root = get_parac_root_or_exit()
+    specs_dir = parac_root / "agents" / "specs"
+
+    if not specs_dir.exists():
+        console.print(
+            f"[red]Error:[/red] Specs directory not found: {specs_dir}")
+        raise SystemExit(1)
+
+    validator = AgentSpecValidator(strict=strict)
+
+    if agent_id:
+        # Validate single agent
+        spec_file = specs_dir / f"{agent_id}.md"
+        if not spec_file.exists():
+            console.print(
+                f"[red]Error:[/red] Agent spec not found: {spec_file}")
+            raise SystemExit(1)
+
+        result = validator.validate_file(spec_file)
+        results = {agent_id: result}
+    else:
+        # Validate all agents
+        results = validator.validate_directory(specs_dir)
+
+    if output_format == "json":
+        import json
+
+        json_results = {
+            agent_id: {
+                "valid": r.valid,
+                "errors": r.error_count,
+                "warnings": r.warning_count,
+                "messages": [str(e) for e in r.errors],
+            }
+            for agent_id, r in results.items()
+        }
+        console.print(json.dumps(json_results, indent=2))
+    else:
+        # Text output
+        all_valid = True
+        for agent_id, result in results.items():
+            if result.valid:
+                console.print(f"[green]OK[/green] {agent_id}")
+            else:
+                all_valid = False
+                console.print(f"[red]INVALID[/red] {agent_id}")
+                for error in result.errors:
+                    severity_color = {
+                        "error": "red",
+                        "warning": "yellow",
+                        "info": "blue",
+                    }.get(error.severity.value, "white")
+                    console.print(
+                        f"  [{severity_color}]{error.severity.value.upper()}[/{severity_color}]: "
+                        f"{error.message}"
+                    )
+                    if error.suggestion:
+                        console.print(
+                            f"    [dim]Suggestion: {error.suggestion}[/dim]")
+
+        console.print()
+        valid_count = sum(1 for r in results.values() if r.valid)
+        console.print(
+            f"Validated {len(results)} agent(s): "
+            f"[green]{valid_count} valid[/green], "
+            f"[red]{len(results) - valid_count} invalid[/red]"
+        )
+
+        if not all_valid:
+            console.print(
+                "\n[dim]Run 'paracle agents format' to auto-fix common issues[/dim]"
+            )
+            raise SystemExit(1)
+
+
+# =============================================================================
+# FORMAT Command - Auto-fix agent specifications
+# =============================================================================
+
+
+@agents.command("format")
+@click.argument("agent_id", required=False)
+@click.option(
+    "--dry-run",
+    is_flag=True,
+    help="Show what would be changed without modifying files",
+)
+@click.option(
+    "--check",
+    is_flag=True,
+    help="Check if files need formatting (exit 1 if yes)",
+)
+def format_agents(
+    agent_id: str | None,
+    dry_run: bool,
+    check: bool,
+) -> None:
+    """Auto-fix common issues in agent specifications.
+
+    Adds missing sections, normalizes structure, and ensures .parac/
+    governance references are present.
+
+    Examples:
+        paracle agents format           # Format all agents
+        paracle agents format coder     # Format specific agent
+        paracle agents format --dry-run # Show changes without applying
+        paracle agents format --check   # Check if formatting needed
+    """
+    from paracle_core.agents.formatter import AgentSpecFormatter
+
+    parac_root = get_parac_root_or_exit()
+    specs_dir = parac_root / "agents" / "specs"
+
+    if not specs_dir.exists():
+        console.print(
+            f"[red]Error:[/red] Specs directory not found: {specs_dir}")
+        raise SystemExit(1)
+
+    formatter = AgentSpecFormatter()
+
+    if agent_id:
+        # Format single agent
+        spec_file = specs_dir / f"{agent_id}.md"
+        if not spec_file.exists():
+            console.print(
+                f"[red]Error:[/red] Agent spec not found: {spec_file}")
+            raise SystemExit(1)
+
+        _, result, modified = formatter.format_file(
+            spec_file, fix=not check, dry_run=dry_run or check
+        )
+        results = {agent_id: (result, modified)}
+    else:
+        # Format all agents
+        results = formatter.format_directory(
+            specs_dir, fix=not check, dry_run=dry_run or check
+        )
+
+    # Report results
+    modified_count = sum(1 for _, (_, m) in results.items() if m)
+    valid_count = sum(1 for _, (r, _) in results.items() if r.valid)
+
+    for agent_id, (result, modified) in results.items():
+        if modified:
+            if dry_run or check:
+                console.print(f"[yellow]WOULD MODIFY[/yellow] {agent_id}")
+            else:
+                console.print(f"[green]FORMATTED[/green] {agent_id}")
+        elif result.valid:
+            console.print(f"[dim]OK[/dim] {agent_id}")
+        else:
+            console.print(f"[red]NEEDS MANUAL FIX[/red] {agent_id}")
+            for error in result.errors:
+                if error.severity.value == "error":
+                    console.print(f"  [red]ERROR[/red]: {error.message}")
+
+    console.print()
+    if dry_run or check:
+        console.print(
+            f"Would modify {modified_count} of {len(results)} agent(s)"
+        )
+        if check and modified_count > 0:
+            raise SystemExit(1)
+    else:
+        console.print(
+            f"Formatted {modified_count} of {len(results)} agent(s), "
+            f"{valid_count} now valid"
+        )
+
+
+# =============================================================================
+# CREATE Command - Create new agent from template
+# =============================================================================
+
+
+@agents.command("create")
+@click.argument("agent_id")
+@click.option(
+    "--role",
+    "-r",
+    required=True,
+    help="Description of what the agent does",
+)
+@click.option(
+    "--name",
+    "-n",
+    help="Human-readable name (defaults to title-cased ID)",
+)
+@click.option(
+    "--ai-enhance",
+    is_flag=True,
+    help="Use AI to enhance the agent specification",
+)
+@click.option(
+    "--ai-provider",
+    type=click.Choice(["auto", "meta", "openai", "anthropic", "azure"]),
+    default="auto",
+    help="AI provider to use (requires --ai-enhance)",
+)
+@click.option(
+    "--force",
+    "-f",
+    is_flag=True,
+    help="Overwrite existing agent spec",
+)
+def create_agent(
+    agent_id: str,
+    role: str,
+    name: str | None,
+    ai_enhance: bool,
+    ai_provider: str,
+    force: bool,
+) -> None:
+    """Create a new agent from template, optionally AI-enhanced.
+
+    Creates a new agent specification in .parac/agents/specs/ with all
+    required sections pre-filled, including governance integration.
+
+    With --ai-enhance, uses AI to generate detailed capabilities,
+    responsibilities, and skill suggestions based on the role description.
+
+    Examples:
+        # Basic template
+        paracle agents create my-agent --role "Handles API testing"
+
+        # AI-enhanced (requires AI provider)
+        paracle agents create reviewer --role "Code review" --ai-enhance
+
+        # With specific AI provider
+        paracle agents create tester --role "Test automation" \\
+            --ai-enhance --ai-provider openai
+
+    After creating, you should:
+        1. Edit .parac/agents/specs/<agent_id>.md
+        2. Fill in skills from .parac/agents/SKILL_ASSIGNMENTS.md
+        3. Add responsibilities
+        4. Run 'paracle agents validate <agent_id>'
+    """
+    import asyncio
+    import re
+
+    from paracle_core.agents.template import AgentTemplate
+
+    parac_root = get_parac_root_or_exit()
+    specs_dir = parac_root / "agents" / "specs"
+    spec_file = specs_dir / f"{agent_id}.md"
+
+    # Check agent_id format
+    if not re.match(r"^[a-z][a-z0-9-]*$", agent_id):
+        console.print(
+            "[red]Error:[/red] Agent ID must be lowercase, "
+            "start with a letter, and contain only letters, numbers, hyphens"
+        )
+        raise SystemExit(1)
+
+    # Check if exists
+    if spec_file.exists() and not force:
+        console.print(
+            f"[red]Error:[/red] Agent spec already exists: {spec_file}"
+        )
+        console.print("Use --force to overwrite")
+        raise SystemExit(1)
+
+    # AI enhancement if requested
+    if ai_enhance:
+        from paracle_cli.ai_helper import get_ai_provider
+
+        # Get AI provider
+        if ai_provider == "auto":
+            ai = get_ai_provider()
+        else:
+            ai = get_ai_provider(ai_provider)
+
+        if ai is None:
+            console.print("[yellow]⚠ AI not available[/yellow]")
+            if not click.confirm(
+                "Create basic template instead?", default=True
+            ):
+                console.print("\n[cyan]To enable AI enhancement:[/cyan]")
+                console.print("  pip install paracle[meta]  # Recommended")
+                console.print("  pip install paracle[openai]  # Or external")
+                raise SystemExit(1)
+            ai_enhance = False  # Fall back to basic template
+        else:
+            console.print(f"[dim]Using AI provider: {ai.name}[/dim]")
+            console.print(f"[dim]Generating enhanced spec for: {role}[/dim]\n")
+
+            with console.status("[bold cyan]Generating agent spec..."):
+                result = asyncio.run(
+                    ai.generate_agent(
+                        f"Agent ID: {agent_id}\nRole: {role}\n"
+                        f"Name: {name or agent_id.replace('-', ' ').title()}"
+                    )
+                )
+
+            # Use AI-generated content
+            content = result["yaml"]
+            console.print(
+                "[green]✓[/green] AI-enhanced agent spec generated"
+            )
+
+    # Create from template (if not AI-enhanced)
+    if not ai_enhance:
+        template = AgentTemplate.create_for_agent(
+            agent_id=agent_id,
+            agent_name=name,
+            agent_role=role,
+        )
+        content = template.render()
+
+    # Ensure directory exists
+    specs_dir.mkdir(parents=True, exist_ok=True)
+
+    # Write file
+    spec_file.write_text(content, encoding="utf-8")
+
+    console.print(f"[green]OK[/green] Created agent spec: {spec_file}")
+    console.print()
+    console.print("Next steps:")
+    console.print(f"  1. Edit {spec_file.relative_to(parac_root.parent)}")
+    console.print("  2. Review .parac/agents/SKILL_ASSIGNMENTS.md")
+    console.print("  3. Add responsibilities")
+    console.print(f"  4. Run: paracle agents validate {agent_id}")
+    console.print()
+    console.print(
+        "[dim]See .parac/agents/specs/SCHEMA.md for required sections[/dim]"
+    )
+    console.print(
+        "[dim]See .parac/agents/specs/TEMPLATE.md for examples[/dim]"
+    )
 
 
 # =============================================================================

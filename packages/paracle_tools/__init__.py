@@ -41,7 +41,7 @@ from paracle_tools.builtin import (
     # Shell tool classes (require allowed_commands)
     RunCommandTool,
     Tool,
-    ToolError,
+    ToolError,  # Builtin tool error
     ToolResult,
     WriteFileTool,
     create_command_tool,
@@ -69,6 +69,21 @@ from paracle_tools.documenter_tools import (
     api_doc_generation,
     diagram_creation,
     markdown_generation,
+)
+
+# Tool exceptions (import with alias to avoid conflict with builtin.ToolError)
+from paracle_tools.exceptions import (
+    ToolConfigurationError,
+    ToolExecutionError,
+    ToolNotFoundError,
+    ToolPermissionError,
+    ToolRegistrationError,
+    ToolResourceError,
+    ToolTimeoutError,
+    ToolValidationError,
+)
+from paracle_tools.exceptions import (
+    ToolError as ParacleToolError,
 )
 from paracle_tools.git_tools import (
     GitAddTool,
@@ -148,10 +163,20 @@ from paracle_tools.tester_tools import (
 )
 
 __all__ = [
+    # Paracle exceptions (framework-level)
+    "ParacleToolError",
+    "ToolConfigurationError",
+    "ToolExecutionError",
+    "ToolNotFoundError",
+    "ToolPermissionError",
+    "ToolRegistrationError",
+    "ToolResourceError",
+    "ToolTimeoutError",
+    "ToolValidationError",
     # MCP
     "MCPClient",
     "MCPToolRegistry",
-    # Built-in base
+    # Built-in base (legacy ToolError from builtin)
     "BaseTool",
     "Tool",
     "ToolResult",

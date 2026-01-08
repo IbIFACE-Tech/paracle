@@ -41,7 +41,7 @@ cp .env.example .env
 # Edit .env with your API keys (OPENAI_API_KEY, etc.)
 ```
 
-📖 **See [API Keys Guide](docs/api-keys.md) for detailed setup**
+📖 **See [API Keys Guide](content/docs/api-keys.md) for detailed setup**
 
 ### Verify Installation
 
@@ -118,7 +118,9 @@ paracle-lite/
 │   ├── paracle_api/            # REST API
 │   └── paracle_cli/            # CLI
 ├── tests/               # Test suite
-├── docs/                # Documentation
+├── content/             # Documentation and templates
+│   ├── docs/            # User documentation
+│   └── templates/       # Project templates
 └── examples/            # Example projects
 ```
 
@@ -131,7 +133,7 @@ Paracle follows a **modular monolith** architecture with clear boundaries:
 - **Application Layer**: Orchestration, API, CLI
 - **Adapters**: External integrations (MSAF, LangChain, etc.)
 
-See [Architecture Documentation](docs/architecture.md) for details.
+See [Architecture Documentation](content/docs/architecture.md) for details.
 
 ## 🌟 Key Features
 
@@ -195,22 +197,22 @@ workflow = Workflow(
 
 ### Getting Started
 
-- [Getting Started Guide](docs/getting-started.md) - Quick start in 5 minutes
-- [API Keys Configuration](docs/api-keys.md) - Set up LLM provider API keys
-- [Providers Guide](docs/providers.md) - All 14+ supported providers
+- [Getting Started Guide](content/docs/getting-started.md) - Quick start in 5 minutes
+- [API Keys Configuration](content/docs/api-keys.md) - Set up LLM provider API keys
+- [Providers Guide](content/docs/providers.md) - All 14+ supported providers
 
 ### Architecture & Design
 
-- [Architecture Overview](docs/architecture.md) - System design and patterns
-- [Synchronization Guide](docs/synchronization-guide.md) - Sync/async patterns
-- [API-First CLI](docs/api-first-cli.md) - CLI architecture with API fallback
+- [Architecture Overview](content/docs/architecture.md) - System design and patterns
+- [Synchronization Guide](content/docs/synchronization-guide.md) - Sync/async patterns
+- [API-First CLI](content/docs/api-first-cli.md) - CLI architecture with API fallback
 
 ### Features
 
-- [Skills System](docs/skills.md) - Write once, export to all AI platforms
-- [Built-in Tools](docs/builtin-tools.md) - 9 native tools (filesystem, HTTP, shell)
-- [MCP Integration](docs/mcp-integration.md) - Model Context Protocol support
-- [Security Audit Report](docs/security-audit-report.md) - Security assessment
+- [Skills System](content/docs/skills.md) - Write once, export to all AI platforms
+- [Built-in Tools](content/docs/builtin-tools.md) - 9 native tools (filesystem, HTTP, shell)
+- [MCP Integration](content/docs/mcp-integration.md) - Model Context Protocol support
+- [Security Audit Report](content/docs/security-audit-report.md) - Security assessment
 - [Examples](examples/) - 11 code examples and tutorials
 
 ### Reference

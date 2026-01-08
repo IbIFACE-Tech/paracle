@@ -5,6 +5,7 @@ Provides centralized logging configuration following best practices:
 - Multiple output targets (stdout, file, audit)
 - Log level management
 - Format selection (text, JSON)
+- Platform-specific paths (Windows, Linux, macOS, Docker)
 """
 
 import logging
@@ -15,6 +16,8 @@ from pathlib import Path
 from typing import Any
 
 from pydantic import BaseModel, Field
+
+from paracle_core.logging.platform import get_log_path
 
 
 class LogLevel(str, Enum):
@@ -56,6 +59,10 @@ class LogConfig(BaseModel):
     log_file_path: Path | None = Field(
         default=None,
         description="Path to log file (if log_to_file=True)",
+    )
+    use_platform_paths: bool = Field(
+        default=True,
+        description="Use platform-specific paths for framework logs",
     )
 
     # Rotation settings
@@ -103,11 +110,12 @@ class LogConfig(BaseModel):
         """Load configuration from environment variables.
 
         Environment variables:
-            PARACLE_LOG_LEVEL: Log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+            PARACLE_LOG_LEVEL: Log level (DEBUG, INFO, etc.)
             PARACLE_LOG_JSON: Use JSON format (true/false)
             PARACLE_LOG_FILE: Path to log file
             PARACLE_LOG_AUDIT: Enable audit logging (true/false)
             PARACLE_LOG_AUDIT_FILE: Path to audit log file
+            PARACLE_USE_PLATFORM_PATHS: Use platform paths (true/false)
         """
         level_str = os.getenv("PARACLE_LOG_LEVEL", "INFO").upper()
         try:
@@ -115,18 +123,35 @@ class LogConfig(BaseModel):
         except ValueError:
             level = LogLevel.INFO
 
-        json_format = os.getenv("PARACLE_LOG_JSON", "false").lower() == "true"
+        json_fmt = os.getenv("PARACLE_LOG_JSON", "false").lower() == "true"
         log_file = os.getenv("PARACLE_LOG_FILE")
-        audit_enabled = os.getenv("PARACLE_LOG_AUDIT", "true").lower() == "true"
+        audit_enabled = (
+            os.getenv("PARACLE_LOG_AUDIT", "true").lower() == "true"
+        )
         audit_file = os.getenv("PARACLE_LOG_AUDIT_FILE")
+        use_platform = (
+            os.getenv("PARACLE_USE_PLATFORM_PATHS", "true").lower() == "true"
+        )
+
+        # Use platform-specific paths if enabled and no explicit path
+        if use_platform and log_file is None:
+            log_file_path = get_log_path("main")
+        else:
+            log_file_path = Path(log_file) if log_file else None
+
+        if use_platform and audit_file is None:
+            audit_file_path = get_log_path("audit")
+        else:
+            audit_file_path = Path(audit_file) if audit_file else None
 
         return cls(
             level=level,
-            json_format=json_format,
-            log_to_file=log_file is not None,
-            log_file_path=Path(log_file) if log_file else None,
+            json_format=json_fmt,
+            log_to_file=log_file_path is not None,
+            log_file_path=log_file_path,
             audit_enabled=audit_enabled,
-            audit_file_path=Path(audit_file) if audit_file else None,
+            audit_file_path=audit_file_path,
+            use_platform_paths=use_platform,
         )
 
 

@@ -4,6 +4,26 @@
 
 Security auditing, vulnerability detection, threat modeling, compliance enforcement, and security standards implementation for Paracle framework and AI applications.
 
+## Governance Integration
+
+### Before Starting Any Task
+
+1. Read `.parac/memory/context/current_state.yaml` - Current phase & status
+2. Check `.parac/roadmap/roadmap.yaml` - Priorities for current phase
+3. Review `.parac/memory/context/open_questions.md` - Check for blockers
+
+### After Completing Work
+
+Log action to `.parac/memory/logs/agent_actions.log`:
+
+```
+[TIMESTAMP] [AGENT_ID] [ACTION_TYPE] Description
+```
+
+### Decision Recording
+
+Document architectural decisions in `.parac/roadmap/decisions.md`.
+
 ## Skills
 
 - security-hardening
@@ -240,6 +260,7 @@ Security auditing, vulnerability detection, threat modeling, compliance enforcem
 ### Input Validation
 
 ```python
+
 # Always validate and sanitize user input
 from pydantic import BaseModel, Field, validator
 
@@ -258,6 +279,7 @@ class AgentInput(BaseModel):
 ### Authentication
 
 ```python
+
 # Use secure authentication
 from passlib.context import CryptContext
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -272,6 +294,7 @@ def get_password_hash(password: str) -> str:
 ### Secrets Management
 
 ```python
+
 # Never hardcode secrets
 import os
 from typing import Optional
@@ -284,6 +307,7 @@ if not SECRET_KEY:
 ### SQL Injection Prevention
 
 ```python
+
 # Use parameterized queries
 from sqlalchemy import text
 
@@ -298,6 +322,7 @@ result = session.execute(query, {"name": user_input})
 ### XSS Prevention
 
 ```python
+
 # Escape output, validate input
 from markupsafe import escape
 

@@ -3,6 +3,9 @@
 Generates IDE-specific configuration files from .parac/ context
 using Jinja2 templates. Also exports skills to platform-specific
 formats (Agent Skills specification).
+
+Ensures .parac/ is validated and formatted before generation to
+maintain it as the single source of truth.
 """
 
 from dataclasses import dataclass
@@ -25,6 +28,22 @@ class IDEConfig:
     template_name: str
     destination_dir: str  # Relative to project root
     max_context_size: int = 50_000
+
+
+@dataclass
+class MCPConfig:
+    """MCP configuration for a specific IDE/tool.
+
+    Different IDEs have different MCP configuration formats and locations.
+    """
+
+    name: str
+    display_name: str
+    file_name: str
+    destination_dir: str  # Relative to project root or home
+    config_format: str  # "json" or "yaml"
+    uses_home_dir: bool = False  # If True, destination is relative to ~
+    server_key: str = "mcpServers"  # Key name for servers object
 
 
 class IDEConfigGenerator:
@@ -111,6 +130,14 @@ class IDEConfigGenerator:
             destination_dir=".opencode",
             max_context_size=50_000,
         ),
+        "rovodev": IDEConfig(
+            name="rovodev",
+            display_name="Atlassian Rovo Dev",
+            file_name="config.yml",
+            template_name="rovodev.jinja2",
+            destination_dir=".rovodev",
+            max_context_size=50_000,
+        ),
         # === Web-based (copy-paste instructions) ===
         "claude_desktop": IDEConfig(
             name="claude_desktop",
@@ -155,6 +182,64 @@ class IDEConfigGenerator:
         ),
     }
 
+    # MCP configurations for IDEs that support Model Context Protocol
+    # These define how to generate mcp.json/mcp_config.json for each IDE
+    SUPPORTED_MCP: dict[str, MCPConfig] = {
+        # === VS Code based ===
+        "vscode": MCPConfig(
+            name="vscode",
+            display_name="VS Code / Copilot",
+            file_name="mcp.json",
+            destination_dir=".vscode",
+            config_format="json",
+        ),
+        "cursor": MCPConfig(
+            name="cursor",
+            display_name="Cursor",
+            file_name="mcp.json",
+            destination_dir=".cursor",
+            config_format="json",
+        ),
+        "cline": MCPConfig(
+            name="cline",
+            display_name="Cline",
+            file_name="mcp.json",
+            destination_dir=".cline",
+            config_format="json",
+        ),
+        # === Other IDEs ===
+        "windsurf": MCPConfig(
+            name="windsurf",
+            display_name="Windsurf",
+            file_name="mcp_config.json",
+            destination_dir=".codeium/windsurf",
+            config_format="json",
+            uses_home_dir=True,
+        ),
+        "claude_desktop": MCPConfig(
+            name="claude_desktop",
+            display_name="Claude Desktop",
+            file_name="claude_desktop_config.json",
+            destination_dir="Claude",
+            config_format="json",
+            uses_home_dir=True,
+        ),
+        "zed": MCPConfig(
+            name="zed",
+            display_name="Zed",
+            file_name="mcp.json",
+            destination_dir=".zed",
+            config_format="json",
+        ),
+        "rovodev": MCPConfig(
+            name="rovodev",
+            display_name="Rovo Dev",
+            file_name="mcp_config.json",
+            destination_dir=".rovodev",
+            config_format="json",
+        ),
+    }
+
     def __init__(self, parac_root: Path, project_root: Path | None = None):
         """Initialize IDE config generator.
 
@@ -166,6 +251,8 @@ class IDEConfigGenerator:
         self.project_root = project_root or parac_root.parent
         self.ide_output_dir = parac_root / "integrations" / "ide"
         self._jinja_env = None
+        self._workspace_prepared = False
+        self._preparation_warnings: list[str] = []
 
     def _get_jinja_env(self) -> Any:
         """Get or create Jinja2 environment."""
@@ -209,17 +296,128 @@ class IDEConfigGenerator:
         """Get configuration for a specific IDE."""
         return self.SUPPORTED_IDES.get(ide.lower())
 
-    def generate(self, ide: str) -> str:
+    def _prepare_workspace(
+        self, skip_format: bool = False, strict: bool = False
+    ) -> None:
+        """Validate and format .parac/ workspace before generation.
+
+        Ensures .parac/ is the correct single source of truth by:
+        1. Validating workspace structure and YAML files
+        2. Formatting and validating all agent specs
+
+        Args:
+            skip_format: If True, skip formatting (only validate)
+            strict: If True, treat warnings as errors
+
+        Raises:
+            ValueError: If validation fails or workspace is invalid
+        """
+        if self._workspace_prepared:
+            return  # Already prepared
+
+        self._preparation_warnings = []
+
+        # Step 1: Validate .parac/ workspace structure
+        try:
+            from paracle_core.parac.validator import ParacValidator
+
+            validator = ParacValidator(self.parac_root)
+            result = validator.validate()
+
+            if result.errors:
+                error_msg = "Invalid .parac/ workspace:\n"
+                for error in result.errors:
+                    error_msg += f"  - {error}\n"
+                raise ValueError(error_msg)
+
+            if result.warnings:
+                for warning in result.warnings:
+                    self._preparation_warnings.append(str(warning))
+
+                if strict:
+                    warning_msg = "Workspace has warnings (strict mode):\n"
+                    for warning in result.warnings:
+                        warning_msg += f"  - {warning}\n"
+                    raise ValueError(warning_msg)
+
+        except ImportError:
+            # Validator not available - continue with warning
+            self._preparation_warnings.append(
+                "Workspace validation skipped (validator not available)"
+            )
+
+        # Step 2: Format and validate agent specs
+        specs_dir = self.parac_root / "agents" / "specs"
+        if specs_dir.exists() and not skip_format:
+            try:
+                from paracle_core.agents.formatter import AgentSpecFormatter
+
+                formatter = AgentSpecFormatter()
+                format_results = formatter.format_directory(
+                    specs_dir, fix=True, dry_run=False
+                )
+
+                # Check for validation errors
+                errors = []
+                warnings = []
+                modified_count = 0
+
+                for agent_id, (validation_result, was_modified) in (
+                    format_results.items()
+                ):
+                    if was_modified:
+                        modified_count += 1
+
+                    if not validation_result.valid:
+                        for error in validation_result.errors:
+                            errors.append(f"{agent_id}: {error}")
+
+                    # Collect warnings
+                    if hasattr(validation_result, "warnings"):
+                        for warning in validation_result.warnings:
+                            warnings.append(f"{agent_id}: {warning}")
+
+                if errors:
+                    error_msg = "Invalid agent specifications:\n"
+                    for error in errors:
+                        error_msg += f"  - {error}\n"
+                    raise ValueError(error_msg)
+
+                # Track modifications and warnings
+                if modified_count > 0:
+                    self._preparation_warnings.append(
+                        f"Auto-formatted {modified_count} agent spec(s)"
+                    )
+
+                self._preparation_warnings.extend(warnings)
+
+                if warnings and strict:
+                    warning_msg = "Agent specs have warnings (strict mode):\n"
+                    for warning in warnings:
+                        warning_msg += f"  - {warning}\n"
+                    raise ValueError(warning_msg)
+
+            except ImportError:
+                # Formatter/validator not available - continue with warning
+                self._preparation_warnings.append(
+                    "Agent spec formatting skipped (formatter not available)"
+                )
+
+        self._workspace_prepared = True
+
+    def generate(self, ide: str, skip_format: bool = False, strict: bool = False) -> str:
         """Generate IDE configuration content.
 
         Args:
             ide: Target IDE name
+            skip_format: Skip formatting (only validate)
+            strict: Treat warnings as errors
 
         Returns:
             Generated configuration content
 
         Raises:
-            ValueError: If IDE is not supported
+            ValueError: If IDE is not supported or workspace invalid
             FileNotFoundError: If template is not found
         """
         config = self.get_ide_config(ide)
@@ -229,8 +427,13 @@ class IDEConfigGenerator:
                 f"Supported: {', '.join(self.get_supported_ides())}"
             )
 
+        # Validate and format workspace before generation
+        self._prepare_workspace(skip_format=skip_format, strict=strict)
+
         # Build context
-        builder = ContextBuilder(self.parac_root, max_size=config.max_context_size)
+        builder = ContextBuilder(
+            self.parac_root, max_size=config.max_context_size
+        )
         context = builder.build(ide=config.name)
 
         # Add IDE-specific context
@@ -251,12 +454,20 @@ class IDEConfigGenerator:
 
         return template.render(**context)
 
-    def generate_to_file(self, ide: str, output_dir: Path | None = None) -> Path:
+    def generate_to_file(
+        self,
+        ide: str,
+        output_dir: Path | None = None,
+        skip_format: bool = False,
+        strict: bool = False,
+    ) -> Path:
         """Generate IDE config and write to file.
 
         Args:
             ide: Target IDE name
             output_dir: Output directory (defaults to .parac/integrations/ide/)
+            skip_format: Skip formatting (only validate)
+            strict: Treat warnings as errors
 
         Returns:
             Path to generated file
@@ -266,7 +477,7 @@ class IDEConfigGenerator:
             raise ValueError(f"Unsupported IDE: {ide}")
 
         # Generate content
-        content = self.generate(ide)
+        content = self.generate(ide, skip_format=skip_format, strict=strict)
 
         # Determine output path
         if output_dir is None:
@@ -278,19 +489,31 @@ class IDEConfigGenerator:
 
         return output_path
 
-    def generate_all(self, output_dir: Path | None = None) -> dict[str, Path]:
+    def generate_all(
+        self,
+        output_dir: Path | None = None,
+        skip_format: bool = False,
+        strict: bool = False,
+    ) -> dict[str, Path]:
         """Generate configs for all supported IDEs.
 
         Args:
             output_dir: Output directory (defaults to .parac/integrations/ide/)
+            skip_format: Skip formatting (only validate)
+            strict: Treat warnings as errors
 
         Returns:
             Dictionary mapping IDE name to generated file path
         """
+        # Prepare workspace once for all IDEs
+        self._prepare_workspace(skip_format=skip_format, strict=strict)
+
         results = {}
         for ide in self.SUPPORTED_IDES:
             try:
-                path = self.generate_to_file(ide, output_dir)
+                path = self.generate_to_file(
+                    ide, output_dir, skip_format=True, strict=False
+                )
                 results[ide] = path
             except Exception as e:
                 # Log error but continue with other IDEs
@@ -373,7 +596,8 @@ class IDEConfigGenerator:
         self.ide_output_dir.mkdir(parents=True, exist_ok=True)
 
         with open(manifest_path, "w", encoding="utf-8") as f:
-            yaml.dump(manifest, f, default_flow_style=False, allow_unicode=True)
+            yaml.dump(manifest, f, default_flow_style=False,
+                      allow_unicode=True)
 
         return manifest_path
 
@@ -499,7 +723,8 @@ class IDEConfigGenerator:
             return []
 
         exporter = SkillExporter(skills)
-        results = exporter.export_to_platform(platform, self.project_root, overwrite)
+        results = exporter.export_to_platform(
+            platform, self.project_root, overwrite)
 
         return [r.skill_name for r in results if r.success]
 
@@ -538,3 +763,258 @@ class IDEConfigGenerator:
             results["errors"].append(f"Skills export: {e}")
 
         return results
+
+    # =========================================================================
+    # MCP CONFIGURATION METHODS
+    # =========================================================================
+
+    def get_supported_mcp_ides(self) -> list[str]:
+        """Get list of IDE names that support MCP configuration."""
+        return list(self.SUPPORTED_MCP.keys())
+
+    def get_mcp_config(self, ide: str) -> MCPConfig | None:
+        """Get MCP configuration for a specific IDE."""
+        return self.SUPPORTED_MCP.get(ide.lower())
+
+    def generate_mcp_server_config(
+        self,
+        use_uv: bool = True,
+        use_npx: bool = False,
+    ) -> dict[str, Any]:
+        """Generate the Paracle MCP server configuration.
+
+        Args:
+            use_uv: Use uv to run paracle (recommended)
+            use_npx: Use npx instead (for npm-based installs)
+
+        Returns:
+            Dictionary with MCP server configuration
+        """
+        if use_uv:
+            return {
+                "paracle": {
+                    "type": "stdio",
+                    "command": "uv",
+                    "args": ["run", "paracle", "mcp", "serve", "--stdio"],
+                }
+            }
+        elif use_npx:
+            return {
+                "paracle": {
+                    "type": "stdio",
+                    "command": "npx",
+                    "args": ["-y", "paracle", "mcp", "serve", "--stdio"],
+                }
+            }
+        else:
+            return {
+                "paracle": {
+                    "type": "stdio",
+                    "command": "paracle",
+                    "args": ["mcp", "serve", "--stdio"],
+                }
+            }
+
+    def generate_mcp_config_content(
+        self,
+        ide: str,
+        use_uv: bool = True,
+        include_comment: bool = True,
+    ) -> str:
+        """Generate MCP configuration JSON content for an IDE.
+
+        Args:
+            ide: Target IDE name
+            use_uv: Use uv to run paracle
+            include_comment: Include header comment
+
+        Returns:
+            JSON string with MCP configuration
+        """
+        import json
+
+        config = self.get_mcp_config(ide)
+        if not config:
+            raise ValueError(
+                f"Unsupported MCP IDE: {ide}. "
+                f"Supported: {', '.join(self.get_supported_mcp_ides())}"
+            )
+
+        # Build MCP config
+        server_config = self.generate_mcp_server_config(use_uv=use_uv)
+
+        # Different IDEs have different top-level structure
+        if ide in ("vscode", "cursor", "cline", "zed"):
+            # VS Code style: { "servers": { ... } }
+            mcp_config = {"servers": server_config}
+        else:
+            # Claude Desktop / Windsurf style: { "mcpServers": { ... } }
+            mcp_config = {"mcpServers": server_config}
+
+        # Convert to JSON
+        json_content = json.dumps(mcp_config, indent=2)
+
+        if include_comment:
+            header = f"""// Paracle MCP Configuration for {config.display_name}
+// Auto-generated - regenerate with: paracle ide mcp --generate
+// Documentation: https://modelcontextprotocol.io/
+//
+// This connects your IDE to the Paracle MCP server for:
+// - Agent execution tools
+// - Workflow management
+// - .parac/ governance tools
+// - Memory and context tools
+"""
+            # JSON doesn't support comments, but most IDEs tolerate them
+            # For strict JSON parsers, we'll put it in a separate file
+            return header + json_content
+
+        return json_content
+
+    def generate_mcp_to_file(
+        self,
+        ide: str,
+        output_dir: Path | None = None,
+        use_uv: bool = True,
+    ) -> Path:
+        """Generate MCP config and write to file.
+
+        Args:
+            ide: Target IDE name
+            output_dir: Output directory (defaults to .parac/integrations/mcp/)
+            use_uv: Use uv to run paracle
+
+        Returns:
+            Path to generated file
+        """
+        config = self.get_mcp_config(ide)
+        if not config:
+            raise ValueError(f"Unsupported MCP IDE: {ide}")
+
+        # Generate content (without comments for valid JSON)
+        content = self.generate_mcp_config_content(
+            ide, use_uv=use_uv, include_comment=False
+        )
+
+        # Determine output path
+        if output_dir is None:
+            output_dir = self.parac_root / "integrations" / "mcp"
+        output_dir.mkdir(parents=True, exist_ok=True)
+
+        output_path = output_dir / f"{ide}_{config.file_name}"
+        output_path.write_text(content, encoding="utf-8")
+
+        return output_path
+
+    def generate_all_mcp(self, output_dir: Path | None = None) -> dict[str, Path]:
+        """Generate MCP configs for all supported IDEs.
+
+        Args:
+            output_dir: Output directory
+
+        Returns:
+            Dictionary mapping IDE name to generated file path
+        """
+        results = {}
+        for ide in self.SUPPORTED_MCP:
+            try:
+                path = self.generate_mcp_to_file(ide, output_dir)
+                results[ide] = path
+            except Exception as e:
+                print(f"Warning: Failed to generate MCP config for {ide}: {e}")
+
+        return results
+
+    def copy_mcp_to_project(self, ide: str) -> Path:
+        """Copy MCP config to the IDE's expected location.
+
+        Args:
+            ide: Target IDE name
+
+        Returns:
+            Path to copied file
+        """
+        config = self.get_mcp_config(ide)
+        if not config:
+            raise ValueError(f"Unsupported MCP IDE: {ide}")
+
+        # Source file
+        source_dir = self.parac_root / "integrations" / "mcp"
+        source = source_dir / f"{ide}_{config.file_name}"
+        if not source.exists():
+            self.generate_mcp_to_file(ide)
+            source = source_dir / f"{ide}_{config.file_name}"
+
+        # Destination
+        if config.uses_home_dir:
+            dest_dir = Path.home() / config.destination_dir
+        else:
+            dest_dir = self.project_root / config.destination_dir
+
+        dest_dir.mkdir(parents=True, exist_ok=True)
+        dest = dest_dir / config.file_name
+
+        # Copy content
+        content = source.read_text(encoding="utf-8")
+        dest.write_text(content, encoding="utf-8")
+
+        return dest
+
+    def copy_all_mcp_to_project(self, project_only: bool = True) -> dict[str, Path]:
+        """Copy all MCP configs to their expected locations.
+
+        Args:
+            project_only: If True, skip configs that go to home directory
+
+        Returns:
+            Dictionary mapping IDE name to copied file path
+        """
+        results = {}
+        for ide, config in self.SUPPORTED_MCP.items():
+            if project_only and config.uses_home_dir:
+                continue
+            try:
+                path = self.copy_mcp_to_project(ide)
+                results[ide] = path
+            except Exception as e:
+                print(f"Warning: Failed to copy MCP config for {ide}: {e}")
+
+        return results
+
+    def get_mcp_status(self) -> dict[str, Any]:
+        """Get status of MCP configurations.
+
+        Returns:
+            Dictionary with MCP status information
+        """
+        status = {
+            "supported_ides": self.get_supported_mcp_ides(),
+            "configs": {},
+        }
+
+        mcp_dir = self.parac_root / "integrations" / "mcp"
+
+        for ide, config in self.SUPPORTED_MCP.items():
+            generated_file = mcp_dir / f"{ide}_{config.file_name}"
+
+            if config.uses_home_dir:
+                installed_file = Path.home() / config.destination_dir / config.file_name
+            else:
+                installed_file = (
+                    self.project_root / config.destination_dir / config.file_name
+                )
+
+            status["configs"][ide] = {
+                "display_name": config.display_name,
+                "generated": generated_file.exists(),
+                "installed": installed_file.exists(),
+                "generated_path": (
+                    str(generated_file) if generated_file.exists() else None
+                ),
+                "installed_path": (
+                    str(installed_file) if installed_file.exists() else None
+                ),
+                "uses_home_dir": config.uses_home_dir,
+            }
+
+        return status

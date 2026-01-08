@@ -171,7 +171,7 @@ def my_function(param1: str, param2: int) -> bool:
 
 ### Documentation Files
 
-- Update relevant `.md` files in `docs/`
+- Update relevant `.md` files in `content/docs/`
 - Add examples if appropriate
 - Update README if needed
 

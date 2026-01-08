@@ -89,7 +89,8 @@ def workflow(ctx: click.Context, list_flag: bool) -> None:
         $ paracle workflow cancel exec_abc123
     """
     if list_flag:
-        ctx.invoke(list_workflows, status=None, limit=100, offset=0, output_json=False)
+        ctx.invoke(list_workflows, status=None,
+                   limit=100, offset=0, output_json=False)
     elif ctx.invoked_subcommand is None:
         click.echo(ctx.get_help())
 
@@ -523,6 +524,277 @@ def cancel_execution(execution_id: str, output_json: bool) -> None:
     except Exception as e:
         console.print(f"[red]✗ Error:[/red] {e}")
         raise click.Abort()
+
+
+@workflow.command("create")
+@click.argument("workflow_id")
+@click.option(
+    "--description",
+    "-d",
+    help="Description of what the workflow does",
+)
+@click.option(
+    "--template",
+    "-t",
+    type=click.Choice(["sequential", "parallel", "conditional"]),
+    default="sequential",
+    help="Workflow template type",
+)
+@click.option(
+    "--ai-enhance",
+    is_flag=True,
+    help="Use AI to enhance the workflow specification",
+)
+@click.option(
+    "--ai-provider",
+    type=click.Choice(["auto", "meta", "openai", "anthropic", "azure"]),
+    default="auto",
+    help="AI provider to use (requires --ai-enhance)",
+)
+@click.option(
+    "--force",
+    "-f",
+    is_flag=True,
+    help="Overwrite existing workflow",
+)
+def create_workflow(
+    workflow_id: str,
+    description: str | None,
+    template: str,
+    ai_enhance: bool,
+    ai_provider: str,
+    force: bool,
+) -> None:
+    """Create a new workflow from template, optionally AI-enhanced.
+
+    Creates a new workflow specification in .parac/workflows/ with all
+    required sections pre-filled.
+
+    With --ai-enhance, uses AI to generate detailed steps, conditions,
+    and error handling based on the description.
+
+    Template Types:
+        sequential: Steps run one after another (default)
+        parallel: Steps run concurrently where possible
+        conditional: Steps with conditions and branches
+
+    Examples:
+        # Basic template
+        paracle workflow create code-review -t sequential
+
+        # AI-enhanced (requires AI provider)
+        paracle workflow create test-pipeline \\
+            --description "Run unit tests, then integration tests" \\
+            --ai-enhance
+
+        # With specific AI provider
+        paracle workflow create deploy \\
+            --description "Build, test, and deploy to production" \\
+            --ai-enhance --ai-provider anthropic
+
+    After creating, you should:
+        1. Edit .parac/workflows/<workflow_id>.yaml
+        2. Add agent references and step details
+        3. Run 'paracle workflow plan <workflow_id>' to validate
+    """
+    import asyncio
+    import re
+
+    # Check workflow_id format
+    if not re.match(r"^[a-z][a-z0-9-]*$", workflow_id):
+        console.print(
+            "[red]Error:[/red] Workflow ID must be lowercase, "
+            "start with a letter, and contain only letters, numbers, hyphens"
+        )
+        raise SystemExit(1)
+
+    # Find .parac root
+    from paracle_cli.utils import get_parac_root_or_exit
+
+    parac_root = get_parac_root_or_exit()
+    workflows_dir = parac_root / "workflows"
+    workflow_file = workflows_dir / f"{workflow_id}.yaml"
+
+    # Check if exists
+    if workflow_file.exists() and not force:
+        console.print(
+            f"[red]Error:[/red] Workflow already exists: {workflow_file}"
+        )
+        console.print("Use --force to overwrite")
+        raise SystemExit(1)
+
+    # AI enhancement if requested
+    ai_generated_content = None
+    if ai_enhance:
+        if not description:
+            console.print(
+                "[red]Error:[/red] --description required with --ai-enhance"
+            )
+            raise SystemExit(1)
+
+        from paracle_cli.ai_helper import get_ai_provider
+
+        # Get AI provider
+        if ai_provider == "auto":
+            ai = get_ai_provider()
+        else:
+            ai = get_ai_provider(ai_provider)
+
+        if ai is None:
+            console.print("[yellow]⚠ AI not available[/yellow]")
+            if not click.confirm(
+                "Create basic template instead?", default=True
+            ):
+                console.print("\\n[cyan]To enable AI enhancement:[/cyan]")
+                console.print("  pip install paracle[meta]  # Recommended")
+                console.print("  pip install paracle[openai]  # Or external")
+                raise SystemExit(1)
+            ai_enhance = False  # Fall back to basic template
+        else:
+            console.print(f"[dim]Using AI provider: {ai.name}[/dim]")
+            console.print(
+                f"[dim]Generating enhanced workflow: {description}[/dim]\\n"
+            )
+
+            with console.status("[bold cyan]Generating workflow spec..."):
+                result = asyncio.run(
+                    ai.generate_workflow(
+                        f"Workflow ID: {workflow_id}\\n"
+                        f"Template: {template}\\n"
+                        f"Description: {description}"
+                    )
+                )
+
+            ai_generated_content = result.get("yaml", "")
+            console.print(
+                "[green]✓[/green] AI-enhanced workflow spec generated"
+            )
+
+    # Create from template (if not AI-enhanced)
+    if ai_generated_content:
+        workflow_content = ai_generated_content
+    else:
+        # Generate template based on type
+        display_name = workflow_id.replace("-", " ").title()
+        desc = description or f"{display_name} workflow"
+
+        if template == "sequential":
+            workflow_content = f"""---
+id: {workflow_id}
+name: "{display_name}"
+description: "{desc}"
+version: "1.0.0"
+
+steps:
+  - id: step_1
+    name: "First Step"
+    agent: coder  # Replace with appropriate agent
+    task: "TODO: Describe what this step does"
+    mode: safe
+
+  - id: step_2
+    name: "Second Step"
+    agent: reviewer  # Replace with appropriate agent
+    task: "TODO: Describe what this step does"
+    mode: safe
+    depends_on:
+      - step_1
+
+error_handling:
+  on_failure: rollback
+  notify: []
+"""
+        elif template == "parallel":
+            workflow_content = f"""---
+id: {workflow_id}
+name: "{display_name}"
+description: "{desc}"
+version: "1.0.0"
+
+steps:
+  - id: step_1a
+    name: "Parallel Step A"
+    agent: coder
+    task: "TODO: Describe parallel task A"
+    mode: safe
+
+  - id: step_1b
+    name: "Parallel Step B"
+    agent: tester
+    task: "TODO: Describe parallel task B"
+    mode: safe
+
+  - id: step_2
+    name: "Final Step"
+    agent: reviewer
+    task: "TODO: Describe final step"
+    mode: safe
+    depends_on:
+      - step_1a
+      - step_1b
+
+error_handling:
+  on_failure: rollback
+  notify: []
+"""
+        else:  # conditional
+            workflow_content = f"""---
+id: {workflow_id}
+name: "{display_name}"
+description: "{desc}"
+version: "1.0.0"
+
+steps:
+  - id: step_1
+    name: "Check Condition"
+    agent: coder
+    task: "TODO: Describe check"
+    mode: safe
+
+  - id: step_2a
+    name: "If True"
+    agent: coder
+    task: "TODO: Execute if condition met"
+    mode: safe
+    depends_on:
+      - step_1
+    condition: "{{{{ step_1.success }}}}"
+
+  - id: step_2b
+    name: "If False"
+    agent: coder
+    task: "TODO: Execute if condition not met"
+    mode: safe
+    depends_on:
+      - step_1
+    condition: "{{{{ not step_1.success }}}}"
+
+error_handling:
+  on_failure: rollback
+  notify: []
+"""
+
+    # Ensure directory exists
+    workflows_dir.mkdir(parents=True, exist_ok=True)
+
+    # Write file
+    workflow_file.write_text(workflow_content, encoding="utf-8")
+
+    console.print(
+        f"[green]OK[/green] Created workflow: {workflow_file}"
+    )
+    console.print()
+    console.print("Next steps:")
+    console.print(
+        f"  1. Edit {workflow_file.relative_to(parac_root.parent)}"
+    )
+    console.print("  2. Update agent references and tasks")
+    console.print(f"  3. Run: paracle workflow plan {workflow_id}")
+    console.print(f"  4. Run: paracle workflow run {workflow_id}")
+    console.print()
+    console.print(
+        "[dim]See .parac/workflows/README.md for workflow syntax[/dim]"
+    )
 
 
 def _watch_execution(client: Any, execution_id: str) -> None:

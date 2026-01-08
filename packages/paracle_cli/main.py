@@ -21,6 +21,7 @@ from paracle_cli.commands.groups import groups
 from paracle_cli.commands.ide import ide
 from paracle_cli.commands.logs import logs
 from paracle_cli.commands.mcp import mcp
+from paracle_cli.commands.meta import meta
 from paracle_cli.commands.parac import (
     init,
     parac,
@@ -32,9 +33,11 @@ from paracle_cli.commands.parac import validate as parac_validate
 from paracle_cli.commands.pool import pool
 from paracle_cli.commands.providers import providers
 from paracle_cli.commands.release import release
+from paracle_cli.commands.remote import remote
 from paracle_cli.commands.retry import retry
 from paracle_cli.commands.reviews import reviews
 from paracle_cli.commands.roadmap import roadmap
+from paracle_cli.commands.runs import runs_group
 from paracle_cli.commands.serve import serve
 from paracle_cli.commands.task import task
 from paracle_cli.commands.tools import tools
@@ -87,8 +90,12 @@ cli.add_command(ide)
 cli.add_command(mcp)
 cli.add_command(a2a)
 
+# Paracle Meta AI Engine (system-level)
+cli.add_command(meta)
+
 # Workflow and tool management
 cli.add_command(workflow)
+cli.add_command(runs_group, name="runs")
 cli.add_command(tools)
 cli.add_command(providers)
 
@@ -106,6 +113,9 @@ cli.add_command(pool)
 
 # Configuration management
 cli.add_command(config)
+
+# Remote development
+cli.add_command(remote)
 
 # Release management
 cli.add_command(release)

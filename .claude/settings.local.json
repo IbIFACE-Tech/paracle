@@ -11,7 +11,18 @@
       "Bash(taskkill:*)",
       "Bash(tasklist:*)",
       "Bash(rm:*)",
-      "Bash(dir \"c:\\\\Projets\\\\paracle\\\\paracle-lite\\\\docs\\\\index.md\")"
+      "Bash(dir \"c:\\\\Projets\\\\paracle\\\\paracle-lite\\\\docs\\\\index.md\")",
+      "Bash(python3:*)",
+      "Bash(sqlite3:*)",
+      "Bash(timeout 30 uv run python:*)",
+      "Bash(timeout 30 uv run:*)",
+      "Bash(timeout 60 uv run:*)",
+      "Bash(for cmd in a2a adr approvals audit benchmark board cache compliance conflicts cost git governance groups meta pool release remote retry reviews roadmap runs)",
+      "Bash(do)",
+      "Bash(if ! grep -q \"### $cmd\" \"c:/Projets/paracle/paracle-lite/content/docs/technical/cli-reference.md\")",
+      "Bash(then)",
+      "Bash(echo:*)",
+      "Bash(fi)"
     ]
   }
 }

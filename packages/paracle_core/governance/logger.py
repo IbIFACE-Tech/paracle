@@ -343,6 +343,15 @@ def _create_noop_logger() -> GovernanceLogger:
     return logger
 
 
+def reset_governance_logger() -> None:
+    """Reset global governance logger instance.
+
+    Useful for testing to ensure clean state between tests.
+    """
+    global _governance_logger
+    _governance_logger = None
+
+
 def log_action(
     action: GovernanceActionType | str,
     description: str,

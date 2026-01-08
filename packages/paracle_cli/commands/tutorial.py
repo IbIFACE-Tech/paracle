@@ -64,7 +64,8 @@ def show_welcome() -> None:
         "  5.  Testing your agent locally\n"
         "  6.  Running your first workflow\n\n"
         "[dim]Estimated time: 30 minutes[/dim]\n"
-        "[dim]You can exit anytime and resume with 'paracle tutorial resume'[/dim]",
+        "[dim]You can exit anytime and resume with "
+        "'paracle tutorial resume'[/dim]",
         title="Welcome",
         border_style="cyan",
     )
@@ -76,7 +77,7 @@ def step_1_create_agent(progress: dict[str, Any]) -> bool:
     """Step 1: Create your first agent."""
     console.print(Panel(
         "[bold green]Step 1/6: Create Your First Agent[/bold green]\n\n"
-        "Let's create an AI agent that can help you with tasks.",
+        "Let's create an AI agent with proper .parac/ governance integration.",
         border_style="green"
     ))
     console.print()
@@ -96,15 +97,23 @@ def step_1_create_agent(progress: dict[str, Any]) -> bool:
                 text=True
             )
             if result.returncode != 0:
-                console.print(f"[red]❌ Error: {result.stderr}[/red]")
+                console.print(f"[red]Error: {result.stderr}[/red]")
                 return False
-            console.print("[green]✅ Project initialized![/green]\n")
+            console.print("[green]Project initialized![/green]\n")
 
     # Create agent
     agent_name = Prompt.ask(
         "What would you like to name your agent?",
         default="my-assistant"
     )
+
+    # Validate agent name format
+    import re
+    if not re.match(r"^[a-z][a-z0-9-]*$", agent_name):
+        console.print(
+            "[yellow]Agent name should be lowercase with hyphens (e.g., my-assistant)[/yellow]")
+        agent_name = agent_name.lower().replace(" ", "-").replace("_", "-")
+        console.print(f"[dim]Using: {agent_name}[/dim]")
 
     description = Prompt.ask(
         "What will this agent do? (brief description)",
@@ -115,25 +124,55 @@ def step_1_create_agent(progress: dict[str, Any]) -> bool:
     agents_dir = parac_dir / "agents" / "specs"
     agents_dir.mkdir(parents=True, exist_ok=True)
 
-    # Create agent spec file
+    # Create agent spec file with new format (governance integration)
     agent_file = agents_dir / f"{agent_name}.md"
-    agent_content = f"""---
-name: {agent_name}
-description: {description}
-model: gpt-4
-temperature: 0.7
-max_tokens: 2000
----
+    agent_title = agent_name.replace("-", " ").title() + " Agent"
+    agent_content = f"""# {agent_title}
 
-# {agent_name.replace('-', ' ').title()}
+## Role
 
 {description}
 
-## Capabilities
+## Governance Integration
+
+### Before Starting Any Task
+
+1. Read `.parac/memory/context/current_state.yaml` - Current phase & status
+2. Check `.parac/roadmap/roadmap.yaml` - Priorities for current phase
+3. Review `.parac/memory/context/open_questions.md` - Check for blockers
+
+### After Completing Work
+
+Log action to `.parac/memory/logs/agent_actions.log`:
+
+```
+[TIMESTAMP] [{agent_name.upper().replace('-', '_')}] [ACTION_TYPE] Description
+```
+
+**Action Types**: IMPLEMENTATION, TEST, BUGFIX, REFACTORING, REVIEW, DOCUMENTATION
+
+## Skills
+
+- paracle-development
+
+## Responsibilities
+
+### Primary Tasks
 
 - Understand natural language instructions
 - Execute tasks step-by-step
 - Provide clear explanations
+
+### Quality Standards
+
+- Follow project coding standards
+- Document work in agent_actions.log
+
+## Tools & Capabilities
+
+- Task execution
+- Code generation
+- Problem solving
 
 ## Usage
 
@@ -144,14 +183,36 @@ paracle agents run {agent_name} --task "Your task here"
 
     agent_file.write_text(agent_content)
 
-    console.print(f"\n[green]✅ Created agent spec at {agent_file}[/green]")
-    console.print("\n[cyan]Let's review what was created:[/cyan]")
+    console.print(f"\n[green]Created agent spec at {agent_file}[/green]")
+
+    # Validate the created agent
+    console.print("\n[cyan]Validating agent spec...[/cyan]")
+    import subprocess
+    result = subprocess.run(
+        ["paracle", "agents", "validate", agent_name],
+        cwd=Path.cwd(),
+        capture_output=True,
+        text=True
+    )
+    if result.returncode == 0:
+        console.print("[green]Agent spec is valid![/green]")
+    else:
+        console.print("[yellow]Warning: Agent spec has issues[/yellow]")
+        console.print(f"[dim]{result.stdout}[/dim]")
+
+    console.print("\n[cyan]Agent created with:[/cyan]")
     console.print(Panel(
-        f"[bold]name:[/bold] {agent_name}\n"
-        f"[bold]description:[/bold] {description}\n"
-        f"[bold]model:[/bold] gpt-4",
+        f"[bold]Name:[/bold] {agent_name}\n"
+        f"[bold]Role:[/bold] {description}\n"
+        f"[bold]Governance:[/bold] .parac/ integration included\n"
+        f"[bold]Location:[/bold] .parac/agents/specs/{agent_name}.md",
         title="Agent Configuration"
     ))
+
+    console.print("\n[cyan]Agent management commands:[/cyan]")
+    console.print(f"  paracle agents validate {agent_name}  # Validate spec")
+    console.print(f"  paracle agents format {agent_name}    # Auto-fix issues")
+    console.print("  paracle agents list                  # List all agents")
 
     # Update progress
     progress["checkpoints"]["step_1"] = "completed"
@@ -161,7 +222,7 @@ paracle agents run {agent_name} --task "Your task here"
     console.print()
     if not Confirm.ask("Ready for the next step?", default=True):
         console.print(
-            "[yellow]💾 Progress saved. Run 'paracle tutorial resume' to continue.[/yellow]")
+            "[yellow]Progress saved. Run 'paracle tutorial resume' to continue.[/yellow]")
         return False
 
     return True
@@ -206,14 +267,17 @@ def step_2_add_tools(progress: dict[str, Any]) -> bool:
 
     tools = [t.strip() for t in selected.split(",")]
 
-    # Find agent file
+    # Find agent file (skip SCHEMA.md and TEMPLATE.md)
     parac_dir = Path.cwd() / ".parac"
     agents_dir = parac_dir / "agents" / "specs"
-    agent_files = list(agents_dir.glob("*.md"))
+    agent_files = [
+        f for f in agents_dir.glob("*.md")
+        if f.stem.upper() not in ("SCHEMA", "TEMPLATE")
+    ]
 
     if not agent_files:
         console.print(
-            "[red]❌ No agent found. Please complete step 1 first.[/red]")
+            "[red]No agent found. Please complete step 1 first.[/red]")
         return False
 
     agent_file = agent_files[0]  # Use first agent
@@ -221,34 +285,39 @@ def step_2_add_tools(progress: dict[str, Any]) -> bool:
     # Read existing content
     content = agent_file.read_text()
 
-    # Add tools section
-    tools_section = "\n\n## Tools\n\n"
-    for tool in tools:
-        tools_section += f"- `{tool}`: Enabled\n"
+    # Update Tools & Capabilities section if it exists
+    tools_list = "\n".join([f"- {tool}" for tool in tools])
 
-    tools_section += "\n### Tool Configuration\n\n```yaml\ntools:\n"
-    for tool in tools:
-        tools_section += f"  - type: {tool}\n"
-        tools_section += "    enabled: true\n"
-    tools_section += "```\n"
-
-    # Insert before Usage section or append
-    if "## Usage" in content:
-        content = content.replace("## Usage", tools_section + "\n## Usage")
+    if "## Tools & Capabilities" in content:
+        # Replace existing section
+        import re
+        content = re.sub(
+            r"## Tools & Capabilities\n\n.*?(?=\n## |\Z)",
+            f"## Tools & Capabilities\n\n{tools_list}\n\n",
+            content,
+            flags=re.DOTALL
+        )
+    elif "## Usage" in content:
+        # Insert before Usage
+        content = content.replace(
+            "## Usage",
+            f"## Tools & Capabilities\n\n{tools_list}\n\n## Usage"
+        )
     else:
-        content += tools_section
+        # Append
+        content += f"\n\n## Tools & Capabilities\n\n{tools_list}\n"
 
     agent_file.write_text(content)
 
     console.print(
-        f"\n[green]✅ Added {len(tools)} tools to your agent![/green]")
+        f"\n[green]Added {len(tools)} tools to your agent![/green]")
     console.print(f"\n[cyan]Tools added:[/cyan] {', '.join(tools)}")
 
     # Explain permissions
-    console.print("\n[yellow]Warning: Tool Permissions:[/yellow]")
-    console.print("  • Tools run with your user permissions")
-    console.print("  • Always review tool actions before approval")
-    console.print("  • Use [bold]--mode safe[/bold] for manual approval gates")
+    console.print("\n[yellow]Tool Permissions:[/yellow]")
+    console.print("  - Tools run with your user permissions")
+    console.print("  - Always review tool actions before approval")
+    console.print("  - Use [bold]--mode safe[/bold] for manual approval gates")
 
     # Update progress
     progress["checkpoints"]["step_2"] = "completed"
@@ -258,7 +327,7 @@ def step_2_add_tools(progress: dict[str, Any]) -> bool:
     console.print()
     if not Confirm.ask("Ready for the next step?", default=True):
         console.print(
-            "[yellow]💾 Progress saved. Run 'paracle tutorial resume' to continue.[/yellow]")
+            "[yellow]Progress saved. Run 'paracle tutorial resume' to continue.[/yellow]")
         return False
 
     return True
@@ -355,22 +424,35 @@ paracle agents run my-agent --skill {skill_name}
 
             console.print(f"\n[green]✅ Created skill at {skill_dir}[/green]")
 
-            # Assign skill to agent
+            # Assign skill to agent (skip SCHEMA.md and TEMPLATE.md)
             agents_dir = parac_dir / "agents" / "specs"
-            agent_files = list(agents_dir.glob("*.md"))
+            agent_files = [
+                f for f in agents_dir.glob("*.md")
+                if f.stem.upper() not in ("SCHEMA", "TEMPLATE")
+            ]
 
             if agent_files:
                 agent_file = agent_files[0]
                 content = agent_file.read_text()
 
-                # Add skills section
-                skills_section = f"\n\n## Skills\n\n- `{skill_name}`: {skill_desc}\n"
-
-                if "## Tools" in content:
+                # Update Skills section if it exists, otherwise add it
+                if "## Skills" in content:
+                    # Add skill to existing section
+                    import re
+                    content = re.sub(
+                        r"(## Skills\n\n)(.*?)(?=\n## |\Z)",
+                        rf"\1\2- {skill_name}\n",
+                        content,
+                        flags=re.DOTALL
+                    )
+                elif "## Responsibilities" in content:
+                    # Insert before Responsibilities
                     content = content.replace(
-                        "## Tools", skills_section + "\n## Tools")
+                        "## Responsibilities",
+                        f"## Skills\n\n- {skill_name}\n\n## Responsibilities"
+                    )
                 else:
-                    content += skills_section
+                    content += f"\n\n## Skills\n\n- {skill_name}\n"
 
                 agent_file.write_text(content)
                 console.print("[green]✅ Assigned skill to your agent![/green]")
@@ -511,14 +593,17 @@ def step_5_test_agent(progress: dict[str, Any]) -> bool:
     ))
     console.print()
 
-    # Find agent
+    # Find agent (skip SCHEMA.md and TEMPLATE.md)
     parac_dir = Path.cwd() / ".parac"
     agents_dir = parac_dir / "agents" / "specs"
-    agent_files = list(agents_dir.glob("*.md"))
+    agent_files = [
+        f for f in agents_dir.glob("*.md")
+        if f.stem.upper() not in ("SCHEMA", "TEMPLATE")
+    ]
 
     if not agent_files:
         console.print(
-            "[red]❌ No agent found. Please complete step 1 first.[/red]")
+            "[red]No agent found. Please complete step 1 first.[/red]")
         return False
 
     agent_file = agent_files[0]
@@ -626,9 +711,12 @@ def step_6_workflow(progress: dict[str, Any]) -> bool:
 
     workflow_file = workflows_dir / f"{workflow_name}.yaml"
 
-    # Find agent
+    # Find agent (skip SCHEMA.md and TEMPLATE.md)
     agents_dir = parac_dir / "agents" / "specs"
-    agent_files = list(agents_dir.glob("*.md"))
+    agent_files = [
+        f for f in agents_dir.glob("*.md")
+        if f.stem.upper() not in ("SCHEMA", "TEMPLATE")
+    ]
     agent_name = agent_files[0].stem if agent_files else "my-agent"
 
     workflow_content = f"""name: {workflow_name}
@@ -680,7 +768,7 @@ outputs:
         "  ✅ Test agents\n"
         "  ✅ Build workflows\n\n"
         "[bold cyan]Next Steps:[/bold cyan]\n"
-        "  📚 Read docs: docs/getting-started.md\n"
+        "  📚 Read docs: content/docs/getting-started.md\n"
         "  🎯 Try examples: examples/ directory\n"
         "  💬 Join Discord: (Phase 7 deliverable)\n"
         "  📦 Browse templates: (Phase 7 deliverable)\n\n"
@@ -826,9 +914,342 @@ def status() -> None:
 @tutorial.command()
 def reset() -> None:
     """Reset tutorial progress."""
-    if Confirm.ask("Are you sure you want to reset tutorial progress?", default=False):
+    if Confirm.ask(
+        "Are you sure you want to reset tutorial progress?",
+        default=False
+    ):
         get_progress_file().unlink(missing_ok=True)
-        console.print("[green]✅ Tutorial progress reset[/green]")
+        console.print("[green]Tutorial progress reset[/green]")
         console.print("[dim]Run 'paracle tutorial start' to begin again[/dim]")
     else:
         console.print("[yellow]Reset cancelled[/yellow]")
+
+
+# =============================================================================
+# DYNAMIC TUTORIAL COMMANDS
+# =============================================================================
+
+
+def _get_cli_introspector():
+    """Get CLI introspector with root command."""
+    from paracle_cli.main import cli as root_cli
+    from paracle_cli.tutorial.introspector import CLIIntrospector
+    return CLIIntrospector(root_cli)
+
+
+@tutorial.command("learn")
+@click.argument("command_path", required=False)
+@click.option(
+    "--interactive",
+    "-i",
+    is_flag=True,
+    help="Run in interactive mode with parameter collection"
+)
+@click.option(
+    "--quick",
+    "-q",
+    is_flag=True,
+    help="Show quick reference guide only"
+)
+@click.option(
+    "--dry-run",
+    is_flag=True,
+    help="Don't execute commands, just show what would run"
+)
+def learn_command(
+    command_path: str | None,
+    interactive: bool,
+    quick: bool,
+    dry_run: bool,
+) -> None:
+    """Learn how to use any CLI command.
+
+    Automatically generates tutorials for any Paracle command.
+
+    Examples:
+        paracle tutorial learn agents          # Learn agents group
+        paracle tutorial learn agents/run      # Learn specific command
+        paracle tutorial learn workflow -i     # Interactive mode
+        paracle tutorial learn config -q       # Quick reference
+    """
+    from paracle_cli.tutorial.generator import TutorialGenerator
+    from paracle_cli.tutorial.runner import InteractiveTutorialRunner
+
+    introspector = _get_cli_introspector()
+
+    # If no command specified, show available commands
+    if not command_path:
+        _show_available_commands(introspector)
+        return
+
+    # Normalize path (support both "agents run" and "agents/run")
+    command_path = command_path.replace(" ", "/")
+
+    # Find the command
+    command = introspector.get_command(command_path)
+
+    if not command:
+        # Try to find partial matches
+        matches = introspector.find_command(command_path)
+        if matches:
+            console.print(
+                f"[yellow]Command '{command_path}' not found.[/yellow]")
+            console.print("\n[cyan]Did you mean:[/cyan]")
+            for match in matches[:5]:
+                console.print(f"  • paracle tutorial learn {match.path}")
+            return
+        else:
+            console.print(f"[red]Command '{command_path}' not found.[/red]")
+            console.print(
+                "\n[dim]Run 'paracle tutorial learn' to see all commands[/dim]")
+            return
+
+    # Generate tutorial
+    generator = TutorialGenerator()
+    tutorial_content = generator.generate(command)
+
+    # Run in appropriate mode
+    runner = InteractiveTutorialRunner(dry_run=dry_run)
+
+    if quick:
+        runner.run_quick_guide(command)
+    elif interactive:
+        runner.run_tutorial(command, tutorial_content)
+    else:
+        # Default: show generated tutorial content
+        _show_tutorial_content(command, tutorial_content, generator)
+
+
+def _show_available_commands(introspector) -> None:
+    """Show all available commands for tutorial."""
+    console.print(Panel(
+        "[bold cyan]Available Commands for Tutorial[/bold cyan]\n\n"
+        "Use `paracle tutorial learn <command>` to learn any command.",
+        border_style="cyan"
+    ))
+    console.print()
+
+    # Get command tree
+    tree = introspector.get_command_tree()
+
+    # Show top-level groups
+    table = Table(title="Command Groups")
+    table.add_column("Command", style="cyan")
+    table.add_column("Description", style="white")
+    table.add_column("Subcommands", style="dim")
+
+    for sub in tree.subcommands:
+        if sub.hidden:
+            continue
+        desc = sub.short_help or sub.help_text.split("\n")[0][:50]
+        subcmd_count = len(sub.subcommands) if sub.is_group else 0
+        subcmd_text = f"{subcmd_count} subcommands" if subcmd_count else "-"
+        table.add_row(sub.name, desc, subcmd_text)
+
+    console.print(table)
+    console.print()
+
+    # Show usage examples
+    console.print("[bold]Usage examples:[/bold]")
+    console.print("  paracle tutorial learn agents       # Learn agents group")
+    console.print(
+        "  paracle tutorial learn agents/run   # Learn specific command")
+    console.print("  paracle tutorial learn workflow -i  # Interactive mode")
+    console.print("  paracle tutorial learn config -q    # Quick reference")
+
+
+def _show_tutorial_content(command, tutorial_content, generator) -> None:
+    """Show tutorial content in rich format."""
+
+    # Title panel
+    console.print(Panel(
+        f"[bold green]Tutorial: {tutorial_content.title}[/bold green]",
+        border_style="green"
+    ))
+    console.print()
+
+    # Overview
+    console.print("[bold]Overview[/bold]")
+    console.print(tutorial_content.overview)
+    console.print()
+
+    # Prerequisites
+    if tutorial_content.prerequisites:
+        console.print("[bold]Prerequisites[/bold]")
+        for prereq in tutorial_content.prerequisites:
+            console.print(f"  • {prereq}")
+        console.print()
+
+    # Steps
+    console.print("[bold]Steps[/bold]")
+    for i, step in enumerate(tutorial_content.steps, 1):
+        console.print(f"\n[cyan]{i}. {step.title}[/cyan]")
+        # Truncate description if too long
+        desc = step.description
+        if len(desc) > 200:
+            desc = desc[:200] + "..."
+        console.print(f"   {desc}")
+        if step.example:
+            example_lines = step.example.split("\n")
+            for line in example_lines[:3]:
+                console.print(f"   [dim]$ {line}[/dim]")
+
+    console.print()
+
+    # Common patterns
+    if tutorial_content.common_patterns:
+        console.print("[bold]Common Patterns[/bold]")
+        for pattern in tutorial_content.common_patterns:
+            console.print(f"  • {pattern}")
+        console.print()
+
+    # Related commands
+    if tutorial_content.related_commands:
+        console.print("[bold]Related Commands[/bold]")
+        for cmd in tutorial_content.related_commands:
+            console.print(f"  • {cmd}")
+        console.print()
+
+    # Footer with more options
+    console.print()
+    console.print("[dim]For interactive tutorial: paracle tutorial learn " +
+                  f"{command.path} -i[/dim]")
+    console.print("[dim]For quick reference: paracle tutorial learn " +
+                  f"{command.path} -q[/dim]")
+
+
+@tutorial.command("list")
+@click.option(
+    "--all",
+    "-a",
+    "show_all",
+    is_flag=True,
+    help="Show all commands including hidden ones"
+)
+@click.option(
+    "--tree",
+    "-t",
+    is_flag=True,
+    help="Show commands as a tree structure"
+)
+def list_commands(show_all: bool, tree: bool) -> None:
+    """List all available CLI commands.
+
+    Shows all commands that can be learned with `paracle tutorial learn`.
+
+    Examples:
+        paracle tutorial list           # List all command groups
+        paracle tutorial list --all     # Include hidden commands
+        paracle tutorial list --tree    # Show as tree structure
+    """
+    introspector = _get_cli_introspector()
+    commands = introspector.get_all_commands()
+
+    if tree:
+        _show_command_tree(introspector, show_all)
+    else:
+        _show_command_list(commands, show_all)
+
+
+def _show_command_list(commands: dict, show_all: bool) -> None:
+    """Show commands as a flat list."""
+    table = Table(title="All CLI Commands")
+    table.add_column("Command", style="cyan")
+    table.add_column("Type", style="dim")
+    table.add_column("Description", style="white")
+
+    for path in sorted(commands.keys()):
+        cmd = commands[path]
+        if cmd.hidden and not show_all:
+            continue
+
+        cmd_type = "group" if cmd.is_group else "command"
+        desc = cmd.short_help or cmd.help_text.split("\n")[0][:50]
+        if cmd.hidden:
+            desc = f"[dim](hidden) {desc}[/dim]"
+
+        table.add_row(
+            f"paracle {path.replace('/', ' ')}",
+            cmd_type,
+            desc
+        )
+
+    console.print(table)
+    console.print()
+    console.print(f"[dim]Total: {len(commands)} commands[/dim]")
+    console.print(
+        "[dim]Use 'paracle tutorial learn <command>' to learn any command[/dim]")
+
+
+def _show_command_tree(introspector, show_all: bool) -> None:
+    """Show commands as a tree structure."""
+    from rich.tree import Tree
+
+    root = introspector.get_command_tree()
+
+    tree = Tree("[bold cyan]paracle[/bold cyan]")
+
+    def add_to_tree(parent_tree, command_info, indent=0):
+        for sub in command_info.subcommands:
+            if sub.hidden and not show_all:
+                continue
+
+            label = f"[cyan]{sub.name}[/cyan]"
+            if sub.is_group:
+                label += " [dim](group)[/dim]"
+            if sub.hidden:
+                label += " [dim](hidden)[/dim]"
+
+            branch = parent_tree.add(label)
+
+            if sub.is_group:
+                add_to_tree(branch, sub, indent + 1)
+
+    add_to_tree(tree, root)
+    console.print(tree)
+    console.print()
+    console.print(
+        "[dim]Use 'paracle tutorial learn <command>' to learn any command[/dim]")
+
+
+@tutorial.command("search")
+@click.argument("query")
+def search_commands(query: str) -> None:
+    """Search for commands by name or description.
+
+    Examples:
+        paracle tutorial search agent    # Find commands related to agents
+        paracle tutorial search run      # Find run commands
+        paracle tutorial search json     # Find commands with json option
+    """
+    introspector = _get_cli_introspector()
+    matches = introspector.find_command(query)
+
+    if not matches:
+        console.print(f"[yellow]No commands found matching '{query}'[/yellow]")
+        console.print(
+            "\n[dim]Try a different search term or use 'paracle tutorial list'[/dim]")
+        return
+
+    console.print(
+        f"[cyan]Found {len(matches)} command(s) matching '{query}':[/cyan]")
+    console.print()
+
+    table = Table()
+    table.add_column("Command", style="cyan")
+    table.add_column("Description", style="white")
+
+    for cmd in matches[:15]:  # Limit to 15 results
+        desc = cmd.short_help or cmd.help_text.split("\n")[0][:60]
+        table.add_row(
+            f"paracle {cmd.path.replace('/', ' ')}",
+            desc
+        )
+
+    console.print(table)
+
+    if len(matches) > 15:
+        console.print(f"\n[dim]... and {len(matches) - 15} more[/dim]")
+
+    console.print(
+        "\n[dim]Use 'paracle tutorial learn <command>' to learn a command[/dim]")

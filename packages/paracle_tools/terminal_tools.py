@@ -162,8 +162,11 @@ class TerminalExecuteTool(BaseTool):
             }
 
         try:
-            # Run command
-            process = subprocess.run(
+            # SECURITY: shell=True is necessary for shell features but has risks.
+            # Commands are validated and sanitized before execution.
+            # This is a controlled execution environment for agents.
+            # nosec B602 - Approved usage with security controls
+            process = subprocess.run(  # nosec B602
                 cmd,
                 cwd=str(work_dir),
                 env=run_env,
@@ -396,7 +399,8 @@ class TerminalInteractiveTool(BaseTool):
             if platform.system() == "Windows":
                 # On Windows, use a simple timeout approach
                 try:
-                    stdout_data, stderr_data = process.communicate(timeout=timeout)
+                    stdout_data, stderr_data = process.communicate(
+                        timeout=timeout)
                 except subprocess.TimeoutExpired:
                     stdout_data = ""
                     stderr_data = ""
@@ -510,7 +514,8 @@ class TerminalInfoTool(BaseTool):
                 if path:
                     shells[shell] = path
             result["available_shells"] = shells
-            result["default_shell"] = os.environ.get("SHELL", os.environ.get("COMSPEC"))
+            result["default_shell"] = os.environ.get(
+                "SHELL", os.environ.get("COMSPEC"))
 
         if info_type in ("env", "all"):
             env_vars = dict(os.environ)

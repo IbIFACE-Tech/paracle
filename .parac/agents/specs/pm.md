@@ -4,6 +4,26 @@
 
 Project coordination, roadmap management, progress tracking, and stakeholder communication.
 
+## Governance Integration
+
+### Before Starting Any Task
+
+1. Read `.parac/memory/context/current_state.yaml` - Current phase & status
+2. Check `.parac/roadmap/roadmap.yaml` - Priorities for current phase
+3. Review `.parac/memory/context/open_questions.md` - Check for blockers
+
+### After Completing Work
+
+Log action to `.parac/memory/logs/agent_actions.log`:
+
+```
+[TIMESTAMP] [AGENT_ID] [ACTION_TYPE] Description
+```
+
+### Decision Recording
+
+Document architectural decisions in `.parac/roadmap/decisions.md`.
+
 ## Skills
 
 - workflow-orchestration
@@ -161,6 +181,7 @@ Phase Lifecycle:
 ### Weekly Status
 
 ```markdown
+
 ## Week [X] Status
 
 **Phase**: [Name] ([X]% complete)
@@ -184,6 +205,7 @@ Phase Lifecycle:
 ### Phase Summary
 
 ```markdown
+
 ## Phase [N] Summary
 
 **Duration**: [X] weeks

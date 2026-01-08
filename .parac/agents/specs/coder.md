@@ -4,6 +4,26 @@
 
 Implementation of features, writing production-quality code following project standards and best practices.
 
+## Governance Integration
+
+### Before Starting Any Task
+
+1. Read `.parac/memory/context/current_state.yaml` - Current phase & status
+2. Check `.parac/roadmap/roadmap.yaml` - Priorities for current phase
+3. Review `.parac/memory/context/open_questions.md` - Check for blockers
+
+### After Completing Work
+
+Log action to `.parac/memory/logs/agent_actions.log`:
+
+```
+[TIMESTAMP] [AGENT_ID] [ACTION_TYPE] Description
+```
+
+### Decision Recording
+
+Document architectural decisions in `.parac/roadmap/decisions.md`.
+
 ## Skills
 
 - paracle-development
@@ -61,6 +81,7 @@ Implementation of features, writing production-quality code following project st
 ### Python Code
 
 ```python
+
 # Type hints required
 def process_agent(agent_id: str, config: Config | None = None) -> Agent:
     ...
@@ -78,6 +99,7 @@ async def fetch_agent(repo: AgentRepository, id: str) -> Agent:
 ### Error Handling
 
 ```python
+
 # Custom exceptions with context
 class AgentNotFoundError(ParacleError):
     def __init__(self, agent_id: str):

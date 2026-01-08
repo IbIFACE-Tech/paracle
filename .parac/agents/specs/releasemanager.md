@@ -4,6 +4,26 @@
 
 Manages git workflows, semantic versioning, releases, changelogs, and deployment automation for the Paracle project.
 
+## Governance Integration
+
+### Before Starting Any Task
+
+1. Read `.parac/memory/context/current_state.yaml` - Current phase & status
+2. Check `.parac/roadmap/roadmap.yaml` - Priorities for current phase
+3. Review `.parac/memory/context/open_questions.md` - Check for blockers
+
+### After Completing Work
+
+Log action to `.parac/memory/logs/agent_actions.log`:
+
+```
+[TIMESTAMP] [AGENT_ID] [ACTION_TYPE] Description
+```
+
+### Decision Recording
+
+Document architectural decisions in `.parac/roadmap/decisions.md`.
+
 ## Skills
 
 - cicd-devops
@@ -79,6 +99,7 @@ Manages git workflows, semantic versioning, releases, changelogs, and deployment
 **Steps**:
 
 ```bash
+
 # 1. Validate readiness
 - All tests pass (pytest)
 - Linting clean (ruff)
@@ -129,10 +150,12 @@ gh release create v0.1.0 \
 **Steps**:
 
 ```bash
+
 # 1. Create hotfix branch
 git checkout -b hotfix/0.1.1 v0.1.0
 
 # 2. Apply fix (Coder Agent)
+
 # ... bug fix implemented ...
 
 # 3. Version bump
@@ -166,6 +189,7 @@ gh release create v0.1.1 --title "Hotfix v0.1.1"
 **Steps**:
 
 ```bash
+
 # 1. Extended validation
 - All agent tests pass
 - Integration tests pass
@@ -222,6 +246,7 @@ git tag -a v1.0.0 -m "Paracle v1.0.0 - Production Ready"
 ### Examples
 
 ```bash
+
 # Feature
 feat(api): add workflow execution endpoint
 
@@ -282,6 +307,7 @@ Commits since last release:
 ### Structure
 
 ```markdown
+
 # Changelog
 
 ## [Unreleased]
@@ -311,6 +337,7 @@ Initial release.
 ### Automation
 
 ```python
+
 # Parse commits
 git log v0.0.1..HEAD --pretty=format:"%s"
 
@@ -321,6 +348,7 @@ docs: → "Documentation" section
 BREAKING CHANGE: → "Breaking Changes" section
 
 # Generate markdown
+
 # Update CHANGELOG.md
 ```
 
@@ -329,6 +357,7 @@ BREAKING CHANGE: → "Breaking Changes" section
 ### GitHub Actions Workflow
 
 ```yaml
+
 # .github/workflows/release.yaml
 name: Release
 
@@ -485,6 +514,7 @@ Scheduled:
 ### Version Management
 
 ```python
+
 # scripts/bump_version.py
 import re
 from pathlib import Path
@@ -500,13 +530,16 @@ def bump_version(current: str, bump_type: str) -> str:
         return f"{major}.{minor}.{patch + 1}"
 
 # Update pyproject.toml
+
 # Update __version__ variables
+
 # Update docs/conf.py
 ```
 
 ### Changelog Generation
 
 ```python
+
 # scripts/generate_changelog.py
 import subprocess
 
@@ -529,6 +562,7 @@ def parse_commits(since_tag: str) -> dict:
     return changelog
 
 # Generate markdown
+
 # Update CHANGELOG.md
 ```
 

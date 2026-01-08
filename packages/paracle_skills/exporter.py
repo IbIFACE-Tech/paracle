@@ -15,13 +15,14 @@ from paracle_skills.exporters.agent_skills import (
 )
 from paracle_skills.exporters.base import ExportResult
 from paracle_skills.exporters.mcp import MCPExporter
+from paracle_skills.exporters.rovodev import RovoDevExporter
 
 if TYPE_CHECKING:
     from paracle_skills.models import SkillSpec
 
 
 # All supported platforms
-ALL_PLATFORMS = ["copilot", "cursor", "claude", "codex", "mcp"]
+ALL_PLATFORMS = ["copilot", "cursor", "claude", "codex", "mcp", "rovodev"]
 
 # Agent Skills platforms (same format)
 AGENT_SKILLS_PLATFORMS = ["copilot", "cursor", "claude", "codex"]
@@ -152,6 +153,11 @@ class SkillExporter:
                 export_result = exporter.export_skill(skill, output_dir, overwrite)
                 result.results[platform] = export_result
 
+            elif platform == "rovodev":
+                exporter = RovoDevExporter()
+                export_result = exporter.export_skill(skill, output_dir, overwrite)
+                result.results[platform] = export_result
+
         return result
 
     def export_to_platform(
@@ -181,6 +187,12 @@ class SkillExporter:
 
         elif platform == "mcp":
             exporter = MCPExporter()
+            for skill in self.skills:
+                result = exporter.export_skill(skill, output_dir, overwrite)
+                results.append(result)
+
+        elif platform == "rovodev":
+            exporter = RovoDevExporter()
             for skill in self.skills:
                 result = exporter.export_skill(skill, output_dir, overwrite)
                 results.append(result)

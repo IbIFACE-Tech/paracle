@@ -15,25 +15,15 @@ import os
 from pathlib import Path
 
 import click
-from paracle_core.parac.state import find_parac_root, load_state, save_state
+from paracle_core.parac.state import load_state, save_state
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
 from paracle_cli.api_client import APIClient, APIError, get_client
+from paracle_cli.utils import get_parac_root_or_exit
 
 console = Console()
-
-
-def get_parac_root_or_exit() -> Path:
-    """Get .parac/ root or exit with error."""
-    parac_root = find_parac_root()
-    if parac_root is None:
-        console.print("[red]Error:[/red] No .parac/ directory found.")
-        console.print(
-            "Run 'paracle init' to create one, or navigate to a project.")
-        raise SystemExit(1)
-    return parac_root
 
 
 def get_api_client() -> APIClient | None:
@@ -70,7 +60,7 @@ def use_api_or_fallback(api_func, fallback_func, *args, **kwargs):
             else:
                 console.print(f"[yellow]API error:[/yellow] {e.detail}")
                 console.print("[dim]Falling back to direct access...[/dim]")
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001 - API fallback
             console.print(f"[yellow]API unavailable:[/yellow] {e}")
             console.print("[dim]Falling back to direct access...[/dim]")
 
@@ -109,9 +99,11 @@ def _status_via_api(client: APIClient, as_json: bool) -> None:
     progress_color = "green" if phase["status"] == "completed" else "yellow"
     console.print(f"\n[bold]Phase:[/bold] {phase['id']} - {phase['name']}")
     console.print(
-        f"[bold]Status:[/bold] [{progress_color}]{phase['status']}[/{progress_color}]")
+        f"[bold]Status:[/bold] "
+        f"[{progress_color}]{phase['status']}[/{progress_color}]")
     console.print(
-        f"[bold]Progress:[/bold] [{progress_color}]{phase['progress']}[/{progress_color}]")
+        f"[bold]Progress:[/bold] "
+        f"[{progress_color}]{phase['progress']}[/{progress_color}]")
 
     # Git info
     console.print(f"\n[bold]Branch:[/bold] {git['branch']}")
@@ -141,8 +133,8 @@ def _status_direct(as_json: bool) -> None:
         import json
 
         from paracle_core.parac.sync import ParacSynchronizer
-        sync = ParacSynchronizer(parac_root)
-        console.print(json.dumps(sync.get_summary(), indent=2))
+        synchronizer = ParacSynchronizer(parac_root)
+        console.print(json.dumps(synchronizer.get_summary(), indent=2))
         return
 
     # Rich formatted output
@@ -152,7 +144,10 @@ def _status_direct(as_json: bool) -> None:
     console.print()
     console.print(
         Panel(
-            f"[bold cyan]{state.project_name}[/bold cyan] v{state.project_version}",
+            (
+                f"[bold cyan]{state.project_name}[/bold cyan] "
+                f"v{state.project_version}"
+            ),
             title="Paracle Status",
             subtitle=f"Snapshot: {state.snapshot_date}",
         )
@@ -162,9 +157,11 @@ def _status_direct(as_json: bool) -> None:
     progress_color = "green" if phase.status == "completed" else "yellow"
     console.print(f"\n[bold]Phase:[/bold] {phase.id} - {phase.name}")
     console.print(
-        f"[bold]Status:[/bold] [{progress_color}]{phase.status}[/{progress_color}]")
+        f"[bold]Status:[/bold] "
+        f"[{progress_color}]{phase.status}[/{progress_color}]")
     console.print(
-        f"[bold]Progress:[/bold] [{progress_color}]{phase.progress}[/{progress_color}]")
+        f"[bold]Progress:[/bold] "
+        f"[{progress_color}]{phase.progress}[/{progress_color}]")
 
     # Focus areas
     if phase.focus_areas:
@@ -217,7 +214,7 @@ def _sync_via_api(
     client: APIClient,
     git: bool,
     metrics: bool,
-    manifest: bool,
+    _manifest: bool,
 ) -> None:
     """Sync via API."""
     console.print("[bold]Synchronizing .parac/ state...[/bold]\n")
@@ -289,7 +286,7 @@ def _sync_direct(
         try:
             manifest_path = write_manifest(parac_root)
             result.changes.append(f"Regenerated {manifest_path.name}")
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             result.errors.append(f"Failed to generate manifest: {e}")
 
     if result.changes:
@@ -314,10 +311,28 @@ def _sync_direct(
 @click.command()
 @click.option("--git/--no-git", default=True, help="Sync git information")
 @click.option("--metrics/--no-metrics", default=True, help="Sync file metrics")
-@click.option("--manifest/--no-manifest", default=True, help="Regenerate agent manifest")
-@click.option("--roadmap/--no-roadmap", default=True, help="Check roadmap alignment")
-@click.option("--auto-fix", is_flag=True, help="Automatically fix safe mismatches")
-def sync(git: bool, metrics: bool, manifest: bool, roadmap: bool, auto_fix: bool) -> None:
+@click.option(
+    "--manifest/--no-manifest",
+    default=True,
+    help="Regenerate agent manifest"
+)
+@click.option(
+    "--roadmap/--no-roadmap",
+    default=True,
+    help="Check roadmap alignment"
+)
+@click.option(
+    "--auto-fix",
+    is_flag=True,
+    help="Automatically fix safe mismatches"
+)
+def sync(
+    git: bool,
+    metrics: bool,
+    manifest: bool,
+    roadmap: bool,
+    auto_fix: bool
+) -> None:
     """Synchronize .parac/ state with project reality and roadmap."""
     use_api_or_fallback(_sync_via_api, _sync_direct, git,
                         metrics, manifest, roadmap, auto_fix)
@@ -328,7 +343,7 @@ def sync(git: bool, metrics: bool, manifest: bool, roadmap: bool, auto_fix: bool
 # =============================================================================
 
 
-def _validate_via_api(client: APIClient, fix: bool) -> None:
+def _validate_via_api(client: APIClient, _fix: bool) -> None:
     """Validate via API."""
     console.print("[bold]Validating .parac/ workspace...[/bold]\n")
 
@@ -373,7 +388,7 @@ def _validate_via_api(client: APIClient, fix: bool) -> None:
         raise SystemExit(1)
 
 
-def _validate_direct(fix: bool) -> None:
+def _validate_direct(_fix: bool) -> None:
     """Validate via direct core access."""
     parac_root = get_parac_root_or_exit()
 
@@ -424,7 +439,11 @@ def _validate_direct(fix: bool) -> None:
 
 
 @click.command()
-@click.option("--fix", is_flag=True, help="Attempt to fix issues (not implemented)")
+@click.option(
+    "--fix",
+    is_flag=True,
+    help="Attempt to fix issues (not implemented)"
+)
 def validate(fix: bool) -> None:
     """Validate .parac/ workspace consistency."""
     use_api_or_fallback(_validate_via_api, _validate_direct, fix)
@@ -438,7 +457,7 @@ def validate(fix: bool) -> None:
 @click.group()
 def session() -> None:
     """Session management commands."""
-    pass
+    ...
 
 
 def _session_start_via_api(client: APIClient) -> None:
@@ -464,7 +483,8 @@ def _session_start_via_api(client: APIClient) -> None:
 
     if result["blockers"] > 0:
         console.print(
-            f"\n[yellow]Warning: {result['blockers']} blocker(s) active[/yellow]")
+            f"\n[yellow]Warning: {result['blockers']} "
+            f"blocker(s) active[/yellow]")
 
     console.print()
     console.print(f"[green]{result['message']}[/green]")
@@ -499,7 +519,8 @@ def _session_start_direct() -> None:
 
     if state.blockers:
         console.print(
-            f"\n[yellow]Warning: {len(state.blockers)} blocker(s) active[/yellow]")
+            f"\n[yellow]Warning: {len(state.blockers)} "
+            f"blocker(s) active[/yellow]")
 
     console.print()
     console.print("[green]Source of truth verified. Proceeding.[/green]")
@@ -533,7 +554,11 @@ def _session_end_via_api(
     # Display proposed changes
     console.print()
     console.print(
-        Panel("[bold cyan]SESSION END - Proposed Updates[/bold cyan]", expand=False))
+        Panel(
+            "[bold cyan]SESSION END - Proposed Updates[/bold cyan]",
+            expand=False
+        )
+    )
     console.print()
 
     if result.get("changes"):
@@ -593,7 +618,11 @@ def _session_end_direct(
     # Display proposed changes
     console.print()
     console.print(
-        Panel("[bold cyan]SESSION END - Proposed Updates[/bold cyan]", expand=False))
+        Panel(
+            "[bold cyan]SESSION END - Proposed Updates[/bold cyan]",
+            expand=False
+        )
+    )
     console.print()
 
     if changes:
@@ -603,7 +632,11 @@ def _session_end_direct(
     else:
         console.print("[dim]No changes specified.[/dim]")
         console.print(
-            "[dim]Use --progress, --complete, or --start to specify changes.[/dim]")
+
+            "[dim]Use --progress, --complete, or --start to "
+            "specify changes.[/dim]"
+
+        )
 
     console.print()
 
@@ -626,7 +659,12 @@ def _session_end_direct(
 @session.command("end")
 @click.option("--progress", type=int, help="Update progress (0-100)")
 @click.option("--complete", multiple=True, help="Mark item(s) as completed")
-@click.option("--start", "in_progress", multiple=True, help="Mark item(s) as in-progress")
+@click.option(
+    "--start",
+    "in_progress",
+    multiple=True,
+    help="Mark item(s) as in-progress"
+)
 @click.option("--dry-run", is_flag=True, help="Show changes without applying")
 def session_end(
     progress: int | None,
@@ -656,7 +694,7 @@ def session_end(
 def _load_template_from_directory(
     template_name: str, parac_dir: Path, project_name: str
 ) -> bool:
-    """Load template from templates/ directory.
+    """Load template from content/templates/ directory.
 
     Args:
         template_name: Template to load (lite, standard, advanced)
@@ -671,7 +709,9 @@ def _load_template_from_directory(
 
     # Find templates directory (relative to this file)
     # __file__ is packages/paracle_cli/commands/parac.py
-    # parent = commands/, parent.parent = paracle_cli/, parent.parent.parent = packages/
+    # parent = commands/,
+    # parent.parent = paracle_cli/,
+    # parent.parent.parent = packages/
     cli_dir = Path(__file__).parent.parent.parent  # packages/paracle_cli
     repo_root = cli_dir.parent  # repo root (packages -> root)
     templates_root = repo_root / "templates"
@@ -714,13 +754,13 @@ def _load_template_from_directory(
                             "{{DATE}}", date.today().isoformat())
                         content = content.replace("my-project", project_name)
                         filepath.write_text(content, encoding="utf-8")
-                    except Exception:
+                    except Exception:  # noqa: BLE001
                         pass  # Skip files that can't be processed
 
         console.print(f"[dim]Loaded template:[/dim] {template_name}")
         return True
 
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         console.print(f"[yellow]Template loading failed:[/yellow] {e}")
         return False
 
@@ -806,7 +846,11 @@ def _install_git_hooks(target: Path, parac_dir: Path, verbose: bool) -> None:
     if not git_dir.exists():
         if verbose:
             console.print(
-                "[dim]No git repository found, skipping hook installation[/dim]")
+
+                "[dim]No git repository found, skipping hook "
+                "installation[/dim]"
+
+            )
         return
 
     # Create hooks directory if it doesn't exist
@@ -820,7 +864,11 @@ def _install_git_hooks(target: Path, parac_dir: Path, verbose: bool) -> None:
     if not source_hook.exists():
         if verbose:
             console.print(
-                f"[yellow]Warning:[/yellow] Hook source not found at {source_hook}")
+
+                f"[yellow]Warning:[/yellow] Hook source not found at "
+                f"{source_hook}"
+
+            )
         return
 
     try:
@@ -839,7 +887,7 @@ def _install_git_hooks(target: Path, parac_dir: Path, verbose: bool) -> None:
         else:
             console.print("[dim]+ Git pre-commit hook installed[/dim]")
 
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         console.print(
             f"[yellow]Warning:[/yellow] Could not install git hook: {e}")
         if verbose:
@@ -849,7 +897,7 @@ def _install_git_hooks(target: Path, parac_dir: Path, verbose: bool) -> None:
 
 
 def _create_lite_workspace(
-    parac_dir: Path, target: Path, project_name: str
+    parac_dir: Path, _target: Path, project_name: str
 ) -> None:
     """Create lite .parac/ workspace with complete structure.
 
@@ -926,10 +974,16 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Initial project setup with Paracle lite mode
 """
-    (parac_dir / "changelog.md").write_text(changelog_content, encoding="utf-8")
+    (parac_dir / "changelog.md").write_text(
+        changelog_content, encoding="utf-8"
+    )
 
     console.print(
-        "  [dim]Created[/dim] root files (.gitignore, project.yaml, changelog.md)")
+
+        "  [dim]Created[/dim] root files "
+        "(.gitignore, project.yaml, changelog.md)"
+
+    )
 
     # =========================================================================
     # Agents files
@@ -1047,7 +1101,9 @@ Assign skills to agents in their spec files:
 created: '{date.today().isoformat()}'
 entries: []
 """
-    (parac_dir / "memory" / "index.yaml").write_text(memory_index, encoding="utf-8")
+    (parac_dir / "memory" / "index.yaml").write_text(
+        memory_index, encoding="utf-8"
+    )
 
     # memory/context/current_state.yaml
     state_content = f"""# Project State (Lite Mode)
@@ -1107,13 +1163,19 @@ Track unresolved questions and decisions here.
     )
 
     # memory/logs/agent_actions.log
-    actions_log = f"# Agent Actions Log - {project_name}\n# Format: [TIMESTAMP] [AGENT] [ACTION] Description\n\n"
+    actions_log = (
+        f"# Agent Actions Log - {project_name}\n"
+        "# Format: [TIMESTAMP] [AGENT] [ACTION] Description\n\n"
+    )
     (parac_dir / "memory" / "logs" / "agent_actions.log").write_text(
         actions_log, encoding="utf-8"
     )
 
     # memory/logs/decisions.log
-    decisions_log = f"# Decisions Log - {project_name}\n# Format: [TIMESTAMP] [DECISION] Description\n\n"
+    decisions_log = (
+        f"# Decisions Log - {project_name}\n"
+        "# Format: [TIMESTAMP] [DECISION] Description\n\n"
+    )
     (parac_dir / "memory" / "logs" / "decisions.log").write_text(
         decisions_log, encoding="utf-8"
     )
@@ -1209,7 +1271,9 @@ parameters:
     required: true
 ```
 """
-    (parac_dir / "tools" / "README.md").write_text(tools_readme, encoding="utf-8")
+    (parac_dir / "tools" / "README.md").write_text(
+        tools_readme, encoding="utf-8"
+    )
 
     # tools/registry.yaml
     (parac_dir / "tools" / "registry.yaml").write_text(
@@ -1217,7 +1281,9 @@ parameters:
     )
 
     # tools/custom/.gitkeep
-    (parac_dir / "tools" / "custom" / ".gitkeep").write_text("", encoding="utf-8")
+    (parac_dir / "tools" / "custom" / ".gitkeep").write_text(
+        "", encoding="utf-8"
+    )
 
     console.print("  [dim]Created[/dim] tools/* files")
 
@@ -1403,7 +1469,7 @@ This directory is the single source of truth for the project.
 
 
 def _create_full_workspace(
-    parac_dir: Path, target: Path, project_name: str
+    parac_dir: Path, _target: Path, project_name: str
 ) -> None:
     """Create complete .parac/ workspace with all files and templates."""
     from datetime import date
@@ -1593,17 +1659,26 @@ Define project-specific terms here.
 
     # memory/logs files
     (parac_dir / "memory" / "logs" / "agent_actions.log").write_text(
-        f"# Agent Actions Log - {project_name}\n# Format: [TIMESTAMP] [AGENT] [ACTION] Description\n\n",
+        (
+            f"# Agent Actions Log - {project_name}\n"
+            "# Format: [TIMESTAMP] [AGENT] [ACTION] Description\n\n"
+        ),
         encoding="utf-8"
     )
     (parac_dir / "memory" / "logs" / "decisions.log").write_text(
-        f"# Decisions Log - {project_name}\n# Format: [TIMESTAMP] [DECISION] Description\n\n",
+        (
+            f"# Decisions Log - {project_name}\n"
+            "# Format: [TIMESTAMP] [DECISION] Description\n\n"
+        ),
         encoding="utf-8"
     )
 
     # memory/index.yaml
     (parac_dir / "memory" / "index.yaml").write_text(
-        f"# Memory Index\ncreated: '{date.today().isoformat()}'\nentries: []\n",
+        (
+            f"# Memory Index\ncreated: '{date.today().isoformat()}'\n"
+            "entries: []\n"
+        ),
         encoding="utf-8"
     )
 
@@ -1980,7 +2055,7 @@ Define multi-agent workflows here.
 ## Structure
 
 - `definitions/` - Workflow YAML files
-- `templates/` - Reusable workflow templates
+- `content/templates/` - Reusable workflow templates
 
 ## Creating Workflows
 
@@ -2102,7 +2177,7 @@ This directory is the **single source of truth** for the project.
 │
 ├── workflows/             # Workflow definitions
 │   ├── definitions/       # Workflow YAML files
-│   └── templates/         # Workflow templates
+│   └── content/templates/         # Workflow templates
 │
 └── integrations/          # External integrations
     └── ide/               # IDE configurations
@@ -2124,7 +2199,9 @@ paracle validate    # Check consistency
 paracle ide sync    # Generate IDE configs
 ```
 """
-    (parac_dir / "GOVERNANCE.md").write_text(governance_content, encoding="utf-8")
+    (parac_dir / "GOVERNANCE.md").write_text(
+        governance_content, encoding="utf-8"
+    )
     console.print("  [dim]Created[/dim] GOVERNANCE.md")
 
 
@@ -2135,7 +2212,10 @@ paracle ide sync    # Generate IDE configs
 @click.option(
     "--template", "-t",
     type=click.Choice(["lite", "standard", "advanced"], case_sensitive=False),
-    help="Project template: lite (minimal), standard (balanced), advanced (full)"
+    help=(
+        "Project template: lite (minimal), standard (balanced), "
+        "advanced (full)"
+    )
 )
 @click.option(
     "-i", "--interactive",
@@ -2228,7 +2308,8 @@ def init(
 
     \b
     What's Created (advanced):
-      + All 8 agent types (architect, coder, tester, reviewer, pm, documenter, release manager, security)
+      + All 8 agent types (architect, coder, tester, reviewer, pm,
+        documenter, release manager, security)
       + PostgreSQL + Redis/Valkey
       + Complete policy pack
       + Docker Compose setup
@@ -2241,7 +2322,8 @@ def init(
     Note: This command always runs locally (no API call) as it creates
     the workspace that the API would operate on.
     """
-    # Interactive mode: explicit -i flag OR auto-detect (no template, default path, no name)
+    # Interactive mode: explicit -i flag OR auto-detect
+    # (no template, default path, no name)
     is_interactive = interactive or (
         template is None
         and not lite_init
@@ -2262,11 +2344,19 @@ def init(
     # Handle backward compatibility
     if lite_init:
         console.print(
-            "[yellow]Note:[/yellow] --lite is deprecated, use --template lite")
+
+            "[yellow]Note:[/yellow] --lite is deprecated, "
+            "use --template lite"
+
+        )
         template = "lite"
     elif full_init:
         console.print(
-            "[yellow]Note:[/yellow] --all is deprecated, use --template advanced")
+
+            "[yellow]Note:[/yellow] --all is deprecated, "
+            "use --template advanced"
+
+        )
         template = "advanced"
     elif template is None:
         template = "standard"  # Default for non-interactive mode
@@ -2333,7 +2423,10 @@ def init(
             "emoji": "🏢",
             "tagline": "Enterprise-grade, full stack",
             "features": [
-                "All 8 agents (architect, coder, tester, reviewer, pm, documenter, releasemanager, security)",
+                (
+                    "All 8 agents (architect, coder, tester, reviewer, "
+                    "pm, documenter, releasemanager, security)"
+                ),
                 "PostgreSQL + Redis",
                 "Docker Compose",
                 "Complete CI/CD",
@@ -2357,7 +2450,9 @@ def init(
     # Try loading from template directory first
     if verbose:
         console.print(
-            f"[dim]Loading template from templates/{template}...[/dim]")
+            f"[dim]Loading template from content/templates/{template}..."
+            "[/dim]"
+        )
 
     template_loaded = _load_template_from_directory(
         template, parac_dir, project_name)
@@ -2366,7 +2461,11 @@ def init(
         # Fallback to programmatic creation
         if verbose:
             console.print(
-                "[yellow]Template files not found, generating programmatically...[/yellow]\n")
+
+                "[yellow]Template files not found, generating "
+                "programmatically...[/yellow]\n"
+
+            )
         else:
             console.print(
                 "[dim]Using programmatic template generation...[/dim]\n")
@@ -2430,7 +2529,7 @@ def parac() -> None:
     paracle parac status  ->  paracle status
     paracle parac sync    ->  paracle sync
     """
-    pass
+    ...
 
 
 # Add commands to legacy group for backward compatibility

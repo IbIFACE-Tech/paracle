@@ -13,35 +13,15 @@ Architecture: CLI -> Core (direct access for local file operations)
 
 import sys
 from datetime import date
-from pathlib import Path
 
 import click
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
+from paracle_cli.utils import get_parac_root_or_exit
+
 console = Console()
-
-
-def find_parac_root() -> Path | None:
-    """Find .parac/ directory from current working directory."""
-    current = Path.cwd()
-    while current != current.parent:
-        parac_dir = current / ".parac"
-        if parac_dir.exists():
-            return parac_dir
-        current = current.parent
-    return None
-
-
-def get_parac_root_or_exit() -> Path:
-    """Get .parac/ root or exit with error."""
-    parac_root = find_parac_root()
-    if parac_root is None:
-        console.print("[red]Error:[/red] No .parac/ workspace found.")
-        console.print("Run 'paracle init' first.")
-        sys.exit(1)
-    return parac_root
 
 
 def get_adr_manager():
@@ -286,7 +266,8 @@ def create_adr(
     if interactive:
         # Interactive prompts
         if not context:
-            console.print("\n[bold]Context[/bold] (why was this decision needed?):")
+            console.print(
+                "\n[bold]Context[/bold] (why was this decision needed?):")
             context = click.prompt("", default="", show_default=False)
 
         if not decision:
@@ -294,7 +275,8 @@ def create_adr(
             decision = click.prompt("", default="", show_default=False)
 
         if not consequences:
-            console.print("\n[bold]Consequences[/bold] (impact of the decision):")
+            console.print(
+                "\n[bold]Consequences[/bold] (impact of the decision):")
             consequences = click.prompt("", default="", show_default=False)
 
     # Validate required fields
@@ -438,7 +420,8 @@ def migrate_legacy(dry_run: bool):
         console.print(f"[dim]ADR directory: {manager.adr_dir}[/dim]")
     else:
         console.print("[yellow]No new ADRs migrated.[/yellow]")
-        console.print("[dim]ADRs may already exist or none found in legacy file.[/dim]")
+        console.print(
+            "[dim]ADRs may already exist or none found in legacy file.[/dim]")
 
 
 # =============================================================================
@@ -525,7 +508,8 @@ def show_stats():
 
     if total == 0:
         console.print("[yellow]No ADRs found.[/yellow]")
-        console.print("Create your first ADR with: paracle adr create -t 'Title'")
+        console.print(
+            "Create your first ADR with: paracle adr create -t 'Title'")
         return
 
     console.print()
@@ -565,6 +549,7 @@ def show_stats():
         recent = sorted(adrs, key=lambda a: a.date, reverse=True)[:3]
         console.print("\n[bold]Recent:[/bold]")
         for adr_meta in recent:
-            console.print(f"  - {adr_meta.id}: {adr_meta.title} ({adr_meta.date})")
+            console.print(
+                f"  - {adr_meta.id}: {adr_meta.title} ({adr_meta.date})")
 
     console.print()

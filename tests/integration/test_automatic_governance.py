@@ -10,6 +10,8 @@ from paracle_core.governance import (
     async_agent_operation,
     get_state_manager,
     log_agent_action,
+    reset_governance_logger,
+    reset_state_manager,
 )
 from paracle_core.governance.logger import GovernanceLogger
 from paracle_core.governance.types import GovernanceActionType
@@ -18,6 +20,9 @@ from paracle_core.governance.types import GovernanceActionType
 @pytest.fixture
 def temp_project():
     """Create a complete temporary project structure."""
+    # Reset the global singletons before each test
+    reset_state_manager()
+    reset_governance_logger()
     with tempfile.TemporaryDirectory() as tmpdir:
         project_dir = Path(tmpdir)
         parac_dir = project_dir / ".parac"
@@ -113,7 +118,7 @@ class TestEndToEndWorkflow:
         log_content = log_file.read_text()
         assert "CoderAgent" in log_content
         assert "IMPLEMENTATION" in log_content
-        assert "implement_feature" in log_content
+        assert "Implement Feature" in log_content  # Human-readable format
 
         # Verify state update
         state_file = parac_dir / "memory" / "context" / "current_state.yaml"
@@ -159,7 +164,13 @@ class TestEndToEndWorkflow:
         assert impl_result == "Code implemented"
         assert test_result == "Tests passed"
 
-        # Mark feature complete
+        # Mark both features complete
+        await state_manager.on_deliverable_completed(
+            deliverable_id="feature_a",
+            agent="CoderAgent",
+            phase="phase_1",
+            description="Feature A implemented",
+        )
         await state_manager.on_deliverable_completed(
             deliverable_id="feature_b",
             agent="TesterAgent",
@@ -202,7 +213,7 @@ class TestEndToEndWorkflow:
         log_file = parac_dir / "memory" / "logs" / "agent_actions.log"
         log_content = log_file.read_text()
 
-        assert "BUGFIX" in log_content
+        assert "ERROR" in log_content  # Errors logged as ERROR type
         assert "FAILED" in log_content or "failed" in log_content.lower()
 
     @pytest.mark.asyncio
@@ -216,8 +227,8 @@ class TestEndToEndWorkflow:
         # Use context manager for operation
         async with async_agent_operation(
             "CoderAgent",
-            GovernanceActionType.IMPLEMENTATION,
-            description="Implement feature using context manager",
+            "Implement feature using context manager",
+            details={"action_type": "IMPLEMENTATION"},
         ):
             await asyncio.sleep(0.01)
             # Simulate implementation
@@ -260,8 +271,8 @@ class TestEndToEndWorkflow:
         # Complete phase
         await state_manager.on_phase_completed(
             phase_id="phase_1",
+            phase_name="Development",
             agent="PMAgent",
-            summary="All features implemented and tested",
         )
 
         # Verify phase completion

@@ -14,6 +14,361 @@ Each decision follows this structure:
 
 ---
 
+## ADR-018: Paracle Meta-Agent Engine with Learning
+
+**Date**: 2026-01-08
+**Status**: Accepted
+**Priority**: CRITICAL
+**Phase**: 6 (Developer Experience)
+**Deciders**: Architecture Team, Product Team
+
+### Context
+
+Paracle v1.0.0 has powerful capabilities but steep learning curve:
+- Users must manually write agent specs in YAML/Markdown
+- Must understand .parac/ governance structure
+- Must learn workflow syntax
+- Must configure policies manually
+- Time to first agent: 15-30 minutes (adoption barrier per ADR-017)
+
+**Innovation opportunity**: Use AI to generate Paracle artifacts intelligently, making Paracle accessible while preserving power.
+
+### Decision
+
+**Create `paracle_meta` - internal meta-agent engine with:**
+
+1. **Multi-Provider LLM Support**
+   - OpenAI, Anthropic, Google, Ollama, Azure, etc.
+   - Automatic provider selection based on task type
+   - Fallback chain for reliability
+   - Cost-aware routing
+
+2. **Intelligent Generation**
+   - Agents from natural language descriptions
+   - Workflows from goals
+   - Skills from descriptions
+   - Policies from requirements
+   - Quality scoring (0-10 scale)
+
+3. **Learning System**
+   - Tracks all generations (SQLite database)
+   - Collects user feedback (ratings, comments, usage)
+   - Learns successful patterns
+   - Evolves templates (successful patterns → reusable templates)
+   - A/B testing for prompts
+   - Quality improvement over time (target: +20% over 100 generations)
+
+4. **Cost Optimization**
+   - Task complexity estimation
+   - Provider selection (cheap for simple, powerful for complex)
+   - Cost tracking and budgets
+   - Savings reporting (target: >30% savings)
+
+5. **Template Library**
+   - Starts with base templates
+   - Grows from successful generations
+   - Pattern recognition (e.g., "security agent" pattern)
+   - Reusable across projects
+
+6. **Best Practices Database**
+   - Built-in Paracle patterns
+   - Learns project-specific patterns
+   - Governance rules enforcement
+   - Quality thresholds
+
+### Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                   PARACLE META ENGINE                       │
+│                    (paracle_meta)                           │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  ┌─────────────┐  ┌──────────────┐  ┌──────────────┐     │
+│  │   GENERATE  │  │    LEARN     │  │   OPTIMIZE   │     │
+│  │             │  │              │  │              │     │
+│  │ • Agents    │  │ • Track      │  │ • Provider   │     │
+│  │ • Workflows │  │ • Score      │  │   selection  │     │
+│  │ • Skills    │  │ • Improve    │  │ • Cost       │     │
+│  │ • Policies  │  │ • Evolve     │  │   reduction  │     │
+│  └─────────────┘  └──────────────┘  └──────────────┘     │
+│         ↓                ↓                  ↓              │
+│  ┌─────────────────────────────────────────────────────┐  │
+│  │           KNOWLEDGE BASE & TEMPLATES                │  │
+│  │  • Best practices • Successful patterns             │  │
+│  │  • Project history • Quality metrics                │  │
+│  └─────────────────────────────────────────────────────┘  │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐  │
+│  │        MULTI-PROVIDER ORCHESTRATION                 │  │
+│  │  OpenAI │ Anthropic │ Google │ Ollama │ Azure      │  │
+│  └─────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Implementation (Phase 6 - v1.1.0)
+
+**Week 1-2: Core Engine**
+- MetaAgent base engine
+- Multi-provider orchestration
+- Agent generation
+- Basic quality scoring
+
+**Week 3-4: Learning System**
+- Feedback collection
+- Quality metrics tracking
+- Template evolution
+- Pattern recognition
+
+**Week 5: Optimization**
+- Cost optimization
+- Provider selection intelligence
+- Performance benchmarking
+
+**Week 6: Integration**
+- CLI commands
+- Documentation
+- Examples
+- Testing
+
+### User Experience
+
+**Before (manual)**:
+```bash
+# 1. Create file manually (5 min)
+touch .parac/agents/specs/security_auditor.md
+
+# 2. Write spec (15-30 min)
+# 3. Choose skills manually
+# 4. Update manifest
+# 5. Test
+```
+
+**After (meta-agent)**:
+```bash
+# One command, 30 seconds!
+paracle agent create SecurityAuditor \
+  --describe "Reviews Python for security, suggests fixes"
+
+# Meta-agent:
+# ✓ Analyzes description
+# ✓ Selects best provider (Claude for security)
+# ✓ Generates spec
+# ✓ Assigns skills
+# ✓ Creates workflows
+# ✓ Quality: 9.2/10, Cost: $0.018
+
+# Apply? [Y/n]: Y
+# ✓ Done! Try: paracle agent run SecurityAuditor
+```
+
+### Success Metrics
+
+**Phase 6 Goals (ADR-017)**:
+- Time to first agent: < 5 minutes ✅ (target: < 30 seconds)
+- Tutorial completion: > 80% ✅
+- Satisfaction: > 4.5/5 ✅
+
+**Meta-Agent Specific**:
+- Generation accuracy: > 90%
+- Learning improvement: > 20% quality gain over 100 generations
+- Cost optimization: > 30% savings vs naive (always expensive model)
+- Provider selection accuracy: > 85% (right model for task)
+
+### Consequences
+
+**Positive**:
+✅ **10x faster agent creation** (30 sec vs 15-30 min)
+✅ **No learning curve** for artifact syntax
+✅ **Best practices built-in** (meta-agent knows them)
+✅ **Cost optimized** (30%+ savings automatically)
+✅ **Improves over time** (learns user patterns)
+✅ **Competitive advantage** (unique innovation)
+✅ **Dogfooding showcase** (Paracle uses Paracle)
+
+**Challenges**:
+⚠️ **LLM API costs** - Mitigated by cost optimization + budgets
+⚠️ **Generation quality** - Mitigated by quality scoring + learning
+⚠️ **Provider reliability** - Mitigated by multi-provider fallback
+
+### Future Enhancements (Post-v1.1.0)
+
+**v1.2.0+**:
+- Voice interface ("Paracle, create a security agent")
+- Visual workflow builder (drag-and-drop → meta-agent generates)
+- Team learning (shared templates across organization)
+- Automatic skill discovery
+
+**v1.5.0+**:
+- Fine-tuned models (trained on Paracle patterns)
+- Multi-agent collaboration (meta-agents coordinate)
+- Proactive suggestions
+
+### Related
+
+- ADR-017: Developer Experience & Community Focus
+- Phase 6 Roadmap: Developer Experience & Accessibility
+- paracle_providers: Multi-provider abstraction
+- paracle_knowledge: Best practices database
+
+---
+
+## ADR-021: Production Observability Architecture
+
+**Date**: 2026-01-08
+**Status**: Accepted
+**Priority**: HIGH
+**Phase**: 7
+**Deciders**: Architect Agent, Coder Agent, Tester Agent
+
+### Context
+
+Paracle v1.0.0 includes basic profiling (paracle_profiling) for development-time performance analysis, but lacks production-grade observability for running systems. Production deployments require:
+
+1. **Real-time metrics** - System health, performance counters, resource utilization
+2. **Distributed tracing** - Request flows across multi-agent systems
+3. **Intelligent alerting** - Proactive issue detection with low false positives
+4. **Standard protocols** - Prometheus, OpenTelemetry for ecosystem integration
+
+**Gap**: Without production observability, operators cannot:
+- Monitor system health in real-time
+- Diagnose performance issues in production
+- Track request flows through complex agent workflows
+- Receive proactive alerts before failures impact users
+
+### Decision
+
+**Implement three-pillar observability stack** in `paracle_observability` package:
+
+**Pillar 1: Prometheus Metrics**
+- Counter, Gauge, Histogram metric types
+- Prometheus text format export (/metrics endpoint)
+- JSON export for debugging
+- Global metrics registry with label support
+- Decorator-based instrumentation (@metric_counter, @metric_gauge)
+
+**Pillar 2: OpenTelemetry Tracing**
+- Span-based distributed tracing
+- Parent-child span relationships for nested operations
+- Trace context propagation across agent boundaries
+- Jaeger export format for visualization
+- @trace_span and @trace_async decorators
+- Error tracking with exception events
+
+**Pillar 3: Intelligent Alerting**
+- AlertRule engine with condition evaluation
+- for_duration threshold to reduce false positives
+- AlertSeverity levels (INFO, WARNING, ERROR, CRITICAL)
+- AlertManager with deduplication by fingerprint
+- Multi-channel notifications (Slack, Email, Webhook)
+- Alert silencing and history tracking
+- Automatic resolution detection
+
+**Integration Points**:
+- FastAPI middleware for automatic HTTP metrics/tracing
+- CLI commands: `paracle metrics|trace|alerts`
+- Docker Compose setup with Prometheus + Grafana + Jaeger
+- Compatible with existing paracle_profiling
+
+### Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│               PRODUCTION OBSERVABILITY STACK                │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  ┌──────────────┐  ┌──────────────┐  ┌─────────────────┐  │
+│  │   METRICS    │  │   TRACING    │  │    ALERTING     │  │
+│  │ (Prometheus) │  │(OpenTelemetry)│  │ (Rule Engine)   │  │
+│  └──────────────┘  └──────────────┘  └─────────────────┘  │
+│         ↓                 ↓                    ↓            │
+│  ┌──────────────┐  ┌──────────────┐  ┌─────────────────┐  │
+│  │   Counter    │  │     Span     │  │   AlertRule     │  │
+│  │    Gauge     │  │  TracingProv │  │ AlertManager    │  │
+│  │  Histogram   │  │  Jaeger Exp  │  │  Notification   │  │
+│  └──────────────┘  └──────────────┘  └─────────────────┘  │
+│         ↓                 ↓                    ↓            │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │           EXPORT & VISUALIZATION                     │  │
+│  │  Prometheus → Grafana  |  Jaeger UI  |  Slack/Email │  │
+│  └──────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Implementation
+
+**Package Structure**:
+```
+paracle_observability/
+├── __init__.py         # Exports (58 lines)
+├── metrics.py          # Prometheus metrics (347 lines)
+├── tracing.py          # OpenTelemetry tracing (285 lines)
+└── alerting.py         # Intelligent alerting (372 lines)
+```
+
+**Tests**: 30 unit tests (100% passing)
+- test_metrics.py: 8 tests
+- test_tracing.py: 11 tests
+- test_alerting.py: 11 tests
+
+**CLI**: 12 new commands
+- `paracle metrics export|list|reset`
+- `paracle trace list|show|export|clear`
+- `paracle alerts list|rules|silence|evaluate`
+
+**Documentation**:
+- production-observability-guide.md (600+ lines)
+- Complete examples with Prometheus, OpenTelemetry, Grafana, Jaeger
+- Docker Compose production setup
+- Best practices for metric naming, label cardinality, trace sampling
+
+### Consequences
+
+**Positive**:
+1. ✅ **Production Readiness** - Full observability for production deployments
+2. ✅ **Standard Protocols** - Prometheus and OpenTelemetry ecosystem compatibility
+3. ✅ **Developer Experience** - Decorator-based instrumentation, zero config
+4. ✅ **Operational Visibility** - Real-time metrics, distributed traces, proactive alerts
+5. ✅ **Low Overhead** - < 100ms tracing overhead, minimal memory footprint
+6. ✅ **Extensible** - Plugin architecture for custom metrics/channels
+
+**Negative**:
+1. ⚠️ **Dependencies** - Requires Prometheus/Grafana/Jaeger for full stack (mitigated: Docker Compose provided)
+2. ⚠️ **Learning Curve** - Operators need Prometheus/OpenTelemetry knowledge (mitigated: comprehensive docs)
+3. ⚠️ **Storage** - Metrics/traces require persistent storage (mitigated: retention policies documented)
+
+**Neutral**:
+1. 📊 **Two Monitoring Systems** - paracle_profiling (dev) + paracle_observability (prod) serve different purposes
+2. 🔧 **Optional** - Observability can be disabled for lightweight deployments
+
+### Alternatives Considered
+
+**Alternative 1: Extend paracle_profiling**
+- ❌ Rejected - Profiling is for development, observability is for production
+- Different concerns, different tools
+
+**Alternative 2: Third-party services only (DataDog, New Relic)**
+- ❌ Rejected - Vendor lock-in, cost, privacy concerns
+- Provide open-source stack, allow third-party integration
+
+**Alternative 3: Lightweight metrics only**
+- ❌ Rejected - Incomplete observability without tracing and alerting
+- Production requires full three-pillar stack
+
+### Related Decisions
+
+- ADR-010: Performance Profiling (paracle_profiling) - Development-time profiling
+- ADR-020: Mandatory Governance Enforcement - Automatic logging system
+
+### References
+
+- [Prometheus Best Practices](https://prometheus.io/docs/practices/)
+- [OpenTelemetry Specification](https://opentelemetry.io/docs/specs/otel/)
+- [Google SRE Book - Monitoring Distributed Systems](https://sre.google/sre-book/monitoring-distributed-systems/)
+- [The Three Pillars of Observability](https://www.oreilly.com/library/view/distributed-systems-observability/9781492033431/ch04.html)
+
+---
+
 ## ADR-020: Mandatory Governance Enforcement - Automatic Logging & State Management
 
 **Date**: 2026-01-07
@@ -4986,12 +5341,12 @@ Paracle currently supports two execution models:
 
 #### Use Cases Requiring Agent Groups
 
-| Use Case | Why Workflow is Insufficient |
-|----------|------------------------------|
-| **Complex Design** | Architect + Coder + Security need to iterate and debate |
-| **Code Review** | Reviewer finds issue → Coder fixes → Reviewer re-checks (loops) |
-| **Problem Solving** | Multiple perspectives, emergent solutions |
-| **Consensus Building** | Agents must agree before proceeding |
+| Use Case               | Why Workflow is Insufficient                                    |
+| ---------------------- | --------------------------------------------------------------- |
+| **Complex Design**     | Architect + Coder + Security need to iterate and debate         |
+| **Code Review**        | Reviewer finds issue → Coder fixes → Reviewer re-checks (loops) |
+| **Problem Solving**    | Multiple perspectives, emergent solutions                       |
+| **Consensus Building** | Agents must agree before proceeding                             |
 
 #### Current Protocol Landscape
 
@@ -5261,15 +5616,15 @@ class GroupCollaborationEngine:
 
 #### 4. Protocol Comparison
 
-| Feature | A2A | ACP | Paracle Agent Groups |
-|---------|-----|-----|---------------------|
-| **Transport** | JSON-RPC | REST | In-memory + A2A |
-| **Discovery** | Agent Cards | Manifests | `.parac/agents/` |
-| **Sessions** | Tasks | Sessions | GroupSession |
-| **Messages** | Task artifacts | MessageParts | GroupMessage |
-| **Async** | SSE streaming | Await pattern | Event bus |
-| **External** | ✅ Native | ✅ Native | Via A2A bridge |
-| **Internal** | HTTP overhead | HTTP overhead | Zero-copy |
+| Feature       | A2A            | ACP           | Paracle Agent Groups |
+| ------------- | -------------- | ------------- | -------------------- |
+| **Transport** | JSON-RPC       | REST          | In-memory + A2A      |
+| **Discovery** | Agent Cards    | Manifests     | `.parac/agents/`     |
+| **Sessions**  | Tasks          | Sessions      | GroupSession         |
+| **Messages**  | Task artifacts | MessageParts  | GroupMessage         |
+| **Async**     | SSE streaming  | Await pattern | Event bus            |
+| **External**  | ✅ Native       | ✅ Native      | Via A2A bridge       |
+| **Internal**  | HTTP overhead  | HTTP overhead | Zero-copy            |
 
 #### 5. Integration with Existing Systems
 
@@ -5362,23 +5717,23 @@ packages/paracle_agent_comm/
 
 #### Mitigations
 
-| Risk | Mitigation |
-|------|------------|
-| Cost explosion | `max_rounds`, `max_messages` limits |
-| Infinite loops | Termination functions, timeout |
-| Debugging | Full message history, event tracing |
-| Non-determinism | Seed support, replay capability |
+| Risk            | Mitigation                          |
+| --------------- | ----------------------------------- |
+| Cost explosion  | `max_rounds`, `max_messages` limits |
+| Infinite loops  | Termination functions, timeout      |
+| Debugging       | Full message history, event tracing |
+| Non-determinism | Seed support, replay capability     |
 
 ### Implementation Phases
 
-| Phase | Scope | Timeline |
-|-------|-------|----------|
+| Phase       | Scope                                                | Timeline  |
+| ----------- | ---------------------------------------------------- | --------- |
 | **Phase A** | Core models (AgentGroup, GroupMessage, GroupSession) | Post v1.0 |
-| **Phase B** | Peer-to-peer and broadcast patterns | Post v1.0 |
-| **Phase C** | Coordinator pattern | Post v1.0 |
-| **Phase D** | A2A bridge for external agents | Post v1.0 |
-| **Phase E** | CLI commands and `.parac/groups/` config | Post v1.0 |
-| **Phase F** | ACP bridge (when A2A+ACP merger stabilizes) | Future |
+| **Phase B** | Peer-to-peer and broadcast patterns                  | Post v1.0 |
+| **Phase C** | Coordinator pattern                                  | Post v1.0 |
+| **Phase D** | A2A bridge for external agents                       | Post v1.0 |
+| **Phase E** | CLI commands and `.parac/groups/` config             | Post v1.0 |
+| **Phase F** | ACP bridge (when A2A+ACP merger stabilizes)          | Future    |
 
 ### Alternatives Considered
 

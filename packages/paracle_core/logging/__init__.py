@@ -75,6 +75,15 @@ from paracle_core.logging.management import (
     SearchQuery,
     validate_config,
 )
+from paracle_core.logging.platform import (
+    LogType,
+    PlatformPaths,
+    detect_platform,
+    ensure_directories,
+    get_info,
+    get_log_path,
+    get_platform_paths,
+)
 from paracle_core.logging.structured import (
     JsonFormatter,
     StructuredFormatter,
@@ -116,6 +125,14 @@ __all__ = [
     "log_agent_execution",
     "log_workflow_execution",
     "setup_eventbus_logging",
+    # Platform paths (NEW)
+    "LogType",
+    "PlatformPaths",
+    "detect_platform",
+    "get_platform_paths",
+    "get_log_path",
+    "ensure_directories",
+    "get_info",
     # Management (NEW)
     "LogManager",
     "LogEntry",

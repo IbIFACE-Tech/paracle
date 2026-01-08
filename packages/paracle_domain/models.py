@@ -9,7 +9,7 @@ from enum import Enum
 from typing import Any
 from uuid import uuid4
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_serializer
 
 
 def utc_now() -> datetime:
@@ -77,7 +77,8 @@ class AgentSpec(BaseModel):
         default_factory=list, description="List of tool names"
     )
     skills: list[str] = Field(
-        default_factory=list, description="List of skill IDs (from .parac/agents/skills/)"
+        default_factory=list,
+        description="List of skill IDs (from .parac/agents/skills/)"
     )
     config: dict[str, Any] = Field(
         default_factory=dict, description="Additional configuration"
@@ -109,10 +110,6 @@ class Agent(BaseModel):
     It tracks execution status and maintains state.
     """
 
-    model_config = ConfigDict(
-        json_encoders={datetime: lambda v: v.isoformat()}
-    )
-
     id: str = Field(default_factory=lambda: generate_id("agent"))
     spec: AgentSpec
     resolved_spec: AgentSpec | None = Field(
@@ -121,6 +118,10 @@ class Agent(BaseModel):
     status: AgentStatus = Field(default_factory=AgentStatus)
     created_at: datetime = Field(default_factory=utc_now)
     updated_at: datetime = Field(default_factory=utc_now)
+
+    @field_serializer('created_at', 'updated_at', when_used='json')
+    def serialize_datetime(self, dt: datetime) -> str:
+        return dt.isoformat()
 
     def get_effective_spec(self) -> AgentSpec:
         """Get the effective spec (resolved or original)."""
@@ -169,7 +170,8 @@ class WorkflowStep(BaseModel):
     )
     # Human-in-the-Loop approval (ISO 42001)
     requires_approval: bool = Field(
-        default=False, description="Require human approval after step execution"
+        default=False,
+        description="Require human approval after step execution"
     )
     approval_config: dict[str, Any] = Field(
         default_factory=dict,
@@ -211,15 +213,15 @@ class WorkflowStatus(BaseModel):
 class Workflow(BaseModel):
     """Workflow instance."""
 
-    model_config = ConfigDict(
-        json_encoders={datetime: lambda v: v.isoformat()}
-    )
-
     id: str = Field(default_factory=lambda: generate_id("workflow"))
     spec: WorkflowSpec
     status: WorkflowStatus = Field(default_factory=WorkflowStatus)
     created_at: datetime = Field(default_factory=utc_now)
     updated_at: datetime = Field(default_factory=utc_now)
+
+    @field_serializer('created_at', 'updated_at', when_used='json')
+    def serialize_datetime(self, dt: datetime) -> str:
+        return dt.isoformat()
 
     def start(self) -> None:
         """Mark workflow as started."""
@@ -267,14 +269,14 @@ class ToolSpec(BaseModel):
 class Tool(BaseModel):
     """Tool instance."""
 
-    model_config = ConfigDict(
-        json_encoders={datetime: lambda v: v.isoformat()}
-    )
-
     id: str = Field(default_factory=lambda: generate_id("tool"))
     spec: ToolSpec
     enabled: bool = Field(default=True)
     created_at: datetime = Field(default_factory=utc_now)
+
+    @field_serializer('created_at', when_used='json')
+    def serialize_datetime(self, dt: datetime) -> str:
+        return dt.isoformat()
 
 
 # =============================================================================
@@ -319,7 +321,8 @@ class ApprovalConfig(BaseModel):
         default=3600, ge=60, description="Approval timeout (default 1 hour)"
     )
     priority: ApprovalPriority = Field(
-        default=ApprovalPriority.MEDIUM, description="Priority for approval queue"
+        default=ApprovalPriority.MEDIUM,
+        description="Priority for approval queue"
     )
     auto_reject_on_timeout: bool = Field(
         default=False, description="Auto-reject if timeout expires"
@@ -345,12 +348,12 @@ class ApprovalRequest(BaseModel):
         ...     execution_id="exec_456",
         ...     step_id="review",
         ...     step_name="Code Review",
-        ...     context={"code": "def hello(): pass", "analysis": "No issues found"},
+        ...     context={
+        ...         "code": "def hello(): pass",
+        ...         "analysis": "No issues found"
+        ...     },
         ... )
     """
-
-    model_config = ConfigDict(
-        json_encoders={datetime: lambda v: v.isoformat()})
 
     id: str = Field(default_factory=lambda: generate_id("approval"))
     workflow_id: str = Field(..., description="Workflow requesting approval")
@@ -452,7 +455,8 @@ class RetryCondition(BaseModel):
         error_types: List of error types that should trigger retry
         error_categories: List of error categories that should trigger retry
         status_codes: List of HTTP status codes that should trigger retry
-        error_messages: List of error message patterns (regex) that should trigger retry
+        error_messages: List of error message patterns (regex) that
+            should trigger retry
     """
 
     error_types: list[str] = Field(default_factory=list)
@@ -475,7 +479,10 @@ class RetryPolicy(BaseModel):
             initial_delay=1.0,
             max_delay=60.0,
             retry_condition=RetryCondition(
-                error_categories=[ErrorCategory.TRANSIENT, ErrorCategory.TIMEOUT]
+                error_categories=[
+                    ErrorCategory.TRANSIENT,
+                    ErrorCategory.TIMEOUT
+                ]
             ),
         )
         ```
@@ -579,7 +586,10 @@ class RetryPolicy(BaseModel):
             return True
 
         # Check error category
-        if condition.error_categories and error_category in condition.error_categories:
+        if (
+            condition.error_categories
+            and error_category in condition.error_categories
+        ):
             return True
 
         # Check status code (if error has one)
@@ -668,7 +678,7 @@ class RetryContext(BaseModel):
         attempt = RetryAttempt(
             attempt_number=attempt_number,
             started_at=started_at,
-            ended_at=datetime.utcnow(),
+            ended_at=datetime.now(timezone.utc),
             error=str(error) if error else None,
             error_type=type(error).__name__ if error else None,
             error_category=error_category,

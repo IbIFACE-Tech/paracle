@@ -53,6 +53,7 @@ from paracle_core.governance.logger import (
     get_governance_logger,
     log_action,
     log_decision,
+    reset_governance_logger,
 )
 from paracle_core.governance.monitor import (
     GovernanceHealth,
@@ -65,6 +66,7 @@ from paracle_core.governance.monitor import (
 from paracle_core.governance.state_manager import (
     AutomaticStateManager,
     get_state_manager,
+    reset_state_manager,
 )
 from paracle_core.governance.types import (
     GovernanceActionType,
@@ -87,9 +89,11 @@ __all__ = [
     # State management
     "AutomaticStateManager",
     "get_state_manager",
+    "reset_state_manager",
     # Logger
     "GovernanceLogger",
     "get_governance_logger",
+    "reset_governance_logger",
     "log_action",
     "log_decision",
     # Context

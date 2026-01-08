@@ -3,7 +3,7 @@
 Loads workflows from .parac/workflows/ directory structure:
 - catalog.yaml: Registry of workflows with metadata
 - definitions/: User workflow definitions
-- templates/: Template workflows
+- content/templates/: Template workflows
 
 Supports both API and CLI usage for workflow discovery and loading.
 """
@@ -22,12 +22,12 @@ except ImportError:
     # Profiling not available - use no-op decorators
     PROFILING_AVAILABLE = False
 
-    def cached(*args, **kwargs):
+    def cached(*_args, **_kwargs):
         def decorator(func):
             return func
         return decorator
 
-    def profile(*args, **kwargs):
+    def profile(*_args, **_kwargs):
         def decorator(func):
             return func
         return decorator
@@ -36,7 +36,7 @@ except ImportError:
 class WorkflowLoadError(Exception):
     """Raised when workflow loading fails."""
 
-    pass
+    ...
 
 
 class WorkflowLoader:
@@ -45,7 +45,7 @@ class WorkflowLoader:
     Automatically discovers .parac/ directory and loads workflows from:
     - catalog.yaml (workflow registry)
     - definitions/ (user workflows)
-    - templates/ (template workflows)
+    - content/templates/ (template workflows)
 
     Example:
         loader = WorkflowLoader()
@@ -98,7 +98,8 @@ class WorkflowLoader:
             current = parent
 
         raise WorkflowLoadError(
-            ".parac/ directory not found. Run from project root or specify parac_root."
+            ".parac/ directory not found. Run from project root or "
+            "specify parac_root."
         )
 
     def load_catalog(self) -> dict[str, Any]:
@@ -120,7 +121,7 @@ class WorkflowLoader:
         except Exception as e:
             raise WorkflowLoadError(
                 f"Failed to load catalog {self.catalog_file}: {e}"
-            )
+            ) from e
 
     def list_workflows(
         self,
@@ -155,7 +156,7 @@ class WorkflowLoader:
 
         Searches in order:
         1. definitions/{name}.yaml
-        2. templates/{name}.yaml
+        2. content/templates/{name}.yaml
 
         Args:
             workflow_name: Name of workflow
@@ -177,7 +178,8 @@ class WorkflowLoader:
             return tpl_path
 
         raise WorkflowLoadError(
-            f"Workflow '{workflow_name}' not found in definitions/ or templates/"
+            f"Workflow '{workflow_name}' not found in definitions/ or "
+            "content/templates/"
         )
 
     @cached(ttl=120)  # Cache for 2 minutes
@@ -203,13 +205,13 @@ class WorkflowLoader:
                     raise WorkflowLoadError(
                         f"Empty workflow file: {file_path}")
                 return workflow_yaml
-        except FileNotFoundError:
+        except FileNotFoundError as exc:
             raise WorkflowLoadError(
-                f"Failed to load {file_path}: File not found")
+                f"Failed to load {file_path}: File not found") from exc
         except yaml.YAMLError as e:
-            raise WorkflowLoadError(f"Invalid YAML in {file_path}: {e}")
+            raise WorkflowLoadError(f"Invalid YAML in {file_path}: {e}") from e
         except Exception as e:
-            raise WorkflowLoadError(f"Failed to load {file_path}: {e}")
+            raise WorkflowLoadError(f"Failed to load {file_path}: {e}") from e
 
     @profile(track_memory=True)
     def load_workflow_spec(self, workflow_name: str) -> WorkflowSpec:
@@ -258,7 +260,7 @@ class WorkflowLoader:
                 except Exception as e:
                     raise WorkflowLoadError(
                         f"Failed to parse step in '{workflow_name}': {e}"
-                    )
+                    ) from e
 
             # Create WorkflowSpec
             spec = WorkflowSpec(
@@ -275,11 +277,11 @@ class WorkflowLoader:
         except ValidationError as e:
             raise WorkflowLoadError(
                 f"Invalid workflow structure in '{workflow_name}': {e}"
-            )
+            ) from e
         except Exception as e:
             raise WorkflowLoadError(
                 f"Failed to parse workflow '{workflow_name}': {e}"
-            )
+            ) from e
 
     def _parse_step(self, step_yaml: dict[str, Any]) -> WorkflowStep:
         """Parse a workflow step from YAML.
@@ -329,19 +331,21 @@ class WorkflowLoader:
         inputs = step_yaml.get("inputs", {})
         if not isinstance(inputs, dict):
             raise ValueError(
-                f"Step '{step_name}' inputs must be a dictionary, got {type(inputs)}"
+                f"Step '{step_name}' inputs must be a dictionary, "
+                f"got {type(inputs)}"
             )
 
         # Parse outputs (convert list to dict if needed)
         outputs_raw = step_yaml.get("outputs", {})
         if isinstance(outputs_raw, list):
             # Convert [key1, key2] -> {key1: null, key2: null}
-            outputs = {name: None for name in outputs_raw}
+            outputs = dict.fromkeys(outputs_raw)
         elif isinstance(outputs_raw, dict):
             outputs = outputs_raw
         else:
             raise ValueError(
-                f"Step '{step_name}' outputs must be list or dict, got {type(outputs_raw)}"
+                f"Step '{step_name}' outputs must be list or dict, "
+                f"got {type(outputs_raw)}"
             )
 
         # Parse approval config (ISO 42001 Human-in-the-Loop)
@@ -399,7 +403,8 @@ class WorkflowLoader:
                 for dep in step.depends_on:
                     if dep not in step_ids:
                         errors.append(
-                            f"Step '{step.name}' depends on non-existent step '{dep}'"
+                            f"Step '{step.name}' depends on non-existent "
+                            f"step '{dep}'"
                         )
 
             # If no errors, workflow is valid
@@ -408,7 +413,7 @@ class WorkflowLoader:
         except WorkflowLoadError as e:
             errors.append(str(e))
             return (False, errors)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             errors.append(f"Unexpected error: {e}")
             return (False, errors)
 

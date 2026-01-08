@@ -247,7 +247,7 @@ class AIComplianceEngine:
             return Path(required_location) / filename
 
         elif category == FileCategory.USER_DOCS:
-            # Move to docs/ (outside .parac)
+            # Move to content/docs/ (outside .parac)
             return Path("docs") / filename
 
         elif category == FileCategory.SOURCE_CODE:

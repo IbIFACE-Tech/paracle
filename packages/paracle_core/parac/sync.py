@@ -54,12 +54,18 @@ class ParacSynchronizer:
         self.parac_root = parac_root
         self.project_root = project_root or parac_root.parent
 
-    def sync(self, update_git: bool = True, update_metrics: bool = True) -> SyncResult:
+    def sync(
+        self,
+        update_git: bool = True,
+        update_metrics: bool = True,
+        update_agent_docs: bool = True,
+    ) -> SyncResult:
         """Synchronize state with project reality.
 
         Args:
             update_git: Whether to update git information.
             update_metrics: Whether to update file metrics.
+            update_agent_docs: Whether to ensure agent docs exist.
 
         Returns:
             SyncResult with changes made.
@@ -78,6 +84,9 @@ class ParacSynchronizer:
 
         if update_metrics:
             self._sync_metrics(state, result)
+
+        if update_agent_docs:
+            self._sync_agent_docs(result)
 
         # Update snapshot date
         state.snapshot_date = str(date.today())
@@ -170,6 +179,30 @@ class ParacSynchronizer:
 
         if changes:
             result.add_change(f"Metrics updated: {', '.join(changes)}")
+
+    def _sync_agent_docs(self, result: SyncResult) -> None:
+        """Ensure agent documentation files exist.
+
+        Generates SCHEMA.md and TEMPLATE.md in .parac/agents/specs/
+        if they don't exist or are outdated.
+        """
+        specs_dir = self.parac_root / "agents" / "specs"
+
+        if not specs_dir.exists():
+            # No specs directory, nothing to do
+            return
+
+        try:
+            from paracle_core.agents.doc_generator import AgentDocsGenerator
+
+            generator = AgentDocsGenerator(specs_dir)
+            if generator.ensure_docs_exist(specs_dir):
+                result.add_change("Generated agent docs (SCHEMA.md, TEMPLATE.md)")
+        except ImportError:
+            # Agent module not available, skip
+            pass
+        except Exception as e:
+            result.add_error(f"Failed to generate agent docs: {e}")
 
     def _run_git_command(self, args: list[str]) -> tuple[bool, str]:
         """Run a git command.

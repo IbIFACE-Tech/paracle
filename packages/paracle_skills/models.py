@@ -12,9 +12,12 @@ from __future__ import annotations
 import re
 from enum import Enum
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field, field_validator, model_validator
+
+# Skill source type
+SkillSourceType = Literal["project", "system"]
 
 
 class SkillCategory(str, Enum):
@@ -120,6 +123,7 @@ class SkillSpec(BaseModel):
         - tools: Tool definitions for MCP export
         - assigned_agents: Which Paracle agents can use this skill
         - instructions: Full instruction content from SKILL.md body
+        - source: Where the skill was loaded from ("project" or "system")
 
     Attributes:
         name: Unique skill identifier (lowercase, hyphens)
@@ -132,6 +136,7 @@ class SkillSpec(BaseModel):
         assigned_agents: List of agent IDs that can use this skill
         instructions: Full instruction content (SKILL.md body)
         source_path: Path to source SKILL.md file
+        source: Skill source - "project" (.parac/) or "system" (framework)
     """
 
     # Required fields (Agent Skills spec)
@@ -149,6 +154,7 @@ class SkillSpec(BaseModel):
     assigned_agents: list[str] = Field(default_factory=list)
     instructions: str = ""
     source_path: Path | None = None
+    source: SkillSourceType = "project"  # "project" or "system"
 
     @field_validator("name")
     @classmethod

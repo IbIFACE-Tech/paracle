@@ -37,7 +37,9 @@ from paracle_api.routers import (
     approvals_router,
     health_router,
     ide_router,
+    kanban_router,
     logs_router,
+    observability_router,
     parac_router,
     reviews_router,
     tool_crud_router,
@@ -232,6 +234,11 @@ def create_app(config: SecurityConfig | None = None) -> FastAPI:
     app.include_router(approvals_router, prefix="/v1")
     # Phase 5: Artifact reviews
     app.include_router(reviews_router, prefix="/v1")
+
+    # Kanban boards and tasks
+    app.include_router(kanban_router, prefix="/v1")
+    # Observability (metrics, traces, alerts)
+    app.include_router(observability_router, prefix="/v1")
 
     # Auth router
     from paracle_api.routers.auth import router as auth_router

@@ -818,6 +818,550 @@ class APIClient:
             )
             return self._handle_response(response)
 
+    # =========================================================================
+    # Kanban Board Endpoints
+    # =========================================================================
+
+    def boards_list(self, include_archived: bool = False) -> dict[str, Any]:
+        """List all boards.
+
+        Args:
+            include_archived: Include archived boards
+
+        Returns:
+            BoardListResponse as dict
+        """
+        with httpx.Client(timeout=self.timeout) as client:
+            response = client.get(
+                f"{self.base_url}/api/boards",
+                headers=self._get_headers(),
+                params={"include_archived": include_archived},
+            )
+            return self._handle_response(response)
+
+    def boards_create(
+        self,
+        name: str,
+        description: str = "",
+        columns: list[str] | None = None,
+    ) -> dict[str, Any]:
+        """Create a new board.
+
+        Args:
+            name: Board name
+            description: Board description
+            columns: Custom columns (default: TODO, IN_PROGRESS, REVIEW, DONE)
+
+        Returns:
+            BoardResponse as dict
+        """
+        with httpx.Client(timeout=self.timeout) as client:
+            payload = {"name": name, "description": description}
+            if columns:
+                payload["columns"] = columns
+            response = client.post(
+                f"{self.base_url}/api/boards",
+                headers=self._get_headers(),
+                json=payload,
+            )
+            return self._handle_response(response)
+
+    def boards_get(self, board_id: str) -> dict[str, Any]:
+        """Get board by ID.
+
+        Args:
+            board_id: Board identifier
+
+        Returns:
+            BoardResponse as dict
+        """
+        with httpx.Client(timeout=self.timeout) as client:
+            response = client.get(
+                f"{self.base_url}/api/boards/{board_id}",
+                headers=self._get_headers(),
+            )
+            return self._handle_response(response)
+
+    def boards_stats(self, board_id: str) -> dict[str, Any]:
+        """Get board statistics.
+
+        Args:
+            board_id: Board identifier
+
+        Returns:
+            BoardStatsResponse as dict
+        """
+        with httpx.Client(timeout=self.timeout) as client:
+            response = client.get(
+                f"{self.base_url}/api/boards/{board_id}/stats",
+                headers=self._get_headers(),
+            )
+            return self._handle_response(response)
+
+    def boards_update(
+        self,
+        board_id: str,
+        name: str | None = None,
+        description: str | None = None,
+        columns: list[str] | None = None,
+        archived: bool | None = None,
+    ) -> dict[str, Any]:
+        """Update a board.
+
+        Args:
+            board_id: Board identifier
+            name: New name
+            description: New description
+            columns: New columns
+            archived: Archive status
+
+        Returns:
+            BoardResponse as dict
+        """
+        with httpx.Client(timeout=self.timeout) as client:
+            payload = {}
+            if name is not None:
+                payload["name"] = name
+            if description is not None:
+                payload["description"] = description
+            if columns is not None:
+                payload["columns"] = columns
+            if archived is not None:
+                payload["archived"] = archived
+            response = client.put(
+                f"{self.base_url}/api/boards/{board_id}",
+                headers=self._get_headers(),
+                json=payload,
+            )
+            return self._handle_response(response)
+
+    def boards_delete(self, board_id: str) -> dict[str, Any]:
+        """Delete a board.
+
+        Args:
+            board_id: Board identifier
+
+        Returns:
+            BoardDeleteResponse as dict
+        """
+        with httpx.Client(timeout=self.timeout) as client:
+            response = client.delete(
+                f"{self.base_url}/api/boards/{board_id}",
+                headers=self._get_headers(),
+            )
+            return self._handle_response(response)
+
+    # =========================================================================
+    # Kanban Task Endpoints
+    # =========================================================================
+
+    def tasks_list(
+        self,
+        board_id: str | None = None,
+        status: str | None = None,
+        assigned_to: str | None = None,
+        priority: str | None = None,
+    ) -> dict[str, Any]:
+        """List tasks with optional filters.
+
+        Args:
+            board_id: Filter by board ID
+            status: Filter by status
+            assigned_to: Filter by assignee
+            priority: Filter by priority
+
+        Returns:
+            TaskListResponse as dict
+        """
+        with httpx.Client(timeout=self.timeout) as client:
+            params = {}
+            if board_id:
+                params["board_id"] = board_id
+            if status:
+                params["status"] = status
+            if assigned_to:
+                params["assigned_to"] = assigned_to
+            if priority:
+                params["priority"] = priority
+            response = client.get(
+                f"{self.base_url}/api/tasks",
+                headers=self._get_headers(),
+                params=params,
+            )
+            return self._handle_response(response)
+
+    def tasks_create(
+        self,
+        board_id: str,
+        title: str,
+        description: str = "",
+        priority: str = "MEDIUM",
+        task_type: str = "FEATURE",
+        assigned_to: str | None = None,
+        tags: list[str] | None = None,
+        depends_on: list[str] | None = None,
+    ) -> dict[str, Any]:
+        """Create a new task.
+
+        Args:
+            board_id: Board identifier
+            title: Task title
+            description: Task description
+            priority: Task priority
+            task_type: Task type
+            assigned_to: Assignee agent ID
+            tags: Task tags
+            depends_on: Dependency task IDs
+
+        Returns:
+            TaskResponse as dict
+        """
+        with httpx.Client(timeout=self.timeout) as client:
+            payload = {
+                "board_id": board_id,
+                "title": title,
+                "description": description,
+                "priority": priority,
+                "task_type": task_type,
+            }
+            if assigned_to:
+                payload["assigned_to"] = assigned_to
+            if tags:
+                payload["tags"] = tags
+            if depends_on:
+                payload["depends_on"] = depends_on
+            response = client.post(
+                f"{self.base_url}/api/tasks",
+                headers=self._get_headers(),
+                json=payload,
+            )
+            return self._handle_response(response)
+
+    def tasks_get(self, task_id: str) -> dict[str, Any]:
+        """Get task by ID.
+
+        Args:
+            task_id: Task identifier
+
+        Returns:
+            TaskResponse as dict
+        """
+        with httpx.Client(timeout=self.timeout) as client:
+            response = client.get(
+                f"{self.base_url}/api/tasks/{task_id}",
+                headers=self._get_headers(),
+            )
+            return self._handle_response(response)
+
+    def tasks_update(
+        self,
+        task_id: str,
+        title: str | None = None,
+        description: str | None = None,
+        priority: str | None = None,
+        task_type: str | None = None,
+        tags: list[str] | None = None,
+        depends_on: list[str] | None = None,
+    ) -> dict[str, Any]:
+        """Update a task.
+
+        Args:
+            task_id: Task identifier
+            title: New title
+            description: New description
+            priority: New priority
+            task_type: New type
+            tags: New tags
+            depends_on: New dependencies
+
+        Returns:
+            TaskResponse as dict
+        """
+        with httpx.Client(timeout=self.timeout) as client:
+            payload = {}
+            if title is not None:
+                payload["title"] = title
+            if description is not None:
+                payload["description"] = description
+            if priority is not None:
+                payload["priority"] = priority
+            if task_type is not None:
+                payload["task_type"] = task_type
+            if tags is not None:
+                payload["tags"] = tags
+            if depends_on is not None:
+                payload["depends_on"] = depends_on
+            response = client.put(
+                f"{self.base_url}/api/tasks/{task_id}",
+                headers=self._get_headers(),
+                json=payload,
+            )
+            return self._handle_response(response)
+
+    def tasks_move(
+        self,
+        task_id: str,
+        status: str,
+        reason: str | None = None,
+    ) -> dict[str, Any]:
+        """Move task to a different status.
+
+        Args:
+            task_id: Task identifier
+            status: Target status
+            reason: Reason (required for BLOCKED)
+
+        Returns:
+            TaskResponse as dict
+        """
+        with httpx.Client(timeout=self.timeout) as client:
+            payload = {"status": status}
+            if reason:
+                payload["reason"] = reason
+            response = client.put(
+                f"{self.base_url}/api/tasks/{task_id}/move",
+                headers=self._get_headers(),
+                json=payload,
+            )
+            return self._handle_response(response)
+
+    def tasks_assign(self, task_id: str, agent_id: str) -> dict[str, Any]:
+        """Assign task to an agent.
+
+        Args:
+            task_id: Task identifier
+            agent_id: Agent identifier
+
+        Returns:
+            TaskResponse as dict
+        """
+        with httpx.Client(timeout=self.timeout) as client:
+            response = client.put(
+                f"{self.base_url}/api/tasks/{task_id}/assign",
+                headers=self._get_headers(),
+                json={"agent_id": agent_id},
+            )
+            return self._handle_response(response)
+
+    def tasks_unassign(self, task_id: str) -> dict[str, Any]:
+        """Unassign task.
+
+        Args:
+            task_id: Task identifier
+
+        Returns:
+            TaskResponse as dict
+        """
+        with httpx.Client(timeout=self.timeout) as client:
+            response = client.put(
+                f"{self.base_url}/api/tasks/{task_id}/unassign",
+                headers=self._get_headers(),
+            )
+            return self._handle_response(response)
+
+    def tasks_delete(self, task_id: str) -> dict[str, Any]:
+        """Delete a task.
+
+        Args:
+            task_id: Task identifier
+
+        Returns:
+            TaskDeleteResponse as dict
+        """
+        with httpx.Client(timeout=self.timeout) as client:
+            response = client.delete(
+                f"{self.base_url}/api/tasks/{task_id}",
+                headers=self._get_headers(),
+            )
+            return self._handle_response(response)
+
+    # =========================================================================
+    # Observability - Metrics Endpoints
+    # =========================================================================
+
+    def metrics_list(self) -> dict[str, Any]:
+        """List all registered metrics.
+
+        Returns:
+            MetricsListResponse as dict
+        """
+        with httpx.Client(timeout=self.timeout) as client:
+            response = client.get(
+                f"{self.base_url}/api/metrics",
+                headers=self._get_headers(),
+            )
+            return self._handle_response(response)
+
+    def metrics_export(self, format: str = "prometheus") -> dict[str, Any]:
+        """Export metrics.
+
+        Args:
+            format: Export format (prometheus, json)
+
+        Returns:
+            MetricsExportResponse as dict
+        """
+        with httpx.Client(timeout=self.timeout) as client:
+            response = client.get(
+                f"{self.base_url}/api/metrics/export",
+                headers=self._get_headers(),
+                params={"format": format},
+            )
+            return self._handle_response(response)
+
+    def metrics_reset(self) -> dict[str, Any]:
+        """Reset all metrics.
+
+        Returns:
+            Confirmation message
+        """
+        with httpx.Client(timeout=self.timeout) as client:
+            response = client.post(
+                f"{self.base_url}/api/metrics/reset",
+                headers=self._get_headers(),
+            )
+            return self._handle_response(response)
+
+    # =========================================================================
+    # Observability - Tracing Endpoints
+    # =========================================================================
+
+    def traces_list(self, limit: int = 20) -> dict[str, Any]:
+        """List completed traces.
+
+        Args:
+            limit: Maximum traces to return
+
+        Returns:
+            TraceListResponse as dict
+        """
+        with httpx.Client(timeout=self.timeout) as client:
+            response = client.get(
+                f"{self.base_url}/api/traces",
+                headers=self._get_headers(),
+                params={"limit": limit},
+            )
+            return self._handle_response(response)
+
+    def traces_get(self, trace_id: str) -> dict[str, Any]:
+        """Get trace details.
+
+        Args:
+            trace_id: Trace identifier
+
+        Returns:
+            TraceListResponse as dict
+        """
+        with httpx.Client(timeout=self.timeout) as client:
+            response = client.get(
+                f"{self.base_url}/api/traces/{trace_id}",
+                headers=self._get_headers(),
+            )
+            return self._handle_response(response)
+
+    def traces_export(self) -> dict[str, Any]:
+        """Export traces in Jaeger format.
+
+        Returns:
+            TraceExportResponse as dict
+        """
+        with httpx.Client(timeout=self.timeout) as client:
+            response = client.get(
+                f"{self.base_url}/api/traces/export",
+                headers=self._get_headers(),
+            )
+            return self._handle_response(response)
+
+    def traces_clear(self) -> dict[str, Any]:
+        """Clear all traces.
+
+        Returns:
+            Confirmation message
+        """
+        with httpx.Client(timeout=self.timeout) as client:
+            response = client.post(
+                f"{self.base_url}/api/traces/clear",
+                headers=self._get_headers(),
+            )
+            return self._handle_response(response)
+
+    # =========================================================================
+    # Observability - Alert Endpoints
+    # =========================================================================
+
+    def alerts_list(
+        self,
+        severity: str | None = None,
+        active_only: bool = False,
+        limit: int = 50,
+    ) -> dict[str, Any]:
+        """List alerts.
+
+        Args:
+            severity: Filter by severity
+            active_only: Show only active alerts
+            limit: Maximum alerts to return
+
+        Returns:
+            AlertListResponse as dict
+        """
+        with httpx.Client(timeout=self.timeout) as client:
+            params = {"active_only": active_only, "limit": limit}
+            if severity:
+                params["severity"] = severity
+            response = client.get(
+                f"{self.base_url}/api/alerts",
+                headers=self._get_headers(),
+                params=params,
+            )
+            return self._handle_response(response)
+
+    def alerts_rules(self) -> dict[str, Any]:
+        """List alert rules.
+
+        Returns:
+            AlertRuleListResponse as dict
+        """
+        with httpx.Client(timeout=self.timeout) as client:
+            response = client.get(
+                f"{self.base_url}/api/alerts/rules",
+                headers=self._get_headers(),
+            )
+            return self._handle_response(response)
+
+    def alerts_evaluate(self) -> dict[str, Any]:
+        """Evaluate alert rules.
+
+        Returns:
+            AlertEvaluateResponse as dict
+        """
+        with httpx.Client(timeout=self.timeout) as client:
+            response = client.post(
+                f"{self.base_url}/api/alerts/evaluate",
+                headers=self._get_headers(),
+            )
+            return self._handle_response(response)
+
+    def alerts_silence(
+        self, fingerprint: str, duration: int = 3600
+    ) -> dict[str, Any]:
+        """Silence an alert.
+
+        Args:
+            fingerprint: Alert fingerprint
+            duration: Silence duration in seconds
+
+        Returns:
+            AlertSilenceResponse as dict
+        """
+        with httpx.Client(timeout=self.timeout) as client:
+            response = client.post(
+                f"{self.base_url}/api/alerts/{fingerprint}/silence",
+                headers=self._get_headers(),
+                json={"duration": duration},
+            )
+            return self._handle_response(response)
+
 
 class APIError(Exception):
     """API request error."""

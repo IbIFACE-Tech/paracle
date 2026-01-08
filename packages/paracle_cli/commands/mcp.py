@@ -149,12 +149,31 @@ def mcp(ctx: click.Context, list_flag: bool) -> None:
     help="Use stdio transport (recommended for IDE integration)",
 )
 @click.option(
+    "--websocket",
+    is_flag=True,
+    default=False,
+    help="Use WebSocket transport (for remote connections)",
+)
+@click.option(
+    "--host",
+    default="127.0.0.1",
+    help="Host to bind WebSocket server (default: 127.0.0.1)",
+)
+@click.option(
     "--port",
     default=3000,
     type=int,
-    help="HTTP port when not using stdio (default: 3000)",
+    help="HTTP/WebSocket port (default: 3000)",
 )
-def mcp_serve(stdio: bool, port: int) -> None:
+@click.option(
+    "--auth",
+    type=click.Choice(["none", "jwt"]),
+    default="none",
+    help="Authentication method for WebSocket (default: none)",
+)
+def mcp_serve(
+    stdio: bool, websocket: bool, host: str, port: int, auth: str
+) -> None:
     """Start MCP server exposing Paracle tools.
 
     The MCP server exposes all Paracle tools to IDEs and AI assistants:
@@ -192,7 +211,8 @@ def mcp_serve(stdio: bool, port: int) -> None:
 
     Examples:
         paracle mcp serve --stdio    # For IDE integration (recommended)
-        paracle mcp serve --port 3000  # For debugging/testing
+        paracle mcp serve --websocket --auth jwt  # For remote connections
+        paracle mcp serve --port 3000  # For debugging/testing (HTTP)
     """
     try:
         from paracle_mcp.server import ParacleMCPServer
@@ -203,8 +223,16 @@ def mcp_serve(stdio: bool, port: int) -> None:
 
     server = ParacleMCPServer()
 
+    # Validate flags
+    if stdio and websocket:
+        console.print(
+            "[red]Error:[/red] Cannot use both --stdio and --websocket")
+        raise SystemExit(1)
+
     if stdio:
         _serve_stdio(server)
+    elif websocket:
+        _serve_websocket(server, host, port, auth)
     else:
         _serve_http(server, port)
 
@@ -233,6 +261,39 @@ def _serve_http(server, port: int) -> None:
     except ImportError:
         console.print("[red]Error:[/red] HTTP transport requires aiohttp.")
         console.print("Install with: pip install aiohttp")
+        raise SystemExit(1)
+
+
+def _serve_websocket(server, host: str, port: int, auth: str) -> None:
+    """Run MCP server in WebSocket mode."""
+    console.print("\n[bold]Starting MCP WebSocket server...[/bold]\n")
+    console.print(f"  [green]Endpoint:[/green] ws://{host}:{port}/mcp")
+    console.print(f"  [green]Auth:[/green]     {auth}")
+    console.print("\n[dim]Press Ctrl+C to stop.[/dim]\n")
+
+    if auth == "jwt":
+        console.print(
+            "[yellow]Note:[/yellow] JWT authentication requires valid token"
+        )
+        console.print(
+            "[dim]Generate token with: paracle auth generate-token[/dim]\n"
+        )
+
+    try:
+        server.serve_websocket(host=host, port=port, auth=auth)
+    except KeyboardInterrupt:
+        console.print("\n[dim]MCP server stopped.[/dim]")
+    except ImportError:
+        console.print(
+            "[red]Error:[/red] WebSocket transport requires websockets."
+        )
+        console.print("Install with: pip install websockets")
+        raise SystemExit(1)
+    except AttributeError:
+        console.print(
+            "[red]Error:[/red] WebSocket server not implemented yet."
+        )
+        console.print("This feature will be available in v1.3.0.")
         raise SystemExit(1)
 
 

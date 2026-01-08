@@ -1,7 +1,7 @@
 # GitHub Copilot Coding Agent Configuration
 # Auto-generated from .parac/ - DO NOT EDIT MANUALLY
 # Regenerate with: paracle ide sync --copy
-# Generated: 2026-01-07T15:37:21.275123
+# Generated: 2026-01-08T16:50:20.901083
 #
 # This configures GitHub Copilot Coding Agent for your repository.
 # Documentation: https://docs.github.com/copilot/coding-agent
@@ -30,7 +30,9 @@ instructions: |
   - pm: Project coordination, roadmap management, progress tracking, and stakeholder communication.
   - releasemanager: Manages git workflows, semantic versioning, releases, changelogs, and deployment automation for the Paracle project.
   - reviewer: Code review, quality assurance, and ensuring adherence to project standards and best practices.
-  - security: Security auditing, vulnerability detection, threat modeling, and security compliance enforcement for Paracle framework and AI applications.
+  - SCHEMA: One-paragraph description of what this agent does.
+  - security: Security auditing, vulnerability detection, threat modeling, compliance enforcement, and security standards implementation for Paracle framework and AI applications.
+  - TEMPLATE: [Describe the agent's primary function in 1-2 sentences]
   - tester: Test design, implementation, and quality validation ensuring comprehensive coverage and reliability.
 
   ## Logging
