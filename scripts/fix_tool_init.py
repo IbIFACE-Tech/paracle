@@ -48,7 +48,7 @@ TOOL_FILES = {
         ("DiagramCreationTool", "diagram_creation",
          "Create diagrams for documentation"),
     ],
-    "packages/paracle_tools/releasemanager_tools.py": [
+    "packages/paracle_tools/release_tools.py": [
         ("VersionManagementTool", "version_management", "Manage semantic versioning"),
         ("ChangelogGenerationTool", "changelog_generation",
          "Generate changelog from commits"),
@@ -56,6 +56,8 @@ TOOL_FILES = {
          "Integrate with CI/CD pipelines"),
         ("PackagePublishingTool", "package_publishing",
          "Publish packages to PyPI, Docker, npm"),
+        ("GitHubCLITool", "github_cli",
+         "Execute GitHub CLI operations"),
     ],
 }
 

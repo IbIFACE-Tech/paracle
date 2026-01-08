@@ -59,7 +59,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv sync --group dev
+          uv sync --all-extras
 
       - name: Run black
         run: |
@@ -94,7 +94,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv sync --group dev
+          uv sync --all-extras
 
       - name: Run bandit
         run: |
@@ -103,4 +103,5 @@ jobs:
       - name: Run safety
         run: |
           uv run safety check --json || true
+
 

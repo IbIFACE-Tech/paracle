@@ -367,6 +367,275 @@ jobs:
         run: twine upload dist/*
 ```
 
+### GitHub CLI Integration
+
+The ReleaseManager agent now includes comprehensive GitHub CLI integration for managing PRs, releases, and workflows directly from the command line.
+
+#### Setup GitHub CLI
+
+```bash
+# Install GitHub CLI
+# Windows (winget)
+winget install --id GitHub.cli
+
+# macOS (Homebrew)
+brew install gh
+
+# Linux (Debian/Ubuntu)
+curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+sudo apt update
+sudo apt install gh
+
+# Authenticate
+gh auth login
+```
+
+#### Pull Request Operations
+
+**List Pull Requests**
+
+```bash
+# List open PRs
+gh pr list
+
+# List all PRs (open, closed, merged)
+gh pr list --state all --limit 50
+
+# View specific PR
+gh pr view 123
+
+# Check PR status and CI checks
+gh pr checks 123
+```
+
+**Create Pull Request**
+
+```bash
+# Create PR from current branch to main
+gh pr create --base main --head feature/new-feature \
+  --title "feat: Add new feature" \
+  --body "This PR adds the new feature X with Y improvements."
+
+# Create draft PR
+gh pr create --draft --title "WIP: Feature X"
+
+# Create PR and auto-assign reviewers
+gh pr create --title "feat: New feature" --reviewer alice,bob
+```
+
+**Review Pull Requests**
+
+```bash
+# Approve PR
+gh pr review 123 --approve --body "LGTM! 🚀"
+
+# Request changes
+gh pr review 123 --request-changes --body "Please address the following issues..."
+
+# Add comment without approval
+gh pr review 123 --comment --body "Minor suggestion for improvement"
+```
+
+**Merge Pull Requests**
+
+```bash
+# Merge PR (merge commit)
+gh pr merge 123 --merge --delete-branch
+
+# Squash and merge
+gh pr merge 123 --squash --delete-branch
+
+# Rebase and merge
+gh pr merge 123 --rebase --delete-branch
+
+# Auto-merge when checks pass
+gh pr merge 123 --auto --squash
+```
+
+**View PR Diff**
+
+```bash
+# Show PR diff
+gh pr diff 123
+
+# Show specific file changes
+gh pr diff 123 -- packages/paracle_api/server.py
+```
+
+#### Release Operations
+
+**List Releases**
+
+```bash
+# List all releases
+gh release list
+
+# List latest 10 releases
+gh release list --limit 10
+```
+
+**Create Release**
+
+```bash
+# Create release with auto-generated notes
+gh release create v1.0.0 --title "Release v1.0.0" --generate-notes
+
+# Create release with custom notes
+gh release create v1.0.0 \
+  --title "Production Release v1.0.0" \
+  --notes "Major release with comprehensive features:
+  - Phase 7 Observability
+  - Phase 8 Error Management
+  - Phase 10 Security Audit (100/100 score)
+  - Production-ready with 771 tests (97.2% pass rate)"
+
+# Create draft release
+gh release create v1.0.0 --draft --title "Draft v1.0.0"
+
+# Create pre-release
+gh release create v0.2.0-beta.1 --prerelease --title "Beta v0.2.0-beta.1"
+
+# Upload assets to release
+gh release create v1.0.0 --title "Release v1.0.0" \
+  dist/paracle-1.0.0-py3-none-any.whl \
+  dist/paracle-1.0.0.tar.gz
+```
+
+**View Release**
+
+```bash
+# View specific release
+gh release view v1.0.0
+
+# View latest release
+gh release view --json tagName,name,publishedAt
+```
+
+**Delete Release**
+
+```bash
+# Delete release (keeps tag)
+gh release delete v0.1.0-alpha.1 --yes
+```
+
+#### Workflow Operations
+
+**List Workflows**
+
+```bash
+# List all GitHub Actions workflows
+gh workflow list
+
+# View workflow details
+gh workflow view "CI Pipeline"
+```
+
+**Trigger Workflow**
+
+```bash
+# Manually trigger workflow
+gh workflow run "Release Pipeline"
+
+# Trigger with inputs
+gh workflow run "Deploy" --field environment=production
+```
+
+#### Repository Operations
+
+**View Repository**
+
+```bash
+# View current repository info
+gh repo view
+
+# View specific repository
+gh repo view IbIFACE-Tech/paracle-lite
+
+# Clone repository
+gh repo clone IbIFACE-Tech/paracle-lite
+```
+
+#### Issue Operations
+
+**List Issues**
+
+```bash
+# List open issues
+gh issue list
+
+# List all issues
+gh issue list --state all --limit 50
+
+# View specific issue
+gh issue view 42
+```
+
+**Create Issue**
+
+```bash
+# Create new issue
+gh issue create --title "Bug: Authentication fails" \
+  --body "Description of the bug..." \
+  --label bug,priority-high
+```
+
+#### Complete Release Workflow with GitHub CLI
+
+```bash
+# 1. Create release branch and bump version
+git checkout develop
+git pull origin develop
+git checkout -b release/v1.0.0
+
+# 2. Bump version
+python scripts/bump_version.py major
+# 0.9.0 → 1.0.0
+
+# 3. Generate changelog
+python scripts/generate_changelog.py --version v1.0.0
+
+# 4. Commit version bump
+git add pyproject.toml CHANGELOG.md
+git commit -m "chore: bump version to v1.0.0"
+git push origin release/v1.0.0
+
+# 5. Create PR for review
+gh pr create \
+  --base main \
+  --head release/v1.0.0 \
+  --title "Release v1.0.0" \
+  --body "Production release v1.0.0 with all features complete." \
+  --label release
+
+# 6. Wait for reviews and CI checks
+gh pr checks  # Monitor checks status
+gh pr view    # View PR details
+
+# 7. After approval, merge to main
+gh pr merge --squash --delete-branch
+
+# 8. Create git tag
+git checkout main
+git pull origin main
+git tag -a v1.0.0 -m "Release v1.0.0"
+git push origin --tags
+
+# 9. Create GitHub release
+gh release create v1.0.0 \
+  --title "Production Release v1.0.0" \
+  --generate-notes \
+  --latest
+
+# 10. Publish to PyPI (automated via GitHub Actions)
+# Triggered automatically by release creation
+
+# 11. Merge back to develop
+git checkout develop
+git merge --no-ff main
+git push origin develop
+```
+
 ### Docker Publishing
 
 #### Build Docker Images

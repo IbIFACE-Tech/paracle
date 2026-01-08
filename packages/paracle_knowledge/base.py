@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import hashlib
 import logging
-from datetime import UTC, datetime
+from paracle_core.compat import UTC, datetime
 from enum import Enum
 from typing import TYPE_CHECKING, Any
 

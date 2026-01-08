@@ -10,7 +10,7 @@ This module provides the core RAG engine for context-aware queries:
 from __future__ import annotations
 
 import logging
-from datetime import UTC, datetime
+from paracle_core.compat import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, Field

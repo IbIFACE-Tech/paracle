@@ -235,7 +235,7 @@ class RecencyReranker(Reranker):
         top_k: int = 10,
     ) -> list[RerankResult]:
         """Rerank with recency boost."""
-        from datetime import UTC, datetime
+        from paracle_core.compat import UTC, datetime
 
         now = datetime.now(UTC)
         results = []

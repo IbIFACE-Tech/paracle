@@ -1,4 +1,12 @@
-"""Release management tools for ReleaseManager agent."""
+"""Release management tools for ReleaseManager agent.
+
+Provides comprehensive release management capabilities:
+- Version management (semantic versioning)
+- Changelog generation (from conventional commits)
+- CI/CD integration (pipeline triggers and monitoring)
+- Package publishing (PyPI, Docker, npm, GitHub)
+- GitHub CLI integration (PR, release, workflow operations)
+"""
 
 import logging
 import re
@@ -97,7 +105,8 @@ class VersionManagementTool(BaseTool):
             current_version = current_result.get("version")
 
         # Parse version
-        match = re.match(r"(\d+)\.(\d+)\.(\d+)(?:-([a-z]+)\.?(\d+))?", current_version)
+        match = re.match(
+            r"(\d+)\.(\d+)\.(\d+)(?:-([a-z]+)\.?(\d+))?", current_version)
         if not match:
             return {"error": f"Invalid version format: {current_version}"}
 
@@ -582,19 +591,472 @@ class PackagePublishingTool(BaseTool):
             return {"error": str(e)}
 
 
+class GitHubCLITool(BaseTool):
+    """GitHub CLI integration for release management.
+
+    Operations:
+    - Pull request management (list, create, view, merge, review)
+    - Release management (list, create, view, delete)
+    - Repository operations (view, clone, fork)
+    - Issue management (list, create, view, close)
+    - Status checks and CI validation
+    """
+
+    def __init__(self):
+        super().__init__(
+            name="github_cli",
+            description="GitHub CLI integration for PR, release, and repository management",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "action": {
+                        "type": "string",
+                        "description": "GitHub CLI action to perform",
+                        "enum": [
+                            "pr_list",
+                            "pr_create",
+                            "pr_view",
+                            "pr_merge",
+                            "pr_review",
+                            "pr_checks",
+                            "pr_diff",
+                            "release_list",
+                            "release_create",
+                            "release_view",
+                            "release_delete",
+                            "repo_view",
+                            "issue_list",
+                            "issue_create",
+                            "workflow_list",
+                            "workflow_run",
+                        ],
+                    },
+                    "pr_number": {
+                        "type": "integer",
+                        "description": "Pull request number (for PR operations)",
+                    },
+                    "title": {
+                        "type": "string",
+                        "description": "Title for PR or release",
+                    },
+                    "body": {
+                        "type": "string",
+                        "description": "Body/description for PR or release",
+                    },
+                    "base": {
+                        "type": "string",
+                        "description": "Base branch for PR (default: main)",
+                        "default": "main",
+                    },
+                    "head": {
+                        "type": "string",
+                        "description": "Head branch for PR",
+                    },
+                    "tag": {
+                        "type": "string",
+                        "description": "Tag name for release",
+                    },
+                    "draft": {
+                        "type": "boolean",
+                        "description": "Create as draft (PR or release)",
+                        "default": False,
+                    },
+                    "auto_merge": {
+                        "type": "boolean",
+                        "description": "Enable auto-merge for PR",
+                        "default": False,
+                    },
+                    "delete_branch": {
+                        "type": "boolean",
+                        "description": "Delete branch after PR merge",
+                        "default": True,
+                    },
+                    "merge_method": {
+                        "type": "string",
+                        "description": "Merge method (merge, squash, rebase)",
+                        "enum": ["merge", "squash", "rebase"],
+                        "default": "merge",
+                    },
+                    "state": {
+                        "type": "string",
+                        "description": "Filter by state (open, closed, merged, all)",
+                        "enum": ["open", "closed", "merged", "all"],
+                        "default": "open",
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "description": "Maximum number of items to return",
+                        "default": 30,
+                    },
+                    "reviewer": {
+                        "type": "string",
+                        "description": "Reviewer for PR review",
+                    },
+                    "approve": {
+                        "type": "boolean",
+                        "description": "Approve PR (for pr_review)",
+                        "default": False,
+                    },
+                    "request_changes": {
+                        "type": "boolean",
+                        "description": "Request changes on PR (for pr_review)",
+                        "default": False,
+                    },
+                    "comment": {
+                        "type": "string",
+                        "description": "Review comment",
+                    },
+                    "notes": {
+                        "type": "string",
+                        "description": "Release notes (can include markdown)",
+                    },
+                    "prerelease": {
+                        "type": "boolean",
+                        "description": "Mark release as pre-release",
+                        "default": False,
+                    },
+                    "generate_notes": {
+                        "type": "boolean",
+                        "description": "Auto-generate release notes",
+                        "default": True,
+                    },
+                },
+                "required": ["action"],
+            },
+        )
+
+    async def _execute(self, action: str, **kwargs) -> dict[str, Any]:
+        """Execute GitHub CLI command.
+
+        Args:
+            action: GitHub CLI action to perform
+            **kwargs: Action-specific parameters
+
+        Returns:
+            GitHub CLI operation results
+        """
+        # Check if gh CLI is available
+        try:
+            result = subprocess.run(
+                ["gh", "--version"],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            gh_version = result.stdout.strip()
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            return {
+                "error": "GitHub CLI (gh) not installed. Install from: https://cli.github.com/"
+            }
+
+        # Execute action
+        if action.startswith("pr_"):
+            return await self._pr_operation(action, **kwargs)
+        elif action.startswith("release_"):
+            return await self._release_operation(action, **kwargs)
+        elif action.startswith("repo_"):
+            return await self._repo_operation(action, **kwargs)
+        elif action.startswith("issue_"):
+            return await self._issue_operation(action, **kwargs)
+        elif action.startswith("workflow_"):
+            return await self._workflow_operation(action, **kwargs)
+        else:
+            return {"error": f"Unsupported action: {action}"}
+
+    async def _pr_operation(self, action: str, **kwargs) -> dict[str, Any]:
+        """Handle pull request operations."""
+        try:
+            if action == "pr_list":
+                state = kwargs.get("state", "open")
+                limit = kwargs.get("limit", 30)
+                cmd = ["gh", "pr", "list", "--state",
+                       state, "--limit", str(limit)]
+
+            elif action == "pr_create":
+                title = kwargs.get("title", "")
+                body = kwargs.get("body", "")
+                base = kwargs.get("base", "main")
+                head = kwargs.get("head", "")
+                draft = kwargs.get("draft", False)
+
+                if not title or not head:
+                    return {"error": "title and head branch are required"}
+
+                cmd = ["gh", "pr", "create", "--title",
+                       title, "--base", base, "--head", head]
+                if body:
+                    cmd.extend(["--body", body])
+                if draft:
+                    cmd.append("--draft")
+
+            elif action == "pr_view":
+                pr_number = kwargs.get("pr_number")
+                if not pr_number:
+                    return {"error": "pr_number is required"}
+                cmd = ["gh", "pr", "view", str(pr_number)]
+
+            elif action == "pr_merge":
+                pr_number = kwargs.get("pr_number")
+                merge_method = kwargs.get("merge_method", "merge")
+                delete_branch = kwargs.get("delete_branch", True)
+                auto_merge = kwargs.get("auto_merge", False)
+
+                if not pr_number:
+                    return {"error": "pr_number is required"}
+
+                cmd = ["gh", "pr", "merge", str(pr_number)]
+                if merge_method == "squash":
+                    cmd.append("--squash")
+                elif merge_method == "rebase":
+                    cmd.append("--rebase")
+                else:
+                    cmd.append("--merge")
+
+                if delete_branch:
+                    cmd.append("--delete-branch")
+                if auto_merge:
+                    cmd.append("--auto")
+
+            elif action == "pr_review":
+                pr_number = kwargs.get("pr_number")
+                approve = kwargs.get("approve", False)
+                request_changes = kwargs.get("request_changes", False)
+                comment = kwargs.get("comment", "")
+
+                if not pr_number:
+                    return {"error": "pr_number is required"}
+
+                cmd = ["gh", "pr", "review", str(pr_number)]
+                if approve:
+                    cmd.append("--approve")
+                elif request_changes:
+                    cmd.append("--request-changes")
+                else:
+                    cmd.append("--comment")
+
+                if comment:
+                    cmd.extend(["--body", comment])
+
+            elif action == "pr_checks":
+                pr_number = kwargs.get("pr_number")
+                if not pr_number:
+                    return {"error": "pr_number is required"}
+                cmd = ["gh", "pr", "checks", str(pr_number)]
+
+            elif action == "pr_diff":
+                pr_number = kwargs.get("pr_number")
+                if not pr_number:
+                    return {"error": "pr_number is required"}
+                cmd = ["gh", "pr", "diff", str(pr_number)]
+
+            else:
+                return {"error": f"Unsupported PR action: {action}"}
+
+            # Execute command
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            return {
+                "action": action,
+                "command": " ".join(cmd),
+                "stdout": result.stdout,
+                "stderr": result.stderr,
+                "returncode": result.returncode,
+                "success": result.returncode == 0,
+            }
+
+        except Exception as e:
+            return {"error": str(e), "action": action}
+
+    async def _release_operation(self, action: str, **kwargs) -> dict[str, Any]:
+        """Handle release operations."""
+        try:
+            if action == "release_list":
+                limit = kwargs.get("limit", 30)
+                cmd = ["gh", "release", "list", "--limit", str(limit)]
+
+            elif action == "release_create":
+                tag = kwargs.get("tag", "")
+                title = kwargs.get("title", "")
+                notes = kwargs.get("notes", "")
+                draft = kwargs.get("draft", False)
+                prerelease = kwargs.get("prerelease", False)
+                generate_notes = kwargs.get("generate_notes", True)
+
+                if not tag:
+                    return {"error": "tag is required"}
+
+                cmd = ["gh", "release", "create", tag]
+                if title:
+                    cmd.extend(["--title", title])
+                if notes:
+                    cmd.extend(["--notes", notes])
+                elif generate_notes:
+                    cmd.append("--generate-notes")
+                if draft:
+                    cmd.append("--draft")
+                if prerelease:
+                    cmd.append("--prerelease")
+
+            elif action == "release_view":
+                tag = kwargs.get("tag", "")
+                if not tag:
+                    return {"error": "tag is required"}
+                cmd = ["gh", "release", "view", tag]
+
+            elif action == "release_delete":
+                tag = kwargs.get("tag", "")
+                if not tag:
+                    return {"error": "tag is required"}
+                cmd = ["gh", "release", "delete", tag, "--yes"]
+
+            else:
+                return {"error": f"Unsupported release action: {action}"}
+
+            # Execute command
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            return {
+                "action": action,
+                "command": " ".join(cmd),
+                "stdout": result.stdout,
+                "stderr": result.stderr,
+                "returncode": result.returncode,
+                "success": result.returncode == 0,
+            }
+
+        except Exception as e:
+            return {"error": str(e), "action": action}
+
+    async def _repo_operation(self, action: str, **kwargs) -> dict[str, Any]:
+        """Handle repository operations."""
+        try:
+            if action == "repo_view":
+                cmd = ["gh", "repo", "view"]
+            else:
+                return {"error": f"Unsupported repo action: {action}"}
+
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            return {
+                "action": action,
+                "command": " ".join(cmd),
+                "stdout": result.stdout,
+                "stderr": result.stderr,
+                "returncode": result.returncode,
+                "success": result.returncode == 0,
+            }
+
+        except Exception as e:
+            return {"error": str(e), "action": action}
+
+    async def _issue_operation(self, action: str, **kwargs) -> dict[str, Any]:
+        """Handle issue operations."""
+        try:
+            if action == "issue_list":
+                state = kwargs.get("state", "open")
+                limit = kwargs.get("limit", 30)
+                cmd = ["gh", "issue", "list", "--state",
+                       state, "--limit", str(limit)]
+
+            elif action == "issue_create":
+                title = kwargs.get("title", "")
+                body = kwargs.get("body", "")
+
+                if not title:
+                    return {"error": "title is required"}
+
+                cmd = ["gh", "issue", "create", "--title", title]
+                if body:
+                    cmd.extend(["--body", body])
+
+            else:
+                return {"error": f"Unsupported issue action: {action}"}
+
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            return {
+                "action": action,
+                "command": " ".join(cmd),
+                "stdout": result.stdout,
+                "stderr": result.stderr,
+                "returncode": result.returncode,
+                "success": result.returncode == 0,
+            }
+
+        except Exception as e:
+            return {"error": str(e), "action": action}
+
+    async def _workflow_operation(self, action: str, **kwargs) -> dict[str, Any]:
+        """Handle GitHub Actions workflow operations."""
+        try:
+            if action == "workflow_list":
+                cmd = ["gh", "workflow", "list"]
+
+            elif action == "workflow_run":
+                workflow = kwargs.get("workflow", "")
+                if not workflow:
+                    return {"error": "workflow name or ID is required"}
+                cmd = ["gh", "workflow", "run", workflow]
+
+            else:
+                return {"error": f"Unsupported workflow action: {action}"}
+
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            return {
+                "action": action,
+                "command": " ".join(cmd),
+                "stdout": result.stdout,
+                "stderr": result.stderr,
+                "returncode": result.returncode,
+                "success": result.returncode == 0,
+            }
+
+        except Exception as e:
+            return {"error": str(e), "action": action}
+
+
 # Tool instances
 version_management = VersionManagementTool()
 changelog_generation = ChangelogGenerationTool()
 cicd_integration = CICDIntegrationTool()
 package_publishing = PackagePublishingTool()
+github_cli = GitHubCLITool()
 
 __all__ = [
     "VersionManagementTool",
     "ChangelogGenerationTool",
     "CICDIntegrationTool",
     "PackagePublishingTool",
+    "GitHubCLITool",
     "version_management",
     "changelog_generation",
     "cicd_integration",
     "package_publishing",
+    "github_cli",
 ]

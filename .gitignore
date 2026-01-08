@@ -210,14 +210,12 @@ __marimo__/
 
 #paracle framework
 #.parac/
-.roadmap/
+.roadmap/*
 temp_example/
 test-tutorial/
-test-tutorial/.parac/
+test-tutorial/*
 .benchmarks/
-content/docs/technical/
-packages/paracle_meta/
-tests/unit/meta/
+content/docs/technical/*
 # Private documentation (internal workflows, credentials, etc.)
 .docs-private/
 private-docs/

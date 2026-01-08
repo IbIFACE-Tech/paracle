@@ -125,13 +125,15 @@ from paracle_tools.pm_tools import (
     task_tracking,
     team_coordination,
 )
-from paracle_tools.releasemanager_tools import (
+from paracle_tools.release_tools import (
     ChangelogGenerationTool,
     CICDIntegrationTool,
+    GitHubCLITool,
     PackagePublishingTool,
     VersionManagementTool,
     changelog_generation,
     cicd_integration,
+    github_cli,
     package_publishing,
     version_management,
 )

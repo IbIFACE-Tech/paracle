@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 from collections.abc import AsyncIterator
-from datetime import UTC, datetime
+from paracle_core.compat import UTC, datetime
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field

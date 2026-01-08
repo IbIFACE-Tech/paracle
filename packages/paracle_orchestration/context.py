@@ -1,6 +1,6 @@
 """Execution context for workflow orchestration."""
 
-from datetime import UTC, datetime
+from paracle_core.compat import UTC, datetime
 from enum import Enum
 from typing import Any
 

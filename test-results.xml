@@ -1,0 +1,921 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="115" failures="0" skipped="2" tests="117" time="14.414" timestamp="2026-01-09T00:34:23.859441+01:00" hostname="DRAGON"><testcase classname="" name="tests.integration.test_automatic_governance" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\integration\test_automatic_governance.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\integration\test_automatic_governance.py:9: in &lt;module&gt;
+    from paracle_core.governance import (
+E   ModuleNotFoundError: No module named 'paracle_core'</error></testcase><testcase classname="" name="tests.integration.test_execution_modes_integration" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\integration\test_execution_modes_integration.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\integration\test_execution_modes_integration.py:7: in &lt;module&gt;
+    from paracle_domain.models import AgentSpec
+E   ModuleNotFoundError: No module named 'paracle_domain'</error></testcase><testcase classname="" name="tests.integration.test_multi_adapter_agents" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\integration\test_multi_adapter_agents.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\integration\test_multi_adapter_agents.py:16: in &lt;module&gt;
+    from paracle_domain.models import AgentSpec, WorkflowSpec, WorkflowStep
+E   ModuleNotFoundError: No module named 'paracle_domain'</error></testcase><testcase classname="" name="tests.integration.test_parac_agents_inheritance" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\integration\test_parac_agents_inheritance.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\integration\test_parac_agents_inheritance.py:13: in &lt;module&gt;
+    from paracle_domain.factory import AgentFactory
+E   ModuleNotFoundError: No module named 'paracle_domain'</error></testcase><testcase classname="" name="tests.integration.test_real_adapters" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\integration\test_real_adapters.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\integration\test_real_adapters.py:15: in &lt;module&gt;
+    from paracle_domain.models import AgentSpec, WorkflowSpec, WorkflowStep
+E   ModuleNotFoundError: No module named 'paracle_domain'</error></testcase><testcase classname="" name="tests.integration.test_real_world_inheritance" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\integration\test_real_world_inheritance.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\integration\test_real_world_inheritance.py:12: in &lt;module&gt;
+    from paracle_domain.factory import AgentFactory
+E   ModuleNotFoundError: No module named 'paracle_domain'</error></testcase><testcase classname="" name="tests.integration.test_security_agent" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\integration\test_security_agent.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\integration\test_security_agent.py:8: in &lt;module&gt;
+    from paracle_domain.factory import AgentFactory
+E   ModuleNotFoundError: No module named 'paracle_domain'</error></testcase><testcase classname="" name="tests.manual.test_cost_tracking" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\manual\test_cost_tracking.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\manual\test_cost_tracking.py:3: in &lt;module&gt;
+    from paracle_core.cost import CostTracker
+E   ModuleNotFoundError: No module named 'paracle_core'</error></testcase><testcase classname="" name="tests.test_ai_generation" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\test_ai_generation.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_ai_generation.py:7: in &lt;module&gt;
+    from paracle_cli.ai_helper import (
+E   ModuleNotFoundError: No module named 'paracle_cli'</error></testcase><testcase classname="" name="tests.test_config_includes" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\test_config_includes.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_config_includes.py:13: in &lt;module&gt;
+    from paracle_core.parac.file_config import FileManagementConfig
+E   ModuleNotFoundError: No module named 'paracle_core'</error></testcase><testcase classname="" name="tests.test_includes_quick" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\test_includes_quick.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_includes_quick.py:6: in &lt;module&gt;
+    from paracle_core.parac.file_config import FileManagementConfig
+E   ModuleNotFoundError: No module named 'paracle_core'</error></testcase><testcase classname="" name="tests.test_transport" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\test_transport.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_transport.py:9: in &lt;module&gt;
+    from paracle_transport import RemoteConfig, SSHTransport, TunnelManager
+E   ModuleNotFoundError: No module named 'paracle_transport'</error></testcase><testcase classname="" name="tests.unit.cli.test_tutorial" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\cli\test_tutorial.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\cli\test_tutorial.py:7: in &lt;module&gt;
+    from paracle_cli.commands.tutorial import (
+E   ModuleNotFoundError: No module named 'paracle_cli'</error></testcase><testcase classname="" name="tests.unit.connection_pool.test_pools" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\connection_pool\test_pools.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\connection_pool\test_pools.py:11: in &lt;module&gt;
+    from paracle_connection_pool import (
+E   ModuleNotFoundError: No module named 'paracle_connection_pool'</error></testcase><testcase classname="" name="tests.unit.core.test_exceptions" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\core\test_exceptions.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\core\test_exceptions.py:4: in &lt;module&gt;
+    from paracle_core.exceptions import (
+E   ModuleNotFoundError: No module named 'paracle_core'</error></testcase><testcase classname="" name="tests.unit.governance.test_ai_compliance" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\governance\test_ai_compliance.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\governance\test_ai_compliance.py:9: in &lt;module&gt;
+    from paracle_core.governance.ai_compliance import (
+E   ModuleNotFoundError: No module named 'paracle_core'</error></testcase><testcase classname="" name="tests.unit.governance.test_auto_logger" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\governance\test_auto_logger.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\governance\test_auto_logger.py:9: in &lt;module&gt;
+    from paracle_core.governance import (
+E   ModuleNotFoundError: No module named 'paracle_core'</error></testcase><testcase classname="" name="tests.unit.governance.test_monitor" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\governance\test_monitor.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\governance\test_monitor.py:12: in &lt;module&gt;
+    from paracle_core.governance import (
+E   ModuleNotFoundError: No module named 'paracle_core'</error></testcase><testcase classname="" name="tests.unit.governance.test_state_manager" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\governance\test_state_manager.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\governance\test_state_manager.py:9: in &lt;module&gt;
+    from paracle_core.governance.state_manager import (
+E   ModuleNotFoundError: No module named 'paracle_core'</error></testcase><testcase classname="" name="tests.unit.knowledge.test_chunkers" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\knowledge\test_chunkers.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\knowledge\test_chunkers.py:5: in &lt;module&gt;
+    from paracle_knowledge.chunkers import (
+E   ModuleNotFoundError: No module named 'paracle_knowledge'</error></testcase><testcase classname="" name="tests.unit.knowledge.test_rag" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\knowledge\test_rag.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\knowledge\test_rag.py:5: in &lt;module&gt;
+    from paracle_knowledge.base import Chunk, ChunkMetadata, KnowledgeBase
+E   ModuleNotFoundError: No module named 'paracle_knowledge'</error></testcase><testcase classname="" name="tests.unit.logging.test_platform" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\logging\test_platform.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\logging\test_platform.py:7: in &lt;module&gt;
+    from paracle_core.logging.platform import (
+E   ModuleNotFoundError: No module named 'paracle_core'</error></testcase><testcase classname="" name="tests.unit.memory.test_manager" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\memory\test_manager.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\memory\test_manager.py:5: in &lt;module&gt;
+    from paracle_memory.config import MemoryBackend, MemoryConfig
+E   ModuleNotFoundError: No module named 'paracle_memory'</error></testcase><testcase classname="" name="tests.unit.memory.test_models" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\memory\test_models.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\memory\test_models.py:7: in &lt;module&gt;
+    from paracle_memory.models import (
+E   ModuleNotFoundError: No module named 'paracle_memory'</error></testcase><testcase classname="" name="tests.unit.memory.test_store" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\memory\test_store.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\memory\test_store.py:8: in &lt;module&gt;
+    from paracle_memory.models import Memory, MemoryType
+E   ModuleNotFoundError: No module named 'paracle_memory'</error></testcase><testcase classname="" name="tests.unit.meta.test_agent_spawner" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\meta\test_agent_spawner.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\meta\test_agent_spawner.py:5: in &lt;module&gt;
+    from paracle_meta.capabilities.agent_spawner import (
+E   ModuleNotFoundError: No module named 'paracle_meta'</error></testcase><testcase classname="" name="tests.unit.meta.test_anthropic_integration" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\meta\test_anthropic_integration.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\meta\test_anthropic_integration.py:5: in &lt;module&gt;
+    from paracle_meta.capabilities.anthropic_integration import (
+E   ModuleNotFoundError: No module named 'paracle_meta'</error></testcase><testcase classname="" name="tests.unit.meta.test_capabilities_base" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\meta\test_capabilities_base.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\meta\test_capabilities_base.py:5: in &lt;module&gt;
+    from paracle_meta.capabilities.base import (
+E   ModuleNotFoundError: No module named 'paracle_meta'</error></testcase><testcase classname="" name="tests.unit.meta.test_capability_registry" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\meta\test_capability_registry.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\meta\test_capability_registry.py:5: in &lt;module&gt;
+    from paracle_meta.registry import (
+E   ModuleNotFoundError: No module named 'paracle_meta'</error></testcase><testcase classname="" name="tests.unit.meta.test_code_creation" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\meta\test_code_creation.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\meta\test_code_creation.py:5: in &lt;module&gt;
+    from paracle_meta.capabilities.code_creation import (
+E   ModuleNotFoundError: No module named 'paracle_meta'</error></testcase><testcase classname="" name="tests.unit.meta.test_code_execution" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\meta\test_code_execution.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\meta\test_code_execution.py:5: in &lt;module&gt;
+    from paracle_meta.capabilities.code_execution import (
+E   ModuleNotFoundError: No module named 'paracle_meta'</error></testcase><testcase classname="" name="tests.unit.meta.test_edit_session" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\meta\test_edit_session.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\meta\test_edit_session.py:10: in &lt;module&gt;
+    from paracle_meta.sessions.edit import (
+E   ModuleNotFoundError: No module named 'paracle_meta'</error></testcase><testcase classname="" name="tests.unit.meta.test_engine" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\meta\test_engine.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\meta\test_engine.py:5: in &lt;module&gt;
+    from paracle_meta.engine import MetaAgent
+E   ModuleNotFoundError: No module named 'paracle_meta'</error></testcase><testcase classname="" name="tests.unit.meta.test_exceptions" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\meta\test_exceptions.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\meta\test_exceptions.py:5: in &lt;module&gt;
+    from paracle_meta.exceptions import (
+E   ModuleNotFoundError: No module named 'paracle_meta'</error></testcase><testcase classname="" name="tests.unit.meta.test_filesystem" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\meta\test_filesystem.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\meta\test_filesystem.py:6: in &lt;module&gt;
+    from paracle_meta.capabilities.filesystem import (
+E   ModuleNotFoundError: No module named 'paracle_meta'</error></testcase><testcase classname="" name="tests.unit.meta.test_generators" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\meta\test_generators.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\meta\test_generators.py:5: in &lt;module&gt;
+    from paracle_meta.generators import (
+E   ModuleNotFoundError: No module named 'paracle_meta'</error></testcase><testcase classname="" name="tests.unit.meta.test_knowledge" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\meta\test_knowledge.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\meta\test_knowledge.py:5: in &lt;module&gt;
+    from paracle_meta.knowledge import BestPractice, BestPracticesDatabase
+E   ModuleNotFoundError: No module named 'paracle_meta'</error></testcase><testcase classname="" name="tests.unit.meta.test_mcp_integration" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\meta\test_mcp_integration.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\meta\test_mcp_integration.py:5: in &lt;module&gt;
+    from paracle_meta.capabilities.mcp_integration import (
+E   ModuleNotFoundError: No module named 'paracle_meta'</error></testcase><testcase classname="" name="tests.unit.meta.test_memory" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\meta\test_memory.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\meta\test_memory.py:6: in &lt;module&gt;
+    from paracle_meta.capabilities.memory import (
+E   ModuleNotFoundError: No module named 'paracle_meta'</error></testcase><testcase classname="" name="tests.unit.meta.test_optimizer" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\meta\test_optimizer.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\meta\test_optimizer.py:5: in &lt;module&gt;
+    from paracle_meta.optimizer import (
+E   ModuleNotFoundError: No module named 'paracle_meta'</error></testcase><testcase classname="" name="tests.unit.meta.test_provider_chain" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\meta\test_provider_chain.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\meta\test_provider_chain.py:5: in &lt;module&gt;
+    from paracle_meta.capabilities.provider_chain import (
+E   ModuleNotFoundError: No module named 'paracle_meta'</error></testcase><testcase classname="" name="tests.unit.meta.test_provider_protocol" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\meta\test_provider_protocol.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\meta\test_provider_protocol.py:5: in &lt;module&gt;
+    from paracle_meta.capabilities.provider_protocol import (
+E   ModuleNotFoundError: No module named 'paracle_meta'</error></testcase><testcase classname="" name="tests.unit.meta.test_providers" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\meta\test_providers.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\meta\test_providers.py:5: in &lt;module&gt;
+    from paracle_meta.exceptions import ProviderNotAvailableError, ProviderSelectionError
+E   ModuleNotFoundError: No module named 'paracle_meta'</error></testcase><testcase classname="" name="tests.unit.meta.test_sessions" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\meta\test_sessions.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\meta\test_sessions.py:5: in &lt;module&gt;
+    from paracle_meta.sessions.base import (
+E   ModuleNotFoundError: No module named 'paracle_meta'</error></testcase><testcase classname="" name="tests.unit.meta.test_shell" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\meta\test_shell.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\meta\test_shell.py:6: in &lt;module&gt;
+    from paracle_meta.capabilities.shell import (
+E   ModuleNotFoundError: No module named 'paracle_meta'</error></testcase><testcase classname="" name="tests.unit.meta.test_task_management" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\meta\test_task_management.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\meta\test_task_management.py:5: in &lt;module&gt;
+    from paracle_meta.capabilities.task_management import (
+E   ModuleNotFoundError: No module named 'paracle_meta'</error></testcase><testcase classname="" name="tests.unit.meta.test_templates" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\meta\test_templates.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\meta\test_templates.py:5: in &lt;module&gt;
+    from paracle_meta.exceptions import TemplateNotFoundError
+E   ModuleNotFoundError: No module named 'paracle_meta'</error></testcase><testcase classname="" name="tests.unit.meta.test_web_capabilities" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\meta\test_web_capabilities.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\meta\test_web_capabilities.py:5: in &lt;module&gt;
+    from paracle_meta.capabilities.web_capabilities import (
+E   ModuleNotFoundError: No module named 'paracle_meta'</error></testcase><testcase classname="" name="tests.unit.observability.test_alerting" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\observability\test_alerting.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\observability\test_alerting.py:5: in &lt;module&gt;
+    from paracle_observability.alerting import (
+E   ModuleNotFoundError: No module named 'paracle_observability'</error></testcase><testcase classname="" name="tests.unit.observability.test_error_dashboard" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\observability\test_error_dashboard.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\observability\test_error_dashboard.py:5: in &lt;module&gt;
+    from paracle_observability.error_dashboard import ErrorDashboard
+E   ModuleNotFoundError: No module named 'paracle_observability'</error></testcase><testcase classname="" name="tests.unit.observability.test_error_registry" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\observability\test_error_registry.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\observability\test_error_registry.py:7: in &lt;module&gt;
+    from paracle_observability.error_registry import (
+E   ModuleNotFoundError: No module named 'paracle_observability'</error></testcase><testcase classname="" name="tests.unit.observability.test_error_reporter" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\observability\test_error_reporter.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\observability\test_error_reporter.py:5: in &lt;module&gt;
+    from paracle_observability.error_registry import ErrorRegistry, ErrorSeverity
+E   ModuleNotFoundError: No module named 'paracle_observability'</error></testcase><testcase classname="" name="tests.unit.observability.test_exceptions" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\observability\test_exceptions.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\observability\test_exceptions.py:4: in &lt;module&gt;
+    from paracle_observability.exceptions import (
+E   ModuleNotFoundError: No module named 'paracle_observability'</error></testcase><testcase classname="" name="tests.unit.observability.test_metrics" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\observability\test_metrics.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\observability\test_metrics.py:5: in &lt;module&gt;
+    from paracle_observability.metrics import (
+E   ModuleNotFoundError: No module named 'paracle_observability'</error></testcase><testcase classname="" name="tests.unit.observability.test_tracing" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\observability\test_tracing.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\observability\test_tracing.py:6: in &lt;module&gt;
+    from paracle_observability.tracing import (
+E   ModuleNotFoundError: No module named 'paracle_observability'</error></testcase><testcase classname="" name="tests.unit.profiling.test_benchmark" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\profiling\test_benchmark.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\profiling\test_benchmark.py:12: in &lt;module&gt;
+    from paracle_profiling.benchmark import (
+E   ModuleNotFoundError: No module named 'paracle_profiling'</error></testcase><testcase classname="" name="tests.unit.profiling.test_cache" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\profiling\test_cache.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\profiling\test_cache.py:10: in &lt;module&gt;
+    from paracle_profiling import (
+E   ModuleNotFoundError: No module named 'paracle_profiling'</error></testcase><testcase classname="" name="tests.unit.resilience.test_circuit_breaker" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\resilience\test_circuit_breaker.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\resilience\test_circuit_breaker.py:6: in &lt;module&gt;
+    from paracle_resilience.circuit_breaker import (
+E   ModuleNotFoundError: No module named 'paracle_resilience'</error></testcase><testcase classname="" name="tests.unit.resilience.test_fallback" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\resilience\test_fallback.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\resilience\test_fallback.py:6: in &lt;module&gt;
+    from paracle_resilience.fallback import (
+E   ModuleNotFoundError: No module named 'paracle_resilience'</error></testcase><testcase classname="" name="tests.unit.runs.test_exceptions" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\runs\test_exceptions.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\runs\test_exceptions.py:4: in &lt;module&gt;
+    from paracle_runs.exceptions import (
+E   ModuleNotFoundError: No module named 'paracle_runs'</error></testcase><testcase classname="" name="tests.unit.runs.test_models" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\runs\test_models.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\runs\test_models.py:5: in &lt;module&gt;
+    from paracle_core.ids import generate_ulid
+E   ModuleNotFoundError: No module named 'paracle_core'</error></testcase><testcase classname="" name="tests.unit.runs.test_replay" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\runs\test_replay.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\runs\test_replay.py:8: in &lt;module&gt;
+    from paracle_core.ids import generate_ulid
+E   ModuleNotFoundError: No module named 'paracle_core'</error></testcase><testcase classname="" name="tests.unit.runs.test_storage" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\runs\test_storage.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\runs\test_storage.py:10: in &lt;module&gt;
+    from paracle_core.ids import generate_ulid
+E   ModuleNotFoundError: No module named 'paracle_core'</error></testcase><testcase classname="" name="tests.unit.test_adapter_base" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_adapter_base.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_adapter_base.py:6: in &lt;module&gt;
+    from paracle_adapters.base import FrameworkAdapter
+E   ModuleNotFoundError: No module named 'paracle_adapters'</error></testcase><testcase classname="" name="tests.unit.test_adapters" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_adapters.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_adapters.py:11: in &lt;module&gt;
+    from paracle_domain.models import AgentSpec, WorkflowSpec, WorkflowStep
+E   ModuleNotFoundError: No module named 'paracle_domain'</error></testcase><testcase classname="" name="tests.unit.test_agent_comm_engine" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_agent_comm_engine.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_agent_comm_engine.py:11: in &lt;module&gt;
+    from paracle_agent_comm.engine import (
+E   ModuleNotFoundError: No module named 'paracle_agent_comm'</error></testcase><testcase classname="" name="tests.unit.test_agent_comm_models" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_agent_comm_models.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_agent_comm_models.py:8: in &lt;module&gt;
+    from paracle_agent_comm.models import (
+E   ModuleNotFoundError: No module named 'paracle_agent_comm'</error></testcase><testcase classname="" name="tests.unit.test_agent_comm_patterns" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_agent_comm_patterns.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_agent_comm_patterns.py:8: in &lt;module&gt;
+    from paracle_agent_comm.models import (
+E   ModuleNotFoundError: No module named 'paracle_agent_comm'</error></testcase><testcase classname="" name="tests.unit.test_agent_comm_persistence" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_agent_comm_persistence.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_agent_comm_persistence.py:8: in &lt;module&gt;
+    from paracle_agent_comm.exceptions import GroupNotFoundError, SessionNotFoundError
+E   ModuleNotFoundError: No module named 'paracle_agent_comm'</error></testcase><testcase classname="" name="tests.unit.test_agent_crud_api" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_agent_crud_api.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_agent_crud_api.py:8: in &lt;module&gt;
+    from paracle_api.main import app
+E   ModuleNotFoundError: No module named 'paracle_api'</error></testcase><testcase classname="" name="tests.unit.test_agent_factory" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_agent_factory.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_agent_factory.py:5: in &lt;module&gt;
+    from paracle_domain import (
+E   ModuleNotFoundError: No module named 'paracle_domain'</error></testcase><testcase classname="" name="tests.unit.test_api_agents" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_api_agents.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_api_agents.py:10: in &lt;module&gt;
+    from paracle_api.main import app
+E   ModuleNotFoundError: No module named 'paracle_api'</error></testcase><testcase classname="" name="tests.unit.test_api_health" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_api_health.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_api_health.py:6: in &lt;module&gt;
+    from paracle_api.main import app
+E   ModuleNotFoundError: No module named 'paracle_api'</error></testcase><testcase classname="" name="tests.unit.test_api_logs" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_api_logs.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_api_logs.py:10: in &lt;module&gt;
+    from paracle_api.main import app
+E   ModuleNotFoundError: No module named 'paracle_api'</error></testcase><testcase classname="" name="tests.unit.test_api_parac" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_api_parac.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_api_parac.py:10: in &lt;module&gt;
+    from paracle_api.main import app
+E   ModuleNotFoundError: No module named 'paracle_api'</error></testcase><testcase classname="" name="tests.unit.test_approval" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_approval.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_approval.py:8: in &lt;module&gt;
+    from paracle_domain.models import (
+E   ModuleNotFoundError: No module named 'paracle_domain'</error></testcase><testcase classname="" name="tests.unit.test_builtin_tools_filesystem" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_builtin_tools_filesystem.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_builtin_tools_filesystem.py:6: in &lt;module&gt;
+    from paracle_tools.builtin.filesystem import (
+E   ModuleNotFoundError: No module named 'paracle_tools'</error></testcase><testcase classname="" name="tests.unit.test_builtin_tools_http" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_builtin_tools_http.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_builtin_tools_http.py:6: in &lt;module&gt;
+    from paracle_tools.builtin.http import (
+E   ModuleNotFoundError: No module named 'paracle_tools'</error></testcase><testcase classname="" name="tests.unit.test_builtin_tools_registry" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_builtin_tools_registry.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_builtin_tools_registry.py:5: in &lt;module&gt;
+    from paracle_tools.builtin.registry import BuiltinToolRegistry
+E   ModuleNotFoundError: No module named 'paracle_tools'</error></testcase><testcase classname="" name="tests.unit.test_builtin_tools_shell" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_builtin_tools_shell.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_builtin_tools_shell.py:5: in &lt;module&gt;
+    from paracle_tools.builtin.shell import RunCommandTool
+E   ModuleNotFoundError: No module named 'paracle_tools'</error></testcase><testcase classname="" name="tests.unit.test_cli" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_cli.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_cli.py:4: in &lt;module&gt;
+    from paracle_cli.main import cli
+E   ModuleNotFoundError: No module named 'paracle_cli'</error></testcase><testcase classname="" name="tests.unit.test_conflicts_resolution" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_conflicts_resolution.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_conflicts_resolution.py:10: in &lt;module&gt;
+    from paracle_conflicts import (
+E   ModuleNotFoundError: No module named 'paracle_conflicts'</error></testcase><testcase classname="" name="tests.unit.test_cost_management" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_cost_management.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_cost_management.py:9: in &lt;module&gt;
+    from paracle_core.cost.config import BudgetConfig, CostConfig, TrackingConfig
+E   ModuleNotFoundError: No module named 'paracle_core'</error></testcase><testcase classname="" name="tests.unit.test_domain" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_domain.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_domain.py:4: in &lt;module&gt;
+    from paracle_domain.models import AgentSpec, Agent, EntityStatus
+E   ModuleNotFoundError: No module named 'paracle_domain'</error></testcase><testcase classname="" name="tests.unit.test_domain_models" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_domain_models.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_domain_models.py:6: in &lt;module&gt;
+    from paracle_domain import (
+E   ModuleNotFoundError: No module named 'paracle_domain'</error></testcase><testcase classname="" name="tests.unit.test_dry_run" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_dry_run.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_dry_run.py:16: in &lt;module&gt;
+    from paracle_domain.models import AgentSpec
+E   ModuleNotFoundError: No module named 'paracle_domain'</error></testcase><testcase classname="" name="tests.unit.test_events" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_events.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_events.py:6: in &lt;module&gt;
+    from paracle_events import (
+E   ModuleNotFoundError: No module named 'paracle_events'</error></testcase><testcase classname="" name="tests.unit.test_git_commits" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_git_commits.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_git_commits.py:9: in &lt;module&gt;
+    from paracle_git import (
+E   ModuleNotFoundError: No module named 'paracle_git'</error></testcase><testcase classname="" name="tests.unit.test_governance" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_governance.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_governance.py:17: in &lt;module&gt;
+    from paracle_core.governance import (
+E   ModuleNotFoundError: No module named 'paracle_core'</error></testcase><testcase classname="" name="tests.unit.test_ide_integration" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_ide_integration.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_ide_integration.py:14: in &lt;module&gt;
+    from paracle_core.parac.context_builder import (
+E   ModuleNotFoundError: No module named 'paracle_core'</error></testcase><testcase classname="" name="tests.unit.test_inheritance" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_inheritance.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_inheritance.py:5: in &lt;module&gt;
+    from paracle_domain import (
+E   ModuleNotFoundError: No module named 'paracle_domain'</error></testcase><testcase classname="" name="tests.unit.test_kanban_manager" time="0.000"><skipped message="collection skipped">('C:\\Projets\\paracle\\paracle-lite\\tests\\unit\\test_kanban_manager.py', 21, 'Skipped: Test API mismatch: tests use TaskBoard/TaskManager/TaskStorage but implementation uses Board/BoardRepository')</skipped></testcase><testcase classname="" name="tests.unit.test_logger" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_logger.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_logger.py:8: in &lt;module&gt;
+    from paracle_core.parac.logger import (
+E   ModuleNotFoundError: No module named 'paracle_core'</error></testcase><testcase classname="" name="tests.unit.test_logging" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_logging.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_logging.py:20: in &lt;module&gt;
+    from paracle_core.logging import (
+E   ModuleNotFoundError: No module named 'paracle_core'</error></testcase><testcase classname="" name="tests.unit.test_mcp_registry" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_mcp_registry.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_mcp_registry.py:4: in &lt;module&gt;
+    from paracle_mcp import MCPToolRegistry
+E   ModuleNotFoundError: No module named 'paracle_mcp'</error></testcase><testcase classname="" name="tests.unit.test_orchestration_context" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_orchestration_context.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_orchestration_context.py:7: in &lt;module&gt;
+    from paracle_orchestration.context import ExecutionContext, ExecutionStatus
+E   ModuleNotFoundError: No module named 'paracle_orchestration'</error></testcase><testcase classname="" name="tests.unit.test_orchestration_coordinator" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_orchestration_coordinator.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_orchestration_coordinator.py:5: in &lt;module&gt;
+    from paracle_domain.factory import AgentFactory
+E   ModuleNotFoundError: No module named 'paracle_domain'</error></testcase><testcase classname="" name="tests.unit.test_orchestration_dag" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_orchestration_dag.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_orchestration_dag.py:5: in &lt;module&gt;
+    from paracle_domain.models import WorkflowStep
+E   ModuleNotFoundError: No module named 'paracle_domain'</error></testcase><testcase classname="" name="tests.unit.test_orchestration_engine" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_orchestration_engine.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_orchestration_engine.py:9: in &lt;module&gt;
+    from paracle_domain.models import (
+E   ModuleNotFoundError: No module named 'paracle_domain'</error></testcase><testcase classname="" name="tests.unit.test_parac_cli" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_parac_cli.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_parac_cli.py:10: in &lt;module&gt;
+    from paracle_cli.main import cli
+E   ModuleNotFoundError: No module named 'paracle_cli'</error></testcase><testcase classname="" name="tests.unit.test_parac_core" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_parac_core.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_parac_core.py:9: in &lt;module&gt;
+    from paracle_core.parac.state import (
+E   ModuleNotFoundError: No module named 'paracle_core'</error></testcase><testcase classname="" name="tests.unit.test_plan_mode" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_plan_mode.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_plan_mode.py:13: in &lt;module&gt;
+    from paracle_domain.models import WorkflowSpec, WorkflowStep
+E   ModuleNotFoundError: No module named 'paracle_domain'</error></testcase><testcase classname="" name="tests.unit.test_provider_base" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_provider_base.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_provider_base.py:6: in &lt;module&gt;
+    from paracle_providers.base import (
+E   ModuleNotFoundError: No module named 'paracle_providers'</error></testcase><testcase classname="" name="tests.unit.test_provider_registry" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_provider_registry.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_provider_registry.py:6: in &lt;module&gt;
+    from paracle_providers.base import (
+E   ModuleNotFoundError: No module named 'paracle_providers'</error></testcase><testcase classname="" name="tests.unit.test_repository" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_repository.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_repository.py:5: in &lt;module&gt;
+    from paracle_domain import Agent, AgentSpec, EntityStatus, Tool, ToolSpec
+E   ModuleNotFoundError: No module named 'paracle_domain'</error></testcase><testcase classname="" name="tests.unit.test_retry" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_retry.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_retry.py:8: in &lt;module&gt;
+    from paracle_providers.exceptions import (
+E   ModuleNotFoundError: No module named 'paracle_providers'</error></testcase><testcase classname="" name="tests.unit.test_retry_manager" time="0.000"><skipped message="collection skipped">('C:\\Projets\\paracle\\paracle-lite\\tests\\unit\\test_retry_manager.py', 17, 'Skipped: paracle_retry package does not exist - planned feature not implemented')</skipped></testcase><testcase classname="" name="tests.unit.test_rollback" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_rollback.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_rollback.py:7: in &lt;module&gt;
+    from paracle_events import PersistentEventStore, Event, EventType, agent_created
+E   ModuleNotFoundError: No module named 'paracle_events'</error></testcase><testcase classname="" name="tests.unit.test_skills" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_skills.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_skills.py:5: in &lt;module&gt;
+    from paracle_orchestration.skill_injector import SkillInjector
+E   ModuleNotFoundError: No module named 'paracle_orchestration'</error></testcase><testcase classname="" name="tests.unit.test_state_concurrency" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_state_concurrency.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_state_concurrency.py:17: in &lt;module&gt;
+    from paracle_core.parac.state import (
+E   ModuleNotFoundError: No module named 'paracle_core'</error></testcase><testcase classname="" name="tests.unit.test_tool_crud_api" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_tool_crud_api.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_tool_crud_api.py:8: in &lt;module&gt;
+    from paracle_api.main import app
+E   ModuleNotFoundError: No module named 'paracle_api'</error></testcase><testcase classname="" name="tests.unit.test_workflow_crud_api" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_workflow_crud_api.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_workflow_crud_api.py:8: in &lt;module&gt;
+    from paracle_api.main import app
+E   ModuleNotFoundError: No module named 'paracle_api'</error></testcase><testcase classname="" name="tests.unit.test_workflow_execution_api" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_workflow_execution_api.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_workflow_execution_api.py:12: in &lt;module&gt;
+    from paracle_api.main import app
+E   ModuleNotFoundError: No module named 'paracle_api'</error></testcase><testcase classname="" name="tests.unit.test_yolo_mode" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\test_yolo_mode.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_yolo_mode.py:15: in &lt;module&gt;
+    from paracle_domain.models import (
+E   ModuleNotFoundError: No module named 'paracle_domain'</error></testcase><testcase classname="" name="tests.unit.tools.test_tool_exceptions" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\tools\test_tool_exceptions.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\tools\test_tool_exceptions.py:4: in &lt;module&gt;
+    from paracle_tools.exceptions import (
+E   ModuleNotFoundError: No module named 'paracle_tools'</error></testcase><testcase classname="" name="tests.unit.vector.test_base" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\vector\test_base.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\vector\test_base.py:7: in &lt;module&gt;
+    from paracle_vector.base import (
+E   ModuleNotFoundError: No module named 'paracle_vector'</error></testcase><testcase classname="" name="tests.unit.vector.test_embeddings" time="0.000"><error message="collection failure">ImportError while importing test module 'c:\Projets\paracle\paracle-lite\tests\unit\vector\test_embeddings.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\tools\Python313\Lib\importlib\__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\unit\vector\test_embeddings.py:5: in &lt;module&gt;
+    from paracle_vector.embeddings import (
+E   ModuleNotFoundError: No module named 'paracle_vector'</error></testcase></testsuite></testsuites>

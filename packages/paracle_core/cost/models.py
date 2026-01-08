@@ -4,7 +4,7 @@ Defines all models for tracking, aggregating, and reporting costs.
 """
 
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
+from paracle_core.compat import UTC, datetime
 from enum import Enum
 from typing import Any
 

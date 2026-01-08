@@ -6,7 +6,7 @@ security practices following OWASP guidelines.
 
 from __future__ import annotations
 
-from datetime import UTC, datetime, timedelta
+from paracle_core.compat import UTC, datetime, timedelta
 from typing import Annotated, Any
 
 from fastapi import Depends, HTTPException, status

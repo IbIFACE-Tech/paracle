@@ -2,7 +2,7 @@
 
 import asyncio
 import logging
-from datetime import UTC, datetime
+from paracle_core.compat import UTC, datetime
 from typing import Any
 
 from paracle_domain.factory import AgentFactory

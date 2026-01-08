@@ -19,7 +19,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from datetime import UTC, datetime
+from paracle_core.compat import UTC, datetime
 from typing import TYPE_CHECKING
 
 from sqlalchemy import select

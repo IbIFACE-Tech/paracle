@@ -70,14 +70,35 @@ Document architectural decisions in `.parac/roadmap/decisions.md`.
 
 ## Tools & Capabilities
 
+### Version Management
+
 - git operations (commit, branch, tag, merge)
-- GitHub/GitLab API integration
-- Version bumping automation
-- Changelog generation (from commits)
-- PyPI publishing (twine)
-- Docker image building and tagging
-- CI/CD pipeline integration
+- Version bumping automation (`version_management` tool)
 - Semantic versioning analysis
+- Pre-release version management (alpha, beta, rc)
+
+### GitHub Integration
+
+- **GitHub CLI tool** (`github_cli`) - Comprehensive GitHub operations:
+  - **PR Operations**: list, create, view, merge, review, checks, diff
+  - **Release Operations**: list, create, view, delete (with auto-generated notes)
+  - **Workflow Operations**: list, trigger GitHub Actions workflows
+  - **Repository Operations**: view repo info, clone, fork
+  - **Issue Operations**: list, create, view, close issues
+- GitHub/GitLab API integration (legacy)
+
+### Changelog & Documentation
+
+- Changelog generation from commits (`changelog_generation` tool)
+- Conventional Commits parsing
+- Release notes generation
+
+### Publishing & Deployment
+
+- PyPI publishing (twine) (`package_publishing` tool)
+- Docker image building and tagging
+- CI/CD pipeline integration (`cicd_integration` tool)
+- Multi-platform publishing (PyPI, Docker Hub, npm)
 
 ## Expertise Areas
 

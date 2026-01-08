@@ -31,6 +31,8 @@ from paracle_tools import (
     git_stash,
     git_status,
     git_tag,
+    # GitHub CLI tool (for releasemanager)
+    github_cli,
     # Documenter tools
     markdown_generation,
     milestone_management,
@@ -151,6 +153,7 @@ class AgentToolRegistry:
                 "changelog_generation": changelog_generation,
                 "cicd_integration": cicd_integration,
                 "package_publishing": package_publishing,
+                "github_cli": github_cli,
                 # Terminal access
                 "terminal_execute": terminal_execute,
                 "terminal_info": terminal_info,
