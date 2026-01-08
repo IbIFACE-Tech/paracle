@@ -30,8 +30,7 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Install uv
-        run: pip install uv
+      - name: Install uv\n        uses: astral-sh/setup-uv@v4
 
       - name: Install dependencies
         run: uv sync
@@ -153,8 +152,7 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Install uv
-        run: pip install uv
+      - name: Install uv\n        uses: astral-sh/setup-uv@v4
 
       - name: Install dependencies
         run: uv sync
@@ -162,3 +160,5 @@ jobs:
       - name: Run governance tests
         run: uv run pytest tests/governance/ -v
         continue-on-error: true # Don't fail if tests don't exist yet
+
+
