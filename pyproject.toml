@@ -116,7 +116,7 @@ providers = [
 # Extended provider support (optional)
 providers-extended = [
     "paracle[providers]",
-    "google-generativeai>=0.3.0",
+    "google-genai>=0.1.0",
     "groq>=0.4.0",
 ]
 

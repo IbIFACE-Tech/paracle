@@ -51,26 +51,34 @@ jobs:
 
       - name: Run benchmarks
         run: |
-          uv run paracle benchmark run \
-            --output .benchmarks/results.json \
-            --baseline .benchmarks/baseline.json \
-            --verbose
+          mkdir -p .benchmarks
+          if [ -f .benchmarks/baseline.json ]; then
+            uv run paracle benchmark run --output .benchmarks/results.json --baseline .benchmarks/baseline.json --verbose
+          else
+            echo "No baseline found, running without comparison"
+            uv run paracle benchmark run --output .benchmarks/results.json --verbose
+          fi
 
       - name: Check for regressions
         if: github.event_name == 'pull_request'
         run: |
-          uv run paracle benchmark run \
-            --baseline .benchmarks/baseline.json \
-            --fail-on-regression \
-            --json-output > benchmark_report.json || exit_code=$?
+          if [ -f .benchmarks/baseline.json ]; then
+            uv run paracle benchmark run \
+              --baseline .benchmarks/baseline.json \
+              --fail-on-regression \
+              --json-output > benchmark_report.json || exit_code=$?
 
-          # Always save the report
-          cat benchmark_report.json
+            # Always save the report
+            cat benchmark_report.json
 
-          # Fail if there were regressions
-          if [ "${exit_code:-0}" -ne 0 ]; then
-            echo "::error::Performance regression detected!"
-            exit 1
+            # Fail if there were regressions
+            if [ "${exit_code:-0}" -ne 0 ]; then
+              echo "::error::Performance regression detected!"
+              exit 1
+            fi
+          else
+            echo "No baseline available for regression check"
+            echo "{\"status\": \"skipped\", \"reason\": \"no baseline\"}" > benchmark_report.json
           fi
 
       - name: Save baseline (main branch only)

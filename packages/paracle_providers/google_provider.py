@@ -5,11 +5,11 @@ from collections.abc import AsyncIterator
 from typing import Any
 
 try:
-    import google.generativeai as genai
+    import google.genai as genai
 except ImportError:
     raise ImportError(
-        "google-generativeai package is required for Google provider. "
-        "Install it with: pip install google-generativeai"
+        "google-genai package is required for Google provider. "
+        "Install it with: pip install google-genai"
     )
 
 from paracle_providers.base import (

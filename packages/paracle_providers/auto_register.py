@@ -32,7 +32,7 @@ def register_all_providers() -> None:
 
         ProviderRegistry.register("google", GoogleProvider)
     except ImportError:
-        pass  # google-generativeai package not installed
+        pass  # google-genai package not installed
 
     # Try to register Ollama provider
     try:
