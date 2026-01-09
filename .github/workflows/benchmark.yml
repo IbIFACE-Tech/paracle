@@ -91,7 +91,7 @@ jobs:
           key: benchmark-baseline-main-${{ github.sha }}
 
       - name: Upload benchmark results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: benchmark-results
           path: |
@@ -171,4 +171,5 @@ jobs:
                 body: body
               });
             }
+
 
