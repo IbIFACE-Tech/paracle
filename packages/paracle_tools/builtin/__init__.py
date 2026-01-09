@@ -13,7 +13,7 @@ Available tool categories:
 - Shell: RunCommandTool (with mandatory command allowlist)
 """
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 from paracle_tools.builtin.base import (
     BaseTool,

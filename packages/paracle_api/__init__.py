@@ -27,7 +27,7 @@ from paracle_api.errors import (
 )
 from paracle_api.main import app, create_app
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 __all__ = [
     # Application

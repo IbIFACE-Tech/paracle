@@ -10,7 +10,7 @@ This package provides:
 - Workflow loading from YAML definitions
 """
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 from paracle_orchestration.agent_executor import AgentExecutor
 from paracle_orchestration.approval import (

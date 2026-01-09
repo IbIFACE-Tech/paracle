@@ -1,6 +1,6 @@
 [project]
 name = "paracle"
-version = "1.0.0"
+version = "1.0.1"
 description = "User-driven multi-agent framework for AI-native applications"
 readme = "README.md"
 requires-python = ">=3.10"

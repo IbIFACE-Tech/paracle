@@ -5,7 +5,7 @@ This package provides a unified interface for interacting with different
 LLM providers (OpenAI, Anthropic, Google, xAI, DeepSeek, Groq, Ollama, etc.).
 """
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 # Auto-register available providers
 from paracle_providers import auto_register  # noqa: F401

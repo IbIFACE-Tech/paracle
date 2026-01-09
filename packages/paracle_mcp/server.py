@@ -855,7 +855,11 @@ class ParacleMCPServer:
                     response = {
                         "protocolVersion": "2024-11-05",
                         "capabilities": {"tools": {}},
-                        "serverInfo": {"name": "paracle-mcp", "version": "0.0.1"},
+                        "serverInfo": {
+                            "name": "paracle-mcp",
+                            "version": "1.0.1",
+                            "icon": "https://raw.githubusercontent.com/IbIFACE-Tech/paracle-lite/main/assets/paracle_icon.png"
+                        },
                     }
                 else:
                     response = {"error": f"Unknown method: {method}"}
@@ -910,7 +914,11 @@ class ParacleMCPServer:
                 result = {
                     "protocolVersion": "2024-11-05",
                     "capabilities": {"tools": {}},
-                    "serverInfo": {"name": "paracle-mcp", "version": "0.0.1"},
+                    "serverInfo": {
+                        "name": "paracle-mcp",
+                        "version": "1.0.1",
+                        "icon": "https://raw.githubusercontent.com/IbIFACE-Tech/paracle-lite/main/assets/paracle_icon.png"
+                    },
                 }
             else:
                 result = {"error": f"Unknown method: {method}"}

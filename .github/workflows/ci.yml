@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [main, develop]
 
+permissions:
+  contents: read
+
 jobs:
   test:
     name: Test Python ${{ matrix.python-version }} on ${{ matrix.os }}
@@ -36,11 +39,12 @@ jobs:
           uv run pytest --cov=packages --cov-report=xml --cov-report=term
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         with:
-          file: ./coverage.xml
+          files: ./coverage.xml
           flags: unittests
           name: codecov-umbrella
+          fail_ci_if_error: false
 
   lint:
     name: Lint
@@ -97,13 +101,11 @@ jobs:
           uv sync --all-extras
 
       - name: Run bandit
-        run: |
         continue-on-error: true  # Advisory only - track issues but don't fail CI
+        run: |
           uv run bandit -r packages/ -ll
 
       - name: Run safety
-        run: |
         continue-on-error: true  # Advisory only
+        run: |
           uv run safety check --json || true
-
-

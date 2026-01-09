@@ -12,7 +12,7 @@ All filesystem/shell tools now require explicit configuration.
 Use factory functions to create properly configured tools.
 """
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 # MCP tools
 # Built-in tools
