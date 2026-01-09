@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """Create square icon from Paracle logo."""
 
 from pathlib import Path
@@ -6,7 +6,7 @@ from pathlib import Path
 try:
     from PIL import Image, ImageDraw, ImageFont
 except ImportError:
-    print("❌ Pillow not installed. Install with: pip install Pillow")
+    print("âŒ Pillow not installed. Install with: pip install Pillow")
     exit(1)
 
 
@@ -47,7 +47,7 @@ def create_icon(size: int = 128):
             # Try to use a system font
             font_size = int(size * 0.6)
             font = ImageFont.truetype("arial.ttf", font_size)
-        except:
+        except (OSError, IOError):
             font = ImageFont.load_default()
 
         text = "P"
@@ -66,7 +66,7 @@ def create_icon(size: int = 128):
     # Save icon
     output_path = assets_dir / "paracle_icon.png"
     img.save(output_path, 'PNG')
-    print(f"✅ Icon created: {output_path}")
+    print(f"âœ… Icon created: {output_path}")
     print(f"   Size: {size}x{size} pixels")
 
     # Also create a 64x64 version
@@ -74,7 +74,7 @@ def create_icon(size: int = 128):
         img_small = img.resize((64, 64), Image.Resampling.LANCZOS)
         output_small = assets_dir / "paracle_icon_64.png"
         img_small.save(output_small, 'PNG')
-        print(f"✅ Small icon created: {output_small}")
+        print(f"âœ… Small icon created: {output_small}")
         print("   Size: 64x64 pixels")
 
 
@@ -86,3 +86,4 @@ if __name__ == "__main__":
         size = int(sys.argv[1])
 
     create_icon(size)
+
