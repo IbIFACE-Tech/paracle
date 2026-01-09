@@ -13,6 +13,11 @@ on:
     branches: [main, develop]
   workflow_dispatch:
 
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
 jobs:
   maintain-parac:
     runs-on: ubuntu-latest
