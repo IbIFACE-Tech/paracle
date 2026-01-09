@@ -165,4 +165,3 @@ jobs:
       - name: Run governance tests
         run: uv run pytest tests/governance/ -v
         continue-on-error: true # Don't fail if tests don't exist yet
-

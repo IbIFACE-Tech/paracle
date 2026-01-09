@@ -19,14 +19,14 @@ from __future__ import annotations
 
 import asyncio
 import re
-from typing import Any, AsyncIterator
+from collections.abc import AsyncIterator
+from typing import Any
 
 from paracle_meta.capabilities.provider_protocol import (
     BaseProvider,
     LLMRequest,
     LLMResponse,
     LLMUsage,
-    ProviderStatus,
     StreamChunk,
     ToolCallRequest,
 )

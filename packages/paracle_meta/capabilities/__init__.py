@@ -20,42 +20,13 @@ Hybrid Architecture:
 - Anthropic SDK integration for intelligent, Claude-powered features
 """
 
-from paracle_meta.capabilities.base import (
-    BaseCapability,
-    CapabilityConfig,
-    CapabilityResult,
-)
-from paracle_meta.capabilities.code_execution import (
-    CodeExecutionCapability,
-    CodeExecutionConfig,
-    ExecutionResult,
-)
-from paracle_meta.capabilities.mcp_integration import (
-    MCPCapability,
-    MCPConfig,
-    MCPTool,
-)
-from paracle_meta.capabilities.task_management import (
-    TaskManagementCapability,
-    TaskConfig,
-    Task,
-    TaskStatus,
-    TaskPriority,
-    Workflow,
-)
-from paracle_meta.capabilities.web_capabilities import (
-    WebCapability,
-    WebConfig,
-    SearchResult,
-    CrawlResult,
-)
 from paracle_meta.capabilities.agent_spawner import (
+    AgentPool,
     AgentSpawner,
+    AgentStatus,
+    AgentType,
     SpawnConfig,
     SpawnedAgent,
-    AgentType,
-    AgentStatus,
-    AgentPool,
 )
 
 # New Hybrid Capabilities
@@ -63,29 +34,43 @@ from paracle_meta.capabilities.anthropic_integration import (
     AnthropicCapability,
     AnthropicConfig,
     ClaudeModel,
-    ToolDefinition,
-    ToolCall,
-    ToolResult,
-    Message,
     ConversationContext,
+    Message,
+    ToolCall,
+    ToolDefinition,
+    ToolResult,
 )
-from paracle_meta.capabilities.filesystem import (
-    FileSystemCapability,
-    FileSystemConfig,
+from paracle_meta.capabilities.base import (
+    BaseCapability,
+    CapabilityConfig,
+    CapabilityResult,
 )
 from paracle_meta.capabilities.code_creation import (
     CodeCreationCapability,
     CodeCreationConfig,
 )
-from paracle_meta.capabilities.memory import (
-    MemoryCapability,
-    MemoryConfig,
-    MemoryItem,
+from paracle_meta.capabilities.code_execution import (
+    CodeExecutionCapability,
+    CodeExecutionConfig,
+    ExecutionResult,
 )
-from paracle_meta.capabilities.shell import (
-    ShellCapability,
-    ShellConfig,
-    ProcessInfo,
+from paracle_meta.capabilities.filesystem import FileSystemCapability, FileSystemConfig
+from paracle_meta.capabilities.mcp_integration import MCPCapability, MCPConfig, MCPTool
+from paracle_meta.capabilities.memory import MemoryCapability, MemoryConfig, MemoryItem
+from paracle_meta.capabilities.shell import ProcessInfo, ShellCapability, ShellConfig
+from paracle_meta.capabilities.task_management import (
+    Task,
+    TaskConfig,
+    TaskManagementCapability,
+    TaskPriority,
+    TaskStatus,
+    Workflow,
+)
+from paracle_meta.capabilities.web_capabilities import (
+    CrawlResult,
+    SearchResult,
+    WebCapability,
+    WebConfig,
 )
 
 __all__ = [

@@ -12,7 +12,7 @@ Run: uv run python examples/01_filesystem_tools.py
 import asyncio
 from pathlib import Path
 
-from paracle_tools import read_file, write_file, list_directory, delete_file
+from paracle_tools import delete_file, list_directory, read_file, write_file
 
 
 async def main():
@@ -109,7 +109,7 @@ tools:
     result = await read_file.execute(path=str(example_dir / "config.yaml"))
 
     if result.success:
-        print(f"\n✓ Read config file:")
+        print("\n✓ Read config file:")
         print(result.output["content"])
 
     # =========================================================================

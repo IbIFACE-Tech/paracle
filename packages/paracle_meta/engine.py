@@ -30,6 +30,21 @@ from typing import Any
 
 from paracle_core.logging import get_logger
 
+# Import capabilities
+from paracle_meta.capabilities import (  # Original capabilities; New hybrid capabilities
+    AgentSpawner,
+    AnthropicCapability,
+    CodeCreationCapability,
+    CodeExecutionCapability,
+    FileSystemCapability,
+    MCPCapability,
+    MemoryCapability,
+    ShellCapability,
+    TaskManagementCapability,
+    ToolDefinition,
+    WebCapability,
+)
+from paracle_meta.capabilities.base import CapabilityResult
 from paracle_meta.generators import (
     AgentGenerator,
     PolicyGenerator,
@@ -42,24 +57,6 @@ from paracle_meta.learning import LearningEngine
 from paracle_meta.optimizer import CostOptimizer, QualityScorer
 from paracle_meta.providers import ProviderOrchestrator
 from paracle_meta.templates import TemplateLibrary
-
-# Import capabilities
-from paracle_meta.capabilities import (
-    # Original capabilities
-    AgentSpawner,
-    CodeExecutionCapability,
-    MCPCapability,
-    TaskManagementCapability,
-    WebCapability,
-    # New hybrid capabilities
-    AnthropicCapability,
-    FileSystemCapability,
-    CodeCreationCapability,
-    MemoryCapability,
-    ShellCapability,
-    ToolDefinition,
-)
-from paracle_meta.capabilities.base import CapabilityResult
 
 logger = get_logger(__name__)
 

@@ -1,15 +1,14 @@
 """Tests for built-in HTTP tools."""
 
-import pytest
 from unittest.mock import AsyncMock, patch
 
+import pytest
 from paracle_tools.builtin.http import (
+    HTTPDeleteTool,
     HTTPGetTool,
     HTTPPostTool,
     HTTPPutTool,
-    HTTPDeleteTool,
 )
-
 
 # Skip tests if httpx is not installed
 pytest.importorskip("httpx")

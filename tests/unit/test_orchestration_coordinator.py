@@ -1,7 +1,6 @@
 """Tests for AgentCoordinator."""
 
 import pytest
-
 from paracle_domain.factory import AgentFactory
 from paracle_domain.models import Agent, AgentSpec
 from paracle_orchestration.coordinator import AgentCoordinator

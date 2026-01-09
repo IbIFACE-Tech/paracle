@@ -1,10 +1,9 @@
 """Tests for Human-in-the-Loop approval system."""
 
 import asyncio
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 
 import pytest
-
 from paracle_domain.models import (
     ApprovalConfig,
     ApprovalPriority,

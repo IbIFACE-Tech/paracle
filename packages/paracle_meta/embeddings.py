@@ -25,12 +25,10 @@ from __future__ import annotations
 import asyncio
 import os
 from abc import ABC, abstractmethod
-from typing import Any
 
 import httpx
-from pydantic import BaseModel, Field
-
 from paracle_core.logging import get_logger
+from pydantic import BaseModel, Field
 
 logger = get_logger(__name__)
 
@@ -150,7 +148,7 @@ class EmbeddingProvider(ABC):
         """
         import math
 
-        dot_product = sum(a * b for a, b in zip(embedding1, embedding2))
+        dot_product = sum(a * b for a, b in zip(embedding1, embedding2, strict=False))
         norm1 = math.sqrt(sum(a * a for a in embedding1))
         norm2 = math.sqrt(sum(b * b for b in embedding2))
 
@@ -586,7 +584,7 @@ class CachedEmbeddingProvider(EmbeddingProvider):
         if uncached_texts:
             embeddings = await self._provider.embed_batch(uncached_texts)
             for idx, embedding, text in zip(
-                uncached_indices, embeddings, uncached_texts
+                uncached_indices, embeddings, uncached_texts, strict=False
             ):
                 results[idx] = embedding
                 self._cache.set(text, embedding)

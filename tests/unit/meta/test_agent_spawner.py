@@ -1,7 +1,6 @@
 """Unit tests for paracle_meta.capabilities.agent_spawner module."""
 
 import pytest
-
 from paracle_meta.capabilities.agent_spawner import (
     AgentPool,
     AgentSpawner,

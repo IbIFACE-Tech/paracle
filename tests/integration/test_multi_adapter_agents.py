@@ -7,15 +7,15 @@ Requires API keys in .env file.
 
 import asyncio
 import os
+
 import pytest
 from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
 
-from paracle_domain.models import AgentSpec, WorkflowSpec, WorkflowStep
 from paracle_adapters import list_available_adapters
-
+from paracle_domain.models import AgentSpec
 
 # Skip all tests if no API key
 pytestmark = pytest.mark.skipif(
@@ -452,9 +452,9 @@ class TestAdapterInteroperability:
         if not (available.get("langchain") and available.get("msaf")):
             pytest.skip("Need both LangChain and MSAF for this test")
 
+        from agent_framework.openai import OpenAIResponsesClient
         from langchain_openai import ChatOpenAI
         from paracle_adapters.langchain_adapter import LangChainAdapter
-        from agent_framework.openai import OpenAIResponsesClient
         from paracle_adapters.msaf_adapter import MSAFAdapter
 
         # Setup LangChain adapter

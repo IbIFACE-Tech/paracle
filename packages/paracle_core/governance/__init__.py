@@ -68,10 +68,7 @@ from paracle_core.governance.state_manager import (
     get_state_manager,
     reset_state_manager,
 )
-from paracle_core.governance.types import (
-    GovernanceActionType,
-    GovernanceAgentType,
-)
+from paracle_core.governance.types import GovernanceActionType, GovernanceAgentType
 
 __all__ = [
     # AI Compliance (Layer 3)

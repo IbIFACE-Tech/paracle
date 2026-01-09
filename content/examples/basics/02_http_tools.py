@@ -12,9 +12,8 @@ Note: Requires httpx to be installed (uv add httpx)
 """
 
 import asyncio
-import json
 
-from paracle_tools import http_get, http_post, http_put, http_delete
+from paracle_tools import http_delete, http_get, http_post, http_put
 
 
 async def main():
@@ -147,7 +146,7 @@ async def main():
     result = await fast_http.execute(url="https://jsonplaceholder.typicode.com/users/1")
 
     if result.success:
-        print(f"✓ Request completed within timeout")
+        print("✓ Request completed within timeout")
         print(f"  Status: {result.output['status_code']}")
 
     # =========================================================================

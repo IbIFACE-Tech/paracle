@@ -1,7 +1,6 @@
 """Unit tests for paracle_meta.capabilities.web_capabilities module."""
 
 import pytest
-
 from paracle_meta.capabilities.web_capabilities import (
     CrawlResult,
     SearchResult,

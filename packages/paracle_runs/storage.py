@@ -9,11 +9,7 @@ from typing import Any
 import yaml
 from paracle_core.parac.state import find_parac_root
 
-from paracle_runs.models import (
-    AgentRunMetadata,
-    RunQuery,
-    WorkflowRunMetadata,
-)
+from paracle_runs.models import AgentRunMetadata, RunQuery, WorkflowRunMetadata
 
 
 class RunStorage:

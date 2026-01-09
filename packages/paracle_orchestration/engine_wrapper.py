@@ -16,15 +16,9 @@ from paracle_domain.models import Workflow
 from paracle_events import EventBus
 from paracle_profiling import profile_async
 
-from paracle_orchestration.context import (
-    ExecutionContext,
-    ExecutionStatus,
-)
+from paracle_orchestration.context import ExecutionContext, ExecutionStatus
 from paracle_orchestration.engine import WorkflowOrchestrator
-from paracle_orchestration.exceptions import (
-    OrchestrationError,
-    WorkflowNotFoundError,
-)
+from paracle_orchestration.exceptions import OrchestrationError, WorkflowNotFoundError
 
 logger = logging.getLogger(__name__)
 
@@ -326,11 +320,7 @@ class WorkflowEngine:
         try:
             from datetime import datetime
 
-            from paracle_runs import (
-                RunStatus,
-                WorkflowRunMetadata,
-                get_run_storage,
-            )
+            from paracle_runs import RunStatus, WorkflowRunMetadata, get_run_storage
 
             # Convert execution status to run status
             status_map = {

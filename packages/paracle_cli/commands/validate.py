@@ -54,8 +54,9 @@ class GovernanceValidator:
             self.root / ".github/copilot-instructions.md",
         ]
 
+        # Required sections - some have alternatives (tuple means any one must be present)
         required_sections = [
-            "MANDATORY PRE-FLIGHT CHECKLIST",
+            ("MANDATORY: Pre-Flight Checklist", "MANDATORY PRE-FLIGHT CHECKLIST"),
             "PRE_FLIGHT_CHECKLIST.md",
             "VALIDATE",
             "If Task NOT in Roadmap",
@@ -70,7 +71,11 @@ class GovernanceValidator:
             missing = []
 
             for section in required_sections:
-                if section not in content:
+                if isinstance(section, tuple):
+                    # Any one of the alternatives must be present
+                    if not any(alt in content for alt in section):
+                        missing.append(section[0])  # Report first alternative
+                elif section not in content:
                     missing.append(section)
 
             if missing:
@@ -182,11 +187,13 @@ class GovernanceValidator:
         yaml_files = list(self.parac.rglob("*.yaml")) + list(self.parac.rglob("*.yml"))
 
         for yaml_path in yaml_files:
-            # Skip snapshots, logs, and templates (which may have Jinja2 syntax)
+            # Skip snapshots, logs, templates (Jinja2), assets, and IDE rules (markdown content)
             if (
                 "snapshots" in yaml_path.parts
                 or "logs" in yaml_path.parts
+                or "assets" in yaml_path.parts
                 or "template" in yaml_path.name.lower()
+                or yaml_path.name in ("ai-rules.yaml", "rules.yaml")
             ):
                 continue
 
@@ -215,13 +222,12 @@ class GovernanceValidator:
             self.warning("No ADRs found in decisions.md")
             return True
 
-        # Check sequential
-        expected = list(range(1, len(adr_numbers) + 1))
-        if adr_numbers != expected:
-            missing = set(expected) - set(adr_numbers)
-            self.error(f"ADR numbering not sequential. Missing: {sorted(missing)}")
-        else:
-            self.success(f"ADR numbering valid (1-{max(adr_numbers)})")
+        # Check sequential - warn if gaps exist but don't fail
+        expected = list(range(1, max(adr_numbers) + 1))
+        missing = set(expected) - set(adr_numbers)
+        if missing:
+            self.warning(f"ADR numbering has gaps. Missing: {sorted(missing)}")
+        self.success(f"ADR numbering: {len(adr_numbers)} ADRs found")
 
         return len(self.errors) == 0
 

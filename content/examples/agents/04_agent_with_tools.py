@@ -16,13 +16,7 @@ Run: uv run python examples/04_agent_with_tools.py
 import asyncio
 from pathlib import Path
 
-from paracle_tools import (
-    read_file,
-    write_file,
-    list_directory,
-    run_command,
-    http_get,
-)
+from paracle_tools import http_get, list_directory, read_file, run_command, write_file
 
 
 class CodeAnalysisAgent:

@@ -363,9 +363,7 @@ class TestAPIYoloSupport:
     @pytest.mark.asyncio
     async def test_execute_request_accepts_auto_approve(self):
         """Test that WorkflowExecuteRequest accepts auto_approve field."""
-        from paracle_api.routers.workflow_execution import (
-            WorkflowExecuteRequest,
-        )
+        from paracle_api.routers.workflow_execution import WorkflowExecuteRequest
 
         # Act
         request = WorkflowExecuteRequest(
@@ -382,9 +380,7 @@ class TestAPIYoloSupport:
     @pytest.mark.asyncio
     async def test_execute_request_defaults_auto_approve_false(self):
         """Test that auto_approve defaults to False."""
-        from paracle_api.routers.workflow_execution import (
-            WorkflowExecuteRequest,
-        )
+        from paracle_api.routers.workflow_execution import WorkflowExecuteRequest
 
         # Act
         request = WorkflowExecuteRequest(

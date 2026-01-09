@@ -61,9 +61,7 @@ class TestAIProviderProtocol:
     def test_openai_provider_protocol(self):
         """Test OpenAI provider implements protocol."""
         try:
-            from paracle_cli.providers.openai_provider import (
-                OpenAIProvider,
-            )
+            from paracle_cli.providers.openai_provider import OpenAIProvider
 
             # Check required attributes
             assert hasattr(OpenAIProvider, "name")
@@ -77,9 +75,7 @@ class TestAIProviderProtocol:
     def test_anthropic_provider_protocol(self):
         """Test Anthropic provider implements protocol."""
         try:
-            from paracle_cli.providers.anthropic_provider import (
-                AnthropicProvider,
-            )
+            from paracle_cli.providers.anthropic_provider import AnthropicProvider
 
             # Check required attributes
             assert hasattr(AnthropicProvider, "name")
@@ -173,9 +169,7 @@ class TestErrorHandling:
         monkeypatch.delenv("OPENAI_API_KEY", raising=False)
 
         try:
-            from paracle_cli.providers.openai_provider import (
-                OpenAIProvider,
-            )
+            from paracle_cli.providers.openai_provider import OpenAIProvider
 
             with pytest.raises(Exception):  # Should raise some error
                 OpenAIProvider()
@@ -187,9 +181,7 @@ class TestErrorHandling:
         monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
 
         try:
-            from paracle_cli.providers.anthropic_provider import (
-                AnthropicProvider,
-            )
+            from paracle_cli.providers.anthropic_provider import AnthropicProvider
 
             # Provider might fail during initialization or first use
             # This is implementation-dependent

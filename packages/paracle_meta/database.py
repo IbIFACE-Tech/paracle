@@ -37,6 +37,7 @@ from enum import Enum
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+from paracle_core.logging import get_logger
 from pydantic import BaseModel, Field, field_validator
 from sqlalchemy import (
     Column,
@@ -55,8 +56,6 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import Session, declarative_base, relationship, sessionmaker
 from sqlalchemy.types import JSON, TypeDecorator
-
-from paracle_core.logging import get_logger
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Iterator

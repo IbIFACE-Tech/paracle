@@ -325,9 +325,7 @@ def list_available_providers() -> list[str]:
 
     # Check Anthropic
     try:
-        from paracle_cli.providers.anthropic_provider import (
-            AnthropicProvider,
-        )
+        from paracle_cli.providers.anthropic_provider import AnthropicProvider
 
         if AnthropicProvider:  # Use the import
             available.append("anthropic")

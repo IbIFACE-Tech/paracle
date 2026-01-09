@@ -22,7 +22,6 @@ Usage:
 from __future__ import annotations
 
 from paracle_core.compat import UTC, datetime
-
 from sqlalchemy import JSON, DateTime, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 

@@ -34,12 +34,7 @@ Usage:
     store = PgVectorStore(connection_url="postgresql://...")
 """
 
-from paracle_vector.base import (
-    Document,
-    SearchResult,
-    VectorStore,
-    VectorStoreError,
-)
+from paracle_vector.base import Document, SearchResult, VectorStore, VectorStoreError
 from paracle_vector.chroma import ChromaStore
 from paracle_vector.embeddings import EmbeddingProvider, EmbeddingService
 from paracle_vector.pgvector import PgVectorStore

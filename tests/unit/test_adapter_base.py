@@ -1,11 +1,11 @@
 """Tests for framework adapter base protocol."""
 
-import pytest
 from typing import Any
 
+import pytest
 from paracle_adapters.base import FrameworkAdapter
-from paracle_adapters.registry import AdapterRegistry
 from paracle_adapters.exceptions import AdapterNotFoundError
+from paracle_adapters.registry import AdapterRegistry
 from paracle_domain.models import AgentSpec, WorkflowSpec
 
 

@@ -13,10 +13,7 @@ Note: GET /api/workflows now loads from .parac/workflows/ YAML files
 
 from fastapi import APIRouter, HTTPException, Query
 from paracle_domain.models import EntityStatus, Workflow
-from paracle_orchestration.workflow_loader import (
-    WorkflowLoader,
-    WorkflowLoadError,
-)
+from paracle_orchestration.workflow_loader import WorkflowLoader, WorkflowLoadError
 from paracle_store.workflow_repository import WorkflowRepository
 
 from paracle_api.schemas.workflow_crud import (

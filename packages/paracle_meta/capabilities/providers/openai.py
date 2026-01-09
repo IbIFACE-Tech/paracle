@@ -18,7 +18,8 @@ from __future__ import annotations
 
 import os
 import time
-from typing import TYPE_CHECKING, Any, AsyncIterator
+from collections.abc import AsyncIterator
+from typing import TYPE_CHECKING, Any
 
 from paracle_meta.capabilities.provider_protocol import (
     BaseProvider,
@@ -151,11 +152,7 @@ class OpenAIProvider(BaseProvider):
         start_time = time.time()
 
         try:
-            from openai import (
-                APIError,
-                AuthenticationError,
-                RateLimitError,
-            )
+            from openai import APIError, AuthenticationError, RateLimitError
 
             params = self._build_params(request)
             response = await self._client.chat.completions.create(**params)
@@ -187,11 +184,7 @@ class OpenAIProvider(BaseProvider):
             raise ProviderUnavailableError(self.name, "Not initialized")
 
         try:
-            from openai import (
-                APIError,
-                AuthenticationError,
-                RateLimitError,
-            )
+            from openai import APIError, AuthenticationError, RateLimitError
 
             params = self._build_params(request)
             params["stream"] = True

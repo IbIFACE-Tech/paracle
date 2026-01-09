@@ -307,8 +307,8 @@ class ChatSession(Session):
 
     def __init__(
         self,
-        provider: "CapabilityProvider",
-        registry: "CapabilityRegistry",
+        provider: CapabilityProvider,
+        registry: CapabilityRegistry,
         config: ChatConfig | None = None,
     ):
         """Initialize chat session.
@@ -416,7 +416,7 @@ class ChatSession(Session):
             tool_results = await self._execute_tool_calls(response.tool_calls)
 
             # Add tool results to messages
-            for tc, result in zip(response.tool_calls, tool_results):
+            for tc, result in zip(response.tool_calls, tool_results, strict=False):
                 # Add assistant's tool call
                 self.messages.append(
                     SessionMessage(

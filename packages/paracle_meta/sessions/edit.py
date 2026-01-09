@@ -48,13 +48,9 @@ import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
-from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from paracle_meta.capabilities.provider_protocol import (
-    LLMMessage,
-    LLMRequest,
-)
+from paracle_meta.capabilities.provider_protocol import LLMMessage, LLMRequest
 from paracle_meta.sessions.base import (
     Session,
     SessionConfig,
@@ -313,8 +309,8 @@ class EditSession(Session):
 
     def __init__(
         self,
-        provider: "CapabilityProvider",
-        registry: "CapabilityRegistry",
+        provider: CapabilityProvider,
+        registry: CapabilityRegistry,
         config: EditConfig | None = None,
     ):
         """Initialize edit session.
@@ -450,7 +446,7 @@ class EditSession(Session):
         result = await self._filesystem.read_file(file_path)
         if not result.success:
             return self._create_failed_edit(
-                file_path, f"Insert code", f"Cannot read file: {result.error}"
+                file_path, "Insert code", f"Cannot read file: {result.error}"
             )
 
         original_content = result.output.get("content", "")

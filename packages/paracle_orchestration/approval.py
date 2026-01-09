@@ -20,9 +20,9 @@ Usage:
 from __future__ import annotations
 
 import asyncio
-from paracle_core.compat import UTC, datetime, timedelta
 from typing import TYPE_CHECKING, Any
 
+from paracle_core.compat import UTC, datetime, timedelta
 from paracle_domain.models import (
     ApprovalConfig,
     ApprovalPriority,

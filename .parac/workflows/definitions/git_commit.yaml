@@ -1,4 +1,4 @@
-"""Git commit workflow for releasemanager agent with tool integration."""
+# Git commit workflow for releasemanager agent with tool integration.
 
 version: "1.0"
 id: "git_commit_workflow"

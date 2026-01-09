@@ -1,7 +1,6 @@
 """Unit tests for paracle_meta.templates module."""
 
 import pytest
-
 from paracle_meta.exceptions import TemplateNotFoundError
 from paracle_meta.templates import Template, TemplateEvolution, TemplateLibrary
 

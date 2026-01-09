@@ -1,12 +1,9 @@
 """Unit tests for paracle_meta.capabilities.filesystem module."""
 
-import pytest
 from pathlib import Path
 
-from paracle_meta.capabilities.filesystem import (
-    FileSystemCapability,
-    FileSystemConfig,
-)
+import pytest
+from paracle_meta.capabilities.filesystem import FileSystemCapability, FileSystemConfig
 
 
 class TestFileSystemConfig:

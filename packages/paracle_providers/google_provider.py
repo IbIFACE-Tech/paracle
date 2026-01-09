@@ -20,10 +20,7 @@ from paracle_providers.base import (
     StreamChunk,
     TokenUsage,
 )
-from paracle_providers.exceptions import (
-    LLMProviderError,
-    ProviderAuthenticationError,
-)
+from paracle_providers.exceptions import LLMProviderError, ProviderAuthenticationError
 from paracle_providers.retry import RetryableProvider, RetryConfig
 
 

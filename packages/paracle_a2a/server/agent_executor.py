@@ -8,13 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from paracle_a2a.exceptions import AgentNotFoundError
-from paracle_a2a.models import (
-    Artifact,
-    Message,
-    Task,
-    TaskState,
-    TextPart,
-)
+from paracle_a2a.models import Artifact, Message, Task, TaskState, TextPart
 from paracle_a2a.server.event_queue import TaskEventQueue
 from paracle_a2a.server.task_manager import TaskManager
 

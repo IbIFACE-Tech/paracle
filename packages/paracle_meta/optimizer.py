@@ -14,8 +14,6 @@ from typing import Any
 from paracle_core.logging import get_logger
 from pydantic import BaseModel, Field
 
-from paracle_meta.exceptions import CostLimitExceededError
-
 logger = get_logger(__name__)
 
 

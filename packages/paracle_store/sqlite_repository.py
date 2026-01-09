@@ -19,9 +19,9 @@ from __future__ import annotations
 
 import hashlib
 import json
-from paracle_core.compat import UTC, datetime
 from typing import TYPE_CHECKING
 
+from paracle_core.compat import UTC, datetime
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 

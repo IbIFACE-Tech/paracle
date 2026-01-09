@@ -152,15 +152,13 @@ If making an architectural decision, document in `{ParacPaths.DECISIONS}`:
 
     def _skills_content(self) -> str:
         """Generate the skills section content."""
-        return """
+        return f"""
 - skill-name-1
 - skill-name-2
 - skill-name-3
 
-> See `{path}` for available skills.
-""".format(
-            path=ParacPaths.SKILL_ASSIGNMENTS
-        ).strip()
+> See `{ParacPaths.SKILL_ASSIGNMENTS}` for available skills.
+""".strip()
 
     def _responsibilities_content(self) -> str:
         """Generate the responsibilities section content."""

@@ -1,7 +1,6 @@
 """Unit tests for paracle_meta.capabilities.anthropic_integration module."""
 
 import pytest
-
 from paracle_meta.capabilities.anthropic_integration import (
     AnthropicCapability,
     AnthropicConfig,

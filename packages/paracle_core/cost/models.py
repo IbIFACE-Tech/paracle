@@ -4,11 +4,12 @@ Defines all models for tracking, aggregating, and reporting costs.
 """
 
 from dataclasses import dataclass, field
-from paracle_core.compat import UTC, datetime
 from enum import Enum
 from typing import Any
 
 from pydantic import BaseModel, Field
+
+from paracle_core.compat import UTC, datetime
 
 
 def _utcnow() -> datetime:

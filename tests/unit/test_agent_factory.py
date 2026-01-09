@@ -1,10 +1,8 @@
 """Tests for Agent Factory."""
 
 import pytest
-
 from paracle_domain import (
     AgentFactory,
-    AgentFactoryError,
     AgentSpec,
     CircularInheritanceError,
     MaxDepthExceededError,

@@ -1,7 +1,5 @@
 """Unit tests for paracle_meta.exceptions module."""
 
-import pytest
-
 from paracle_meta.exceptions import (
     ConfigurationError,
     CostLimitExceededError,

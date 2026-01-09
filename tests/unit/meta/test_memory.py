@@ -1,13 +1,9 @@
 """Unit tests for paracle_meta.capabilities.memory module."""
 
-import pytest
 from pathlib import Path
 
-from paracle_meta.capabilities.memory import (
-    MemoryCapability,
-    MemoryConfig,
-    MemoryItem,
-)
+import pytest
+from paracle_meta.capabilities.memory import MemoryCapability, MemoryConfig, MemoryItem
 
 
 class TestMemoryConfig:
@@ -87,7 +83,7 @@ class TestMemoryItem:
 
     def test_is_expired(self):
         """Test expiration check."""
-        from datetime import datetime, timezone, timedelta
+        from datetime import datetime, timedelta, timezone
 
         # Not expired
         item = MemoryItem(key="test", value="data", ttl_hours=24)

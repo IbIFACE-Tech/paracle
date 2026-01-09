@@ -37,11 +37,7 @@ from paracle_orchestration.exceptions import (
     OrchestrationError,
     StepExecutionError,
 )
-from paracle_orchestration.planner import (
-    ExecutionGroup,
-    ExecutionPlan,
-    WorkflowPlanner,
-)
+from paracle_orchestration.planner import ExecutionGroup, ExecutionPlan, WorkflowPlanner
 from paracle_orchestration.retry import (
     AGGRESSIVE_RETRY_POLICY,
     CONSERVATIVE_RETRY_POLICY,

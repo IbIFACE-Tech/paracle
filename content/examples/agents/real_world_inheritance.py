@@ -26,11 +26,15 @@ def print_agent_info(agent, title: str) -> None:
     print(f"Temperature: {spec.temperature}")
     print(f"Tools: {', '.join(spec.tools) if spec.tools else 'None'}")
     print(f"Skills: {', '.join(spec.skills) if spec.skills else 'None'}")
-    print(f"System Prompt: {spec.system_prompt[:100]}..." if spec.system_prompt and len(
-        spec.system_prompt) > 100 else f"System Prompt: {spec.system_prompt}")
-    if hasattr(agent, 'resolved_spec') and agent.resolved_spec:
+    print(
+        f"System Prompt: {spec.system_prompt[:100]}..."
+        if spec.system_prompt and len(spec.system_prompt) > 100
+        else f"System Prompt: {spec.system_prompt}"
+    )
+    if hasattr(agent, "resolved_spec") and agent.resolved_spec:
         print(
-            f"Inheritance Chain: {' -> '.join(reversed([spec.name for spec in [agent.spec] if spec.parent]))}")
+            f"Inheritance Chain: {' -> '.join(reversed([spec.name for spec in [agent.spec] if spec.parent]))}"
+        )
 
 
 def main() -> None:
@@ -64,7 +68,7 @@ def main() -> None:
         metadata={
             "role": "reviewer",
             "experience_level": "senior",
-        }
+        },
     )
 
     # Register the spec first
@@ -96,10 +100,10 @@ def main() -> None:
         metadata={
             "language": "python",
             "pep8_strict": True,
-        }
-        # Register the spec
-        repo.register_spec(python_spec)
+        },
     )
+    # Register the spec
+    repo.register_spec(python_spec)
 
     python_agent = factory.create(python_spec)
     print(f"✅ Created: {python_spec.name}")
@@ -131,11 +135,11 @@ def main() -> None:
         skills=["api-design", "fastapi", "rest-patterns"],
         metadata={
             "framework": "fastapi",
-            # Register the spec
-            repo.register_spec(fastapi_spec)
             "api_version": "v1",
-        }
+        },
     )
+    # Register the spec
+    repo.register_spec(fastapi_spec)
 
     fastapi_agent = factory.create(fastapi_spec)
     print(f"✅ Created: {fastapi_spec.name}")
@@ -167,7 +171,7 @@ def main() -> None:
         metadata={
             "security_level": "high",
             "owasp_version": "2023",
-        }
+        },
     )
 
     # Register the spec
@@ -201,22 +205,28 @@ def main() -> None:
     print(f"   Level 1 (Base):     {len(base_spec.tools)} tools")
     python_effective = python_agent.get_effective_spec()
     print(
-        f"   Level 2 (Python):   {len(python_effective.tools)} tools (inherited + added)")
+        f"   Level 2 (Python):   {len(python_effective.tools)} tools (inherited + added)"
+    )
     fastapi_effective = fastapi_agent.get_effective_spec()
     print(
-        f"   Level 3 (FastAPI):  {len(fastapi_effective.tools)} tools (inherited + added)")
+        f"   Level 3 (FastAPI):  {len(fastapi_effective.tools)} tools (inherited + added)"
+    )
     security_effective = security_agent.get_effective_spec()
     print(
-        f"   Level 4 (Security): {len(security_effective.tools)} tools (inherited + added)")
+        f"   Level 4 (Security): {len(security_effective.tools)} tools (inherited + added)"
+    )
 
     print("\n🎓 Skill Accumulation:")
     print(f"   Level 1 (Base):     {len(base_spec.skills)} skill")
     print(
-        f"   Level 2 (Python):   {len(python_effective.skills)} skills (inherited + added)")
+        f"   Level 2 (Python):   {len(python_effective.skills)} skills (inherited + added)"
+    )
     print(
-        f"   Level 3 (FastAPI):  {len(fastapi_effective.skills)} skills (inherited + added)")
+        f"   Level 3 (FastAPI):  {len(fastapi_effective.skills)} skills (inherited + added)"
+    )
     print(
-        f"   Level 4 (Security): {len(security_effective.skills)} skills (inherited + added)")
+        f"   Level 4 (Security): {len(security_effective.skills)} skills (inherited + added)"
+    )
 
     print("\n🎯 Temperature Evolution (stricter at each level):")
     print(f"   Base:     {base_spec.temperature}")
@@ -256,16 +266,28 @@ def main() -> None:
 
     # Verify tools are accumulated
     assert "read_file" in security_effective.tools, "Base tool should be inherited"
-    assert "run_python_linter" in security_effective.tools, "Python tool should be inherited"
-    assert "validate_openapi" in security_effective.tools, "FastAPI tool should be inherited"
-    assert "scan_vulnerabilities" in security_effective.tools, "Security tool should be present"
+    assert (
+        "run_python_linter" in security_effective.tools
+    ), "Python tool should be inherited"
+    assert (
+        "validate_openapi" in security_effective.tools
+    ), "FastAPI tool should be inherited"
+    assert (
+        "scan_vulnerabilities" in security_effective.tools
+    ), "Security tool should be present"
     print("✅ Tool inheritance: VERIFIED")
 
     # Verify skills are accumulated
     assert "code-review" in security_effective.skills, "Base skill should be inherited"
-    assert "python-best-practices" in security_effective.skills, "Python skill should be inherited"
-    assert "api-design" in security_effective.skills, "FastAPI skill should be inherited"
-    assert "security-audit" in security_effective.skills, "Security skill should be present"
+    assert (
+        "python-best-practices" in security_effective.skills
+    ), "Python skill should be inherited"
+    assert (
+        "api-design" in security_effective.skills
+    ), "FastAPI skill should be inherited"
+    assert (
+        "security-audit" in security_effective.skills
+    ), "Security skill should be present"
     print("✅ Skill inheritance: VERIFIED")
 
     # Verify overrides work
@@ -275,9 +297,15 @@ def main() -> None:
 
     # Verify metadata merging
     assert "role" in security_effective.metadata, "Base metadata should be inherited"
-    assert "language" in security_effective.metadata, "Python metadata should be inherited"
-    assert "framework" in security_effective.metadata, "FastAPI metadata should be inherited"
-    assert "security_level" in security_effective.metadata, "Security metadata should be present"
+    assert (
+        "language" in security_effective.metadata
+    ), "Python metadata should be inherited"
+    assert (
+        "framework" in security_effective.metadata
+    ), "FastAPI metadata should be inherited"
+    assert (
+        "security_level" in security_effective.metadata
+    ), "Security metadata should be present"
     print("✅ Metadata merging: VERIFIED")
 
     print("\n" + "=" * 60)

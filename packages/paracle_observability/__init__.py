@@ -27,9 +27,7 @@ from paracle_observability.error_registry import (
     ErrorRegistry,
     get_error_registry,
 )
-from paracle_observability.error_registry import (
-    ErrorSeverity as ErrorSeverityLevel,
-)
+from paracle_observability.error_registry import ErrorSeverity as ErrorSeverityLevel
 from paracle_observability.error_reporter import AutomatedErrorReporter
 from paracle_observability.exceptions import (
     AlertChannelError,

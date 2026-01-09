@@ -33,7 +33,7 @@ import os
 import platform
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal
+from typing import Any
 
 import yaml
 from pydantic import BaseModel, Field, field_validator, model_validator
@@ -140,7 +140,7 @@ class CostConfig(BaseModel):
     )
 
     @model_validator(mode="after")
-    def validate_budgets(self) -> "CostConfig":
+    def validate_budgets(self) -> CostConfig:
         if self.max_daily_budget > self.max_monthly_budget:
             raise ValueError("Daily budget cannot exceed monthly budget")
         return self
@@ -324,7 +324,7 @@ def load_yaml_config(path: Path) -> dict[str, Any]:
         return {}
 
     try:
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             data = yaml.safe_load(f)
             return data if data else {}
     except Exception as e:

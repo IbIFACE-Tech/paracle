@@ -46,7 +46,7 @@ def create_icon(size: int = 128):
             # Try to use a system font
             font_size = int(size * 0.6)
             font = ImageFont.truetype("arial.ttf", font_size)
-        except (OSError, IOError):
+        except OSError:
             font = ImageFont.load_default()
 
         text = "P"

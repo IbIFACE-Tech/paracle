@@ -1,8 +1,6 @@
 """Tests for vector store base types."""
 
-from datetime import UTC, datetime
-
-import pytest
+from datetime import datetime
 
 from paracle_vector.base import (
     CollectionNotFoundError,

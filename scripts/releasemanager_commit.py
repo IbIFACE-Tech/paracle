@@ -1,11 +1,12 @@
 """ReleaseManager agent with git tools integration."""
 
-from rich.panel import Panel
-from rich.console import Console
-from paracle_orchestration.tool_executor import ToolEnabledAgentExecutor
 import asyncio
 import sys
 from pathlib import Path
+
+from paracle_orchestration.tool_executor import ToolEnabledAgentExecutor
+from rich.console import Console
+from rich.panel import Panel
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "packages"))
 

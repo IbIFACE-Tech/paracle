@@ -1,7 +1,7 @@
 """Unit tests for domain models."""
 
 import pytest
-from paracle_domain.models import AgentSpec, Agent, EntityStatus
+from paracle_domain.models import Agent, AgentSpec, EntityStatus
 
 
 class TestAgentSpec:

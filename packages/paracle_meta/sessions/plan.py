@@ -28,16 +28,13 @@ Example:
 from __future__ import annotations
 
 import json
+import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
 from typing import TYPE_CHECKING, Any
-import uuid
 
-from paracle_meta.capabilities.provider_protocol import (
-    LLMMessage,
-    LLMRequest,
-)
+from paracle_meta.capabilities.provider_protocol import LLMMessage, LLMRequest
 from paracle_meta.sessions.base import (
     Session,
     SessionConfig,
@@ -146,7 +143,7 @@ class PlanStep:
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "PlanStep":
+    def from_dict(cls, data: dict[str, Any]) -> PlanStep:
         """Create from dictionary."""
         return cls(
             id=data.get("id", f"step_{uuid.uuid4().hex[:8]}"),
@@ -241,7 +238,7 @@ class Plan:
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "Plan":
+    def from_dict(cls, data: dict[str, Any]) -> Plan:
         """Create from dictionary."""
         return cls(
             id=data.get("id", f"plan_{uuid.uuid4().hex[:12]}"),
@@ -288,8 +285,8 @@ class PlanSession(Session):
 
     def __init__(
         self,
-        provider: "CapabilityProvider",
-        registry: "CapabilityRegistry",
+        provider: CapabilityProvider,
+        registry: CapabilityRegistry,
         config: PlanConfig | None = None,
     ):
         """Initialize plan session.

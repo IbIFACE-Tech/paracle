@@ -14,10 +14,7 @@ import sys
 from pathlib import Path
 
 import click
-from paracle_profiling.benchmark import (
-    BenchmarkSuite,
-    BenchmarkSuiteResult,
-)
+from paracle_profiling.benchmark import BenchmarkSuite, BenchmarkSuiteResult
 
 # Default paths
 DEFAULT_BASELINE_PATH = Path(".benchmarks/baseline.json")

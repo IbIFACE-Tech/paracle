@@ -30,9 +30,10 @@ Example:
 import asyncio
 import os
 import time
+from collections.abc import AsyncIterator
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, AsyncIterator
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -780,7 +781,7 @@ Return a JSON array of subtasks with this structure:
     ) -> dict[str, Any]:
         """Mock tool completion when SDK unavailable."""
         return {
-            "content": f"[Mock tool response - Anthropic SDK not available]",
+            "content": "[Mock tool response - Anthropic SDK not available]",
             "tool_calls": [],
             "model": "mock",
             "usage": {"input_tokens": 0, "output_tokens": 0},

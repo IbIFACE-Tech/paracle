@@ -3,19 +3,16 @@
 import logging
 from typing import Any
 
-from paracle_tools import (
+from paracle_tools import (  # Architect tools; Coder tools; Git tools (shared by coder and releasemanager); GitHub CLI tool (for releasemanager); Documenter tools; Reviewer tools; PM tools; Terminal tools (for IDE agents); Tester tools; Release Manager tools
     api_doc_generation,
     changelog_generation,
     cicd_integration,
-    # Architect tools
     code_analysis,
-    # Coder tools
     code_generation,
     code_review,
     coverage_analysis,
     diagram_creation,
     diagram_generation,
-    # Git tools (shared by coder and releasemanager)
     git_add,
     git_branch,
     git_checkout,
@@ -31,30 +28,23 @@ from paracle_tools import (
     git_stash,
     git_status,
     git_tag,
-    # GitHub CLI tool (for releasemanager)
     github_cli,
-    # Documenter tools
     markdown_generation,
     milestone_management,
     package_publishing,
     pattern_matching,
     refactoring,
     security_scan,
-    # Reviewer tools
     static_analysis,
-    # PM tools
     task_tracking,
     team_coordination,
-    # Terminal tools (for IDE agents)
     terminal_execute,
     terminal_info,
     terminal_interactive,
     terminal_which,
     test_execution,
-    # Tester tools
     test_generation,
     testing,
-    # Release Manager tools
     version_management,
 )
 

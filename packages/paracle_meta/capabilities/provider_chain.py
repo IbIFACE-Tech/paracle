@@ -30,10 +30,11 @@ from __future__ import annotations
 import asyncio
 import random
 import time
+from collections.abc import AsyncIterator
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
-from typing import TYPE_CHECKING, Any, AsyncIterator
+from typing import TYPE_CHECKING, Any
 
 from paracle_meta.capabilities.provider_protocol import (
     BaseProvider,
@@ -42,7 +43,6 @@ from paracle_meta.capabilities.provider_protocol import (
     LLMResponse,
     ProviderError,
     ProviderRateLimitError,
-    ProviderStatus,
     StreamChunk,
 )
 

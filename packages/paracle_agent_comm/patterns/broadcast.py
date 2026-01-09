@@ -5,11 +5,7 @@ All messages are sent to all agents in the group.
 
 from typing import Any
 
-from paracle_agent_comm.models import (
-    AgentGroup,
-    GroupMessage,
-    GroupSession,
-)
+from paracle_agent_comm.models import AgentGroup, GroupMessage, GroupSession
 
 
 class BroadcastPattern:

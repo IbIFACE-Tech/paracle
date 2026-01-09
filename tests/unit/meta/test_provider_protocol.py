@@ -1,7 +1,6 @@
 """Unit tests for paracle_meta.capabilities.provider_protocol module."""
 
 import pytest
-
 from paracle_meta.capabilities.provider_protocol import (
     LLMMessage,
     LLMRequest,

@@ -1,8 +1,6 @@
 """Unit tests for health API router."""
 
-import pytest
 from fastapi.testclient import TestClient
-
 from paracle_api.main import app
 
 

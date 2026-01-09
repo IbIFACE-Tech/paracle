@@ -14,6 +14,11 @@ on:
   pull_request_review_comment:
     types: [created]
 
+# Environment variables for Paracle
+env:
+  PARACLE_PROJECT: paracle-lite
+  PARACLE_PHASE: phase_10
+
 jobs:
   claude-code:
     if: |
@@ -42,15 +47,12 @@ jobs:
       - name: Run Claude Code
         uses: anthropics/claude-code-action@v1
         with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}          github_token: ${{ secrets.GITHUB_TOKEN }}          # Claude will read .claude/CLAUDE.md for instructions
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # Claude will read .claude/CLAUDE.md for instructions
           # And use Paracle MCP tools via: paracle mcp serve --stdio
 
       - name: Log Action
         if: success()
         run: |
           echo "[$(date -Iseconds)] [ClaudeAction] [CI] GitHub Action completed" >> .parac/memory/logs/agent_actions.log
-
-# Environment variables for Paracle
-env:
-  PARACLE_PROJECT: paracle-lite
-  PARACLE_PHASE: phase_10

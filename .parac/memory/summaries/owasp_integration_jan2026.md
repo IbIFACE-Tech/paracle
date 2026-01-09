@@ -254,4 +254,3 @@ Edit `.github/dependency-check-suppressions.xml`:
 **Status**: ✅ Production-Ready
 **Maintenance**: Automated daily scans
 **Support**: security@paracle.io
-

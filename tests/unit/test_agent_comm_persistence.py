@@ -4,7 +4,6 @@ Tests for InMemorySessionStore and SQLiteSessionStore.
 """
 
 import pytest
-
 from paracle_agent_comm.exceptions import GroupNotFoundError, SessionNotFoundError
 from paracle_agent_comm.models import (
     AgentGroup,
@@ -15,10 +14,7 @@ from paracle_agent_comm.models import (
     MessagePart,
     MessageType,
 )
-from paracle_agent_comm.persistence import (
-    InMemorySessionStore,
-    SQLiteSessionStore,
-)
+from paracle_agent_comm.persistence import InMemorySessionStore, SQLiteSessionStore
 
 
 @pytest.fixture

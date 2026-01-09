@@ -1,8 +1,14 @@
 """Tests for repository pattern implementation."""
 
 import pytest
-
-from paracle_domain import Agent, AgentSpec, EntityStatus, Tool, ToolSpec
+from paracle_domain import (
+    Agent,
+    AgentSpec,
+    EntityStatus,
+    ToolSpec,
+    WorkflowSpec,
+    WorkflowStep,
+)
 from paracle_store import (
     AgentRepository,
     DuplicateError,
@@ -11,7 +17,6 @@ from paracle_store import (
     ToolRepository,
     WorkflowRepository,
 )
-from paracle_domain import Workflow, WorkflowSpec, WorkflowStep
 
 
 class TestInMemoryRepository:

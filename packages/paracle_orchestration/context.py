@@ -1,9 +1,9 @@
 """Execution context for workflow orchestration."""
 
-from paracle_core.compat import UTC, datetime
 from enum import Enum
 from typing import Any
 
+from paracle_core.compat import UTC, datetime
 from pydantic import BaseModel, Field
 
 

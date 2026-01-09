@@ -6,10 +6,11 @@ Usage:
     python examples/tools/test_github_cli.py
 """
 
-from paracle_tools.release_tools import github_cli
 import asyncio
 import sys
 from pathlib import Path
+
+from paracle_tools.release_tools import github_cli
 
 # Add packages to path
 repo_root = Path(__file__).parent.parent.parent

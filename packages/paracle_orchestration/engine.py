@@ -27,12 +27,8 @@ from paracle_events.events import (
     workflow_started,
 )
 
-from paracle_orchestration.approval import (
-    ApprovalManager,
-)
-from paracle_orchestration.approval import (
-    ApprovalTimeoutError as ApprovalTimeout,
-)
+from paracle_orchestration.approval import ApprovalManager
+from paracle_orchestration.approval import ApprovalTimeoutError as ApprovalTimeout
 from paracle_orchestration.context import ExecutionContext
 from paracle_orchestration.dag import DAG
 from paracle_orchestration.exceptions import (

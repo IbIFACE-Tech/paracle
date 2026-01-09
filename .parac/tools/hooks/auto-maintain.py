@@ -21,7 +21,6 @@ import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Set
 
 import yaml
 
@@ -34,7 +33,7 @@ class ParacMaintainer:
         self.parac_dir = repo_root / ".parac"
         self.dry_run = dry_run
         self.verbose = verbose
-        self.changes: List[str] = []
+        self.changes: list[str] = []
 
     def log(self, message: str, level: str = "info") -> None:
         """Log message if verbose mode enabled."""
@@ -42,7 +41,7 @@ class ParacMaintainer:
             prefix = "🔄" if level == "change" else "ℹ️"
             print(f"{prefix} {message}")
 
-    def get_git_changes(self) -> Dict[str, Set[str]]:
+    def get_git_changes(self) -> dict[str, set[str]]:
         """Get changed files from git (staged + unstaged)."""
         try:
             # Get staged files
@@ -79,7 +78,7 @@ class ParacMaintainer:
             self.log("Not a git repository or git not available", "warning")
             return {}
 
-    def update_current_state(self, changes: Dict[str, Set[str]]) -> None:
+    def update_current_state(self, changes: dict[str, set[str]]) -> None:
         """Update .parac/memory/context/current_state.yaml based on changes."""
         state_file = self.parac_dir / "memory" / "context" / "current_state.yaml"
 
@@ -87,7 +86,7 @@ class ParacMaintainer:
             self.log(f"State file not found: {state_file}", "warning")
             return
 
-        with open(state_file, "r", encoding="utf-8") as f:
+        with open(state_file, encoding="utf-8") as f:
             state = yaml.safe_load(f)
 
         # Update snapshot date
@@ -129,7 +128,7 @@ class ParacMaintainer:
         else:
             self.log(f"Would update {state_file.relative_to(self.repo_root)}", "change")
 
-    def update_changelog(self, changes: Dict[str, Set[str]]) -> None:
+    def update_changelog(self, changes: dict[str, set[str]]) -> None:
         """Update .parac/changelog.md with recent changes."""
         changelog_file = self.parac_dir / "changelog.md"
 
@@ -137,7 +136,7 @@ class ParacMaintainer:
             self.log(f"Changelog not found: {changelog_file}", "warning")
             return
 
-        with open(changelog_file, "r", encoding="utf-8") as f:
+        with open(changelog_file, encoding="utf-8") as f:
             content = f.read()
 
         today = datetime.now().strftime("%Y-%m-%d")
@@ -201,7 +200,7 @@ class ParacMaintainer:
         if not roadmap_file.exists():
             return
 
-        with open(roadmap_file, "r", encoding="utf-8") as f:
+        with open(roadmap_file, encoding="utf-8") as f:
             roadmap = yaml.safe_load(f)
 
         current_phase = roadmap.get("current_phase", "phase_0")

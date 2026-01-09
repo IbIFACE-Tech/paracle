@@ -8,9 +8,10 @@ from __future__ import annotations
 import json
 import logging
 from abc import ABC, abstractmethod
-from paracle_core.compat import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
+
+from paracle_core.compat import UTC, datetime
 
 from paracle_memory.models import Memory, MemorySummary, MemoryType
 

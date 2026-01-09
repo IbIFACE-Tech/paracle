@@ -21,7 +21,8 @@ from __future__ import annotations
 
 import os
 import time
-from typing import TYPE_CHECKING, Any, AsyncIterator
+from collections.abc import AsyncIterator
+from typing import TYPE_CHECKING, Any
 
 from paracle_meta.capabilities.provider_protocol import (
     BaseProvider,
@@ -31,7 +32,6 @@ from paracle_meta.capabilities.provider_protocol import (
     ProviderAPIError,
     ProviderAuthenticationError,
     ProviderRateLimitError,
-    ProviderStatus,
     ProviderUnavailableError,
     StreamChunk,
     ToolCallRequest,

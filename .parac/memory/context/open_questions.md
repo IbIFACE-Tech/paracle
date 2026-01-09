@@ -756,4 +756,3 @@ Questions will be moved here once decided, with reference to decision document.
 **ADR:** ADR-019
 **Timeline:** Phase 8 (8 weeks, Q2 2026)
 **Implemented:** Partial (workaround documented, native support planned)
-

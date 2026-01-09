@@ -12,15 +12,13 @@ from __future__ import annotations
 import hashlib
 import logging
 from dataclasses import dataclass, field
-from paracle_core.compat import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+from paracle_core.compat import UTC, datetime
+
 from paracle_knowledge.base import Document, DocumentType, KnowledgeBase
-from paracle_knowledge.chunkers import (
-    ChunkerConfig,
-    get_chunker,
-)
+from paracle_knowledge.chunkers import ChunkerConfig, get_chunker
 
 if TYPE_CHECKING:
     pass

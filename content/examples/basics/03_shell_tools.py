@@ -30,7 +30,7 @@ async def main():
     result = await run_command.execute(command="echo Hello from Paracle")
 
     if result.success:
-        print(f"✓ Command executed successfully")
+        print("✓ Command executed successfully")
         print(f"  Output: {result.output['stdout'].strip()}")
         print(f"  Return code: {result.output['return_code']}")
     else:
@@ -45,7 +45,7 @@ async def main():
     result = await run_command.execute(command=list_cmd)
 
     if result.success:
-        print(f"\n✓ Directory listing:")
+        print("\n✓ Directory listing:")
         files = result.output["stdout"].strip().split("\n")[:5]
         for f in files:
             print(f"  - {f}")
@@ -61,7 +61,7 @@ async def main():
     result = await run_command.execute(command="git status --short")
 
     if result.success:
-        print(f"✓ Git status:")
+        print("✓ Git status:")
         if result.output["stdout"].strip():
             print(result.output["stdout"].strip())
         else:
@@ -71,7 +71,7 @@ async def main():
     result = await run_command.execute(command="git log --oneline -3")
 
     if result.success:
-        print(f"\n✓ Recent commits:")
+        print("\n✓ Recent commits:")
         print(result.output["stdout"].strip())
 
     # =========================================================================
@@ -105,7 +105,7 @@ async def main():
     )
 
     if result.success:
-        print(f"✓ Command executed")
+        print("✓ Command executed")
         print(f"  Stdout: '{result.output['stdout'].strip()}'")
         print(f"  Stderr: '{result.output['stderr'].strip()}'")
 
@@ -117,7 +117,7 @@ async def main():
     result = await run_command.execute(command='python -c "import sys; sys.exit(42)"')
 
     if result.success:  # Tool execution succeeded
-        print(f"✓ Tool executed successfully")
+        print("✓ Tool executed successfully")
         print(f"  Command success: {result.output['success']}")  # But command failed
         print(f"  Return code: {result.output['return_code']}")
 
@@ -196,7 +196,7 @@ async def main():
     )
 
     if result.success:
-        print(f"✓ Tests executed")
+        print("✓ Tests executed")
         print(f"  Return code: {result.output['return_code']}")
         # Show last few lines
         output_lines = result.output["stdout"].strip().split("\n")

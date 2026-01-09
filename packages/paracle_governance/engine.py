@@ -13,10 +13,7 @@ from .policies import DEFAULT_POLICIES, Policy, PolicyResult
 logger = logging.getLogger(__name__)
 
 from .evaluator import PolicyEvaluator  # noqa: E402
-from .exceptions import (  # noqa: E402
-    PolicyNotFoundError,
-    PolicyViolationError,
-)
+from .exceptions import PolicyNotFoundError, PolicyViolationError  # noqa: E402
 from .loader import PolicyLoader  # noqa: E402
 
 

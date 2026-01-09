@@ -1,7 +1,6 @@
 """Tests for DAG validation and topological sorting."""
 
 import pytest
-
 from paracle_domain.models import WorkflowStep
 from paracle_orchestration.dag import DAG
 from paracle_orchestration.exceptions import (

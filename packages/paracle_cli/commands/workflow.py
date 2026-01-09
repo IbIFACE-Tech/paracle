@@ -882,10 +882,7 @@ def _run_workflow_local(
     from paracle_domain.models import Workflow, generate_id
     from paracle_events import EventBus
     from paracle_orchestration.engine import WorkflowOrchestrator
-    from paracle_orchestration.workflow_loader import (
-        WorkflowLoader,
-        WorkflowLoadError,
-    )
+    from paracle_orchestration.workflow_loader import WorkflowLoader, WorkflowLoadError
 
     try:
         # Load workflow spec from YAML

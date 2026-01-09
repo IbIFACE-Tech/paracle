@@ -219,9 +219,7 @@ async def test_streaming_providers():
 
 async def test_openai_compatible():
     """Test OpenAI-compatible providers."""
-    from paracle_providers.openai_compatible import (
-        create_lmstudio_provider,
-    )
+    from paracle_providers.openai_compatible import create_lmstudio_provider
 
     print("\n" + "=" * 60)
     print("OPENAI-COMPATIBLE PROVIDERS")

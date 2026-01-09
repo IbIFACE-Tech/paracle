@@ -132,7 +132,7 @@ def main():
     # Read current state
     print("📖 Reading current state...")
     try:
-        with open(STATE_FILE, "r", encoding="utf-8") as f:
+        with open(STATE_FILE, encoding="utf-8") as f:
             state = yaml.safe_load(f)
         print(f"  ✅ Loaded state version {state.get('version', 'unknown')}")
     except Exception as e:

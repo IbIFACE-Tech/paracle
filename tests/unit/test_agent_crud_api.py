@@ -4,10 +4,8 @@ import uuid
 
 import pytest
 from fastapi.testclient import TestClient
-
 from paracle_api.main import app
 from paracle_api.routers import agent_crud
-from paracle_domain.models import AgentSpec
 
 
 class TestAgentCRUD:

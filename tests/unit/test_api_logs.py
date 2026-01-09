@@ -1,12 +1,10 @@
 """Unit tests for paracle_api logs endpoints."""
 
-import os
 from pathlib import Path
 
 import pytest
 import yaml
 from fastapi.testclient import TestClient
-
 from paracle_api.main import app
 
 

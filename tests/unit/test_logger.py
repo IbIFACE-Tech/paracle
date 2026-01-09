@@ -1,17 +1,14 @@
 """Unit tests for paracle_core.parac.logger."""
 
-from datetime import datetime
 from pathlib import Path
 
 import pytest
-
 from paracle_core.parac.logger import (
     ActionType,
     AgentLogger,
     AgentType,
     DecisionEntry,
     LogEntry,
-    get_logger,
     log_action,
 )
 

@@ -1,8 +1,7 @@
 """Tests for RAG engine."""
 
 import pytest
-
-from paracle_knowledge.base import Chunk, ChunkMetadata, KnowledgeBase
+from paracle_knowledge.base import KnowledgeBase
 from paracle_knowledge.rag import RAGConfig, RAGContext, RAGEngine, RAGResponse
 
 

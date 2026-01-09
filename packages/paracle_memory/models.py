@@ -5,10 +5,10 @@ This module defines the data structures for agent memory.
 
 from __future__ import annotations
 
-from paracle_core.compat import UTC, datetime
 from enum import Enum
 from typing import Any
 
+from paracle_core.compat import UTC, datetime
 from paracle_core.ids import generate_ulid
 from pydantic import BaseModel, Field
 

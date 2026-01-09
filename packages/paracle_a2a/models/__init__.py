@@ -5,13 +5,11 @@ https://a2a-protocol.org/latest/
 """
 
 # Import all types from official a2a-sdk
-from a2a.types import (
+from a2a.types import (  # Agent Card; Messages & Parts; Tasks; Events
     AgentCapabilities,
-    # Agent Card
     AgentCard,
     AgentProvider,
     AgentSkill,
-    # Messages & Parts
     Artifact,
     DataPart,
     FilePart,
@@ -20,10 +18,8 @@ from a2a.types import (
     Message,
     MessageSendParams,  # SDK name for task send params
     Part,
-    # Tasks
     PushNotificationConfig,
     Task,
-    # Events
     TaskArtifactUpdateEvent,
     TaskIdParams,
     TaskPushNotificationConfig,

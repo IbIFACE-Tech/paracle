@@ -5,7 +5,6 @@ Agent Action Logger
 Utility pour logger automatiquement les actions des agents dans .parac/memory/logs/
 """
 
-import os
 from datetime import datetime
 from pathlib import Path
 from typing import Literal
@@ -122,7 +121,7 @@ class AgentLogger:
         if not self.actions_log.exists():
             return []
 
-        with open(self.actions_log, "r", encoding="utf-8") as f:
+        with open(self.actions_log, encoding="utf-8") as f:
             lines = f.readlines()
 
         return lines[-count:]
@@ -132,7 +131,7 @@ class AgentLogger:
         if not self.actions_log.exists():
             return []
 
-        with open(self.actions_log, "r", encoding="utf-8") as f:
+        with open(self.actions_log, encoding="utf-8") as f:
             lines = f.readlines()
 
         return [line for line in lines if f"[{agent}]" in line]

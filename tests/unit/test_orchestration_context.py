@@ -2,8 +2,6 @@
 
 from datetime import UTC, datetime
 
-import pytest
-
 from paracle_orchestration.context import ExecutionContext, ExecutionStatus
 
 

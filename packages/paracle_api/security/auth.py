@@ -6,11 +6,11 @@ security practices following OWASP guidelines.
 
 from __future__ import annotations
 
-from paracle_core.compat import UTC, datetime, timedelta
 from typing import Annotated, Any
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import APIKeyHeader, OAuth2PasswordBearer
+from paracle_core.compat import UTC, datetime, timedelta
 from pydantic import BaseModel, Field
 
 try:

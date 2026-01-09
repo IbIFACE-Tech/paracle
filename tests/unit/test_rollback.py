@@ -1,28 +1,17 @@
 """Tests for rollback and state management systems."""
 
-import asyncio
 import pytest
-from datetime import datetime, timezone
-
-from paracle_events import PersistentEventStore, Event, EventType, agent_created
-from paracle_orchestration.context import ExecutionContext, ExecutionStatus
+from paracle_events import PersistentEventStore, agent_created
+from paracle_orchestration.context import ExecutionContext
 from paracle_orchestration.rollback import (
     CheckpointManager,
-    CheckpointStatus,
     CompensatingAction,
     CompensationHandler,
-    DefaultCompensationHandler,
-    RollbackResult,
     StepCheckpoint,
     WorkflowRollbackManager,
     WorkflowTransaction,
 )
-from paracle_store.snapshot import (
-    InMemorySnapshotStore,
-    Snapshottable,
-    StateSnapshot,
-)
-
+from paracle_store.snapshot import InMemorySnapshotStore, StateSnapshot
 
 # =============================================================================
 # Snapshot Tests

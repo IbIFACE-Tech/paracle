@@ -231,10 +231,7 @@ def configure_logging(
 
 def _apply_config(config: LogConfig) -> None:
     """Apply configuration to Python logging system."""
-    from paracle_core.logging.handlers import (
-        ParacleFileHandler,
-        ParacleStreamHandler,
-    )
+    from paracle_core.logging.handlers import ParacleFileHandler, ParacleStreamHandler
     from paracle_core.logging.structured import JsonFormatter, StructuredFormatter
 
     # Get root logger for paracle

@@ -1,11 +1,9 @@
 """Tests for agent inheritance resolution."""
 
 import pytest
-
 from paracle_domain import (
     AgentSpec,
     CircularInheritanceError,
-    InheritanceResult,
     MaxDepthExceededError,
     ParentNotFoundError,
     resolve_inheritance,

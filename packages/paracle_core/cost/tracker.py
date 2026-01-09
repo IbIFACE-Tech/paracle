@@ -8,11 +8,11 @@ import json
 import logging
 import sqlite3
 from collections import defaultdict
-from paracle_core.compat import UTC, datetime, timedelta
 from pathlib import Path
 from threading import Lock
 from typing import Any
 
+from paracle_core.compat import UTC, datetime, timedelta
 from paracle_core.cost.config import CostConfig
 from paracle_core.cost.models import (
     BudgetAlert,

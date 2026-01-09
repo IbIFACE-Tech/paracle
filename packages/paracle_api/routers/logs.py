@@ -4,11 +4,7 @@ API-first logging endpoints for agent and system actions.
 """
 
 from fastapi import APIRouter, HTTPException
-from paracle_core.parac.logger import (
-    ActionType,
-    AgentLogger,
-    AgentType,
-)
+from paracle_core.parac.logger import ActionType, AgentLogger, AgentType
 from paracle_core.parac.state import find_parac_root
 
 from paracle_api.schemas.logs import (

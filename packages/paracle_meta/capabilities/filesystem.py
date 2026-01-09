@@ -26,7 +26,6 @@ Example:
 
 import asyncio
 import fnmatch
-import os
 import shutil
 import time
 from datetime import datetime, timezone

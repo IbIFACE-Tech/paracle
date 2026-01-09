@@ -12,14 +12,12 @@ See docs/agent-groups-guide.md for full documentation.
 """
 
 import asyncio
-from datetime import datetime
 from typing import Any
 
 from paracle_agent_comm.engine import GroupCollaborationEngine
 from paracle_agent_comm.models import (
     AgentGroup,
     CommunicationPattern,
-    GroupConfig,
     GroupMessage,
     GroupSession,
     GroupSessionStatus,
@@ -31,7 +29,6 @@ from paracle_agent_comm.patterns import (
     PeerToPeerPattern,
 )
 from paracle_agent_comm.persistence import InMemorySessionStore, SQLiteSessionStore
-
 
 # =============================================================================
 # Example 1: Understanding Communication Patterns
@@ -72,7 +69,7 @@ def example_patterns():
         message_type=MessageType.PROPOSE,
     )
     recipients = bc.route_message(msg)
-    print(f"\nBroadcast Pattern:")
+    print("\nBroadcast Pattern:")
     print(f"  - Message from architect goes to: {recipients}")
 
     # Coordinator Pattern
@@ -84,7 +81,7 @@ def example_patterns():
     )
     coord = CoordinatorPattern(coord_group)
 
-    print(f"\nCoordinator Pattern (coordinator=architect):")
+    print("\nCoordinator Pattern (coordinator=architect):")
     print(f"  - architect can message coder: {coord.can_send_to('architect', 'coder')}")
     print(f"  - coder can message architect: {coord.can_send_to('coder', 'architect')}")
     print(f"  - coder can message tester: {coord.can_send_to('coder', 'tester')}")
@@ -240,7 +237,7 @@ async def example_collaboration():
     )
 
     # Print results
-    print(f"\nSession completed!")
+    print("\nSession completed!")
     print(f"  Status: {session.status.value}")
     print(f"  Rounds: {session.round_count}")
     print(f"  Messages: {len(session.messages)}")
@@ -325,7 +322,7 @@ async def example_session_operations():
 
     # Get recent messages
     recent = session.get_recent_messages(2)
-    print(f"\nLast 2 messages:")
+    print("\nLast 2 messages:")
     for m in recent:
         print(f"  - {m.sender}: {m.get_text_content()[:40]}...")
 
@@ -339,8 +336,8 @@ async def example_persistence():
     """Demonstrate SQLite persistence."""
     print("\n=== SQLite Persistence ===\n")
 
-    import tempfile
     import os
+    import tempfile
 
     # Create temp database file (not in context manager to avoid Windows file lock)
     tmpdir = tempfile.mkdtemp()

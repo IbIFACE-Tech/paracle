@@ -21,7 +21,6 @@ Example:
     >>> result = await cap.search("What are the user's preferences?")
 """
 
-import hashlib
 import json
 import sqlite3
 import time

@@ -11,39 +11,35 @@ Tests cover:
 import json
 import logging
 import tempfile
-from datetime import datetime, timezone
 from pathlib import Path
-from unittest.mock import patch, MagicMock
-
-import pytest
+from unittest.mock import patch
 
 from paracle_core.logging import (
-    configure_logging,
-    get_logger,
-    LogLevel,
-    LogConfig,
-    correlation_id,
-    get_correlation_id,
-    set_correlation_id,
-    CorrelationContext,
-    StructuredFormatter,
-    JsonFormatter,
-    AuditEvent,
-    AuditLogger,
     AuditCategory,
+    AuditEvent,
     AuditOutcome,
     AuditSeverity,
+    CorrelationContext,
+    JsonFormatter,
+    LogConfig,
+    LogLevel,
+    StructuredFormatter,
+    configure_logging,
+    correlation_id,
     get_audit_logger,
-)
-from paracle_core.logging.handlers import (
-    ParacleStreamHandler,
-    ParacleFileHandler,
-    AuditFileHandler,
+    get_correlation_id,
+    get_logger,
+    set_correlation_id,
 )
 from paracle_core.logging.context import (
-    set_log_context,
-    get_log_context,
     clear_log_context,
+    get_log_context,
+    set_log_context,
+)
+from paracle_core.logging.handlers import (
+    AuditFileHandler,
+    ParacleFileHandler,
+    ParacleStreamHandler,
 )
 
 

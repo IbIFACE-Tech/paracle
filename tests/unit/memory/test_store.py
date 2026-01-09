@@ -1,10 +1,8 @@
 """Tests for memory storage backends."""
 
-import tempfile
 from pathlib import Path
 
 import pytest
-
 from paracle_memory.models import Memory, MemoryType
 from paracle_memory.store import InMemoryStore, SQLiteMemoryStore
 

@@ -1,13 +1,9 @@
 """Unit tests for paracle_meta.capabilities.shell module."""
 
 import platform
-import pytest
 
-from paracle_meta.capabilities.shell import (
-    ShellCapability,
-    ShellConfig,
-    ProcessInfo,
-)
+import pytest
+from paracle_meta.capabilities.shell import ProcessInfo, ShellCapability, ShellConfig
 
 
 class TestShellConfig:

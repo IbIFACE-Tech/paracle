@@ -4,17 +4,16 @@ These tests use real API calls to verify adapter functionality.
 Requires API keys in .env file.
 """
 
-import asyncio
 import os
+
 import pytest
 from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
 
-from paracle_domain.models import AgentSpec, WorkflowSpec, WorkflowStep
 from paracle_adapters import list_available_adapters
-
+from paracle_domain.models import AgentSpec, WorkflowSpec, WorkflowStep
 
 # Skip all tests if no API key
 pytestmark = pytest.mark.skipif(

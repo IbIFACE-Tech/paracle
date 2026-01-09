@@ -3,7 +3,7 @@
         # Create policies structure
         policies_dir = parac_dir / "policies"
         policies_dir.mkdir()
-        
+
         policy_pack = {
             "version": "1.0",
             "enabled": True,
@@ -12,4 +12,3 @@
         (policies_dir / "policy-pack.yaml").write_text(
             yaml.dump(policy_pack), encoding="utf-8"
         )
-

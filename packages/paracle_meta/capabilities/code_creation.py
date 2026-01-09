@@ -33,7 +33,6 @@ Example:
 """
 
 import time
-from pathlib import Path
 from typing import Any
 
 from pydantic import Field
@@ -47,10 +46,7 @@ from paracle_meta.capabilities.base import (
     CapabilityConfig,
     CapabilityResult,
 )
-from paracle_meta.capabilities.filesystem import (
-    FileSystemCapability,
-    FileSystemConfig,
-)
+from paracle_meta.capabilities.filesystem import FileSystemCapability, FileSystemConfig
 
 
 class CodeCreationConfig(CapabilityConfig):
@@ -398,7 +394,7 @@ Generate ONLY the refactored Python code, no explanations."""
         """Create a complete Python module."""
         additional = ""
         if components:
-            additional = f"Include these components:\n- " + "\n- ".join(components)
+            additional = "Include these components:\n- " + "\n- ".join(components)
 
         prompt = self.MODULE_PROMPT.format(
             name=name,

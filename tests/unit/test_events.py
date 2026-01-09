@@ -1,8 +1,8 @@
 """Tests for event system."""
 
-import pytest
 import asyncio
 
+import pytest
 from paracle_events import (
     Event,
     EventBus,

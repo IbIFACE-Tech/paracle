@@ -11,7 +11,6 @@ Run: uv run python examples/05_tool_registry.py
 """
 
 import asyncio
-from pathlib import Path
 
 from paracle_tools import BuiltinToolRegistry
 
@@ -159,7 +158,7 @@ async def dynamic_tool_selection():
         result = await registry.execute_tool(tool_name, **params)
 
         if result.success:
-            print(f"      ✅ Success")
+            print("      ✅ Success")
         else:
             print(f"      ❌ Failed: {result.error[:50]}...")
 
@@ -226,10 +225,10 @@ async def batch_operations():
     results = await asyncio.gather(*tasks)
 
     # Process results
-    for (tool_name, params), result in zip(operations, results):
+    for (tool_name, params), result in zip(operations, results, strict=False):
         print(f"\n   {tool_name}:")
         if result.success:
-            print(f"      ✅ Success")
+            print("      ✅ Success")
             # Show snippet of output
             if "content" in result.output:
                 lines = result.output["content"].split("\n")[:2]
@@ -291,7 +290,7 @@ async def tool_introspection():
     # Get all tools
     all_tools = registry.list_tools()
 
-    print(f"\n📊 Tool metadata summary:")
+    print("\n📊 Tool metadata summary:")
     print(f"   Total tools: {len(all_tools)}")
 
     # Categorize by permission
@@ -302,16 +301,16 @@ async def tool_introspection():
         for perm in permissions:
             perms_count[perm] = perms_count.get(perm, 0) + 1
 
-    print(f"\n   Tools by permission:")
+    print("\n   Tools by permission:")
     for perm, count in sorted(perms_count.items()):
         print(f"      {perm}: {count} tools")
 
     # Show detailed info for one tool
-    print(f"\n📖 Detailed tool info (read_file):")
+    print("\n📖 Detailed tool info (read_file):")
     tool = registry.get_tool("read_file")
     print(f"   Name: {tool.name}")
     print(f"   Description: {tool.description}")
-    print(f"   Parameters:")
+    print("   Parameters:")
     for param_name, param_info in tool.parameters.items():
         required = param_info.get("required", False)
         param_type = param_info.get("type", "any")

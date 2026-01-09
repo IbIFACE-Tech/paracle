@@ -1,10 +1,8 @@
 """Unit tests for paracle_meta.generators module."""
 
 import pytest
-
 from paracle_meta.generators import (
     AgentGenerator,
-    BaseGenerator,
     PolicyGenerator,
     SkillGenerator,
     WorkflowGenerator,

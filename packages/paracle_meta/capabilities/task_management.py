@@ -7,9 +7,10 @@ progress tracking capabilities for the MetaAgent.
 import asyncio
 import time
 import uuid
+from collections.abc import Callable, Coroutine
 from datetime import datetime
 from enum import Enum
-from typing import Any, Callable, Coroutine
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -546,7 +547,7 @@ class TaskManagementCapability(BaseCapability):
             workflow.status = TaskStatus.COMPLETED
             workflow.completed_at = datetime.utcnow()
 
-        except Exception as e:
+        except Exception:
             workflow.status = TaskStatus.FAILED
             workflow.completed_at = datetime.utcnow()
             raise
@@ -585,7 +586,7 @@ class TaskManagementCapability(BaseCapability):
             )
 
             # Check for failures
-            for task, result in zip(ready_tasks, results):
+            for task, result in zip(ready_tasks, results, strict=False):
                 if isinstance(result, Exception):
                     raise RuntimeError(f"Task failed: {task.name} - {result}")
 

@@ -7,10 +7,8 @@ Usage:
 """
 
 import asyncio
-import json
 import logging
 from pathlib import Path
-from typing import Any
 
 # Setup logging
 logging.basicConfig(
@@ -34,7 +32,7 @@ async def test_workflow_with_github_agent():
         print(f"❌ ERROR: {github_agent_path} not found")
         return False
 
-    with open(github_agent_path, "r", encoding="utf-8") as f:
+    with open(github_agent_path, encoding="utf-8") as f:
         agent_content = f.read()
 
     print(f"✅ Loaded: {github_agent_path}")
@@ -50,7 +48,7 @@ async def test_workflow_with_github_agent():
 
     import yaml
 
-    with open(workflow_path, "r", encoding="utf-8") as f:
+    with open(workflow_path, encoding="utf-8") as f:
         workflow_def = yaml.safe_load(f)
 
     print(f"✅ Loaded: {workflow_path}")
@@ -63,7 +61,7 @@ async def test_workflow_with_github_agent():
         from paracle_core.parac.agent_compiler import parse_github_agent
 
         agent_spec = parse_github_agent(agent_content)
-        print(f"✅ Parsed agent spec:")
+        print("✅ Parsed agent spec:")
         print(f"   Name: {agent_spec.get('name', 'N/A')}")
         print(f"   Role: {agent_spec.get('role', 'N/A')}")
         print(f"   Tools: {len(agent_spec.get('tools', []))}")
@@ -83,7 +81,7 @@ async def test_workflow_with_github_agent():
                 "tools": frontmatter.get("tools", []),
                 "role": "Core Developer",
             }
-            print(f"✅ Parsed via frontmatter:")
+            print("✅ Parsed via frontmatter:")
             print(f"   Description: {agent_spec['description']}")
         else:
             agent_spec = {"name": "coder", "role": "Developer"}
@@ -102,7 +100,7 @@ async def test_workflow_with_github_agent():
             temperature=0.7,
         )
 
-        print(f"✅ Created Paracle AgentSpec:")
+        print("✅ Created Paracle AgentSpec:")
         print(f"   ID: {paracle_agent.name}")
         print(f"   Model: {paracle_agent.model}")
         print(f"   Provider: {paracle_agent.provider}")
@@ -128,7 +126,7 @@ async def test_workflow_with_github_agent():
 
         # Simulate step execution
         await asyncio.sleep(0.1)  # Simulate async work
-        print(f"      ✅ Step completed (simulated)")
+        print("      ✅ Step completed (simulated)")
 
     # Step 6: Test MCP tool discovery
     print("\n📋 Step 6: Testing MCP tool discovery...")
@@ -136,7 +134,7 @@ async def test_workflow_with_github_agent():
         from paracle_mcp.server import ParacleMCPServer
 
         server = ParacleMCPServer()
-        print(f"✅ MCP Server initialized")
+        print("✅ MCP Server initialized")
         print(f"   .parac/ root: {server.parac_root}")
 
         # Get workflow tools
@@ -223,7 +221,7 @@ async def test_simple_code_review():
         print(f"  [{idx}/{len(steps)}] {step_id}")
         print(f"      {description}...")
         await asyncio.sleep(0.2)
-        print(f"      ✅ Completed\n")
+        print("      ✅ Completed\n")
 
     print("✅ Code review workflow completed!")
     print("\n📋 Review Summary:")

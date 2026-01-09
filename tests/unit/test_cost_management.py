@@ -5,7 +5,6 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
-
 from paracle_core.cost.config import BudgetConfig, CostConfig, TrackingConfig
 from paracle_core.cost.models import (
     BudgetAlert,

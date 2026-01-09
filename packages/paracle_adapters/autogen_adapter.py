@@ -44,10 +44,7 @@ if not AUTOGEN_AVAILABLE:
 from paracle_domain.models import AgentSpec, WorkflowSpec
 
 from paracle_adapters.base import FrameworkAdapter
-from paracle_adapters.exceptions import (
-    AdapterConfigurationError,
-    AdapterExecutionError,
-)
+from paracle_adapters.exceptions import AdapterConfigurationError, AdapterExecutionError
 
 
 class AutoGenAdapter(FrameworkAdapter):

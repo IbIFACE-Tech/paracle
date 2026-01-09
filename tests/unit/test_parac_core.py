@@ -1,11 +1,9 @@
 """Unit tests for paracle_core.parac module."""
 
-import tempfile
 from pathlib import Path
 
 import pytest
 import yaml
-
 from paracle_core.parac.state import (
     ParacState,
     PhaseState,
@@ -13,8 +11,8 @@ from paracle_core.parac.state import (
     load_state,
     save_state,
 )
-from paracle_core.parac.validator import ParacValidator, ValidationLevel
 from paracle_core.parac.sync import ParacSynchronizer
+from paracle_core.parac.validator import ParacValidator
 
 
 class TestPhaseState:

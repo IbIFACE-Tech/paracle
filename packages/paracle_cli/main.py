@@ -22,13 +22,7 @@ from paracle_cli.commands.ide import ide
 from paracle_cli.commands.logs import logs
 from paracle_cli.commands.mcp import mcp
 from paracle_cli.commands.meta import meta
-from paracle_cli.commands.parac import (
-    init,
-    parac,
-    session,
-    status,
-    sync,
-)
+from paracle_cli.commands.parac import init, parac, session, status, sync
 from paracle_cli.commands.parac import validate as parac_validate
 from paracle_cli.commands.pool import pool
 from paracle_cli.commands.providers import providers

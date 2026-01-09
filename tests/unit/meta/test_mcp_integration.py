@@ -1,12 +1,7 @@
 """Unit tests for paracle_meta.capabilities.mcp_integration module."""
 
 import pytest
-
-from paracle_meta.capabilities.mcp_integration import (
-    MCPCapability,
-    MCPConfig,
-    MCPTool,
-)
+from paracle_meta.capabilities.mcp_integration import MCPCapability, MCPConfig, MCPTool
 
 
 class TestMCPConfig:

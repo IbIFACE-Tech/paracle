@@ -10,7 +10,6 @@ from pathlib import Path
 
 import pytest
 import yaml
-
 from paracle_core.parac.context_builder import (
     ContextBuilder,
     ContextData,
@@ -436,7 +435,6 @@ class TestIDECLI:
     def test_ide_list_command(self):
         """Test 'paracle ide list' command."""
         from click.testing import CliRunner
-
         from paracle_cli.commands.ide import ide_list
 
         runner = CliRunner()
@@ -448,7 +446,6 @@ class TestIDECLI:
     def test_ide_status_no_parac(self):
         """Test 'paracle ide status' without .parac/."""
         from click.testing import CliRunner
-
         from paracle_cli.commands.ide import ide_status
 
         runner = CliRunner()
@@ -461,7 +458,6 @@ class TestIDECLI:
     def test_ide_init_command(self, temp_project):
         """Test 'paracle ide init' command."""
         from click.testing import CliRunner
-
         from paracle_cli.commands.ide import ide_init
 
         runner = CliRunner()
@@ -482,7 +478,6 @@ class TestIDECLI:
     def test_ide_sync_command(self, temp_project):
         """Test 'paracle ide sync' command."""
         from click.testing import CliRunner
-
         from paracle_cli.commands.ide import ide_sync
 
         runner = CliRunner()

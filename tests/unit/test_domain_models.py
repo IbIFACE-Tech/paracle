@@ -1,18 +1,14 @@
 """Tests for paracle_domain models."""
 
 import pytest
-from datetime import datetime, timezone
-
 from paracle_domain import (
     Agent,
     AgentSpec,
-    AgentStatus,
     EntityStatus,
     Tool,
     ToolSpec,
     Workflow,
     WorkflowSpec,
-    WorkflowStatus,
     WorkflowStep,
 )
 

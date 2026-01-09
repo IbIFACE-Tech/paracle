@@ -252,9 +252,7 @@ class TestSingletonAccessors:
 
     def test_get_compliance_engine(self, tmp_path):
         """Test get_compliance_engine returns singleton."""
-        from paracle_core.governance.ai_compliance import (
-            get_compliance_engine,
-        )
+        from paracle_core.governance.ai_compliance import get_compliance_engine
 
         parac_dir = tmp_path / ".parac"
         parac_dir.mkdir()
@@ -267,9 +265,7 @@ class TestSingletonAccessors:
 
     def test_get_assistant_monitor(self, tmp_path):
         """Test get_assistant_monitor returns singleton."""
-        from paracle_core.governance.ai_compliance import (
-            get_assistant_monitor,
-        )
+        from paracle_core.governance.ai_compliance import get_assistant_monitor
 
         parac_dir = tmp_path / ".parac"
         parac_dir.mkdir()

@@ -1,18 +1,14 @@
 """Unit tests for paracle_meta.sessions module."""
 
 import pytest
-
-from paracle_meta.sessions.base import (
-    Session,
-    SessionConfig,
-    SessionMessage,
-    SessionStatus,
-)
+from paracle_meta.capabilities.providers.mock import MockProvider
+from paracle_meta.registry import CapabilityRegistry
+from paracle_meta.sessions.base import SessionConfig, SessionMessage, SessionStatus
 from paracle_meta.sessions.chat import (
     CAPABILITY_TOOLS,
+    DEFAULT_CHAT_SYSTEM_PROMPT,
     ChatConfig,
     ChatSession,
-    DEFAULT_CHAT_SYSTEM_PROMPT,
 )
 from paracle_meta.sessions.plan import (
     Plan,
@@ -21,8 +17,6 @@ from paracle_meta.sessions.plan import (
     PlanStep,
     StepStatus,
 )
-from paracle_meta.capabilities.providers.mock import MockProvider
-from paracle_meta.registry import CapabilityRegistry
 
 
 class TestSessionMessage:

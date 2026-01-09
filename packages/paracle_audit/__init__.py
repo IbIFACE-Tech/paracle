@@ -19,11 +19,7 @@ Example:
     >>> print(event.event_id)
 """
 
-from .events import (
-    AuditEvent,
-    AuditEventType,
-    AuditOutcome,
-)
+from .events import AuditEvent, AuditEventType, AuditOutcome
 from .exceptions import (
     AuditError,
     AuditExportError,

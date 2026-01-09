@@ -27,18 +27,15 @@ from paracle_tools.architect_tools import (
     diagram_generation,
     pattern_matching,
 )
-from paracle_tools.builtin import (
+from paracle_tools.builtin import (  # Base classes; Filesystem tool classes (require allowed_paths); Shell tool classes (require allowed_commands); HTTP tools
     DEVELOPMENT_COMMANDS,
     READONLY_COMMANDS,
-    # Base classes
     BaseTool,
     BuiltinToolRegistry,
     DeleteFileTool,
     ListDirectoryTool,
     PermissionError,
-    # Filesystem tool classes (require allowed_paths)
     ReadFileTool,
-    # Shell tool classes (require allowed_commands)
     RunCommandTool,
     Tool,
     ToolError,  # Builtin tool error
@@ -49,7 +46,6 @@ from paracle_tools.builtin import (
     create_readonly_command_tool,
     create_sandboxed_filesystem_tools,
     http_delete,
-    # HTTP tools
     http_get,
     http_post,
     http_put,
@@ -82,9 +78,7 @@ from paracle_tools.exceptions import (
     ToolTimeoutError,
     ToolValidationError,
 )
-from paracle_tools.exceptions import (
-    ToolError as ParacleToolError,
-)
+from paracle_tools.exceptions import ToolError as ParacleToolError
 from paracle_tools.git_tools import (
     GitAddTool,
     GitBranchTool,

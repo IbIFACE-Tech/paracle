@@ -7,9 +7,9 @@ and common types used across implementations.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from paracle_core.compat import UTC, datetime
 from typing import Any
 
+from paracle_core.compat import UTC, datetime
 from pydantic import BaseModel, Field
 
 

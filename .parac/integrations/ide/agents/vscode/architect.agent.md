@@ -79,7 +79,7 @@ You have access to Paracle MCP tools via `#tool:paracle/*`:
 
 
 ### External MCP Tools (from .parac/tools/mcp/)
-- `Astro docs.*` - 
+- `Astro docs.*` -
 
 ## Skills
 

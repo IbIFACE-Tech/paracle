@@ -6,8 +6,6 @@ capabilities for the MetaAgent.
 
 import asyncio
 import os
-import shlex
-import subprocess
 import sys
 import tempfile
 import time

@@ -1,7 +1,6 @@
 """Tests for embedding service."""
 
 import pytest
-
 from paracle_vector.embeddings import (
     EmbeddingConfig,
     EmbeddingProvider,

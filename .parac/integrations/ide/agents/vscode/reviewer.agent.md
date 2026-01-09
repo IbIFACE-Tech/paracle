@@ -83,7 +83,7 @@ This workflow orchestrates:
 
 
 ### External MCP Tools (from .parac/tools/mcp/)
-- `Astro docs.*` - 
+- `Astro docs.*` -
 
 ## Skills
 

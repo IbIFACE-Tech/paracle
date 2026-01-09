@@ -1,7 +1,6 @@
 """Unit tests for paracle_meta.capabilities.base module."""
 
 import pytest
-
 from paracle_meta.capabilities.base import (
     BaseCapability,
     CapabilityConfig,

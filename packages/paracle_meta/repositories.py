@@ -36,10 +36,10 @@ import uuid
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Any
 
+from paracle_core.logging import get_logger
 from pydantic import BaseModel, Field
 from sqlalchemy import func, select
 
-from paracle_core.logging import get_logger
 from paracle_meta.database import (
     BestPracticeRecord,
     ContextHistory,
@@ -52,7 +52,7 @@ from paracle_meta.database import (
 )
 
 if TYPE_CHECKING:
-    from sqlalchemy.ext.asyncio import AsyncSession
+    pass
 
 logger = get_logger(__name__)
 

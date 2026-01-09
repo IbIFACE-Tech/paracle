@@ -7,13 +7,8 @@ Tests for:
 - AgentLogger with configurable paths
 """
 
-import tempfile
-from datetime import date
-from pathlib import Path
-
 import pytest
 import yaml
-
 
 # =============================================================================
 # FileManagementConfig Tests
@@ -94,12 +89,7 @@ class TestFileManagementConfig:
 
     def test_custom_log_files(self, tmp_path):
         """Test custom log file configuration."""
-        from paracle_core.parac.file_config import (
-            CustomLogConfig,
-            FileManagementConfig,
-            LogsConfig,
-            PredefinedLogsConfig,
-        )
+        from paracle_core.parac.file_config import CustomLogConfig, FileManagementConfig
 
         # Create config with custom log
         config = FileManagementConfig.get_defaults()

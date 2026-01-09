@@ -22,17 +22,15 @@ Usage:
 
 from __future__ import annotations
 
-import asyncio
 import time
 from datetime import datetime
 from enum import Enum
 from typing import TYPE_CHECKING, Any
 
 import httpx
+from paracle_core.logging import get_logger
 from pydantic import BaseModel, Field
 from sqlalchemy import text
-
-from paracle_core.logging import get_logger
 
 if TYPE_CHECKING:
     from paracle_meta.config import MetaEngineConfig

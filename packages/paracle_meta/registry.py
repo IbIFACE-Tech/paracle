@@ -19,9 +19,10 @@ Example:
 from __future__ import annotations
 
 import asyncio
-from dataclasses import dataclass, field
+from collections.abc import Callable
+from dataclasses import dataclass
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Callable, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
 if TYPE_CHECKING:
     from paracle_meta.capabilities.base import BaseCapability, CapabilityConfig
@@ -56,9 +57,9 @@ class CapabilityInfo:
     """
 
     name: str
-    factory: Callable[..., "BaseCapability"]
-    config: "CapabilityConfig | None" = None
-    instance: "BaseCapability | None" = None
+    factory: Callable[..., BaseCapability]
+    config: CapabilityConfig | None = None
+    instance: BaseCapability | None = None
     status: CapabilityStatus = CapabilityStatus.NOT_LOADED
     error: str | None = None
     requires_provider: bool = False
@@ -78,7 +79,7 @@ class RegistryConfig:
     auto_initialize: bool = True
     parallel_init: bool = True
     max_parallel: int = 5
-    provider: "CapabilityProvider | None" = None
+    provider: CapabilityProvider | None = None
 
 
 class CapabilityRegistry:
@@ -149,7 +150,7 @@ class CapabilityRegistry:
     def __init__(
         self,
         config: RegistryConfig | None = None,
-        capabilities_config: dict[str, "CapabilityConfig"] | None = None,
+        capabilities_config: dict[str, CapabilityConfig] | None = None,
     ):
         """Initialize the registry.
 
@@ -169,12 +170,12 @@ class CapabilityRegistry:
         return self._initialized
 
     @property
-    def provider(self) -> "CapabilityProvider | None":
+    def provider(self) -> CapabilityProvider | None:
         """Default LLM provider."""
         return self._config.provider
 
     @provider.setter
-    def provider(self, value: "CapabilityProvider | None") -> None:
+    def provider(self, value: CapabilityProvider | None) -> None:
         """Set the default LLM provider."""
         self._config.provider = value
 
@@ -200,7 +201,7 @@ class CapabilityRegistry:
                     requires_provider=requires_provider,
                 )
 
-    def _import_capability(self, module_path: str, class_name: str) -> "BaseCapability":
+    def _import_capability(self, module_path: str, class_name: str) -> BaseCapability:
         """Import and instantiate a capability class."""
         import importlib
 
@@ -211,8 +212,8 @@ class CapabilityRegistry:
     def register(
         self,
         name: str,
-        factory: Callable[..., "BaseCapability"],
-        config: "CapabilityConfig | None" = None,
+        factory: Callable[..., BaseCapability],
+        config: CapabilityConfig | None = None,
         requires_provider: bool = False,
     ) -> None:
         """Register a capability.
@@ -239,7 +240,7 @@ class CapabilityRegistry:
         if name in self._capabilities:
             del self._capabilities[name]
 
-    async def get(self, name: str) -> "BaseCapability":
+    async def get(self, name: str) -> BaseCapability:
         """Get a capability, initializing if needed.
 
         Args:
@@ -299,7 +300,7 @@ class CapabilityRegistry:
                 info.error = str(e)
                 raise RuntimeError(f"Failed to initialize '{name}': {e}") from e
 
-    async def get_optional(self, name: str) -> "BaseCapability | None":
+    async def get_optional(self, name: str) -> BaseCapability | None:
         """Get a capability if available, return None if not.
 
         Args:
@@ -451,7 +452,7 @@ class CapabilityFacade:
         """
         self._registry = registry
 
-    def __getattr__(self, name: str) -> "AsyncCapabilityProxy":
+    def __getattr__(self, name: str) -> AsyncCapabilityProxy:
         """Get capability by attribute access."""
         return AsyncCapabilityProxy(self._registry, name)
 
@@ -488,7 +489,7 @@ class AsyncCapabilityProxy:
 
         return wrapper
 
-    async def __aenter__(self) -> "BaseCapability":
+    async def __aenter__(self) -> BaseCapability:
         """Enter async context."""
         return await self._registry.get(self._name)
 

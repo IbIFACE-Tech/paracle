@@ -1,7 +1,6 @@
 """Unit tests for paracle_meta.knowledge module."""
 
 import pytest
-
 from paracle_meta.knowledge import BestPractice, BestPracticesDatabase
 
 

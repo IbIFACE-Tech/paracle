@@ -25,7 +25,6 @@ import asyncio
 import os
 import platform
 import shlex
-import signal
 import sys
 import time
 from datetime import datetime, timezone

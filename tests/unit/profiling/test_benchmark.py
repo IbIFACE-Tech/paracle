@@ -7,8 +7,6 @@ import json
 import time
 from pathlib import Path
 
-import pytest
-
 from paracle_profiling.benchmark import (
     Benchmark,
     BenchmarkResult,

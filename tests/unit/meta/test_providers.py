@@ -1,8 +1,7 @@
 """Unit tests for paracle_meta.providers module."""
 
 import pytest
-
-from paracle_meta.exceptions import ProviderNotAvailableError, ProviderSelectionError
+from paracle_meta.exceptions import ProviderNotAvailableError
 from paracle_meta.providers import (
     ProviderConfig,
     ProviderOrchestrator,

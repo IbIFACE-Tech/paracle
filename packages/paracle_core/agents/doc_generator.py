@@ -8,9 +8,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-from paracle_core.agents.schema import (
-    ParacPaths,
-)
+from paracle_core.agents.schema import ParacPaths
 from paracle_core.agents.template import AgentTemplate
 from paracle_core.agents.validator import AgentSpecValidator
 

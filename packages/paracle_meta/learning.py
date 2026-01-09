@@ -147,7 +147,7 @@ class LearningEngine:
         enabled: bool = True,
         min_samples_for_template: int = 5,
         min_rating_for_template: float = 4.0,
-    ) -> "LearningEngine":
+    ) -> LearningEngine:
         """Create LearningEngine with repository-based storage.
 
         This is the preferred way to create a LearningEngine for production use

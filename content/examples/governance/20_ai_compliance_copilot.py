@@ -7,10 +7,7 @@ Scenario: Copilot tries to create files in wrong locations, and the
 compliance engine blocks these violations and suggests correct paths.
 """
 
-from paracle_core.governance import (
-    AIAssistantMonitor,
-    get_compliance_engine,
-)
+from paracle_core.governance import AIAssistantMonitor, get_compliance_engine
 
 
 def example_1_simple_validation():

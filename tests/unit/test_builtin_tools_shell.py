@@ -1,7 +1,6 @@
 """Tests for built-in shell tools."""
 
 import pytest
-
 from paracle_tools.builtin.shell import RunCommandTool
 
 

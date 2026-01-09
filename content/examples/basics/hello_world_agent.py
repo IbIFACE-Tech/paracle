@@ -1,6 +1,6 @@
 """Example: Hello World Agent."""
 
-from paracle_domain.models import AgentSpec, Agent
+from paracle_domain.models import Agent, AgentSpec
 
 
 def main() -> None:
@@ -20,13 +20,13 @@ def main() -> None:
     # Create agent instance
     agent = Agent(spec=agent_spec)
 
-    print(f"✅ Agent created successfully!")
+    print("✅ Agent created successfully!")
     print(f"   ID: {agent.id}")
     print(f"   Name: {agent.spec.name}")
     print(f"   Provider: {agent.spec.provider}")
     print(f"   Model: {agent.spec.model}")
     print(f"   Status: {agent.status.phase}")
-    print(f"\n📝 Note: Full execution coming in Phase 2-3!")
+    print("\n📝 Note: Full execution coming in Phase 2-3!")
 
 
 if __name__ == "__main__":

@@ -1,8 +1,8 @@
 """Tests for LLM provider base models and protocol."""
 
-import pytest
 from datetime import datetime
 
+import pytest
 from paracle_providers.base import (
     ChatMessage,
     LLMConfig,

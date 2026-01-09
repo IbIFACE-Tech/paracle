@@ -7,14 +7,8 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
-
-from paracle_connection_pool import (
-    HTTPPool,
-    PoolMonitor,
-    PoolStats,
-    get_pool_monitor,
-)
-from paracle_connection_pool.db_pool import DatabasePoolConfig, SQLALCHEMY_AVAILABLE
+from paracle_connection_pool import HTTPPool, PoolMonitor, PoolStats, get_pool_monitor
+from paracle_connection_pool.db_pool import SQLALCHEMY_AVAILABLE, DatabasePoolConfig
 from paracle_connection_pool.http_pool import HTTPPoolConfig
 
 # Conditional import for DatabasePool

@@ -33,9 +33,10 @@ repos:
       # Validate YAML syntax in .parac/
       - id: validate-yaml
         name: Validate YAML Syntax
-        entry: python -c "import yaml, sys; [yaml.safe_load(open(f)) for f in sys.argv[1:]]"
+        entry: python -c "import yaml, sys; [yaml.safe_load(open(f, encoding='utf-8')) for f in sys.argv[1:]]"
         language: system
         files: ^\.parac/.*\.ya?ml$
+        exclude: (ai-rules\.yaml|rules\.yaml|template)
 
   # Standard pre-commit hooks
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -44,18 +45,19 @@ repos:
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: check-yaml
-        exclude: ^\.parac/ # Use our custom YAML validator above
+        exclude: ^(\.parac/|content/templates/|\.claude/skills/|\.github/skills/|mkdocs\.yml)
       - id: check-added-large-files
         args: ["--maxkb=1000"]
       - id: check-merge-conflict
       - id: check-case-conflict
+      - id: mixed-line-ending
+        args: ["--fix=lf"]
 
   # Python formatting and linting
   - repo: https://github.com/psf/black
-    rev: 24.1.1
+    rev: 24.10.0
     hooks:
       - id: black
-        language_version: python3.10
 
   - repo: https://github.com/pycqa/isort
     rev: 5.13.2
@@ -70,7 +72,7 @@ repos:
 
 # Configuration
 default_language_version:
-  python: python3.10
+  python: python3
 
 # Exclude patterns
 exclude: |

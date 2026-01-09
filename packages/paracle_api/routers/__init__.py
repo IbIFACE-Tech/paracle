@@ -12,9 +12,7 @@ from paracle_api.routers.parac import router as parac_router
 from paracle_api.routers.reviews import router as reviews_router
 from paracle_api.routers.tool_crud import router as tool_crud_router
 from paracle_api.routers.workflow_crud import router as workflow_crud_router
-from paracle_api.routers.workflow_execution import (
-    router as workflow_execution_router,
-)
+from paracle_api.routers.workflow_execution import router as workflow_execution_router
 
 __all__ = [
     "agents_router",

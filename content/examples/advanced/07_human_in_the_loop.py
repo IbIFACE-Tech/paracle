@@ -14,19 +14,9 @@ This pattern ensures human oversight of critical AI-driven decisions.
 import asyncio
 from typing import Any
 
-from paracle_domain.models import (
-    ApprovalConfig,
-    ApprovalPriority,
-    Workflow,
-    WorkflowSpec,
-    WorkflowStep,
-)
+from paracle_domain.models import Workflow, WorkflowSpec, WorkflowStep
 from paracle_events import EventBus
-from paracle_orchestration import (
-    ApprovalManager,
-    ExecutionStatus,
-    WorkflowOrchestrator,
-)
+from paracle_orchestration import ApprovalManager, ExecutionStatus, WorkflowOrchestrator
 
 
 def create_deployment_workflow() -> Workflow:
@@ -145,7 +135,7 @@ async def simulate_human_approval(
         return
 
     request = pending[0]
-    print(f"\n[Human] Received approval request:")
+    print("\n[Human] Received approval request:")
     print(f"        Step: {request.step_name}")
     print(f"        Agent: {request.agent_name}")
     print(f"        Priority: {request.priority.value}")

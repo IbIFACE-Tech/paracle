@@ -1,6 +1,7 @@
 """Test if cost tracking writes to database."""
 
 import sqlite3
+
 from paracle_core.cost import CostTracker
 
 # Create tracker

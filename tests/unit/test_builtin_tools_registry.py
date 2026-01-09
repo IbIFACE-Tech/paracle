@@ -1,7 +1,6 @@
 """Tests for built-in tool registry."""
 
 import pytest
-
 from paracle_tools.builtin.registry import BuiltinToolRegistry
 
 

@@ -5,13 +5,14 @@ This script allows the releasemanager agent to execute git operations
 directly without going through the full agent framework.
 """
 
-from rich.table import Table
-from rich.panel import Panel
-from rich.console import Console
-from paracle_tools.git_tools import git_add, git_commit, git_status
 import asyncio
 import sys
 from pathlib import Path
+
+from paracle_tools.git_tools import git_add, git_commit, git_status
+from rich.console import Console
+from rich.panel import Panel
+from rich.table import Table
 
 # Add packages to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "packages"))
