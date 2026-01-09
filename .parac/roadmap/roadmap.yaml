@@ -11,6 +11,62 @@ last_update: "2026-01-08"
 # RECENT UPDATES (2026-01-08)
 # =============================================================================
 recent_updates:
+  - date: "2026-01-09"
+    item: "ADR-022: MCP Full Coverage via API-First Bridge"
+    description: "Architectural decision to expose all Paracle functionality through MCP using hybrid API-first + critical wrappers approach"
+    impact: "Complete MCP coverage - all 35+ CLI commands accessible via MCP without duplication"
+    deliverables:
+      - "ADR-022 in roadmap/decisions.md (comprehensive architecture decision)"
+      - "MCPAPIBridge design (MCP → REST API → Core fallback)"
+      - "OpenAPI auto-generation strategy (tool schemas from /openapi.json)"
+      - "Critical offline wrappers (board_list, errors_stats, inventory_check)"
+      - "Implementation plan (6 hours: bridge 2h, OpenAPI 2h, wrappers 1h, tests 1h)"
+    strategic_value: |
+      - Zero duplication: Single source of truth (REST API)
+      - API-first preserved: Consistent architecture across CLI/API/MCP
+      - Future-proof: New API endpoint → auto-available in MCP
+      - Resilient: Multiple fallback layers (API → Core → Offline wrappers)
+      - Full coverage: 100% of CLI functionality accessible via MCP
+    next_action: "Implementation Phase 1: MCPAPIBridge class"
+
+  - date: "2026-01-09"
+    item: "Services Inventory Automation"
+    description: "Created paracle inventory command for auto-generating services_inventory.md from package structure"
+    impact: "Self-maintaining documentation - inventory stays synchronized with codebase automatically"
+    deliverables:
+      - "packages/paracle_cli/commands/inventory.py (new command)"
+      - "paracle inventory check (detects new/removed packages)"
+      - "paracle inventory update (auto-generates from packages/)"
+      - "paracle inventory update --dry-run (preview changes)"
+      - ".parac/memory/knowledge/services_inventory.md (updated with automation info)"
+    files_created: 1
+    files_updated: 2
+    cli_commands_added: 3
+    strategic_value: "Zero-maintenance documentation, CI/CD integration ready"
+
+  - date: "2026-01-09"
+    item: "MCP Coverage Analysis"
+    description: "Comprehensive analysis of Paracle functions accessible through Model Context Protocol"
+    impact: "Identified coverage gap: agent tools, context, workflow, memory accessible; 35+ CLI commands not exposed"
+    deliverables:
+      - ".parac/memory/knowledge/mcp_coverage_analysis.md (comprehensive analysis)"
+      - "Gap analysis: What's accessible vs what's missing"
+      - "Architecture diagrams showing current vs desired state"
+      - "Recommendations: API-first bridge approach (chosen)"
+      - "Implementation roadmap with 4 phases"
+    strategic_value: "Foundation for ADR-022 decision, clear path to full MCP coverage"
+
+  - date: "2026-01-09"
+    item: "Complete Services Inventory Documentation"
+    description: "Documented all 37 Paracle packages with categorization and capabilities"
+    impact: "Complete system map - all packages, purposes, and statuses documented"
+    deliverables:
+      - ".parac/memory/knowledge/services_inventory.md (37 packages documented)"
+      - "11 functional categories (Core, LLM, Orchestration, Tools, Protocols, UI, DevTools, Git, PM, Resilience, Additional)"
+      - "Installation options matrix"
+      - "Capabilities matrix (agent execution, LLM integration, tool management, etc.)"
+    strategic_value: "Single source of truth for Paracle architecture, onboarding reference"
+
   - date: "2026-01-08"
     item: "Phase 10 - Final Security Audit COMPLETE ✅"
     description: "Comprehensive security audit for v1.0.0 with 95/100 security score - PRODUCTION READY"

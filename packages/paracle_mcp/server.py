@@ -26,6 +26,8 @@ from typing import Any
 
 import yaml
 
+from paracle_mcp.api_bridge import TOOL_API_MAPPINGS, MCPAPIBridge
+
 logger = logging.getLogger("paracle.mcp.server")
 
 
@@ -70,11 +72,12 @@ class ParacleMCPServer:
     - Custom tools from .parac/tools/custom/
     """
 
-    def __init__(self, parac_root: Path | None = None):
+    def __init__(self, parac_root: Path | None = None, api_base_url: str = "http://localhost:8000"):
         """Initialize the MCP server.
 
         Args:
             parac_root: Path to .parac/ directory (auto-detected if not provided)
+            api_base_url: Base URL for REST API (for API bridge)
         """
         self.parac_root = parac_root or self._find_parac_root()
         self.tools = self._load_all_tools()
@@ -82,10 +85,21 @@ class ParacleMCPServer:
         self.external_mcp_servers: list[ExternalMCPServer] = []
         self.active_agent: str | None = None
 
+        # Initialize API bridge (ADR-022: MCP Full Coverage)
+        self.api_bridge = MCPAPIBridge(
+            api_base_url=api_base_url,
+            timeout=30.0,
+            enable_fallback=True
+        )
+        self.api_tools: list[dict] = []  # Tools from OpenAPI
+
         # Load user-defined tools from .parac/tools/
         if self.parac_root:
             self._load_custom_tools()
             self._load_external_mcp_servers()
+
+        # Load API tools from OpenAPI if API available
+        self._load_api_tools()
 
     def _find_parac_root(self) -> Path | None:
         """Find the .parac/ directory by walking up from cwd.
@@ -116,7 +130,8 @@ class ParacleMCPServer:
             for agent_id in agent_tool_registry.list_agents():
                 agent_tools = agent_tool_registry.get_tools_for_agent(agent_id)
                 all_tools.update(agent_tools)
-            logger.info(f"Loaded {len(all_tools)} tools from agent_tool_registry")
+            logger.info(
+                f"Loaded {len(all_tools)} tools from agent_tool_registry")
         except ImportError as e:
             logger.warning(f"Could not import agent_tool_registry: {e}")
 
@@ -152,7 +167,8 @@ class ParacleMCPServer:
             tool_name = py_file.stem
             try:
                 # Load module dynamically
-                spec = importlib.util.spec_from_file_location(tool_name, py_file)
+                spec = importlib.util.spec_from_file_location(
+                    tool_name, py_file)
                 if spec and spec.loader:
                     module = importlib.util.module_from_spec(spec)
                     spec.loader.exec_module(module)
@@ -258,6 +274,84 @@ class ParacleMCPServer:
             )
             self.external_mcp_servers.append(server)
             logger.info(f"Loaded external MCP server: {server.id}")
+
+    def _load_api_tools(self) -> None:
+        """Load tools from REST API OpenAPI specification.
+
+        Implements ADR-022 Phase 2: Auto-generate MCP tools from OpenAPI spec.
+        This enables instant coverage of all API endpoints without manual duplication.
+        """
+        if not self.api_bridge.is_api_available():
+            logger.warning(
+                "REST API not available, skipping OpenAPI tool generation")
+            return
+
+        try:
+            # Fetch OpenAPI spec from API
+            response = self.api_bridge.client.get(
+                f"{self.api_bridge.api_base_url}/openapi.json")
+            response.raise_for_status()
+            openapi_spec = response.json()
+
+            # Generate MCP tools from OpenAPI paths
+            for path, path_item in openapi_spec.get("paths", {}).items():
+                for method, operation in path_item.items():
+                    if method.upper() not in ["GET", "POST", "PUT", "DELETE", "PATCH"]:
+                        continue
+
+                    # Generate tool name from operationId or path
+                    operation_id = operation.get("operationId")
+                    if not operation_id:
+                        # Generate from path and method
+                        tool_name = f"paracle_api_{method}_{path.replace('/', '_').replace('{', '').replace('}', '').strip('_')}"
+                    else:
+                        tool_name = f"paracle_{operation_id}"
+
+                    # Build parameter schema from OpenAPI
+                    parameters = operation.get("parameters", [])
+                    request_body = operation.get("requestBody", {})
+
+                    properties = {}
+                    required = []
+
+                    # Add path/query parameters
+                    for param in parameters:
+                        param_name = param.get("name")
+                        param_schema = param.get("schema", {})
+                        properties[param_name] = {
+                            "type": param_schema.get("type", "string"),
+                            "description": param.get("description", "")
+                        }
+                        if param.get("required", False):
+                            required.append(param_name)
+
+                    # Add request body schema
+                    if request_body:
+                        content = request_body.get("content", {})
+                        json_schema = content.get(
+                            "application/json", {}).get("schema", {})
+                        if json_schema.get("properties"):
+                            properties.update(json_schema["properties"])
+                            if json_schema.get("required"):
+                                required.extend(json_schema["required"])
+
+                    tool_schema = {
+                        "name": tool_name,
+                        "description": operation.get("summary", operation.get("description", f"API: {method.upper()} {path}")),
+                        "inputSchema": {
+                            "type": "object",
+                            "properties": properties,
+                            "required": required if required else None
+                        }
+                    }
+
+                    self.api_tools.append(tool_schema)
+
+            logger.info(
+                f"Loaded {len(self.api_tools)} tools from OpenAPI specification")
+
+        except Exception as e:
+            logger.error(f"Failed to load API tools from OpenAPI: {e}")
 
     def _get_context_tools(self) -> list[dict]:
         """Get context tool schemas.
@@ -456,6 +550,9 @@ class ParacleMCPServer:
 
         # Memory tools
         schemas.extend(self._get_memory_tools())
+
+        # API tools from OpenAPI (ADR-022 Phase 2)
+        schemas.extend(self.api_tools)
 
         # Custom tools from .parac/tools/custom/
         for custom_tool in self.custom_tools:
@@ -837,6 +934,24 @@ class ParacleMCPServer:
         if name.startswith("memory_"):
             return await self._handle_memory_tool(name, arguments)
 
+        # API bridge tools (ADR-022: Route through REST API)
+        if name in TOOL_API_MAPPINGS or name.startswith("paracle_api_") or name.startswith("paracle_"):
+            # Check if this tool should use API bridge
+            if name in TOOL_API_MAPPINGS or any(t["name"] == name for t in self.api_tools):
+                try:
+                    result = await self.api_bridge.call_api_tool(name, arguments)
+                    # Format result for MCP
+                    if "error" in result:
+                        return {"content": [{"type": "text", "text": f"Error: {result['error']}"}], "isError": True}
+                    else:
+                        # Convert JSON result to text
+                        import json
+                        text = json.dumps(result, indent=2)
+                        return {"content": [{"type": "text", "text": text}]}
+                except Exception as e:
+                    logger.error(f"API bridge call failed for {name}: {e}")
+                    # Fall through to agent tools as last resort
+
         # Custom tools
         if name.startswith("custom_"):
             return await self._handle_custom_tool(name, arguments)
@@ -902,7 +1017,8 @@ class ParacleMCPServer:
                 else:
                     response = {"error": f"Unknown method: {method}"}
 
-                result = {"jsonrpc": "2.0", "id": request_id, "result": response}
+                result = {"jsonrpc": "2.0",
+                          "id": request_id, "result": response}
                 print(json.dumps(result), flush=True)
 
             except json.JSONDecodeError as e:
@@ -932,7 +1048,8 @@ class ParacleMCPServer:
         try:
             from aiohttp import web
         except ImportError:
-            logger.error("aiohttp not installed. Install with: pip install aiohttp")
+            logger.error(
+                "aiohttp not installed. Install with: pip install aiohttp")
             raise
 
         async def handle_mcp(request):

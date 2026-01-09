@@ -15,10 +15,12 @@ from paracle_cli.commands.compliance import compliance
 from paracle_cli.commands.config import config
 from paracle_cli.commands.conflicts import conflicts
 from paracle_cli.commands.cost import cost
+from paracle_cli.commands.errors import errors
 from paracle_cli.commands.git import git
 from paracle_cli.commands.governance import governance
 from paracle_cli.commands.groups import groups
 from paracle_cli.commands.ide import ide
+from paracle_cli.commands.inventory import inventory
 from paracle_cli.commands.logs import logs
 from paracle_cli.commands.mcp import mcp
 from paracle_cli.commands.meta import meta
@@ -96,6 +98,9 @@ cli.add_command(providers)
 # Cost tracking
 cli.add_command(cost)
 
+# Error management and monitoring
+cli.add_command(errors)
+
 # Cache management
 cli.add_command(cache)
 
@@ -140,6 +145,9 @@ cli.add_command(compliance)
 cli.add_command(adr)
 cli.add_command(roadmap)
 cli.add_command(logs)
+
+# Services inventory management
+cli.add_command(inventory)
 
 # Legacy commands (hidden)
 cli.add_command(parac)

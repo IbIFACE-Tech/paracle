@@ -127,9 +127,9 @@ def _fallback_create_task(
         "board_id": task.board_id,
         "title": task.title,
         "description": task.description,
-        "status": task.status.value,
-        "priority": task.priority.value,
-        "task_type": task.task_type.value,
+        "status": task.status.value if hasattr(task.status, "value") else task.status,
+        "priority": task.priority.value if hasattr(task.priority, "value") else task.priority,
+        "task_type": task.task_type.value if hasattr(task.task_type, "value") else task.task_type,
         "assigned_to": task.assigned_to,
         "tags": task.tags,
         "created_at": task.created_at.isoformat(),
@@ -164,9 +164,9 @@ def _fallback_list_tasks(
                 "board_id": t.board_id,
                 "title": t.title,
                 "description": t.description,
-                "status": t.status.value,
-                "priority": t.priority.value,
-                "task_type": t.task_type.value,
+                "status": t.status.value if hasattr(t.status, "value") else t.status,
+                "priority": t.priority.value if hasattr(t.priority, "value") else t.priority,
+                "task_type": t.task_type.value if hasattr(t.task_type, "value") else t.task_type,
                 "assigned_to": t.assigned_to,
                 "tags": t.tags,
                 "created_at": t.created_at.isoformat(),
@@ -191,9 +191,9 @@ def _fallback_get_task(task_id: str) -> dict:
         "board_id": task.board_id,
         "title": task.title,
         "description": task.description,
-        "status": task.status.value,
-        "priority": task.priority.value,
-        "task_type": task.task_type.value,
+        "status": task.status.value if hasattr(task.status, "value") else task.status,
+        "priority": task.priority.value if hasattr(task.priority, "value") else task.priority,
+        "task_type": task.task_type.value if hasattr(task.task_type, "value") else task.task_type,
         "assigned_to": task.assigned_to,
         "tags": task.tags,
         "depends_on": task.depends_on,
@@ -219,7 +219,8 @@ def _fallback_move_task(task_id: str, status: str, reason: str | None) -> dict:
 
     # Validate transition
     if not task.can_transition_to(new_status):
-        raise ValueError(f"Cannot move from {task.status.value} to {new_status.value}")
+        raise ValueError(
+            f"Cannot move from {task.status.value} to {new_status.value}")
 
     # Check blocked reason
     if new_status == TaskStatus.BLOCKED and not reason:
@@ -233,8 +234,8 @@ def _fallback_move_task(task_id: str, status: str, reason: str | None) -> dict:
     return {
         "id": task.id,
         "title": task.title,
-        "old_status": old_status.value,
-        "status": task.status.value,
+        "old_status": old_status.value if hasattr(old_status, "value") else old_status,
+        "status": task.status.value if hasattr(task.status, "value") else task.status,
     }
 
 
@@ -310,7 +311,8 @@ def task() -> None:
 @click.option(
     "--priority",
     "-p",
-    type=click.Choice(["LOW", "MEDIUM", "HIGH", "CRITICAL"], case_sensitive=False),
+    type=click.Choice(["LOW", "MEDIUM", "HIGH", "CRITICAL"],
+                      case_sensitive=False),
     default="MEDIUM",
     help="Task priority",
 )
@@ -381,7 +383,8 @@ def create_task(
 @click.option(
     "--priority",
     "-p",
-    type=click.Choice(["LOW", "MEDIUM", "HIGH", "CRITICAL"], case_sensitive=False),
+    type=click.Choice(["LOW", "MEDIUM", "HIGH", "CRITICAL"],
+                      case_sensitive=False),
     help="Filter by priority",
 )
 @click.option("--json", "as_json", is_flag=True, help="Output as JSON")
@@ -473,7 +476,8 @@ def get_task(task_id: str, as_json: bool) -> None:
             console.print(f"\n[bold cyan]Task: {result['title']}[/bold cyan]")
             console.print(f"  ID: {result['id']}")
             console.print(f"  Board: {result['board_id']}")
-            console.print(f"  Description: {result.get('description') or '(none)'}")
+            console.print(
+                f"  Description: {result.get('description') or '(none)'}")
             console.print(f"  Status: [{result['status']}]")
             console.print(f"  Priority: [{result['priority']}]")
             console.print(f"  Type: {result['task_type']}")
@@ -491,15 +495,18 @@ def get_task(task_id: str, as_json: bool) -> None:
             if result.get("tags"):
                 console.print(f"  Tags: {', '.join(result['tags'])}")
             if result.get("depends_on"):
-                console.print(f"  Depends on: {', '.join(result['depends_on'])}")
+                console.print(
+                    f"  Depends on: {', '.join(result['depends_on'])}")
             if result.get("blocked_by"):
                 console.print(f"  Blocked by: {result['blocked_by']}")
 
             # Show metrics if available
             if result.get("cycle_time_hours"):
-                console.print(f"  Cycle time: {result['cycle_time_hours']:.1f} hours")
+                console.print(
+                    f"  Cycle time: {result['cycle_time_hours']:.1f} hours")
             if result.get("lead_time_hours"):
-                console.print(f"  Lead time: {result['lead_time_hours']:.1f} hours")
+                console.print(
+                    f"  Lead time: {result['lead_time_hours']:.1f} hours")
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -529,7 +536,8 @@ def move_task(task_id: str, status: str, reason: str | None) -> None:
 
         old_status = result.get("old_status", "unknown")
         new_status = result.get("status", status)
-        console.print(f"[green]✓[/green] Moved task from {old_status} to {new_status}")
+        console.print(
+            f"[green]✓[/green] Moved task from {old_status} to {new_status}")
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -586,7 +594,8 @@ def delete_task(task_id: str) -> None:
             task_id,
         )
 
-        console.print(f"[green]✓[/green] {result.get('message', 'Task deleted')}")
+        console.print(
+            f"[green]✓[/green] {result.get('message', 'Task deleted')}")
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")

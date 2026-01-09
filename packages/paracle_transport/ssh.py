@@ -2,12 +2,22 @@
 
 import logging
 from pathlib import Path
-from typing import Any
-
-import asyncssh
+from typing import TYPE_CHECKING, Any
 
 from paracle_transport.base import Transport, TransportError
 from paracle_transport.remote_config import RemoteConfig, TunnelConfig
+
+# asyncssh is an optional dependency for SSH transport
+try:
+    import asyncssh
+
+    ASYNCSSH_AVAILABLE = True
+except ImportError:
+    asyncssh = None  # type: ignore[assignment]
+    ASYNCSSH_AVAILABLE = False
+
+if TYPE_CHECKING:
+    import asyncssh
 
 logger = logging.getLogger(__name__)
 
@@ -51,13 +61,21 @@ class SSHTunnel:
 
         Args:
             config: Tunnel configuration.
+
+        Raises:
+            ImportError: If asyncssh is not installed.
         """
+        if not ASYNCSSH_AVAILABLE:
+            raise ImportError(
+                "asyncssh is required for SSH transport. "
+                "Install it with: pip install asyncssh"
+            )
         self.local_port = config.local
         self.remote_port = config.remote
         self.description = config.description
-        self.listener: asyncssh.SSHTCPListener | None = None
+        self.listener: "asyncssh.SSHTCPListener | None" = None
 
-    async def start(self, connection: asyncssh.SSHClientConnection) -> None:
+    async def start(self, connection: "asyncssh.SSHClientConnection") -> None:
         """Start SSH tunnel.
 
         Args:
@@ -129,9 +147,17 @@ class SSHTransport(Transport):
 
         Args:
             config: Remote configuration.
+
+        Raises:
+            ImportError: If asyncssh is not installed.
         """
+        if not ASYNCSSH_AVAILABLE:
+            raise ImportError(
+                "asyncssh is required for SSH transport. "
+                "Install it with: pip install asyncssh"
+            )
         self.config = config
-        self.connection: asyncssh.SSHClientConnection | None = None
+        self.connection: "asyncssh.SSHClientConnection | None" = None
         self.tunnels: dict[int, SSHTunnel] = {}
 
     async def connect(self) -> None:

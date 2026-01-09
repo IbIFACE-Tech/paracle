@@ -270,3 +270,8 @@ class ExecutionContext(BaseModel):
     def add_error(self, error: str) -> None:
         """Add an error message."""
         self.errors.append(error)
+
+    @property
+    def results(self) -> dict[str, Any]:
+        """Get step results (alias for step_results)."""
+        return self.step_results
