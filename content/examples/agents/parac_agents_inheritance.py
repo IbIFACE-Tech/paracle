@@ -32,34 +32,33 @@ def load_agent_spec_from_file(spec_path: Path) -> dict:
         Dict with agent spec data
     """
     # For this example, we'll extract key info from the markdown
-    with open(spec_path, encoding='utf-8') as f:
+    with open(spec_path, encoding="utf-8") as f:
         content = f.read()
 
     # Extract title (first # heading)
-    lines = content.split('\n')
+    lines = content.split("\n")
     name = None
     role = None
     skills = []
 
     for i, line in enumerate(lines):
-        if line.startswith('# ') and not name:
-            name = line[2:].strip().replace(
-                ' Agent', '').lower().replace(' ', '-')
-        elif line.strip() == '## Role' and i + 2 < len(lines):
+        if line.startswith("# ") and not name:
+            name = line[2:].strip().replace(" Agent", "").lower().replace(" ", "-")
+        elif line.strip() == "## Role" and i + 2 < len(lines):
             role = lines[i + 2].strip()
-        elif line.strip() == '## Skills':
+        elif line.strip() == "## Skills":
             # Read skills (markdown list items)
             j = i + 2
-            while j < len(lines) and lines[j].startswith('- '):
+            while j < len(lines) and lines[j].startswith("- "):
                 skill = lines[j][2:].strip()
                 if skill:
                     skills.append(skill)
                 j += 1
 
     return {
-        'name': name,
-        'role': role,
-        'skills': skills,
+        "name": name,
+        "role": role,
+        "skills": skills,
     }
 
 
@@ -100,7 +99,7 @@ def main() -> None:
     # Create base reviewer spec
     base_reviewer = AgentSpec(
         name="reviewer",
-        description=reviewer_info['role'],
+        description=reviewer_info["role"],
         provider="openai",
         model="gpt-4",
         temperature=0.3,
@@ -109,11 +108,11 @@ def main() -> None:
             "Review code for correctness, security, performance, and maintainability."
         ),
         tools=["static_analysis", "security_scan", "code_review"],
-        skills=reviewer_info['skills'],
+        skills=reviewer_info["skills"],
         metadata={
             "role": "code_review",
             "source": ".parac/agents/specs/reviewer.md",
-        }
+        },
     )
 
     repo.register_spec(base_reviewer)
@@ -158,7 +157,7 @@ def main() -> None:
             "focus": "security",
             "owasp_version": "2023",
             "severity_threshold": "medium",
-        }
+        },
     )
 
     repo.register_spec(security_reviewer)
@@ -167,8 +166,7 @@ def main() -> None:
 
     print("\n✅ Security Reviewer Created")
     print(f"   Parent: {security_reviewer.parent}")
-    print(
-        f"   Temperature: {security_reviewer.temperature} (overridden - stricter)")
+    print(f"   Temperature: {security_reviewer.temperature} (overridden - stricter)")
     print("\n📊 Inherited + Added:")
     print(f"   Tools: {len(security_effective.tools)} total")
     print(f"     - From base: {base_reviewer.tools}")
@@ -210,7 +208,7 @@ def main() -> None:
             "focus": "performance",
             "complexity_threshold": "O(n log n)",
             "memory_limit_mb": 512,
-        }
+        },
     )
 
     repo.register_spec(performance_reviewer)
@@ -255,7 +253,7 @@ def main() -> None:
         metadata={
             "language": "python",
             "python_version": "3.10+",
-        }
+        },
     )
 
     repo.register_spec(python_security_reviewer)
@@ -264,7 +262,9 @@ def main() -> None:
 
     print("\n✅ Python Security Reviewer Created")
     print(f"   Parent: {python_security_reviewer.parent}")
-    print("   Inheritance Chain: reviewer → security-reviewer → python-security-reviewer")
+    print(
+        "   Inheritance Chain: reviewer → security-reviewer → python-security-reviewer"
+    )
     print("\n📊 Accumulated Through 2-Level Inheritance:")
     print(f"   Tools: {len(python_security_effective.tools)} total")
     print(f"     - From base (reviewer): {len(base_reviewer.tools)}")
@@ -280,40 +280,44 @@ def main() -> None:
     print("=" * 70)
 
     print("\n🌳 Agent Tree:")
-    print("""
+    print(
+        """
     reviewer (base from .parac/agents/specs/reviewer.md)
     ├── security-reviewer
     │   └── python-security-reviewer (2-level inheritance)
     └── performance-reviewer
-    """)
+    """
+    )
 
     print("\n📈 Tool Accumulation:")
     print(f"   reviewer:                  {len(base_reviewer.tools)} tools")
     print(
-        f"   security-reviewer:         {len(security_effective.tools)} tools (inherited + added)")
+        f"   security-reviewer:         {len(security_effective.tools)} tools (inherited + added)"
+    )
     print(
-        f"   python-security-reviewer:  {len(python_security_effective.tools)} tools (inherited + added)")
+        f"   python-security-reviewer:  {len(python_security_effective.tools)} tools (inherited + added)"
+    )
     print(
-        f"   performance-reviewer:      {len(performance_effective.tools)} tools (inherited + added)")
+        f"   performance-reviewer:      {len(performance_effective.tools)} tools (inherited + added)"
+    )
 
     print("\n🎓 Skill Accumulation:")
     print(f"   reviewer:                  {len(base_reviewer.skills)} skills")
+    print(f"   security-reviewer:         {len(security_effective.skills)} skills")
     print(
-        f"   security-reviewer:         {len(security_effective.skills)} skills")
-    print(
-        f"   python-security-reviewer:  {len(python_security_effective.skills)} skills")
-    print(
-        f"   performance-reviewer:      {len(performance_effective.skills)} skills")
+        f"   python-security-reviewer:  {len(python_security_effective.skills)} skills"
+    )
+    print(f"   performance-reviewer:      {len(performance_effective.skills)} skills")
 
     print("\n🌡️  Temperature Specialization:")
+    print(f"   reviewer:                  {base_reviewer.temperature} (balanced)")
+    print(f"   security-reviewer:         {security_reviewer.temperature} (stricter)")
     print(
-        f"   reviewer:                  {base_reviewer.temperature} (balanced)")
+        f"   python-security-reviewer:  {python_security_reviewer.temperature} (strictest)"
+    )
     print(
-        f"   security-reviewer:         {security_reviewer.temperature} (stricter)")
-    print(
-        f"   python-security-reviewer:  {python_security_reviewer.temperature} (strictest)")
-    print(
-        f"   performance-reviewer:      {performance_reviewer.temperature} (moderate)")
+        f"   performance-reviewer:      {performance_reviewer.temperature} (moderate)"
+    )
 
     # =============================================================================
     # Step 6: Verification
@@ -323,22 +327,40 @@ def main() -> None:
     print("=" * 70)
 
     # Verify inheritance
-    assert "static_analysis" in python_security_effective.tools, "Base tool should be inherited"
-    assert "vulnerability_scanner" in python_security_effective.tools, "Parent tool should be inherited"
+    assert (
+        "static_analysis" in python_security_effective.tools
+    ), "Base tool should be inherited"
+    assert (
+        "vulnerability_scanner" in python_security_effective.tools
+    ), "Parent tool should be inherited"
     assert "bandit" in python_security_effective.tools, "Own tool should be present"
     print("✅ Tool inheritance through 2 levels: VERIFIED")
 
-    assert "security-hardening" in python_security_effective.skills, "Base skill should be inherited"
-    assert "owasp-top-10" in python_security_effective.skills, "Parent skill should be inherited"
-    assert "python-security" in python_security_effective.skills, "Own skill should be present"
+    assert (
+        "security-hardening" in python_security_effective.skills
+    ), "Base skill should be inherited"
+    assert (
+        "owasp-top-10" in python_security_effective.skills
+    ), "Parent skill should be inherited"
+    assert (
+        "python-security" in python_security_effective.skills
+    ), "Own skill should be present"
     print("✅ Skill inheritance through 2 levels: VERIFIED")
 
-    assert python_security_effective.temperature == 0.15, "Temperature should be overridden"
+    assert (
+        python_security_effective.temperature == 0.15
+    ), "Temperature should be overridden"
     print("✅ Property override: VERIFIED")
 
-    assert "role" in python_security_effective.metadata, "Base metadata should be inherited"
-    assert "focus" in python_security_effective.metadata, "Parent metadata should be inherited"
-    assert "language" in python_security_effective.metadata, "Own metadata should be present"
+    assert (
+        "role" in python_security_effective.metadata
+    ), "Base metadata should be inherited"
+    assert (
+        "focus" in python_security_effective.metadata
+    ), "Parent metadata should be inherited"
+    assert (
+        "language" in python_security_effective.metadata
+    ), "Own metadata should be present"
     print("✅ Metadata merging: VERIFIED")
 
     # =============================================================================

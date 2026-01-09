@@ -28,9 +28,7 @@ class TestParacleMetaError:
 
     def test_create_with_details(self):
         """Test creating exception with details."""
-        error = ParacleMetaError(
-            "Test error", details={"key": "value", "count": 42}
-        )
+        error = ParacleMetaError("Test error", details={"key": "value", "count": 42})
         assert "key" in error.details
         assert error.details["count"] == 42
         assert "Details:" in str(error)
@@ -147,9 +145,7 @@ class TestInvalidArtifactTypeError:
 
     def test_create_with_custom_valid_types(self):
         """Test creating with custom valid types list."""
-        error = InvalidArtifactTypeError(
-            "custom", valid_types=["type_a", "type_b"]
-        )
+        error = InvalidArtifactTypeError("custom", valid_types=["type_a", "type_b"])
         assert error.details["valid_types"] == ["type_a", "type_b"]
 
 

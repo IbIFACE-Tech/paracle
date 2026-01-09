@@ -171,9 +171,8 @@ class ResponseCacheMiddleware(BaseHTTPMiddleware):
         elapsed = time.perf_counter() - start_time
 
         # Only cache successful JSON responses
-        if (
-            response.status_code == 200
-            and "application/json" in response.headers.get("content-type", "")
+        if response.status_code == 200 and "application/json" in response.headers.get(
+            "content-type", ""
         ):
             # Read response body
             body = b""

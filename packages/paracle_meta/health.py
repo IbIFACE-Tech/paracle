@@ -94,9 +94,15 @@ class HealthCheck(BaseModel):
         components.extend(self.providers.values())
 
         self.total_components = len(components)
-        self.healthy_components = sum(1 for c in components if c.status == HealthStatus.HEALTHY)
-        self.degraded_components = sum(1 for c in components if c.status == HealthStatus.DEGRADED)
-        self.unhealthy_components = sum(1 for c in components if c.status == HealthStatus.UNHEALTHY)
+        self.healthy_components = sum(
+            1 for c in components if c.status == HealthStatus.HEALTHY
+        )
+        self.degraded_components = sum(
+            1 for c in components if c.status == HealthStatus.DEGRADED
+        )
+        self.unhealthy_components = sum(
+            1 for c in components if c.status == HealthStatus.UNHEALTHY
+        )
 
         # Overall status is the worst of all components
         if self.unhealthy_components > 0:
@@ -479,7 +485,9 @@ def format_health_report(health: HealthCheck) -> str:
         HealthStatus.UNHEALTHY: "[X]",
     }
 
-    lines.append(f"Paracle Meta Health: {status_emoji[health.status]} {health.status.value.upper()}")
+    lines.append(
+        f"Paracle Meta Health: {status_emoji[health.status]} {health.status.value.upper()}"
+    )
     lines.append(f"Version: {health.version}")
     lines.append(f"Uptime: {health.uptime_seconds:.0f}s")
     lines.append("")
@@ -495,7 +503,9 @@ def format_health_report(health: HealthCheck) -> str:
     lines.append("")
 
     # Database
-    lines.append(f"Database: {status_emoji[health.database.status]} {health.database.status.value}")
+    lines.append(
+        f"Database: {status_emoji[health.database.status]} {health.database.status.value}"
+    )
     if health.database.message:
         lines.append(f"  {health.database.message}")
     if health.database.latency_ms:
@@ -509,21 +519,27 @@ def format_health_report(health: HealthCheck) -> str:
     if health.providers:
         lines.append("Providers:")
         for name, provider_health in health.providers.items():
-            lines.append(f"  {name}: {status_emoji[provider_health.status]} {provider_health.status.value}")
+            lines.append(
+                f"  {name}: {status_emoji[provider_health.status]} {provider_health.status.value}"
+            )
             if provider_health.message:
                 lines.append(f"    {provider_health.message}")
         lines.append("")
 
     # Learning Engine
     if health.learning_engine:
-        lines.append(f"Learning Engine: {status_emoji[health.learning_engine.status]} {health.learning_engine.status.value}")
+        lines.append(
+            f"Learning Engine: {status_emoji[health.learning_engine.status]} {health.learning_engine.status.value}"
+        )
         if health.learning_engine.message:
             lines.append(f"  {health.learning_engine.message}")
         lines.append("")
 
     # Cost Tracker
     if health.cost_tracker:
-        lines.append(f"Cost Tracker: {status_emoji[health.cost_tracker.status]} {health.cost_tracker.status.value}")
+        lines.append(
+            f"Cost Tracker: {status_emoji[health.cost_tracker.status]} {health.cost_tracker.status.value}"
+        )
         if health.cost_tracker.message:
             lines.append(f"  {health.cost_tracker.message}")
         if health.cost_tracker.details:

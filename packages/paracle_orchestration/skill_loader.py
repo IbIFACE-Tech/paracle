@@ -131,8 +131,7 @@ class SkillLoader:
         raw_content = skill_file.read_text(encoding="utf-8")
 
         # Parse YAML frontmatter and extract name/description
-        name, description, content = self._parse_skill_md(
-            raw_content, skill_id)
+        name, description, content = self._parse_skill_md(raw_content, skill_id)
 
         # Load assets
         assets = self._load_directory_files(skill_path / "assets")
@@ -177,7 +176,8 @@ class SkillLoader:
                 skills.append(skill)
             else:
                 logger.warning(
-                    f"Could not load skill {skill_id} for agent {agent_name}")
+                    f"Could not load skill {skill_id} for agent {agent_name}"
+                )
 
         logger.info(f"Loaded {len(skills)} skills for agent: {agent_name}")
         return skills
@@ -264,8 +264,7 @@ class SkillLoader:
             List of skill IDs
         """
         if not self.assignments_file.exists():
-            logger.debug(
-                f"Assignments file not found: {self.assignments_file}")
+            logger.debug(f"Assignments file not found: {self.assignments_file}")
             return []
 
         # Parse SKILL_ASSIGNMENTS.md
@@ -319,9 +318,7 @@ class SkillLoader:
 
         return skills
 
-    def _parse_skill_md(
-        self, raw_content: str, skill_id: str
-    ) -> tuple[str, str, str]:
+    def _parse_skill_md(self, raw_content: str, skill_id: str) -> tuple[str, str, str]:
         """Parse SKILL.md file extracting YAML frontmatter.
 
         Args:
@@ -339,12 +336,13 @@ class SkillLoader:
         content = raw_content
 
         # Check for YAML frontmatter (content between --- markers)
-        frontmatter_pattern = r'^---\s*\n(.*?)\n---\s*\n(.*)$'
+        frontmatter_pattern = r"^---\s*\n(.*?)\n---\s*\n(.*)$"
         match = re.match(frontmatter_pattern, raw_content, re.DOTALL)
 
         if match:
             try:
                 import yaml
+
                 frontmatter_text = match.group(1)
                 content = match.group(2)
 
@@ -352,9 +350,7 @@ class SkillLoader:
                 if frontmatter:
                     # Extract name and description from frontmatter
                     name = frontmatter.get("name", skill_id)
-                    description = frontmatter.get(
-                        "description", f"Skill: {name}"
-                    )
+                    description = frontmatter.get("description", f"Skill: {name}")
 
                     # Also try metadata.display_name if available
                     metadata = frontmatter.get("metadata", {})
@@ -366,9 +362,7 @@ class SkillLoader:
                     f"name={name}, desc={description[:50]}..."
                 )
             except Exception as e:
-                logger.warning(
-                    f"Failed to parse frontmatter for {skill_id}: {e}"
-                )
+                logger.warning(f"Failed to parse frontmatter for {skill_id}: {e}")
 
         return name, description, content
 
@@ -409,9 +403,7 @@ class SkillLoader:
         missing = [sid for sid in skill_ids if sid not in available_skills]
 
         if missing:
-            logger.warning(
-                f"Agent {agent_name} has missing skills: {missing}"
-            )
+            logger.warning(f"Agent {agent_name} has missing skills: {missing}")
 
         return missing
 

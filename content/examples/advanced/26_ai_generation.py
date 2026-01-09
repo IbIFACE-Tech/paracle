@@ -40,8 +40,7 @@ async def example_check_availability():
 
     # List all available providers
     available = list_available_providers()
-    print(
-        f"\nAvailable providers: {', '.join(available) if available else 'none'}")
+    print(f"\nAvailable providers: {', '.join(available) if available else 'none'}")
 
 
 async def example_generate_agent():
@@ -303,9 +302,15 @@ async def main():
     print("Examples complete!")
     print("=" * 60)
     print("\nNext steps:")
-    print("  - Create agent: paracle agents create my-agent --role 'description' --ai-enhance")
-    print("  - Create skill: paracle agents skills create my-skill --description 'desc' --ai-enhance")
-    print("  - Create workflow: paracle workflow create my-workflow --description 'desc' --ai-enhance")
+    print(
+        "  - Create agent: paracle agents create my-agent --role 'description' --ai-enhance"
+    )
+    print(
+        "  - Create skill: paracle agents skills create my-skill --description 'desc' --ai-enhance"
+    )
+    print(
+        "  - Create workflow: paracle workflow create my-workflow --description 'desc' --ai-enhance"
+    )
     print("  - Configure: .parac/config/ai.yaml")
     print("  - Check status: paracle generate status")
 

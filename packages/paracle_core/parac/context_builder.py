@@ -43,8 +43,7 @@ class ContextData:
     policies_available: list[str] = field(default_factory=list)
     config_files_guide: bool = False
     structure_guide: bool = False
-    generated_at: str = field(
-        default_factory=lambda: datetime.now().isoformat())
+    generated_at: str = field(default_factory=lambda: datetime.now().isoformat())
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for template rendering."""
@@ -142,8 +141,7 @@ class ContextBuilder:
         data.policies_available = self._list_available_policies()
 
         # Check for guide files
-        data.config_files_guide = (
-            self.parac_root / "CONFIG_FILES.md").exists()
+        data.config_files_guide = (self.parac_root / "CONFIG_FILES.md").exists()
         data.structure_guide = (self.parac_root / "STRUCTURE.md").exists()
 
         return data
@@ -190,10 +188,12 @@ class ContextBuilder:
         for line in content.split("\n"):
             if line.startswith("### ADR-"):
                 if current_adr and current_content:
-                    decisions.append({
-                        "id": current_adr,
-                        "summary": " ".join(current_content[:3]),
-                    })
+                    decisions.append(
+                        {
+                            "id": current_adr,
+                            "summary": " ".join(current_content[:3]),
+                        }
+                    )
                 # Extract ADR ID and title
                 parts = line[4:].split(":", 1)
                 current_adr = parts[0].strip()
@@ -203,10 +203,12 @@ class ContextBuilder:
 
         # Add last ADR
         if current_adr and current_content:
-            decisions.append({
-                "id": current_adr,
-                "summary": " ".join(current_content[:3]),
-            })
+            decisions.append(
+                {
+                    "id": current_adr,
+                    "summary": " ".join(current_content[:3]),
+                }
+            )
 
         # Return most recent
         return decisions[-count:] if decisions else []
@@ -271,51 +273,61 @@ class ContextBuilder:
         # Priority 1: Current state (always included)
         if data.state:
             state_content = self._format_state(data.state)
-            sections.append(ContextSection(
-                name="current_state",
-                content=state_content,
-                priority=1,
-                can_truncate=False,
-            ))
+            sections.append(
+                ContextSection(
+                    name="current_state",
+                    content=state_content,
+                    priority=1,
+                    can_truncate=False,
+                )
+            )
 
         # Priority 2: Agent list with capabilities
         if data.agents:
             agents_content = self._format_agents(data.agents)
-            sections.append(ContextSection(
-                name="agents",
-                content=agents_content,
-                priority=2,
-                can_truncate=False,
-            ))
+            sections.append(
+                ContextSection(
+                    name="agents",
+                    content=agents_content,
+                    priority=2,
+                    can_truncate=False,
+                )
+            )
 
         # Priority 3: Governance rules
         if data.governance_summary:
-            sections.append(ContextSection(
-                name="governance",
-                content=data.governance_summary,
-                priority=3,
-                can_truncate=True,
-            ))
+            sections.append(
+                ContextSection(
+                    name="governance",
+                    content=data.governance_summary,
+                    priority=3,
+                    can_truncate=True,
+                )
+            )
 
         # Priority 4: Recent decisions
         if data.recent_decisions:
             decisions_content = self._format_decisions(data.recent_decisions)
-            sections.append(ContextSection(
-                name="decisions",
-                content=decisions_content,
-                priority=4,
-                can_truncate=True,
-            ))
+            sections.append(
+                ContextSection(
+                    name="decisions",
+                    content=decisions_content,
+                    priority=4,
+                    can_truncate=True,
+                )
+            )
 
         # Priority 5: Open questions
         if data.open_questions:
             questions_content = self._format_questions(data.open_questions)
-            sections.append(ContextSection(
-                name="questions",
-                content=questions_content,
-                priority=5,
-                can_truncate=True,
-            ))
+            sections.append(
+                ContextSection(
+                    name="questions",
+                    content=questions_content,
+                    priority=5,
+                    can_truncate=True,
+                )
+            )
 
         return sorted(sections, key=lambda s: s.priority)
 
@@ -337,8 +349,7 @@ class ContextBuilder:
         """Format agents for embedding."""
         lines = []
         for agent in agents:
-            caps = ", ".join(
-                agent.capabilities) if agent.capabilities else "general"
+            caps = ", ".join(agent.capabilities) if agent.capabilities else "general"
             lines.append(f"- **{agent.name}** ({agent.id}): {agent.role}")
             lines.append(f"  Capabilities: {caps}")
         return "\n".join(lines)
@@ -391,14 +402,16 @@ class ContextBuilder:
                 remaining_size -= section.size
             elif section.can_truncate and remaining_size > 100:
                 # Truncate section
-                truncated_content = section.content[:remaining_size - 50]
+                truncated_content = section.content[: remaining_size - 50]
                 truncated_content += "\n\n[Truncated. See .parac/ for full content]"
-                result.append(ContextSection(
-                    name=section.name,
-                    content=truncated_content,
-                    priority=section.priority,
-                    can_truncate=False,
-                ))
+                result.append(
+                    ContextSection(
+                        name=section.name,
+                        content=truncated_content,
+                        priority=section.priority,
+                        can_truncate=False,
+                    )
+                )
                 truncated_names.append(section.name)
                 remaining_size = 0
             elif not section.can_truncate:
@@ -421,8 +434,7 @@ class ContextBuilder:
         Returns:
             Dictionary with context data ready for template rendering
         """
-        max_size = self.IDE_SIZE_LIMITS.get(
-            ide, self.IDE_SIZE_LIMITS["default"])
+        max_size = self.IDE_SIZE_LIMITS.get(ide, self.IDE_SIZE_LIMITS["default"])
 
         # Collect data
         data = self.collect()

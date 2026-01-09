@@ -32,9 +32,8 @@ class PeerToPeerPattern:
 
         In peer-to-peer, any member can send to any other member.
         """
-        return (
-            self.group.validate_member(sender)
-            and self.group.validate_member(recipient)
+        return self.group.validate_member(sender) and self.group.validate_member(
+            recipient
         )
 
     def route_message(
@@ -52,7 +51,8 @@ class PeerToPeerPattern:
         if message.recipients:
             # Targeted message - validate recipients
             return [
-                r for r in message.recipients
+                r
+                for r in message.recipients
                 if self.group.validate_member(r) and r != message.sender
             ]
         else:
@@ -75,7 +75,8 @@ class PeerToPeerPattern:
         """
         # Get messages directed to this agent
         directed_messages = [
-            m for m in session.messages
+            m
+            for m in session.messages
             if m.recipients is None or agent_id in m.recipients
         ]
 

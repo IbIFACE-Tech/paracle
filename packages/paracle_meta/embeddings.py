@@ -76,9 +76,13 @@ class EmbeddingConfig(BaseModel):
 
     # Request settings
     timeout: float = Field(default=30.0, description="Request timeout in seconds")
-    max_batch_size: int = Field(default=100, description="Maximum batch size for embedding")
+    max_batch_size: int = Field(
+        default=100, description="Maximum batch size for embedding"
+    )
     retry_attempts: int = Field(default=3, description="Number of retry attempts")
-    retry_delay: float = Field(default=1.0, description="Delay between retries in seconds")
+    retry_delay: float = Field(
+        default=1.0, description="Delay between retries in seconds"
+    )
 
 
 class EmbeddingProvider(ABC):
@@ -132,7 +136,9 @@ class EmbeddingProvider(ABC):
         """
         ...
 
-    async def similarity(self, embedding1: list[float], embedding2: list[float]) -> float:
+    async def similarity(
+        self, embedding1: list[float], embedding2: list[float]
+    ) -> float:
         """Calculate cosine similarity between two embeddings.
 
         Args:
@@ -579,7 +585,9 @@ class CachedEmbeddingProvider(EmbeddingProvider):
         # Fetch uncached embeddings
         if uncached_texts:
             embeddings = await self._provider.embed_batch(uncached_texts)
-            for idx, embedding, text in zip(uncached_indices, embeddings, uncached_texts):
+            for idx, embedding, text in zip(
+                uncached_indices, embeddings, uncached_texts
+            ):
                 results[idx] = embedding
                 self._cache.set(text, embedding)
 

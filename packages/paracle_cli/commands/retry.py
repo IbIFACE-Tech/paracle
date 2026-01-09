@@ -138,8 +138,7 @@ def list(workflow_id: str | None, execution_id: str | None, status: str, format:
         return
 
     # Display as table
-    console.print(
-        f"\n[bold cyan]Retry Contexts ({len(contexts)})[/bold cyan]\n")
+    console.print(f"\n[bold cyan]Retry Contexts ({len(contexts)})[/bold cyan]\n")
 
     table = Table(show_header=True, header_style="bold")
     table.add_column("Step", style="cyan")
@@ -151,17 +150,21 @@ def list(workflow_id: str | None, execution_id: str | None, status: str, format:
 
     for ctx in contexts:
         status_display = (
-            "[green]✓ Succeeded[/green]"
-            if ctx.succeeded
-            else "[red]✗ Failed[/red]"
+            "[green]✓ Succeeded[/green]" if ctx.succeeded else "[red]✗ Failed[/red]"
         )
 
         table.add_row(
             ctx.step_name,
-            ctx.workflow_id[:12] +
-            "..." if len(ctx.workflow_id) > 12 else ctx.workflow_id,
-            ctx.execution_id[:12] +
-            "..." if len(ctx.execution_id) > 12 else ctx.execution_id,
+            (
+                ctx.workflow_id[:12] + "..."
+                if len(ctx.workflow_id) > 12
+                else ctx.workflow_id
+            ),
+            (
+                ctx.execution_id[:12] + "..."
+                if len(ctx.execution_id) > 12
+                else ctx.execution_id
+            ),
             f"{ctx.total_retries}/{ctx.policy.max_attempts - 1}",
             status_display,
             ctx.policy.backoff_strategy.value,
@@ -263,8 +266,11 @@ def get(workflow_id: str, execution_id: str, step_name: str, format: str):
             att.started_at.strftime("%H:%M:%S"),
             f"{att.delay_before:.1f}s" if att.delay_before > 0 else "-",
             att.error_category.value if att.error else "[green]success[/green]",
-            att.error[:60] + "..." if att.error and len(
-                att.error) > 60 else att.error or "[green]✓[/green]",
+            (
+                att.error[:60] + "..."
+                if att.error and len(att.error) > 60
+                else att.error or "[green]✓[/green]"
+            ),
         )
 
     console.print(table)
@@ -357,16 +363,14 @@ def policy(
     if not any([max_attempts, strategy, initial_delay, max_delay]):
         console.print("\n[bold cyan]Default Retry Policy[/bold cyan]\n")
         console.print(f"[bold]Enabled:[/bold] {DEFAULT_RETRY_POLICY.enabled}")
-        console.print(
-            f"[bold]Max Attempts:[/bold] {DEFAULT_RETRY_POLICY.max_attempts}")
+        console.print(f"[bold]Max Attempts:[/bold] {DEFAULT_RETRY_POLICY.max_attempts}")
         console.print(
             f"[bold]Strategy:[/bold] {DEFAULT_RETRY_POLICY.backoff_strategy.value}"
         )
         console.print(
             f"[bold]Initial Delay:[/bold] {DEFAULT_RETRY_POLICY.initial_delay}s"
         )
-        console.print(
-            f"[bold]Max Delay:[/bold] {DEFAULT_RETRY_POLICY.max_delay}s")
+        console.print(f"[bold]Max Delay:[/bold] {DEFAULT_RETRY_POLICY.max_delay}s")
         console.print(
             f"[bold]Backoff Factor:[/bold] {DEFAULT_RETRY_POLICY.backoff_factor}"
         )
@@ -378,8 +382,9 @@ def policy(
         "enabled": True,
         "max_attempts": max_attempts or DEFAULT_RETRY_POLICY.max_attempts,
         "backoff_strategy": (
-            BackoffStrategy(
-                strategy) if strategy else DEFAULT_RETRY_POLICY.backoff_strategy
+            BackoffStrategy(strategy)
+            if strategy
+            else DEFAULT_RETRY_POLICY.backoff_strategy
         ),
         "initial_delay": initial_delay or DEFAULT_RETRY_POLICY.initial_delay,
         "max_delay": max_delay or DEFAULT_RETRY_POLICY.max_delay,
@@ -390,8 +395,7 @@ def policy(
 
     console.print("\n[bold cyan]Updated Retry Policy[/bold cyan]\n")
     console.print(f"[bold]Max Attempts:[/bold] {new_policy.max_attempts}")
-    console.print(
-        f"[bold]Strategy:[/bold] {new_policy.backoff_strategy.value}")
+    console.print(f"[bold]Strategy:[/bold] {new_policy.backoff_strategy.value}")
     console.print(f"[bold]Initial Delay:[/bold] {new_policy.initial_delay}s")
     console.print(f"[bold]Max Delay:[/bold] {new_policy.max_delay}s")
     console.print()

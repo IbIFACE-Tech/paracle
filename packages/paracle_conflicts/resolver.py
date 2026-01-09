@@ -225,7 +225,9 @@ class ConflictResolver:
         Returns:
             List of backup file paths
         """
-        return sorted(self.backup_dir.glob("*"), key=lambda p: p.stat().st_mtime, reverse=True)
+        return sorted(
+            self.backup_dir.glob("*"), key=lambda p: p.stat().st_mtime, reverse=True
+        )
 
     def cleanup_backups(self, older_than_days: int = 30) -> int:
         """Clean up old backup files.

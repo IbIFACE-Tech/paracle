@@ -39,6 +39,7 @@ import yaml
 from pydantic import BaseModel, Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+
 # Embedding provider enum - define locally to avoid circular imports
 class EmbeddingProvider(str, Enum):
     """Supported embedding providers."""

@@ -1,0 +1,15 @@
+﻿# Add to temp_parac fixture around line 165 (before 'return parac_dir')
+
+        # Create policies structure
+        policies_dir = parac_dir / "policies"
+        policies_dir.mkdir()
+        
+        policy_pack = {
+            "version": "1.0",
+            "enabled": True,
+            "active_policies": ["code_quality", "security_baseline"]
+        }
+        (policies_dir / "policy-pack.yaml").write_text(
+            yaml.dump(policy_pack), encoding="utf-8"
+        )
+

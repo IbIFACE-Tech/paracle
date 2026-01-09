@@ -27,10 +27,10 @@ class ParacleStreamHandler(logging.StreamHandler):
 
     # ANSI color codes for log levels
     COLORS = {
-        logging.DEBUG: "\033[36m",     # Cyan
-        logging.INFO: "\033[32m",      # Green
-        logging.WARNING: "\033[33m",   # Yellow
-        logging.ERROR: "\033[31m",     # Red
+        logging.DEBUG: "\033[36m",  # Cyan
+        logging.INFO: "\033[32m",  # Green
+        logging.WARNING: "\033[33m",  # Yellow
+        logging.ERROR: "\033[31m",  # Red
         logging.CRITICAL: "\033[35m",  # Magenta
     }
     RESET = "\033[0m"
@@ -231,6 +231,7 @@ class AuditFileHandler(logging.FileHandler):
             # Add checksum if enabled
             if self.include_checksum:
                 import hashlib
+
                 checksum = hashlib.sha256(msg.encode()).hexdigest()[:16]
                 msg = f"{msg} [checksum:{checksum}]"
 

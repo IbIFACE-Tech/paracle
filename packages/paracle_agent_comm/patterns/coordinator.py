@@ -64,10 +64,7 @@ class CoordinatorPattern:
         if message.sender == self.coordinator_id:
             # Coordinator can message anyone
             if message.recipients:
-                return [
-                    r for r in message.recipients
-                    if self.group.validate_member(r)
-                ]
+                return [r for r in message.recipients if self.group.validate_member(r)]
             else:
                 # Broadcast from coordinator
                 return [m for m in self.group.members if m != self.coordinator_id]
@@ -116,9 +113,9 @@ class CoordinatorPattern:
         """Get pending requests for the coordinator to process."""
         # Find REQUEST messages not yet responded to
         requests = [
-            m for m in session.messages
-            if m.message_type == MessageType.REQUEST
-            and m.sender != self.coordinator_id
+            m
+            for m in session.messages
+            if m.message_type == MessageType.REQUEST and m.sender != self.coordinator_id
         ]
 
         # Filter out those with responses
@@ -137,7 +134,8 @@ class CoordinatorPattern:
     ) -> list[GroupMessage]:
         """Get assignments/delegations to a specific agent."""
         return [
-            m for m in session.messages
+            m
+            for m in session.messages
             if m.sender == self.coordinator_id
             and m.message_type == MessageType.DELEGATE
             and (m.recipients is None or agent_id in m.recipients)

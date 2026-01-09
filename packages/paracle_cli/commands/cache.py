@@ -41,10 +41,14 @@ def stats(format: str):
 
         # Additional details
         if stats.avg_cached_time_ms > 0:
-            click.echo(f"Average cached response time: {stats.avg_cached_time_ms:.1f}ms")
+            click.echo(
+                f"Average cached response time: {stats.avg_cached_time_ms:.1f}ms"
+            )
 
         if stats.avg_uncached_time_ms > 0:
-            click.echo(f"Average uncached response time: {stats.avg_uncached_time_ms:.1f}ms")
+            click.echo(
+                f"Average uncached response time: {stats.avg_uncached_time_ms:.1f}ms"
+            )
 
         if stats.cached_tokens > 0:
             click.echo(f"Cached tokens: {stats.cached_tokens:,}")

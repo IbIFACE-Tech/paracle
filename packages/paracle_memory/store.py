@@ -228,9 +228,7 @@ class InMemoryStore(MemoryStore):
         return results[:top_k]
 
     async def clear_agent(self, agent_id: str) -> int:
-        to_delete = [
-            mid for mid, m in self._memories.items() if m.agent_id == agent_id
-        ]
+        to_delete = [mid for mid, m in self._memories.items() if m.agent_id == agent_id]
         for mid in to_delete:
             del self._memories[mid]
         return len(to_delete)
@@ -309,7 +307,8 @@ class SQLiteMemoryStore(MemoryStore):
     def _create_schema(self) -> None:
         """Create database schema."""
         conn = self._get_connection()
-        conn.executescript("""
+        conn.executescript(
+            """
             CREATE TABLE IF NOT EXISTS memories (
                 id TEXT PRIMARY KEY,
                 agent_id TEXT NOT NULL,
@@ -331,7 +330,8 @@ class SQLiteMemoryStore(MemoryStore):
                 ON memories(agent_id, memory_type);
             CREATE INDEX IF NOT EXISTS idx_memories_created
                 ON memories(agent_id, created_at);
-        """)
+        """
+        )
         conn.commit()
 
     async def save(self, memory: Memory) -> str:
@@ -537,9 +537,7 @@ class SQLiteMemoryStore(MemoryStore):
             created_at=datetime.fromisoformat(row["created_at"]),
             last_accessed=datetime.fromisoformat(row["last_accessed"]),
             expires_at=(
-                datetime.fromisoformat(row["expires_at"])
-                if row["expires_at"]
-                else None
+                datetime.fromisoformat(row["expires_at"]) if row["expires_at"] else None
             ),
             embedding=json.loads(row["embedding"]) if row["embedding"] else None,
         )

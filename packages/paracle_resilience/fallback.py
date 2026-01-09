@@ -72,9 +72,7 @@ class FallbackStrategy(ABC):
         pass
 
     @abstractmethod
-    async def execute_async(
-        self, func: Callable, original_error: Exception
-    ) -> Any:
+    async def execute_async(self, func: Callable, original_error: Exception) -> Any:
         """Execute async fallback strategy.
 
         Args:
@@ -169,9 +167,7 @@ class CachedResponseFallback(FallbackStrategy):
                 return value
 
         self._record_execution(success=False)
-        raise FallbackError(
-            f"No valid cache entry for {func.__name__}", original_error
-        )
+        raise FallbackError(f"No valid cache entry for {func.__name__}", original_error)
 
     async def execute_async(self, func: Callable, original_error: Exception) -> Any:
         """Return cached response (async).
@@ -293,9 +289,7 @@ class RetryFallback(FallbackStrategy):
                 last_error = e
 
         self._record_execution(success=False)
-        raise FallbackError(
-            f"All {self.max_retries} retries failed", last_error
-        )
+        raise FallbackError(f"All {self.max_retries} retries failed", last_error)
 
     async def execute_async(self, func: Callable, original_error: Exception) -> Any:
         """Retry async function with exponential backoff.
@@ -323,9 +317,7 @@ class RetryFallback(FallbackStrategy):
                 last_error = e
 
         self._record_execution(success=False)
-        raise FallbackError(
-            f"All {self.max_retries} retries failed", last_error
-        )
+        raise FallbackError(f"All {self.max_retries} retries failed", last_error)
 
 
 class DegradedServiceFallback(FallbackStrategy):
@@ -364,9 +356,7 @@ class DegradedServiceFallback(FallbackStrategy):
             return result
         except Exception as e:
             self._record_execution(success=False)
-            raise FallbackError(
-                f"Degraded service failed: {e}", original_error
-            )
+            raise FallbackError(f"Degraded service failed: {e}", original_error)
 
     async def execute_async(self, func: Callable, original_error: Exception) -> Any:
         """Execute degraded service function (async).
@@ -390,9 +380,7 @@ class DegradedServiceFallback(FallbackStrategy):
             return result
         except Exception as e:
             self._record_execution(success=False)
-            raise FallbackError(
-                f"Degraded service failed: {e}", original_error
-            )
+            raise FallbackError(f"Degraded service failed: {e}", original_error)
 
 
 class FallbackChain(FallbackStrategy):

@@ -110,7 +110,9 @@ class RollbackResult(BaseModel):
         default_factory=list,
         description="Steps that were compensated",
     )
-    errors: list[str] = Field(default_factory=list, description="Errors during rollback")
+    errors: list[str] = Field(
+        default_factory=list, description="Errors during rollback"
+    )
     duration_ms: float | None = Field(None)
 
 
@@ -217,7 +219,9 @@ class CheckpointManager:
             "status": context.status.value,
             "step_results": dict(context.step_results),
             "errors": list(context.errors),
-            "start_time": context.start_time.isoformat() if context.start_time else None,
+            "start_time": (
+                context.start_time.isoformat() if context.start_time else None
+            ),
         }
 
         checkpoint = StepCheckpoint(

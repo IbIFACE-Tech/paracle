@@ -96,9 +96,7 @@ class TestAgentLogger:
         assert entry.rationale == "Better separation of concerns"
         assert entry.impact == "High - affects all packages"
 
-    def test_log_decision_writes_to_both_files(
-        self, logger: AgentLogger
-    ) -> None:
+    def test_log_decision_writes_to_both_files(self, logger: AgentLogger) -> None:
         """Test that log_decision() writes to both log files."""
         logger.log_decision(
             agent=AgentType.ARCHITECT,
@@ -135,9 +133,7 @@ class TestAgentLogger:
         assert "Action 3" in recent[1]
         assert "Action 4" in recent[2]
 
-    def test_get_recent_actions_empty_file(
-        self, logger: AgentLogger
-    ) -> None:
+    def test_get_recent_actions_empty_file(self, logger: AgentLogger) -> None:
         """Test get_recent_actions() when no actions logged."""
         recent = logger.get_recent_actions()
 
@@ -182,6 +178,7 @@ class TestLogActionHelper:
 
         # Reset the global logger
         import paracle_core.parac.logger as logger_module
+
         logger_module._logger = None
 
         return parac_dir
@@ -216,6 +213,7 @@ class TestLogActionHelper:
 
         # Reset the global logger
         import paracle_core.parac.logger as logger_module
+
         logger_module._logger = None
 
         result = log_action(ActionType.SYNC, "This should silently fail")

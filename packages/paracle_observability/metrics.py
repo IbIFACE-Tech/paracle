@@ -92,8 +92,19 @@ class PrometheusRegistry:
     ) -> "Histogram":
         """Create or get a histogram metric."""
         labels = labels or {}
-        buckets = buckets or [0.005, 0.01, 0.025,
-                              0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0]
+        buckets = buckets or [
+            0.005,
+            0.01,
+            0.025,
+            0.05,
+            0.1,
+            0.25,
+            0.5,
+            1.0,
+            2.5,
+            5.0,
+            10.0,
+        ]
         key = f"{name}_{self._label_key(labels)}"
         if key not in self._metrics:
             self._metrics[key] = {
@@ -134,8 +145,7 @@ class PrometheusRegistry:
             elif metric_type == MetricType.HISTOGRAM:
                 values = self._histograms.get(key, [])
                 buckets = meta.get("buckets", [])
-                lines.extend(self._format_histogram(
-                    name, label_str, values, buckets))
+                lines.extend(self._format_histogram(name, label_str, values, buckets))
 
         return "\n".join(lines) + "\n"
 
@@ -161,8 +171,7 @@ class PrometheusRegistry:
         # Buckets
         for bucket in buckets:
             bucket_count = sum(1 for v in values if v <= bucket)
-            lines.append(
-                f'{name}_bucket{label_str},le="{bucket}"}} {bucket_count}')
+            lines.append(f'{name}_bucket{label_str},le="{bucket}"}} {bucket_count}')
 
         # +Inf bucket
         lines.append(f'{name}_bucket{label_str},le="+Inf"}} {count}')
@@ -291,12 +300,16 @@ def get_metrics_registry() -> PrometheusRegistry:
     return _global_registry
 
 
-def metric_counter(name: str, help: str = "", labels: dict[str, str] | None = None) -> Counter:
+def metric_counter(
+    name: str, help: str = "", labels: dict[str, str] | None = None
+) -> Counter:
     """Create counter metric."""
     return get_metrics_registry().counter(name, help, labels)
 
 
-def metric_gauge(name: str, help: str = "", labels: dict[str, str] | None = None) -> Gauge:
+def metric_gauge(
+    name: str, help: str = "", labels: dict[str, str] | None = None
+) -> Gauge:
     """Create gauge metric."""
     return get_metrics_registry().gauge(name, help, labels)
 

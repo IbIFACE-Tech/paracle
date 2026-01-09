@@ -257,7 +257,8 @@ async def demo_api_approval() -> None:
     print("API-Based Approval Demo")
     print("=" * 60)
 
-    print("""
+    print(
+        """
     In production, approvals are managed via the REST API:
 
     1. List pending approvals:
@@ -289,7 +290,8 @@ async def demo_api_approval() -> None:
     curl -X POST http://localhost:8000/approvals/approval_xxx/approve \\
          -H "Content-Type: application/json" \\
          -d '{"approver": "admin@example.com", "reason": "Approved"}'
-    """)
+    """
+    )
 
 
 async def main() -> None:

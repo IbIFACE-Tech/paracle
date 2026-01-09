@@ -43,6 +43,7 @@ def locks():
     for lock_file in lock_files:
         try:
             import json
+
             with open(lock_file) as f:
                 lock_data = json.load(f)
 
@@ -69,8 +70,7 @@ def lock(file_path: str, agent_id: str, timeout: int):
     success = manager.acquire_lock(file_path, agent_id, timeout=timeout)
 
     if success:
-        console.print(
-            f"[green]Lock acquired on {file_path} for {agent_id}[/green]")
+        console.print(f"[green]Lock acquired on {file_path} for {agent_id}[/green]")
     else:
         console.print(f"[red]Failed to acquire lock on {file_path}[/red]")
 
@@ -155,21 +155,20 @@ def resolve(strategy: str):
         return
 
     console.print(
-        f"\n[bold]Resolving {len(conflicts)} conflict(s) using {strategy}...[/bold]\n")
+        f"\n[bold]Resolving {len(conflicts)} conflict(s) using {strategy}...[/bold]\n"
+    )
 
     for conflict in conflicts:
         result = resolver.resolve(conflict, ResolutionStrategy(strategy))
 
         if result.success:
-            console.print(
-                f"[green]✓[/green] {conflict.file_path}: {result.message}")
+            console.print(f"[green]✓[/green] {conflict.file_path}: {result.message}")
             if result.backup_paths:
                 for backup in result.backup_paths:
                     console.print(f"    Backup: {backup}")
             detector.mark_resolved(conflict)
         else:
-            console.print(
-                f"[red]✗[/red] {conflict.file_path}: {result.message}")
+            console.print(f"[red]✗[/red] {conflict.file_path}: {result.message}")
 
     console.print()
 
@@ -197,8 +196,7 @@ def backups():
         table.add_row(
             backup.name,
             f"{stat.st_size:,} bytes",
-            datetime.fromtimestamp(stat.st_mtime).strftime(
-                "%Y-%m-%d %H:%M:%S"),
+            datetime.fromtimestamp(stat.st_mtime).strftime("%Y-%m-%d %H:%M:%S"),
         )
 
     console.print(table)

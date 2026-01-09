@@ -51,14 +51,10 @@ class A2ABridge:
 
         except ImportError:
             raise ExternalAgentError(
-                self.agent_url,
-                "paracle_a2a package not installed"
+                self.agent_url, "paracle_a2a package not installed"
             )
         except Exception as e:
-            raise ExternalAgentError(
-                self.agent_url,
-                f"Failed to discover agent: {e}"
-            )
+            raise ExternalAgentError(self.agent_url, f"Failed to discover agent: {e}")
 
     @property
     def agent_id(self) -> str:
@@ -76,9 +72,11 @@ class A2ABridge:
             "name": self._agent_card.name,
             "description": self._agent_card.description,
             "skills": [s.name for s in (self._agent_card.skills or [])],
-            "streaming": self._agent_card.capabilities.streaming
-            if self._agent_card.capabilities
-            else False,
+            "streaming": (
+                self._agent_card.capabilities.streaming
+                if self._agent_card.capabilities
+                else False
+            ),
         }
 
     async def send_message(
@@ -116,10 +114,7 @@ class A2ABridge:
             return self._from_a2a_task(task, session)
 
         except Exception as e:
-            raise ExternalAgentError(
-                self.agent_url,
-                f"Failed to communicate: {e}"
-            )
+            raise ExternalAgentError(self.agent_url, f"Failed to communicate: {e}")
 
     def _to_a2a_message(
         self,
@@ -191,10 +186,12 @@ class A2ABridge:
         return GroupMessage(
             group_id=session.group_id,
             sender=self.agent_id,
-            content=[MessagePart(
-                type=MessagePartType.TEXT,
-                content=response_text.strip(),
-            )],
+            content=[
+                MessagePart(
+                    type=MessagePartType.TEXT,
+                    content=response_text.strip(),
+                )
+            ],
             message_type=MessageType.INFORM,  # Default to inform
             metadata={
                 "source": "a2a",

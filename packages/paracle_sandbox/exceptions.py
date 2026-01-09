@@ -17,6 +17,7 @@ class SandboxError(Exception):
 
 class SandboxCreationError(SandboxError):
     """Raised when sandbox creation fails."""
+
     pass
 
 
@@ -91,9 +92,11 @@ class SandboxTimeoutError(SandboxError):
 
 class SandboxCleanupError(SandboxError):
     """Raised when sandbox cleanup fails."""
+
     pass
 
 
 class DockerConnectionError(SandboxError):
     """Raised when Docker connection fails."""
+
     pass

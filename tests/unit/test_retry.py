@@ -168,9 +168,7 @@ class TestRetryWithBackoff:
     @pytest.mark.asyncio
     async def test_non_retryable_exception_not_retried(self):
         """Test that non-retryable exceptions are not retried."""
-        mock_operation = AsyncMock(
-            side_effect=LLMProviderError("Non-retryable")
-        )
+        mock_operation = AsyncMock(side_effect=LLMProviderError("Non-retryable"))
         config = RetryConfig(max_attempts=3, base_delay=0.01)
 
         with pytest.raises(LLMProviderError):

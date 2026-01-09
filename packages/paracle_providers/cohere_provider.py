@@ -79,8 +79,10 @@ class CohereProvider(LLMProvider):
                 system_message = msg.content
             else:
                 cohere_messages.append(
-                    {"role": "USER" if msg.role == "user" else "CHATBOT",
-                     "message": msg.content}
+                    {
+                        "role": "USER" if msg.role == "user" else "CHATBOT",
+                        "message": msg.content,
+                    }
                 )
 
         payload = {
@@ -105,12 +107,12 @@ class CohereProvider(LLMProvider):
                 content=data["text"],
                 finish_reason=data.get("finish_reason", "complete"),
                 usage=TokenUsage(
-                    prompt_tokens=data.get("meta", {}).get(
-                        "billed_units", {}
-                    ).get("input_tokens", 0),
-                    completion_tokens=data.get("meta", {}).get(
-                        "billed_units", {}
-                    ).get("output_tokens", 0),
+                    prompt_tokens=data.get("meta", {})
+                    .get("billed_units", {})
+                    .get("input_tokens", 0),
+                    completion_tokens=data.get("meta", {})
+                    .get("billed_units", {})
+                    .get("output_tokens", 0),
                     total_tokens=0,  # Calculated later
                 ),
                 model=model,
@@ -119,8 +121,7 @@ class CohereProvider(LLMProvider):
 
         except httpx.HTTPStatusError as e:
             raise LLMProviderError(
-                f"Cohere API error: {e.response.status_code} - "
-                f"{e.response.text}"
+                f"Cohere API error: {e.response.status_code} - " f"{e.response.text}"
             ) from e
         except Exception as e:
             raise LLMProviderError(f"Cohere provider error: {e}") from e
@@ -153,8 +154,10 @@ class CohereProvider(LLMProvider):
                 system_message = msg.content
             else:
                 cohere_messages.append(
-                    {"role": "USER" if msg.role == "user" else "CHATBOT",
-                     "message": msg.content}
+                    {
+                        "role": "USER" if msg.role == "user" else "CHATBOT",
+                        "message": msg.content,
+                    }
                 )
 
         payload = {
@@ -169,9 +172,7 @@ class CohereProvider(LLMProvider):
             payload["preamble"] = system_message
 
         try:
-            async with self.client.stream(
-                "POST", "/chat", json=payload
-            ) as response:
+            async with self.client.stream("POST", "/chat", json=payload) as response:
                 response.raise_for_status()
                 async for line in response.aiter_lines():
                     if not line:
@@ -185,10 +186,7 @@ class CohereProvider(LLMProvider):
                             if text := data.get("text"):
                                 yield StreamChunk(content=text)
                         elif data.get("event_type") == "stream-end":
-                            yield StreamChunk(
-                                content="",
-                                finish_reason="complete"
-                            )
+                            yield StreamChunk(content="", finish_reason="complete")
                     except json.JSONDecodeError:
                         continue
 

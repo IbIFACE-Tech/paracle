@@ -250,4 +250,6 @@ class MCPToolRegistry:
         return tool_id in self._tools
 
     def __repr__(self) -> str:
-        return f"MCPToolRegistry(tools={len(self._tools)}, servers={len(self._clients)})"
+        return (
+            f"MCPToolRegistry(tools={len(self._tools)}, servers={len(self._clients)})"
+        )

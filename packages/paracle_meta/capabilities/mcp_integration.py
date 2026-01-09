@@ -33,9 +33,7 @@ class MCPConfig(CapabilityConfig):
     auto_discover: bool = Field(
         default=True, description="Auto-discover available tools on connect"
     )
-    cache_tools: bool = Field(
-        default=True, description="Cache tool definitions"
-    )
+    cache_tools: bool = Field(default=True, description="Cache tool definitions")
     max_concurrent_calls: int = Field(
         default=5, ge=1, le=20, description="Max concurrent tool calls"
     )
@@ -250,7 +248,9 @@ class MCPCapability(BaseCapability):
                 action=action,
             )
 
-    async def _list_tools(self, refresh: bool = False, **kwargs) -> list[dict[str, Any]]:
+    async def _list_tools(
+        self, refresh: bool = False, **kwargs
+    ) -> list[dict[str, Any]]:
         """List available MCP tools.
 
         Args:

@@ -64,8 +64,7 @@ class LogEntry:
             data = json.loads(data)
 
         return cls(
-            timestamp=datetime.fromisoformat(
-                data["timestamp"].replace("Z", "+00:00")),
+            timestamp=datetime.fromisoformat(data["timestamp"].replace("Z", "+00:00")),
             level=data["level"],
             logger=data["logger"],
             message=data["message"],
@@ -204,17 +203,14 @@ class LogManager:
         )
 
         # Create indexes
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_timestamp ON logs(timestamp)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_timestamp ON logs(timestamp)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_level ON logs(level)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_logger ON logs(logger)")
         cursor.execute(
             "CREATE INDEX IF NOT EXISTS idx_correlation ON logs(correlation_id)"
         )
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_agent ON logs(agent_id)")
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_workflow ON logs(workflow_id)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_agent ON logs(agent_id)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_workflow ON logs(workflow_id)")
 
         # Full-text search
         cursor.execute(
@@ -262,20 +258,15 @@ class LogManager:
                     try:
                         entry = LogEntry.from_json(line)
                         agent_id = (
-                            entry.context.get(
-                                "agent_id") if entry.context else None
+                            entry.context.get("agent_id") if entry.context else None
                         )
                         workflow_id = (
-                            entry.context.get(
-                                "workflow_id") if entry.context else None
+                            entry.context.get("workflow_id") if entry.context else None
                         )
                         user_id = (
-                            entry.context.get(
-                                "user_id") if entry.context else None
+                            entry.context.get("user_id") if entry.context else None
                         )
-                        error_type = (
-                            entry.error.get("type") if entry.error else None
-                        )
+                        error_type = entry.error.get("type") if entry.error else None
 
                         cursor.execute(
                             """
@@ -665,9 +656,7 @@ class LogManager:
         # Calculate mean and std dev
         values = [s["value"] for s in hourly_stats]
         mean = sum(values) / len(values) if values else 0
-        variance = (
-            sum((v - mean) ** 2 for v in values) / len(values) if values else 0
-        )
+        variance = sum((v - mean) ** 2 for v in values) / len(values) if values else 0
         std_dev = variance**0.5
 
         # Find anomalies
@@ -681,7 +670,9 @@ class LogManager:
                         "value": stat["value"],
                         "mean": mean,
                         "std_dev": std_dev,
-                        "z_score": (stat["value"] - mean) / std_dev if std_dev > 0 else 0,
+                        "z_score": (
+                            (stat["value"] - mean) / std_dev if std_dev > 0 else 0
+                        ),
                     }
                 )
 
@@ -864,8 +855,7 @@ def validate_config(config_path: Path) -> list[str]:
     if "error_rate" in thresholds:
         rate = thresholds["error_rate"]
         if not (0 < rate < 1):
-            errors.append(
-                f"Invalid error_rate threshold: {rate} (must be 0-1)")
+            errors.append(f"Invalid error_rate threshold: {rate} (must be 0-1)")
 
     return errors
 

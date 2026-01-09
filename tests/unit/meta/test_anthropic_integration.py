@@ -225,7 +225,10 @@ class TestAnthropicCapability:
     def test_initialization(self, anthropic_capability):
         """Test capability initialization."""
         assert anthropic_capability.name == "anthropic"
-        assert "Claude" in anthropic_capability.description or "AI" in anthropic_capability.description
+        assert (
+            "Claude" in anthropic_capability.description
+            or "AI" in anthropic_capability.description
+        )
 
     @pytest.mark.asyncio
     async def test_initialize_and_shutdown(self, anthropic_capability):
@@ -243,7 +246,10 @@ class TestAnthropicCapability:
         await anthropic_capability.initialize()
 
         # Without API key or anthropic installed, should use mock
-        assert anthropic_capability.is_available is False or anthropic_capability._available is False
+        assert (
+            anthropic_capability.is_available is False
+            or anthropic_capability._available is False
+        )
 
         await anthropic_capability.shutdown()
 
@@ -455,9 +461,7 @@ class TestBuiltInTools:
                 description="Search the web",
                 input_schema={
                     "type": "object",
-                    "properties": {
-                        "query": {"type": "string"}
-                    },
+                    "properties": {"query": {"type": "string"}},
                 },
             )
         ]

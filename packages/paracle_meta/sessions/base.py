@@ -78,9 +78,11 @@ class SessionMessage:
             content=data["content"],
             tool_calls=data.get("tool_calls"),
             tool_results=data.get("tool_results"),
-            timestamp=datetime.fromisoformat(data["timestamp"])
-            if "timestamp" in data
-            else datetime.now(timezone.utc),
+            timestamp=(
+                datetime.fromisoformat(data["timestamp"])
+                if "timestamp" in data
+                else datetime.now(timezone.utc)
+            ),
             metadata=data.get("metadata", {}),
         )
 

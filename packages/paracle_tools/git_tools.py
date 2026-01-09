@@ -374,9 +374,7 @@ class GitCheckoutTool(BaseTool):
             },
         )
 
-    async def _execute(
-        self, target: str, create: bool = False, cwd: str = "."
-    ) -> dict:
+    async def _execute(self, target: str, create: bool = False, cwd: str = ".") -> dict:
         """Execute git checkout command."""
         cmd = ["git", "checkout"]
         if create:
@@ -570,16 +568,20 @@ class GitLogTool(BaseTool):
                 continue
             if oneline:
                 parts = line.split(" ", 1)
-                commits.append({"hash": parts[0], "message": parts[1] if len(parts) > 1 else ""})
+                commits.append(
+                    {"hash": parts[0], "message": parts[1] if len(parts) > 1 else ""}
+                )
             else:
                 parts = line.split("|")
                 if len(parts) >= 4:
-                    commits.append({
-                        "hash": parts[0],
-                        "author": parts[1],
-                        "date": parts[2],
-                        "message": parts[3],
-                    })
+                    commits.append(
+                        {
+                            "hash": parts[0],
+                            "author": parts[1],
+                            "date": parts[2],
+                            "message": parts[3],
+                        }
+                    )
 
         return {"commits": commits, "count": len(commits)}
 

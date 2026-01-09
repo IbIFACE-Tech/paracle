@@ -83,9 +83,7 @@ class PgVectorStore(VectorStore):
                 )
                 # Test connection and ensure pgvector extension
                 async with self._async_engine.begin() as conn:
-                    await conn.execute(
-                        "CREATE EXTENSION IF NOT EXISTS vector"
-                    )
+                    await conn.execute("CREATE EXTENSION IF NOT EXISTS vector")
                 logger.info("pgvector engine initialized")
             except Exception as e:
                 raise ConnectionError(f"Failed to connect to PostgreSQL: {e}") from e
@@ -127,12 +125,14 @@ class PgVectorStore(VectorStore):
                 await conn.execute(sql)
                 # Create index for vector similarity search
                 index_name = f"idx_{name.replace('-', '_')}_embedding"
-                await conn.execute(f"""
+                await conn.execute(
+                    f"""
                     CREATE INDEX IF NOT EXISTS {index_name}
                     ON {table_name}
                     USING ivfflat (embedding vector_cosine_ops)
                     WITH (lists = 100)
-                """)
+                """
+                )
 
             # Store collection metadata
             if metadata:
@@ -206,9 +206,7 @@ class PgVectorStore(VectorStore):
             async with engine.begin() as conn:
                 for doc in documents:
                     if doc.embedding is None:
-                        raise VectorStoreError(
-                            f"Document {doc.id} has no embedding"
-                        )
+                        raise VectorStoreError(f"Document {doc.id} has no embedding")
                     await conn.execute(
                         sql,
                         {
@@ -254,7 +252,9 @@ class PgVectorStore(VectorStore):
                     return None
 
                 embedding = self._parse_vector(row[2]) if row[2] else None
-                metadata = row[3] if isinstance(row[3], dict) else json.loads(row[3] or "{}")
+                metadata = (
+                    row[3] if isinstance(row[3], dict) else json.loads(row[3] or "{}")
+                )
 
                 return Document(
                     id=row[0],
@@ -340,7 +340,11 @@ class PgVectorStore(VectorStore):
                 results = []
                 for row in rows:
                     embedding = self._parse_vector(row[2]) if row[2] else None
-                    metadata = row[3] if isinstance(row[3], dict) else json.loads(row[3] or "{}")
+                    metadata = (
+                        row[3]
+                        if isinstance(row[3], dict)
+                        else json.loads(row[3] or "{}")
+                    )
 
                     doc = Document(
                         id=row[0],
@@ -349,11 +353,13 @@ class PgVectorStore(VectorStore):
                         metadata=metadata,
                         created_at=row[4],
                     )
-                    results.append(SearchResult(
-                        document=doc,
-                        score=float(row[5]),
-                        distance=float(row[6]),
-                    ))
+                    results.append(
+                        SearchResult(
+                            document=doc,
+                            score=float(row[5]),
+                            distance=float(row[6]),
+                        )
+                    )
 
                 return results
         except Exception as e:
@@ -394,14 +400,16 @@ class PgVectorStore(VectorStore):
         engine = await self._get_engine()
 
         # Create metadata table if not exists
-        await engine.execute(f"""
+        await engine.execute(
+            f"""
             CREATE TABLE IF NOT EXISTS {self._schema}.vec_collections (
                 name VARCHAR(255) PRIMARY KEY,
                 dimension INTEGER NOT NULL,
                 metadata JSONB DEFAULT '{{}}',
                 created_at TIMESTAMPTZ DEFAULT NOW()
             )
-        """)
+        """
+        )
 
         await engine.execute(
             f"""

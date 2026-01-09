@@ -467,6 +467,7 @@ class TestGroupCollaborationEngineErrors:
         mock_registry: MockAgentRegistry,
     ):
         """Test error when session times out."""
+
         # Create agent that takes time
         async def slow_response(session, context):
             import asyncio

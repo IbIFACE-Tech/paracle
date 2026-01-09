@@ -4,7 +4,10 @@ import pytest
 
 from paracle_domain.models import WorkflowStep
 from paracle_orchestration.dag import DAG
-from paracle_orchestration.exceptions import CircularDependencyError, InvalidWorkflowError
+from paracle_orchestration.exceptions import (
+    CircularDependencyError,
+    InvalidWorkflowError,
+)
 
 
 def make_step(name: str, agent: str | None = None, **kwargs) -> WorkflowStep:
@@ -289,7 +292,9 @@ class TestReadySteps:
 
         # Assert
         assert set(ready_start) == {"step1", "step2"}
-        assert ready_one_done == ["step2"]  # step2 has no dependencies, step3 needs both
+        assert ready_one_done == [
+            "step2"
+        ]  # step2 has no dependencies, step3 needs both
         assert ready_both_done == ["step3"]
 
 

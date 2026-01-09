@@ -46,10 +46,10 @@ async def main():
 
     if result.success:
         print(f"\n✓ Directory listing:")
-        files = result.output['stdout'].strip().split('\n')[:5]
+        files = result.output["stdout"].strip().split("\n")[:5]
         for f in files:
             print(f"  - {f}")
-        if len(result.output['stdout'].strip().split('\n')) > 5:
+        if len(result.output["stdout"].strip().split("\n")) > 5:
             print("  ...")
 
     # =========================================================================
@@ -62,19 +62,17 @@ async def main():
 
     if result.success:
         print(f"✓ Git status:")
-        if result.output['stdout'].strip():
-            print(result.output['stdout'].strip())
+        if result.output["stdout"].strip():
+            print(result.output["stdout"].strip())
         else:
             print("  (no changes)")
 
     # Git log (last 3 commits)
-    result = await run_command.execute(
-        command="git log --oneline -3"
-    )
+    result = await run_command.execute(command="git log --oneline -3")
 
     if result.success:
         print(f"\n✓ Recent commits:")
-        print(result.output['stdout'].strip())
+        print(result.output["stdout"].strip())
 
     # =========================================================================
     # 3. PYTHON COMMANDS
@@ -85,12 +83,12 @@ async def main():
     result = await run_command.execute(command="python --version")
 
     if result.success:
-        version = result.output['stdout'].strip() or result.output['stderr'].strip()
+        version = result.output["stdout"].strip() or result.output["stderr"].strip()
         print(f"✓ Python version: {version}")
 
     # Run Python code
     result = await run_command.execute(
-        command='python -c "import sys; print(f\'Python {sys.version_info.major}.{sys.version_info.minor}\')"'
+        command="python -c \"import sys; print(f'Python {sys.version_info.major}.{sys.version_info.minor}')\""
     )
 
     if result.success:
@@ -103,7 +101,7 @@ async def main():
 
     # Python writing to stderr
     result = await run_command.execute(
-        command='python -c "import sys; sys.stderr.write(\'This is stderr\\n\')"'
+        command="python -c \"import sys; sys.stderr.write('This is stderr\\n')\""
     )
 
     if result.success:
@@ -116,9 +114,7 @@ async def main():
     # =========================================================================
     print("\n5. Commands with non-zero exit codes...")
 
-    result = await run_command.execute(
-        command='python -c "import sys; sys.exit(42)"'
-    )
+    result = await run_command.execute(command='python -c "import sys; sys.exit(42)"')
 
     if result.success:  # Tool execution succeeded
         print(f"✓ Tool executed successfully")
@@ -203,7 +199,7 @@ async def main():
         print(f"✓ Tests executed")
         print(f"  Return code: {result.output['return_code']}")
         # Show last few lines
-        output_lines = result.output['stdout'].strip().split('\n')
+        output_lines = result.output["stdout"].strip().split("\n")
         print("  Last lines:")
         for line in output_lines[-5:]:
             print(f"    {line}")
@@ -217,15 +213,11 @@ async def main():
 
     # Create registry with custom configuration
     registry = BuiltinToolRegistry(
-        allowed_commands=["echo", "git", "python", "ls", "dir"],
-        command_timeout=5.0
+        allowed_commands=["echo", "git", "python", "ls", "dir"], command_timeout=5.0
     )
 
     # Execute through registry
-    result = await registry.execute_tool(
-        "run_command",
-        command="echo Via registry"
-    )
+    result = await registry.execute_tool("run_command", command="echo Via registry")
 
     if result.success:
         print(f"✓ Via registry: {result.output['stdout'].strip()}")

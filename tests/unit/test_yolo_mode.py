@@ -153,9 +153,7 @@ class TestApprovalManagerYoloMode:
         """Test that auto-approval emits the correct event."""
         # Arrange
         events = []
-        event_bus.subscribe(
-            "approval.auto_approved", lambda e: events.append(e)
-        )
+        event_bus.subscribe("approval.auto_approved", lambda e: events.append(e))
 
         manager = ApprovalManager(
             event_bus=event_bus,
@@ -293,9 +291,7 @@ class TestCLIYoloFlag:
 
     @patch("paracle_cli.commands.workflow.get_client")
     @patch("paracle_cli.commands.workflow._use_local_fallback")
-    def test_yolo_flag_passed_to_api(
-        self, mock_fallback, mock_get_client
-    ):
+    def test_yolo_flag_passed_to_api(self, mock_fallback, mock_get_client):
         """Test that --yolo flag passes auto_approve=True to API."""
         # Arrange
         from click.testing import CliRunner
@@ -326,9 +322,7 @@ class TestCLIYoloFlag:
 
     @patch("paracle_cli.commands.workflow.get_client")
     @patch("paracle_cli.commands.workflow._use_local_fallback")
-    def test_no_yolo_flag_defaults_false(
-        self, mock_fallback, mock_get_client
-    ):
+    def test_no_yolo_flag_defaults_false(self, mock_fallback, mock_get_client):
         """Test that without --yolo, auto_approve defaults to False."""
         # Arrange
         from click.testing import CliRunner
@@ -411,9 +405,7 @@ class TestYoloModeIntegration:
     """End-to-end integration tests for YOLO mode."""
 
     @pytest.mark.asyncio
-    async def test_full_workflow_with_yolo(
-        self, event_bus, mock_step_executor
-    ):
+    async def test_full_workflow_with_yolo(self, event_bus, mock_step_executor):
         """Test complete workflow execution with YOLO mode enabled."""
         # Arrange
         spec = WorkflowSpec(

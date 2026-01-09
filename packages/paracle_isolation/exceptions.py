@@ -17,6 +17,7 @@ class IsolationError(Exception):
 
 class NetworkIsolationError(IsolationError):
     """Raised when network isolation setup fails."""
+
     pass
 
 

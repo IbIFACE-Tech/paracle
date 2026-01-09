@@ -102,8 +102,7 @@ class TunnelManager:
 
                 # Check connection health
                 if not await self.transport.is_connected():
-                    logger.warning(
-                        "Connection lost, attempting full reconnect...")
+                    logger.warning("Connection lost, attempting full reconnect...")
                     await self._reconnect_transport()
                     continue
 

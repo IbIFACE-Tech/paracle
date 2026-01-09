@@ -65,16 +65,14 @@ class WorkflowExecuteRequest(BaseModel):
         default=True, description="Run asynchronously (background)"
     )
     auto_approve: bool = Field(
-        default=False,
-        description="YOLO mode: auto-approve all approval gates"
+        default=False, description="YOLO mode: auto-approve all approval gates"
     )
     dry_run: bool = Field(
-        default=False,
-        description="Dry-run mode: mock LLM calls for cost-free testing"
+        default=False, description="Dry-run mode: mock LLM calls for cost-free testing"
     )
     mock_strategy: str = Field(
         default="fixed",
-        description="Mock strategy for dry-run (fixed/random/file/echo)"
+        description="Mock strategy for dry-run (fixed/random/file/echo)",
     )
 
 
@@ -83,43 +81,43 @@ class ExecutionStatusResponse(BaseModel):
 
     execution_id: str = Field(..., description="Unique execution ID")
     workflow_id: str = Field(..., description="Workflow being executed")
-    status: str = Field(...,
-                        description="Execution status (pending, running, completed, failed)")
-    progress: float = Field(...,
-                            description="Execution progress (0.0 to 1.0)", ge=0.0, le=1.0)
-    current_step: str | None = Field(
-        None, description="Currently executing step")
+    status: str = Field(
+        ..., description="Execution status (pending, running, completed, failed)"
+    )
+    progress: float = Field(
+        ..., description="Execution progress (0.0 to 1.0)", ge=0.0, le=1.0
+    )
+    current_step: str | None = Field(None, description="Currently executing step")
     completed_steps: list[str] = Field(
         default_factory=list, description="Steps completed successfully"
     )
     failed_steps: list[str] = Field(
-        default_factory=list, description="Steps that failed")
-    started_at: str | None = Field(
-        None, description="Execution start time (ISO 8601)")
+        default_factory=list, description="Steps that failed"
+    )
+    started_at: str | None = Field(None, description="Execution start time (ISO 8601)")
     completed_at: str | None = Field(
-        None, description="Execution completion time (ISO 8601)")
+        None, description="Execution completion time (ISO 8601)"
+    )
     error: str | None = Field(None, description="Error message if failed")
     result: dict[str, Any] | None = Field(
-        None, description="Execution result if completed")
+        None, description="Execution result if completed"
+    )
 
 
 class WorkflowExecuteResponse(BaseModel):
     """Response after initiating workflow execution."""
 
-    execution_id: str = Field(...,
-                              description="Unique execution ID for tracking")
+    execution_id: str = Field(..., description="Unique execution ID for tracking")
     workflow_id: str = Field(..., description="Workflow being executed")
     status: str = Field(..., description="Initial execution status")
     message: str = Field(..., description="Human-readable status message")
-    async_execution: bool = Field(...,
-                                  description="Whether execution is asynchronous")
+    async_execution: bool = Field(..., description="Whether execution is asynchronous")
 
 
 class ExecutionCancelResponse(BaseModel):
     """Response after cancelling execution."""
 
-    execution_id: str = Field(...,
-                              description="Execution ID that was cancelled")
+    execution_id: str = Field(..., description="Execution ID that was cancelled")
     workflow_id: str = Field(..., description="Workflow that was cancelled")
     success: bool = Field(..., description="Whether cancellation succeeded")
     message: str = Field(..., description="Cancellation status message")
@@ -129,7 +127,8 @@ class ExecutionListResponse(BaseModel):
     """Response with list of executions."""
 
     executions: list[ExecutionStatusResponse] = Field(
-        ..., description="List of executions")
+        ..., description="List of executions"
+    )
     total: int = Field(..., description="Total executions matching filters")
     limit: int = Field(..., description="Max results returned")
     offset: int = Field(..., description="Offset used for pagination")
@@ -146,7 +145,7 @@ class ExecutionListResponse(BaseModel):
     status_code=202,
     operation_id="executeWorkflow",
     summary="Execute a workflow",
-    description="Create and execute a workflow (async by default)"
+    description="Create and execute a workflow (async by default)",
 )
 async def execute_workflow(request: WorkflowExecuteRequest) -> WorkflowExecuteResponse:
     """Execute a workflow using the orchestration engine.
@@ -258,7 +257,7 @@ async def execute_workflow(request: WorkflowExecuteRequest) -> WorkflowExecuteRe
     response_model=dict,
     operation_id="planWorkflow",
     summary="Plan workflow execution",
-    description="Generate execution plan with cost/time estimates"
+    description="Generate execution plan with cost/time estimates",
 )
 async def plan_workflow(workflow_id: str) -> dict:
     """Analyze workflow and generate execution plan.
@@ -378,7 +377,9 @@ async def get_execution_status(execution_id: str) -> ExecutionStatusResponse:
             completed_steps=status.completed_steps,
             failed_steps=status.failed_steps,
             started_at=status.started_at.isoformat() if status.started_at else None,
-            completed_at=status.completed_at.isoformat() if status.completed_at else None,
+            completed_at=(
+                status.completed_at.isoformat() if status.completed_at else None
+            ),
             error=status.error,
             result=status.result,
         )
@@ -389,7 +390,9 @@ async def get_execution_status(execution_id: str) -> ExecutionStatusResponse:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/executions/{execution_id}/cancel", response_model=ExecutionCancelResponse)
+@router.post(
+    "/executions/{execution_id}/cancel", response_model=ExecutionCancelResponse
+)
 async def cancel_execution(execution_id: str) -> ExecutionCancelResponse:
     """Cancel a running workflow execution.
 
@@ -419,9 +422,11 @@ async def cancel_execution(execution_id: str) -> ExecutionCancelResponse:
             execution_id=execution_id,
             workflow_id=status.workflow_id,
             success=success,
-            message="Execution cancelled successfully"
-            if success
-            else "Execution already completed or failed",
+            message=(
+                "Execution cancelled successfully"
+                if success
+                else "Execution already completed or failed"
+            ),
         )
 
     except WorkflowNotFoundError as e:
@@ -434,7 +439,7 @@ async def cancel_execution(execution_id: str) -> ExecutionCancelResponse:
     "/{workflow_id}/executions",
     response_model=ExecutionListResponse,
     operation_id="listWorkflowExecutions",
-    summary="List workflow executions"
+    summary="List workflow executions",
 )
 async def list_workflow_executions(
     workflow_id: str,
@@ -477,7 +482,7 @@ async def list_workflow_executions(
         total = len(executions)
 
         # Apply pagination
-        executions = executions[offset: offset + limit]
+        executions = executions[offset : offset + limit]
 
         return ExecutionListResponse(
             executions=[
@@ -489,13 +494,9 @@ async def list_workflow_executions(
                     current_step=ex.current_step,
                     completed_steps=ex.completed_steps,
                     failed_steps=ex.failed_steps,
-                    started_at=(
-                        ex.started_at.isoformat()
-                        if ex.started_at else None
-                    ),
+                    started_at=(ex.started_at.isoformat() if ex.started_at else None),
                     completed_at=(
-                        ex.completed_at.isoformat()
-                        if ex.completed_at else None
+                        ex.completed_at.isoformat() if ex.completed_at else None
                     ),
                     error=ex.error,
                     result=ex.result,

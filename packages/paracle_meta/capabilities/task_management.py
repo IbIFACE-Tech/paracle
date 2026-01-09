@@ -53,9 +53,7 @@ class TaskConfig(CapabilityConfig):
         default=True, description="Auto-retry failed tasks"
     )
     max_retries: int = Field(default=3, ge=0, le=10, description="Max retry attempts")
-    persist_state: bool = Field(
-        default=False, description="Persist task state to disk"
-    )
+    persist_state: bool = Field(default=False, description="Persist task state to disk")
 
 
 class Task(BaseModel):
@@ -88,7 +86,11 @@ class Task(BaseModel):
     @property
     def is_complete(self) -> bool:
         """Check if task is complete (success or failure)."""
-        return self.status in (TaskStatus.COMPLETED, TaskStatus.FAILED, TaskStatus.CANCELLED)
+        return self.status in (
+            TaskStatus.COMPLETED,
+            TaskStatus.FAILED,
+            TaskStatus.CANCELLED,
+        )
 
 
 class Workflow(BaseModel):
@@ -429,7 +431,10 @@ class TaskManagementCapability(BaseCapability):
                 task.completed_at = datetime.utcnow()
 
                 # Retry if configured
-                if self.config.retry_failed_tasks and task.retries < self.config.max_retries:
+                if (
+                    self.config.retry_failed_tasks
+                    and task.retries < self.config.max_retries
+                ):
                     task.retries += 1
                     task.status = TaskStatus.PENDING
                     task.error = None
@@ -634,7 +639,9 @@ class TaskManagementCapability(BaseCapability):
 
     async def run_workflow(self, workflow_id: str, **kwargs) -> CapabilityResult:
         """Run a workflow."""
-        return await self.execute(action="run_workflow", workflow_id=workflow_id, **kwargs)
+        return await self.execute(
+            action="run_workflow", workflow_id=workflow_id, **kwargs
+        )
 
     @property
     def active_tasks(self) -> int:
@@ -644,6 +651,4 @@ class TaskManagementCapability(BaseCapability):
     @property
     def pending_tasks(self) -> int:
         """Get count of pending tasks."""
-        return sum(
-            1 for t in self._tasks.values() if t.status == TaskStatus.PENDING
-        )
+        return sum(1 for t in self._tasks.values() if t.status == TaskStatus.PENDING)

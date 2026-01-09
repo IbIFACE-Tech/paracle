@@ -67,7 +67,13 @@ def _use_local_fallback() -> bool:
 
 
 @click.group(invoke_without_command=True)
-@click.option("--list", "-l", "list_flag", is_flag=True, help="List all workflows (shortcut for 'list')")
+@click.option(
+    "--list",
+    "-l",
+    "list_flag",
+    is_flag=True,
+    help="List all workflows (shortcut for 'list')",
+)
 @click.pass_context
 def workflow(ctx: click.Context, list_flag: bool) -> None:
     """Manage workflows and workflow executions.
@@ -89,8 +95,7 @@ def workflow(ctx: click.Context, list_flag: bool) -> None:
         $ paracle workflow cancel exec_abc123
     """
     if list_flag:
-        ctx.invoke(list_workflows, status=None,
-                   limit=100, offset=0, output_json=False)
+        ctx.invoke(list_workflows, status=None, limit=100, offset=0, output_json=False)
     elif ctx.invoked_subcommand is None:
         click.echo(ctx.get_help())
 
@@ -129,8 +134,7 @@ def list_workflows(
     client = get_client()
 
     try:
-        result = client.workflow_list(
-            limit=limit, offset=offset, status=status)
+        result = client.workflow_list(limit=limit, offset=offset, status=status)
 
         if output_json:
             console.print_json(json.dumps(result))
@@ -144,8 +148,7 @@ def list_workflows(
             return
 
         # Create table
-        table = Table(title="Workflows", show_header=True,
-                      header_style="bold cyan")
+        table = Table(title="Workflows", show_header=True, header_style="bold cyan")
         table.add_column("ID", style="dim", width=20)
         table.add_column("Name", style="cyan")
         table.add_column("Description")
@@ -177,9 +180,7 @@ def list_workflows(
             )
 
         console.print(table)
-        console.print(
-            f"\n[dim]Showing {len(workflows)} of {total} workflows[/dim]"
-        )
+        console.print(f"\n[dim]Showing {len(workflows)} of {total} workflows[/dim]")
 
     except APIError as e:
         console.print(f"[red]✗ API Error:[/red] {e.detail}")
@@ -255,9 +256,7 @@ def run_workflow(
     for input_pair in input:
         if "=" not in input_pair:
             console.print(f"[red]✗ Invalid input format:[/red] {input_pair}")
-            console.print(
-                "[dim]Use key=value format, e.g., -i source=data.csv[/dim]"
-            )
+            console.print("[dim]Use key=value format, e.g., -i source=data.csv[/dim]")
             raise click.Abort()
         key, value = input_pair.split("=", 1)
         inputs[key.strip()] = value.strip()
@@ -265,15 +264,13 @@ def run_workflow(
     # YOLO mode warning
     if yolo:
         console.print(
-            "[yellow]⚠️  YOLO MODE - "
-            "Auto-approving all approval gates[/yellow]"
+            "[yellow]⚠️  YOLO MODE - " "Auto-approving all approval gates[/yellow]"
         )
 
     # Dry-run mode warning
     if dry_run:
         console.print(
-            "[blue]🔵 DRY-RUN MODE - "
-            "Using mocked LLM responses (no cost)[/blue]"
+            "[blue]🔵 DRY-RUN MODE - " "Using mocked LLM responses (no cost)[/blue]"
         )
 
     # API-first: Try API, fallback to local if unavailable
@@ -373,8 +370,7 @@ def plan_workflow(
     for input_pair in input:
         if "=" not in input_pair:
             console.print(f"[red]✗ Invalid input format:[/red] {input_pair}")
-            console.print(
-                "[dim]Use key=value format, e.g., -i source=data.csv[/dim]")
+            console.print("[dim]Use key=value format, e.g., -i source=data.csv[/dim]")
             raise click.Abort()
         key, value = input_pair.split("=", 1)
         inputs[key.strip()] = value.strip()
@@ -418,9 +414,7 @@ def plan_workflow(
     is_flag=True,
     help="Watch execution until completion",
 )
-def status_execution(
-    execution_id: str, output_json: bool, watch: bool
-) -> None:
+def status_execution(execution_id: str, output_json: bool, watch: bool) -> None:
     """Check workflow execution status.
 
     Args:
@@ -469,9 +463,7 @@ def status_execution(
             console.print(f"[cyan]Current Step:[/cyan] {current_step}")
 
         if completed:
-            console.print(
-                f"[green]Completed Steps:[/green] {', '.join(completed)}"
-            )
+            console.print(f"[green]Completed Steps:[/green] {', '.join(completed)}")
 
         if failed:
             console.print(f"[red]Failed Steps:[/red] {', '.join(failed)}")
@@ -617,9 +609,7 @@ def create_workflow(
 
     # Check if exists
     if workflow_file.exists() and not force:
-        console.print(
-            f"[red]Error:[/red] Workflow already exists: {workflow_file}"
-        )
+        console.print(f"[red]Error:[/red] Workflow already exists: {workflow_file}")
         console.print("Use --force to overwrite")
         raise SystemExit(1)
 
@@ -627,9 +617,7 @@ def create_workflow(
     ai_generated_content = None
     if ai_enhance:
         if not description:
-            console.print(
-                "[red]Error:[/red] --description required with --ai-enhance"
-            )
+            console.print("[red]Error:[/red] --description required with --ai-enhance")
             raise SystemExit(1)
 
         from paracle_cli.ai_helper import get_ai_provider
@@ -642,9 +630,7 @@ def create_workflow(
 
         if ai is None:
             console.print("[yellow]⚠ AI not available[/yellow]")
-            if not click.confirm(
-                "Create basic template instead?", default=True
-            ):
+            if not click.confirm("Create basic template instead?", default=True):
                 console.print("\\n[cyan]To enable AI enhancement:[/cyan]")
                 console.print("  pip install paracle[meta]  # Recommended")
                 console.print("  pip install paracle[openai]  # Or external")
@@ -652,9 +638,7 @@ def create_workflow(
             ai_enhance = False  # Fall back to basic template
         else:
             console.print(f"[dim]Using AI provider: {ai.name}[/dim]")
-            console.print(
-                f"[dim]Generating enhanced workflow: {description}[/dim]\\n"
-            )
+            console.print(f"[dim]Generating enhanced workflow: {description}[/dim]\\n")
 
             with console.status("[bold cyan]Generating workflow spec..."):
                 result = asyncio.run(
@@ -666,9 +650,7 @@ def create_workflow(
                 )
 
             ai_generated_content = result.get("yaml", "")
-            console.print(
-                "[green]✓[/green] AI-enhanced workflow spec generated"
-            )
+            console.print("[green]✓[/green] AI-enhanced workflow spec generated")
 
     # Create from template (if not AI-enhanced)
     if ai_generated_content:
@@ -780,21 +762,15 @@ error_handling:
     # Write file
     workflow_file.write_text(workflow_content, encoding="utf-8")
 
-    console.print(
-        f"[green]OK[/green] Created workflow: {workflow_file}"
-    )
+    console.print(f"[green]OK[/green] Created workflow: {workflow_file}")
     console.print()
     console.print("Next steps:")
-    console.print(
-        f"  1. Edit {workflow_file.relative_to(parac_root.parent)}"
-    )
+    console.print(f"  1. Edit {workflow_file.relative_to(parac_root.parent)}")
     console.print("  2. Update agent references and tasks")
     console.print(f"  3. Run: paracle workflow plan {workflow_id}")
     console.print(f"  4. Run: paracle workflow run {workflow_id}")
     console.print()
-    console.print(
-        "[dim]See .parac/workflows/README.md for workflow syntax[/dim]"
-    )
+    console.print("[dim]See .parac/workflows/README.md for workflow syntax[/dim]")
 
 
 def _watch_execution(client: Any, execution_id: str) -> None:
@@ -828,8 +804,7 @@ def _watch_execution(client: Any, execution_id: str) -> None:
             # Check if terminal
             if status in ("completed", "failed", "cancelled"):
                 if status == "completed":
-                    console.print(
-                        "\n[green]✓ Workflow completed successfully[/green]")
+                    console.print("\n[green]✓ Workflow completed successfully[/green]")
                 elif status == "failed":
                     error = result.get("error", "Unknown error")
                     console.print(f"\n[red]✗ Workflow failed:[/red] {error}")
@@ -840,8 +815,7 @@ def _watch_execution(client: Any, execution_id: str) -> None:
             time.sleep(2)  # Poll every 2 seconds
 
         except KeyboardInterrupt:
-            console.print(
-                "\n[yellow]Stopped watching (execution continues)[/yellow]")
+            console.print("\n[yellow]Stopped watching (execution continues)[/yellow]")
             break
         except APIError as e:
             console.print(f"\n[red]✗ API Error:[/red] {e.detail}")
@@ -922,16 +896,11 @@ def _run_workflow_local(
         except WorkflowLoadError as e:
             console.print(f"[red]✗ Workflow not found:[/red] {workflow_id}")
             console.print(f"[dim]Error: {e}[/dim]")
-            console.print(
-                "[dim]Available workflows: paracle workflow list[/dim]"
-            )
+            console.print("[dim]Available workflows: paracle workflow list[/dim]")
             raise click.Abort()
 
         # Create workflow instance
-        workflow = Workflow(
-            id=generate_id("workflow"),
-            spec=spec
-        )
+        workflow = Workflow(id=generate_id("workflow"), spec=spec)
 
         # Generate execution ID
         execution_id = f"local_{workflow_id}_{int(time.time())}"
@@ -973,19 +942,14 @@ def _run_workflow_local(
 
             console.print()
             if context.status.value == "completed":
-                console.print(
-                    "[green]✓ Workflow completed successfully[/green]"
-                )
+                console.print("[green]✓ Workflow completed successfully[/green]")
 
                 from rich.table import Table
 
                 # Display outputs in a rich table format
                 if context.outputs:
                     console.print("\n[bold]📦 Workflow Outputs:[/bold]")
-                    table = Table(
-                        show_header=True,
-                        header_style="bold cyan"
-                    )
+                    table = Table(show_header=True, header_style="bold cyan")
                     table.add_column("Output", style="cyan")
                     table.add_column("Value", style="white")
 
@@ -1015,24 +979,20 @@ def _run_workflow_local(
 
                     console.print(meta_table)
             else:
-                console.print(
-                    f"[red]✗ Workflow {context.status.value}[/red]"
-                )
+                console.print(f"[red]✗ Workflow {context.status.value}[/red]")
                 if context.error:
                     console.print(f"[dim]Error:[/dim] {context.error}")
         else:
             console.print(
-                "[yellow]⚠️  Async local execution "
-                "not fully supported[/yellow]"
+                "[yellow]⚠️  Async local execution " "not fully supported[/yellow]"
             )
-            console.print(
-                "[dim]Use --sync for complete local execution[/dim]"
-            )
+            console.print("[dim]Use --sync for complete local execution[/dim]")
 
     except Exception as e:
         console.print(f"[red]✗ Local execution error:[/red] {e}")
         if not output_json:
             import traceback
+
             console.print(f"[dim]{traceback.format_exc()}[/dim]")
         raise click.Abort()
 
@@ -1065,18 +1025,20 @@ def _list_workflows_local(
         for meta in workflows_metadata:
             try:
                 spec = loader.load_workflow_spec(meta["name"])
-                workflows.append({
-                    "id": meta["name"],  # Use name as ID for YAML workflows
-                    "name": meta["name"],
-                    "description": meta.get("description", ""),
-                    "category": meta.get("category", "general"),
-                    "status": meta.get("status", "active"),
-                    "spec": {
-                        "name": spec.name,
-                        "description": spec.description,
-                        "steps": [{"name": s.name} for s in spec.steps],
-                    },
-                })
+                workflows.append(
+                    {
+                        "id": meta["name"],  # Use name as ID for YAML workflows
+                        "name": meta["name"],
+                        "description": meta.get("description", ""),
+                        "category": meta.get("category", "general"),
+                        "status": meta.get("status", "active"),
+                        "spec": {
+                            "name": spec.name,
+                            "description": spec.description,
+                            "steps": [{"name": s.name} for s in spec.steps],
+                        },
+                    }
+                )
             except Exception as e:
                 console.print(
                     f"[yellow]⚠️  Warning: Could not load workflow "
@@ -1086,12 +1048,10 @@ def _list_workflows_local(
 
         # Pagination
         total = len(workflows)
-        workflows = workflows[offset: offset + limit]
+        workflows = workflows[offset : offset + limit]
 
         if output_json:
-            console.print_json(
-                json.dumps({"workflows": workflows, "total": total})
-            )
+            console.print_json(json.dumps({"workflows": workflows, "total": total}))
             return
 
         if not workflows:
@@ -1137,21 +1097,16 @@ def _list_workflows_local(
             )
 
         console.print(table)
-        console.print(
-            f"\n[dim]Showing {len(workflows)} of {total} workflows[/dim]"
-        )
+        console.print(f"\n[dim]Showing {len(workflows)} of {total} workflows[/dim]")
         console.print(
             "[dim]Source: .parac/workflows/catalog.yaml "
             "and .parac/workflows/definitions/[/dim]"
         )
 
     except Exception as e:
+        console.print(f"[red]✗ Local listing error:[/red] {e}")
         console.print(
-            f"[red]✗ Local listing error:[/red] {e}"
-        )
-        console.print(
-            "[dim]Ensure .parac/workflows/ directory exists with "
-            "catalog.yaml[/dim]"
+            "[dim]Ensure .parac/workflows/ directory exists with " "catalog.yaml[/dim]"
         )
         raise click.Abort()
 
@@ -1174,17 +1129,12 @@ def _display_execution_plan(plan: dict[str, Any]) -> None:
 
     overview_table.add_row("Workflow", plan.get("workflow_name", "Unknown"))
     overview_table.add_row("Total Steps", str(plan.get("total_steps", 0)))
+    overview_table.add_row("Estimated Tokens", f"{plan.get('estimated_tokens', 0):,}")
     overview_table.add_row(
-        "Estimated Tokens",
-        f"{plan.get('estimated_tokens', 0):,}"
+        "Estimated Cost", f"${plan.get('estimated_cost_usd', 0):.4f}"
     )
     overview_table.add_row(
-        "Estimated Cost",
-        f"${plan.get('estimated_cost_usd', 0):.4f}"
-    )
-    overview_table.add_row(
-        "Estimated Time",
-        f"{plan.get('estimated_time_seconds', 0):.1f}s"
+        "Estimated Time", f"{plan.get('estimated_time_seconds', 0):.1f}s"
     )
 
     console.print(Panel(overview_table, title="Overview"))
@@ -1228,9 +1178,7 @@ def _display_execution_plan(plan: dict[str, Any]) -> None:
 
 
 def _plan_workflow_local(
-    workflow_id: str,
-    inputs: dict[str, Any],
-    output_json: bool
+    workflow_id: str, inputs: dict[str, Any], output_json: bool
 ) -> None:
     """Plan workflow execution using local WorkflowPlanner.
 

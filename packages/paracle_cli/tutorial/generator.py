@@ -130,13 +130,15 @@ class TutorialGenerator:
         steps = []
 
         # Step 1: Understanding the command
-        steps.append(TutorialStep(
-            title="Understanding the Command",
-            description=command.help_text or f"The `{command.name}` command.",
-            action="Review what this command does",
-            example=f"paracle {command.path.replace('/', ' ')} --help",
-            tips=["Use --help on any command to see available options"],
-        ))
+        steps.append(
+            TutorialStep(
+                title="Understanding the Command",
+                description=command.help_text or f"The `{command.name}` command.",
+                action="Review what this command does",
+                example=f"paracle {command.path.replace('/', ' ')} --help",
+                tips=["Use --help on any command to see available options"],
+            )
+        )
 
         # Step 2: Required parameters (if any)
         if command.required_args or command.required_options:
@@ -154,13 +156,15 @@ class TutorialGenerator:
             steps.append(step)
 
         # Step 5: Running the command
-        steps.append(TutorialStep(
-            title="Running the Command",
-            description="Execute the command with your parameters.",
-            action="Run the command",
-            example=command.build_example_command(),
-            tips=self._generate_execution_tips(command),
-        ))
+        steps.append(
+            TutorialStep(
+                title="Running the Command",
+                description="Execute the command with your parameters.",
+                action="Run the command",
+                example=command.build_example_command(),
+                tips=self._generate_execution_tips(command),
+            )
+        )
 
         # Step 6: For groups, show subcommands
         if command.is_group and command.subcommands:
@@ -190,12 +194,10 @@ class TutorialGenerator:
         return TutorialStep(
             title="Required Parameters",
             description="These parameters must be provided:\n\n"
-                       + "\n".join(param_descriptions),
+            + "\n".join(param_descriptions),
             action="Prepare your required values",
             example=self._build_params_example(params),
-            tips=[
-                f"Required: {p.display_name}" for p in params[:3]
-            ],
+            tips=[f"Required: {p.display_name}" for p in params[:3]],
         )
 
     def _generate_optional_params_step(
@@ -217,7 +219,7 @@ class TutorialGenerator:
         return TutorialStep(
             title="Optional Parameters",
             description="These parameters are optional:\n\n"
-                       + "\n".join(param_descriptions[:5]),  # Limit to 5
+            + "\n".join(param_descriptions[:5]),  # Limit to 5
             action="Add optional parameters as needed",
             tips=[
                 "Optional parameters have sensible defaults",
@@ -239,7 +241,7 @@ class TutorialGenerator:
         return TutorialStep(
             title="Flags",
             description="Available flags (on/off switches):\n\n"
-                       + "\n".join(flag_descriptions[:5]),
+            + "\n".join(flag_descriptions[:5]),
             action="Add flags to modify behavior",
             tips=[
                 "Flags don't take values, just add them to enable",
@@ -261,7 +263,7 @@ class TutorialGenerator:
         return TutorialStep(
             title="Available Subcommands",
             description="This command group has these subcommands:\n\n"
-                       + "\n".join(subcmd_list),
+            + "\n".join(subcmd_list),
             action="Choose a subcommand to run",
             example=f"paracle {command.path.replace('/', ' ')} <subcommand>",
             tips=[
@@ -310,9 +312,7 @@ class TutorialGenerator:
         patterns = []
 
         # Basic usage
-        patterns.append(
-            f"Basic: `paracle {command.path.replace('/', ' ')}`"
-        )
+        patterns.append(f"Basic: `paracle {command.path.replace('/', ' ')}`")
 
         # With required params
         if command.required_args or command.required_options:
@@ -341,15 +341,11 @@ class TutorialGenerator:
         if command.parent:
             for sibling in command.parent.subcommands:
                 if sibling.name != command.name and not sibling.hidden:
-                    related.append(
-                        f"paracle {sibling.path.replace('/', ' ')}"
-                    )
+                    related.append(f"paracle {sibling.path.replace('/', ' ')}")
 
         # Parent group
         if command.parent and command.parent.path:
-            related.append(
-                f"paracle {command.parent.path.replace('/', ' ')} --help"
-            )
+            related.append(f"paracle {command.parent.path.replace('/', ' ')} --help")
 
         return related[:5]  # Limit to 5
 
@@ -362,34 +358,35 @@ class TutorialGenerator:
 
         # Common issues based on command type
         if command.path.startswith("agents"):
-            tips.append((
-                "Agent not found",
-                "Ensure .parac/agents/specs/<agent>.md exists and is valid"
-            ))
-            tips.append((
-                "Validation errors",
-                "Run `paracle agents format` to auto-fix common issues"
-            ))
+            tips.append(
+                (
+                    "Agent not found",
+                    "Ensure .parac/agents/specs/<agent>.md exists and is valid",
+                )
+            )
+            tips.append(
+                (
+                    "Validation errors",
+                    "Run `paracle agents format` to auto-fix common issues",
+                )
+            )
 
         if command.path.startswith("workflow"):
-            tips.append((
-                "Workflow not found",
-                "Check that .parac/workflows/<name>.yaml exists"
-            ))
+            tips.append(
+                ("Workflow not found", "Check that .parac/workflows/<name>.yaml exists")
+            )
 
         # API-related commands
         api_words = ["run", "execute", "chat"]
         if any(word in command.name for word in api_words):
-            tips.append((
-                "API key errors",
-                "Ensure your .env file contains valid API keys"
-            ))
+            tips.append(
+                ("API key errors", "Ensure your .env file contains valid API keys")
+            )
 
         # General tips
-        tips.append((
-            "Permission denied",
-            "Check file permissions in .parac/ directory"
-        ))
+        tips.append(
+            ("Permission denied", "Check file permissions in .parac/ directory")
+        )
 
         return tips
 

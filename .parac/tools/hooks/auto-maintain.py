@@ -125,11 +125,9 @@ class ParacMaintainer:
         if not self.dry_run:
             with open(state_file, "w", encoding="utf-8") as f:
                 yaml.safe_dump(state, f, allow_unicode=True, sort_keys=False)
-            self.changes.append(
-                f"Updated {state_file.relative_to(self.repo_root)}")
+            self.changes.append(f"Updated {state_file.relative_to(self.repo_root)}")
         else:
-            self.log(
-                f"Would update {state_file.relative_to(self.repo_root)}", "change")
+            self.log(f"Would update {state_file.relative_to(self.repo_root)}", "change")
 
     def update_changelog(self, changes: Dict[str, Set[str]]) -> None:
         """Update .parac/changelog.md with recent changes."""
@@ -168,8 +166,7 @@ class ParacMaintainer:
         unreleased_marker = "## [Unreleased]"
         if unreleased_marker in content:
             parts = content.split(unreleased_marker, 1)
-            new_entry = f"\n\n### Changed ({today})\n\n" + \
-                "\n".join(entry_lines) + "\n"
+            new_entry = f"\n\n### Changed ({today})\n\n" + "\n".join(entry_lines) + "\n"
 
             # Find where to insert (after ### Added section if it exists)
             after_unreleased = parts[1]
@@ -184,8 +181,9 @@ class ParacMaintainer:
                     + (added_parts[1] if len(added_parts) > 1 else "")
                 )
             else:
-                new_content = parts[0] + unreleased_marker + \
-                    new_entry + after_unreleased
+                new_content = (
+                    parts[0] + unreleased_marker + new_entry + after_unreleased
+                )
 
             if not self.dry_run:
                 with open(changelog_file, "w", encoding="utf-8") as f:
@@ -194,9 +192,7 @@ class ParacMaintainer:
                     f"Updated {changelog_file.relative_to(self.repo_root)}"
                 )
             else:
-                self.log(
-                    f"Would add changelog entry for {today}", "change"
-                )
+                self.log(f"Would add changelog entry for {today}", "change")
 
     def check_roadmap_alignment(self) -> None:
         """Check if roadmap needs updates based on completed work."""
@@ -276,8 +272,7 @@ def main():
         return 1
 
     # Run maintainer
-    maintainer = ParacMaintainer(
-        repo_root, dry_run=args.dry_run, verbose=args.verbose)
+    maintainer = ParacMaintainer(repo_root, dry_run=args.dry_run, verbose=args.verbose)
 
     try:
         success = maintainer.run()

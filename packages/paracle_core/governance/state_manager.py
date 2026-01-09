@@ -88,56 +88,57 @@ class AutomaticStateManager:
             roadmap = self._load_roadmap()
 
             # Update deliverable status in roadmap
-            phases = roadmap.get('phases', [])
+            phases = roadmap.get("phases", [])
             for p in phases:
-                if p['id'] == phase:
-                    for d in p.get('deliverables', []):
-                        if isinstance(d, dict) and d.get('id') == deliverable_id:
-                            d['status'] = 'completed'
-                            d['completed_date'] = datetime.now().strftime(
-                                "%Y-%m-%d")
-                            d['completed_by'] = agent
+                if p["id"] == phase:
+                    for d in p.get("deliverables", []):
+                        if isinstance(d, dict) and d.get("id") == deliverable_id:
+                            d["status"] = "completed"
+                            d["completed_date"] = datetime.now().strftime("%Y-%m-%d")
+                            d["completed_by"] = agent
                             break
                     break
 
             # Update current_phase.completed
-            if deliverable_id not in state['current_phase'].get('completed', []):
-                state['current_phase'].setdefault(
-                    'completed', []).append(deliverable_id)
+            if deliverable_id not in state["current_phase"].get("completed", []):
+                state["current_phase"].setdefault("completed", []).append(
+                    deliverable_id
+                )
 
             # Remove from current_phase.in_progress
-            if 'in_progress' in state['current_phase']:
-                state['current_phase']['in_progress'] = [
-                    d for d in state['current_phase']['in_progress']
+            if "in_progress" in state["current_phase"]:
+                state["current_phase"]["in_progress"] = [
+                    d
+                    for d in state["current_phase"]["in_progress"]
                     if d != deliverable_id
                 ]
 
             # Recalculate progress
             progress = self._calculate_phase_progress(phase, roadmap)
-            state['current_phase']['progress'] = progress
+            state["current_phase"]["progress"] = progress
 
             # Add to recent_updates
             update_entry = {
-                'date': datetime.now().strftime("%Y-%m-%d"),
-                'update': f"{deliverable_id} COMPLETE",
-                'agent': agent,
-                'impact': description or f"{deliverable_id} deliverable completed",
+                "date": datetime.now().strftime("%Y-%m-%d"),
+                "update": f"{deliverable_id} COMPLETE",
+                "agent": agent,
+                "impact": description or f"{deliverable_id} deliverable completed",
             }
 
-            if 'recent_updates' not in state:
-                state['recent_updates'] = []
+            if "recent_updates" not in state:
+                state["recent_updates"] = []
 
             # Insert at beginning (most recent first)
-            state['recent_updates'].insert(0, update_entry)
+            state["recent_updates"].insert(0, update_entry)
 
             # Keep only last 20 updates
-            state['recent_updates'] = state['recent_updates'][:20]
+            state["recent_updates"] = state["recent_updates"][:20]
 
             # Update revision number
-            state['revision'] = state.get('revision', 0) + 1
+            state["revision"] = state.get("revision", 0) + 1
 
             # Update snapshot date
-            state['snapshot_date'] = datetime.now().strftime("%Y-%m-%d")
+            state["snapshot_date"] = datetime.now().strftime("%Y-%m-%d")
 
             # Save both state and roadmap atomically
             self._save_state(state)
@@ -173,36 +174,39 @@ class AutomaticStateManager:
             state = self._load_state()
 
             # Save previous phase if exists
-            if 'current_phase' in state:
-                state['previous_phase'] = {
-                    'id': state['current_phase']['id'],
-                    'name': state['current_phase']['name'],
-                    'status': state['current_phase'].get('status', 'completed'),
-                    'progress': state['current_phase'].get('progress', 100),
+            if "current_phase" in state:
+                state["previous_phase"] = {
+                    "id": state["current_phase"]["id"],
+                    "name": state["current_phase"]["name"],
+                    "status": state["current_phase"].get("status", "completed"),
+                    "progress": state["current_phase"].get("progress", 100),
                 }
 
             # Update current phase
-            state['project']['phase'] = phase_id
-            state['current_phase'] = {
-                'id': phase_id,
-                'name': phase_name,
-                'status': 'in_progress',
-                'progress': 0,
-                'completed': [],
-                'in_progress': [],
+            state["project"]["phase"] = phase_id
+            state["current_phase"] = {
+                "id": phase_id,
+                "name": phase_name,
+                "status": "in_progress",
+                "progress": 0,
+                "completed": [],
+                "in_progress": [],
             }
 
             # Add to recent_updates
-            state['recent_updates'].insert(0, {
-                'date': datetime.now().strftime("%Y-%m-%d"),
-                'update': f"{phase_name} Started",
-                'agent': agent,
-                'impact': f"Starting {phase_id}",
-            })
+            state["recent_updates"].insert(
+                0,
+                {
+                    "date": datetime.now().strftime("%Y-%m-%d"),
+                    "update": f"{phase_name} Started",
+                    "agent": agent,
+                    "impact": f"Starting {phase_id}",
+                },
+            )
 
             # Update revision
-            state['revision'] = state.get('revision', 0) + 1
-            state['snapshot_date'] = datetime.now().strftime("%Y-%m-%d")
+            state["revision"] = state.get("revision", 0) + 1
+            state["snapshot_date"] = datetime.now().strftime("%Y-%m-%d")
 
             self._save_state(state)
 
@@ -230,21 +234,25 @@ class AutomaticStateManager:
             state = self._load_state()
 
             # Mark current phase as complete
-            state['current_phase']['status'] = 'completed'
-            state['current_phase']['progress'] = 100
-            state['current_phase']['completed_date'] = datetime.now().strftime(
-                "%Y-%m-%d")
+            state["current_phase"]["status"] = "completed"
+            state["current_phase"]["progress"] = 100
+            state["current_phase"]["completed_date"] = datetime.now().strftime(
+                "%Y-%m-%d"
+            )
 
             # Add to recent_updates
-            state['recent_updates'].insert(0, {
-                'date': datetime.now().strftime("%Y-%m-%d"),
-                'update': f"{phase_name} COMPLETE",
-                'agent': agent,
-                'impact': f"{phase_id} completed - 100% of deliverables done",
-            })
+            state["recent_updates"].insert(
+                0,
+                {
+                    "date": datetime.now().strftime("%Y-%m-%d"),
+                    "update": f"{phase_name} COMPLETE",
+                    "agent": agent,
+                    "impact": f"{phase_id} completed - 100% of deliverables done",
+                },
+            )
 
-            state['revision'] = state.get('revision', 0) + 1
-            state['snapshot_date'] = datetime.now().strftime("%Y-%m-%d")
+            state["revision"] = state.get("revision", 0) + 1
+            state["snapshot_date"] = datetime.now().strftime("%Y-%m-%d")
 
             self._save_state(state)
 
@@ -271,15 +279,18 @@ class AutomaticStateManager:
         async with self._lock:
             state = self._load_state()
 
-            state['recent_updates'].insert(0, {
-                'date': datetime.now().strftime("%Y-%m-%d"),
-                'update': update,
-                'agent': agent,
-                'impact': impact,
-            })
+            state["recent_updates"].insert(
+                0,
+                {
+                    "date": datetime.now().strftime("%Y-%m-%d"),
+                    "update": update,
+                    "agent": agent,
+                    "impact": impact,
+                },
+            )
 
-            state['recent_updates'] = state['recent_updates'][:20]
-            state['revision'] = state.get('revision', 0) + 1
+            state["recent_updates"] = state["recent_updates"][:20]
+            state["revision"] = state.get("revision", 0) + 1
 
             self._save_state(state)
 
@@ -294,20 +305,21 @@ class AutomaticStateManager:
             Progress percentage (0-100)
         """
         # Find phase in roadmap
-        phases = roadmap.get('phases', [])
-        phase_data = next((p for p in phases if p['id'] == phase_id), None)
+        phases = roadmap.get("phases", [])
+        phase_data = next((p for p in phases if p["id"] == phase_id), None)
 
-        if not phase_data or 'deliverables' not in phase_data:
+        if not phase_data or "deliverables" not in phase_data:
             return 0
 
-        deliverables = phase_data['deliverables']
+        deliverables = phase_data["deliverables"]
         if not deliverables:
             return 0
 
         # Count completed
         completed = sum(
-            1 for d in deliverables
-            if isinstance(d, dict) and d.get('status') == 'completed'
+            1
+            for d in deliverables
+            if isinstance(d, dict) and d.get("status") == "completed"
         )
 
         total = len(deliverables)
@@ -323,7 +335,7 @@ class AutomaticStateManager:
         if not self.state_file.exists():
             raise FileNotFoundError(f"State file not found: {self.state_file}")
 
-        with open(self.state_file, encoding='utf-8') as f:
+        with open(self.state_file, encoding="utf-8") as f:
             return yaml.safe_load(f)
 
     def _load_roadmap(self) -> dict:
@@ -333,10 +345,9 @@ class AutomaticStateManager:
             Roadmap dictionary
         """
         if not self.roadmap_file.exists():
-            raise FileNotFoundError(
-                f"Roadmap file not found: {self.roadmap_file}")
+            raise FileNotFoundError(f"Roadmap file not found: {self.roadmap_file}")
 
-        with open(self.roadmap_file, encoding='utf-8') as f:
+        with open(self.roadmap_file, encoding="utf-8") as f:
             return yaml.safe_load(f)
 
     def _save_state(self, state: dict) -> None:
@@ -346,9 +357,9 @@ class AutomaticStateManager:
             state: State dictionary to save
         """
         # Write to temp file first
-        temp_file = self.state_file.with_suffix('.yaml.tmp')
+        temp_file = self.state_file.with_suffix(".yaml.tmp")
 
-        with open(temp_file, 'w', encoding='utf-8') as f:
+        with open(temp_file, "w", encoding="utf-8") as f:
             yaml.dump(
                 state,
                 f,
@@ -367,9 +378,9 @@ class AutomaticStateManager:
             roadmap: Roadmap dictionary to save
         """
         # Write to temp file first
-        temp_file = self.roadmap_file.with_suffix('.yaml.tmp')
+        temp_file = self.roadmap_file.with_suffix(".yaml.tmp")
 
-        with open(temp_file, 'w', encoding='utf-8') as f:
+        with open(temp_file, "w", encoding="utf-8") as f:
             yaml.dump(
                 roadmap,
                 f,

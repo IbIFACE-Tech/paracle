@@ -25,7 +25,8 @@ def list_remotes():
         if not remotes_config.remotes:
             click.echo("No remote instances configured.")
             click.echo(
-                "\nAdd a remote with: paracle remote add <name> <host> <workspace>")
+                "\nAdd a remote with: paracle remote add <name> <host> <workspace>"
+            )
             return
 
         click.echo("Configured remotes:\n")
@@ -47,8 +48,7 @@ def list_remotes():
 
     except FileNotFoundError:
         click.echo("No remotes configured yet.")
-        click.echo(
-            "\nAdd a remote with: paracle remote add <name> <host> <workspace>")
+        click.echo("\nAdd a remote with: paracle remote add <name> <host> <workspace>")
     except Exception as e:
         click.echo(f"Error: {e}", err=True)
         sys.exit(1)
@@ -271,5 +271,4 @@ def _save_remotes_config(config: RemotesConfig) -> None:
     config_path = config_dir / "remotes.yaml"
 
     with open(config_path, "w") as f:
-        yaml.dump(config.model_dump(), f,
-                  default_flow_style=False, sort_keys=False)
+        yaml.dump(config.model_dump(), f, default_flow_style=False, sort_keys=False)

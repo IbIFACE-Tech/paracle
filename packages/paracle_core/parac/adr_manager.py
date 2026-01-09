@@ -84,7 +84,9 @@ class ADRManager:
         self.config = config
         self.adr_dir = parac_root / config.base_path
         self.index_file = self.adr_dir / config.index_file
-        self.legacy_file = parac_root / config.legacy_file if config.legacy_file else None
+        self.legacy_file = (
+            parac_root / config.legacy_file if config.legacy_file else None
+        )
 
     def _ensure_dir(self) -> None:
         """Ensure ADR directory exists."""
@@ -282,9 +284,7 @@ class ADRManager:
         # Extract date
         date_match = re.search(r"\*\*Date\*\*:\s*(\d{4}-\d{2}-\d{2})", content)
         adr_date = (
-            date.fromisoformat(date_match.group(1))
-            if date_match
-            else date.today()
+            date.fromisoformat(date_match.group(1)) if date_match else date.today()
         )
 
         # Extract status
@@ -292,7 +292,9 @@ class ADRManager:
         status = status_match.group(1) if status_match else "Accepted"
 
         # Extract deciders
-        deciders_match = re.search(r"\*\*Deciders?\*\*:\s*(.+?)$", content, re.MULTILINE)
+        deciders_match = re.search(
+            r"\*\*Deciders?\*\*:\s*(.+?)$", content, re.MULTILINE
+        )
         deciders = deciders_match.group(1).strip() if deciders_match else "Core Team"
 
         # Extract sections
@@ -338,21 +340,23 @@ class ADRManager:
         adr_id = file_path.stem
 
         # Extract title
-        title_match = re.search(r"#\s*" + re.escape(adr_id) + r":\s*(.+?)$", content, re.MULTILINE)
+        title_match = re.search(
+            r"#\s*" + re.escape(adr_id) + r":\s*(.+?)$", content, re.MULTILINE
+        )
         title = title_match.group(1).strip() if title_match else ""
 
         # Extract metadata
         date_match = re.search(r"\*\*Date\*\*:\s*(\d{4}-\d{2}-\d{2})", content)
         adr_date = (
-            date.fromisoformat(date_match.group(1))
-            if date_match
-            else date.today()
+            date.fromisoformat(date_match.group(1)) if date_match else date.today()
         )
 
         status_match = re.search(r"\*\*Status\*\*:\s*(\w+)", content)
         status = status_match.group(1) if status_match else "Proposed"
 
-        deciders_match = re.search(r"\*\*Deciders?\*\*:\s*(.+?)$", content, re.MULTILINE)
+        deciders_match = re.search(
+            r"\*\*Deciders?\*\*:\s*(.+?)$", content, re.MULTILINE
+        )
         deciders = deciders_match.group(1).strip() if deciders_match else ""
 
         # Extract sections
@@ -380,7 +384,9 @@ class ADRManager:
         adr_id = file_path.stem
 
         # Extract title
-        title_match = re.search(r"#\s*" + re.escape(adr_id) + r":\s*(.+?)$", content, re.MULTILINE)
+        title_match = re.search(
+            r"#\s*" + re.escape(adr_id) + r":\s*(.+?)$", content, re.MULTILINE
+        )
         title = title_match.group(1).strip() if title_match else ""
 
         # Extract date
@@ -394,7 +400,9 @@ class ADRManager:
         status = status_match.group(1) if status_match else "Proposed"
 
         # Extract deciders
-        deciders_match = re.search(r"\*\*Deciders?\*\*:\s*(.+?)$", content, re.MULTILINE)
+        deciders_match = re.search(
+            r"\*\*Deciders?\*\*:\s*(.+?)$", content, re.MULTILINE
+        )
         deciders = deciders_match.group(1).strip() if deciders_match else ""
 
         return ADRMetadata(
@@ -426,17 +434,19 @@ class ADRManager:
                 f"| [{adr.id}]({adr.id}.md) | {adr.title} | {adr.status} | {adr.date} |"
             )
 
-        lines.extend([
-            "",
-            "## Statuses",
-            "",
-            "- **Proposed**: Under discussion",
-            "- **Accepted**: Approved and implemented",
-            "- **Deprecated**: No longer valid",
-            "- **Superseded**: Replaced by another ADR",
-            "",
-            f"*Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M')}*",
-        ])
+        lines.extend(
+            [
+                "",
+                "## Statuses",
+                "",
+                "- **Proposed**: Under discussion",
+                "- **Accepted**: Approved and implemented",
+                "- **Deprecated**: No longer valid",
+                "- **Superseded**: Replaced by another ADR",
+                "",
+                f"*Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M')}*",
+            ]
+        )
 
         self._ensure_dir()
         self.index_file.write_text("\n".join(lines), encoding="utf-8")
@@ -456,9 +466,7 @@ class ADRManager:
         for path in self.adr_dir.glob("ADR-*.md"):
             content = path.read_text(encoding="utf-8").lower()
             if query_lower in content:
-                metadata = self._parse_metadata(
-                    path.read_text(encoding="utf-8"), path
-                )
+                metadata = self._parse_metadata(path.read_text(encoding="utf-8"), path)
                 if metadata:
                     results.append(metadata)
 

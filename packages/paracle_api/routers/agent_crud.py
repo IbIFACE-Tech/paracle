@@ -79,7 +79,7 @@ def _spec_to_response(spec: AgentSpec) -> SpecResponse:
     response_model=AgentResponse,
     status_code=201,
     operation_id="createAgent",
-    summary="Create a new agent"
+    summary="Create a new agent",
 )
 async def create_agent(request: AgentCreateRequest) -> AgentResponse:
     """Create a new agent.
@@ -137,7 +137,7 @@ async def create_agent(request: AgentCreateRequest) -> AgentResponse:
     "/agents",
     response_model=AgentListResponse,
     operation_id="listAgentsCrud",
-    summary="List agents with filters"
+    summary="List agents with filters",
 )
 async def list_agents(
     status: str | None = Query(None, description="Filter by status"),
@@ -175,9 +175,7 @@ async def list_agents(
             )
 
     if provider:
-        agents = [
-            a for a in agents if a.get_effective_spec().provider == provider
-        ]
+        agents = [a for a in agents if a.get_effective_spec().provider == provider]
 
     if spec_name:
         agents = [a for a in agents if a.spec.name == spec_name]
@@ -185,7 +183,7 @@ async def list_agents(
     total = len(agents)
 
     # Apply pagination
-    agents = agents[offset:offset + limit]
+    agents = agents[offset : offset + limit]
 
     return AgentListResponse(
         agents=[_agent_to_response(a) for a in agents],
@@ -199,7 +197,7 @@ async def list_agents(
     "/agents/{agent_id}",
     response_model=AgentResponse,
     operation_id="getAgentDetails",
-    summary="Get agent details by ID"
+    summary="Get agent details by ID",
 )
 async def get_agent(agent_id: str) -> AgentResponse:
     """Get agent details by ID.
@@ -224,9 +222,7 @@ async def get_agent(agent_id: str) -> AgentResponse:
 
 
 @router.put("/agents/{agent_id}", response_model=AgentResponse)
-async def update_agent(
-    agent_id: str, request: AgentUpdateRequest
-) -> AgentResponse:
+async def update_agent(agent_id: str, request: AgentUpdateRequest) -> AgentResponse:
     """Update an agent's configuration.
 
     Only updates provided fields. Null values are ignored.
@@ -367,8 +363,7 @@ async def register_spec(request: SpecRegisterRequest) -> SpecResponse:
         raise HTTPException(
             status_code=409,
             detail=(
-                f"Spec '{spec.name}' already exists. "
-                "Use overwrite=true to replace."
+                f"Spec '{spec.name}' already exists. " "Use overwrite=true to replace."
             ),
         )
 

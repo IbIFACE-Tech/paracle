@@ -87,9 +87,7 @@ class PerplexityProvider(LLMProvider):
             payload["top_p"] = config.top_p
 
         try:
-            response = await self.client.post(
-                "/chat/completions", json=payload
-            )
+            response = await self.client.post("/chat/completions", json=payload)
             response.raise_for_status()
             data = response.json()
 
@@ -121,9 +119,7 @@ class PerplexityProvider(LLMProvider):
                 f"{e.response.text}"
             ) from e
         except Exception as e:
-            raise LLMProviderError(
-                f"Perplexity provider error: {e}"
-            ) from e
+            raise LLMProviderError(f"Perplexity provider error: {e}") from e
 
     async def stream_completion(
         self,
@@ -175,9 +171,7 @@ class PerplexityProvider(LLMProvider):
                 f"Perplexity streaming error: {e.response.status_code}"
             ) from e
         except Exception as e:
-            raise LLMProviderError(
-                f"Perplexity streaming error: {e}"
-            ) from e
+            raise LLMProviderError(f"Perplexity streaming error: {e}") from e
 
     async def __aenter__(self):
         """Async context manager entry."""

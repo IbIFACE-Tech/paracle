@@ -256,7 +256,9 @@ class TestPlan:
     def test_completed_steps(self):
         """Test completed steps counting."""
         steps = [
-            PlanStep(id="1", description="S1", action="A1", status=StepStatus.COMPLETED),
+            PlanStep(
+                id="1", description="S1", action="A1", status=StepStatus.COMPLETED
+            ),
             PlanStep(id="2", description="S2", action="A2", status=StepStatus.PENDING),
         ]
 
@@ -268,8 +270,12 @@ class TestPlan:
     def test_is_complete(self):
         """Test plan completion check."""
         steps = [
-            PlanStep(id="1", description="S1", action="A1", status=StepStatus.COMPLETED),
-            PlanStep(id="2", description="S2", action="A2", status=StepStatus.COMPLETED),
+            PlanStep(
+                id="1", description="S1", action="A1", status=StepStatus.COMPLETED
+            ),
+            PlanStep(
+                id="2", description="S2", action="A2", status=StepStatus.COMPLETED
+            ),
         ]
 
         plan = Plan(goal="Test", summary="Test", steps=steps)
@@ -279,7 +285,9 @@ class TestPlan:
     def test_get_next_step(self):
         """Test getting next step."""
         steps = [
-            PlanStep(id="1", description="S1", action="A1", status=StepStatus.COMPLETED),
+            PlanStep(
+                id="1", description="S1", action="A1", status=StepStatus.COMPLETED
+            ),
             PlanStep(id="2", description="S2", action="A2", status=StepStatus.PENDING),
         ]
 

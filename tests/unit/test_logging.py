@@ -309,6 +309,7 @@ class TestJsonFormatter:
     def test_json_with_exception(self):
         """Test JSON formatting with exception info."""
         import sys
+
         formatter = JsonFormatter()
         try:
             raise ValueError("Test error")

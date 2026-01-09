@@ -448,8 +448,15 @@ class TestMessageType:
     def test_all_message_types_exist(self):
         """Test all expected message types exist."""
         expected = [
-            "inform", "request", "propose", "accept",
-            "reject", "query", "delegate", "confirm", "cancel"
+            "inform",
+            "request",
+            "propose",
+            "accept",
+            "reject",
+            "query",
+            "delegate",
+            "confirm",
+            "cancel",
         ]
         actual = [mt.value for mt in MessageType]
         for exp in expected:

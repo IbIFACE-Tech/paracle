@@ -155,12 +155,14 @@ class CacheStatsTracker:
     def _update_averages(self) -> None:
         """Recalculate average times."""
         if self._cached_times:
-            self._stats.avg_cached_time_ms = sum(
-                self._cached_times) / len(self._cached_times)
+            self._stats.avg_cached_time_ms = sum(self._cached_times) / len(
+                self._cached_times
+            )
 
         if self._uncached_times:
-            self._stats.avg_uncached_time_ms = sum(
-                self._uncached_times) / len(self._uncached_times)
+            self._stats.avg_uncached_time_ms = sum(self._uncached_times) / len(
+                self._uncached_times
+            )
 
     def get_stats(self) -> CacheStats:
         """Get current statistics snapshot.
@@ -190,20 +192,18 @@ class CacheStatsTracker:
         ]
 
         if stats.hit_rate is not None:
-            lines.append(
-                f"  Hit Rate: {stats.hit_rate * 100:.1f}%")
+            lines.append(f"  Hit Rate: {stats.hit_rate * 100:.1f}%")
 
         if stats.speedup_factor is not None:
-            lines.append(
-                f"  Speedup: {stats.speedup_factor:.1f}x faster (cached)")
+            lines.append(f"  Speedup: {stats.speedup_factor:.1f}x faster (cached)")
 
         if stats.estimated_cost_saved > 0:
-            lines.append(
-                f"  Cost Saved: ${stats.estimated_cost_saved:.4f}")
+            lines.append(f"  Cost Saved: ${stats.estimated_cost_saved:.4f}")
 
         if stats.utilization is not None:
             lines.append(
-                f"  Utilization: {stats.utilization * 100:.1f}% ({stats.cache_size}/{stats.max_cache_size})")
+                f"  Utilization: {stats.utilization * 100:.1f}% ({stats.cache_size}/{stats.max_cache_size})"
+            )
 
         if stats.evictions > 0:
             lines.append(f"  Evictions: {stats.evictions}")

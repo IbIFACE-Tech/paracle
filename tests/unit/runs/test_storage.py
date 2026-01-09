@@ -183,9 +183,7 @@ def test_load_workflow_run(storage):
     inputs = {"data": "test"}
     outputs = {"result": "success"}
 
-    storage.save_workflow_run(
-        metadata=metadata, inputs=inputs, outputs=outputs
-    )
+    storage.save_workflow_run(metadata=metadata, inputs=inputs, outputs=outputs)
 
     loaded_metadata, run_data = storage.load_workflow_run(run_id)
 

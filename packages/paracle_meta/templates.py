@@ -163,9 +163,11 @@ class TemplateLibrary:
             similarity = overlap / total if total > 0 else 0
 
             # Weight by quality and usage
-            weighted_score = similarity * 0.6 + template.quality_score / 10 * 0.3 + min(
-                template.usage_count / 100, 1
-            ) * 0.1
+            weighted_score = (
+                similarity * 0.6
+                + template.quality_score / 10 * 0.3
+                + min(template.usage_count / 100, 1) * 0.1
+            )
 
             if weighted_score > best_score:
                 best_score = weighted_score
@@ -214,7 +216,9 @@ class TemplateLibrary:
         conn.commit()
         conn.close()
 
-        logger.info(f"Saved template: {template.id}", extra={"type": template.artifact_type})
+        logger.info(
+            f"Saved template: {template.id}", extra={"type": template.artifact_type}
+        )
         return template.id
 
     async def get(self, template_id: str) -> Template:
@@ -394,7 +398,8 @@ class TemplateLibrary:
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
 
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS templates (
                 id TEXT PRIMARY KEY,
                 artifact_type TEXT NOT NULL,
@@ -411,17 +416,22 @@ class TemplateLibrary:
                 version INTEGER DEFAULT 1,
                 metadata TEXT
             )
-        """)
+        """
+        )
 
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE INDEX IF NOT EXISTS idx_templates_type
             ON templates(artifact_type)
-        """)
+        """
+        )
 
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE INDEX IF NOT EXISTS idx_templates_quality
             ON templates(quality_score)
-        """)
+        """
+        )
 
         conn.commit()
         conn.close()

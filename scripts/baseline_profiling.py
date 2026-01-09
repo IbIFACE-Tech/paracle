@@ -143,19 +143,16 @@ def generate_report() -> dict:
     print_header("Phase 8 Target Validation")
     targets = analyzer.check_targets()
 
-    print(
-        f"P95 < 500ms:     {'✅ PASS' if targets['p95_under_500ms'] else '❌ FAIL'}")
-    if not targets['p95_under_500ms'] and 'worst_p95' in targets:
+    print(f"P95 < 500ms:     {'✅ PASS' if targets['p95_under_500ms'] else '❌ FAIL'}")
+    if not targets["p95_under_500ms"] and "worst_p95" in targets:
         print(f"  Worst P95: {targets['worst_p95']:.3f}s")
 
-    print(
-        f"P99 < 1000ms:    {'✅ PASS' if targets['p99_under_1000ms'] else '❌ FAIL'}")
-    if not targets['p99_under_1000ms'] and 'worst_p99' in targets:
+    print(f"P99 < 1000ms:    {'✅ PASS' if targets['p99_under_1000ms'] else '❌ FAIL'}")
+    if not targets["p99_under_1000ms"] and "worst_p99" in targets:
         print(f"  Worst P99: {targets['worst_p99']:.3f}s")
 
-    print(
-        f"Average < 100ms: {'✅ PASS' if targets['avg_under_100ms'] else '❌ FAIL'}")
-    if not targets['avg_under_100ms'] and 'worst_avg' in targets:
+    print(f"Average < 100ms: {'✅ PASS' if targets['avg_under_100ms'] else '❌ FAIL'}")
+    if not targets["avg_under_100ms"] and "worst_avg" in targets:
         print(f"  Worst Avg: {targets['worst_avg']:.3f}s")
 
     # Create JSON report
@@ -234,6 +231,7 @@ def main():
     except Exception as e:
         print(f"\n\nError during profiling: {e}")
         import traceback
+
         traceback.print_exc()
 
     # Generate report
@@ -252,8 +250,14 @@ def main():
     print()
 
     # Exit with failure if targets not met
-    targets = report['summary']['targets']
-    if not all([targets['p95_under_500ms'], targets['p99_under_1000ms'], targets['avg_under_100ms']]):
+    targets = report["summary"]["targets"]
+    if not all(
+        [
+            targets["p95_under_500ms"],
+            targets["p99_under_1000ms"],
+            targets["avg_under_100ms"],
+        ]
+    ):
         print("⚠️  Some Phase 8 targets not met - optimization needed!")
         sys.exit(1)
     else:

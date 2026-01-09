@@ -72,9 +72,7 @@ def register_all_providers() -> None:
             OpenAICompatibleProvider,
         )
 
-        ProviderRegistry.register(
-            "openai-compatible", OpenAICompatibleProvider
-        )
+        ProviderRegistry.register("openai-compatible", OpenAICompatibleProvider)
     except ImportError:
         pass  # httpx package not installed
 

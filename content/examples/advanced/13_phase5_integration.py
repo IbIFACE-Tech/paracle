@@ -29,9 +29,7 @@ async def execute_with_safety(
 
     # 1. Create isolated network
     print("→ Creating isolated network...")
-    network = await isolator.create_network(
-        config=NetworkConfig(internal=True)
-    )
+    network = await isolator.create_network(config=NetworkConfig(internal=True))
 
     # 2. Create sandbox
     print("→ Creating sandbox...")
@@ -46,26 +44,20 @@ async def execute_with_safety(
 
     # 3. Attach to network
     print("→ Attaching to network...")
-    await isolator.attach_container(
-        sandbox.container.id,
-        network.id
-    )
+    await isolator.attach_container(sandbox.container.id, network.id)
 
     # 4. Create snapshot
     print("→ Creating snapshot...")
     snapshot_id = await rollback_manager.create_snapshot(
-        sandbox.container.id,
-        metadata={"stage": "before_execution"}
+        sandbox.container.id, metadata={"stage": "before_execution"}
     )
 
     try:
         # 5. Execute code
         print("→ Executing code...")
-        result = await sandbox.execute([
-            "python3", "-c", code
-        ])
+        result = await sandbox.execute(["python3", "-c", code])
 
-        if result['exit_code'] != 0:
+        if result["exit_code"] != 0:
             raise Exception(f"Execution failed: {result['stderr']}")
 
         print("✓ Execution successful")
@@ -80,7 +72,7 @@ async def execute_with_safety(
             artifact_content={
                 "code": code,
                 "description": artifact_desc,
-                "result": result['stdout'],
+                "result": result["stdout"],
             },
         )
 
@@ -91,9 +83,7 @@ async def execute_with_safety(
         if review.status.value == "pending":
             print("→ Approving review...")
             await review_manager.approve(
-                review_id,
-                reviewer="system",
-                comment="Execution successful"
+                review_id, reviewer="system", comment="Execution successful"
             )
 
         return result
@@ -104,8 +94,7 @@ async def execute_with_safety(
         # Automatic rollback
         print("→ Rolling back...")
         rolled_back = await rollback_manager.auto_rollback_on_error(
-            sandbox.container.id,
-            e
+            sandbox.container.id, e
         )
 
         if rolled_back:
@@ -150,9 +139,9 @@ async def main():
 
     try:
         # Test 1: Successful execution
-        print("\n" + "="*50)
+        print("\n" + "=" * 50)
         print("Test 1: Successful Execution")
-        print("="*50)
+        print("=" * 50)
 
         await execute_with_safety(
             sandbox_manager,
@@ -160,13 +149,13 @@ async def main():
             review_manager,
             isolator,
             code="print('Hello from safe sandbox!')",
-            artifact_desc="Simple print statement"
+            artifact_desc="Simple print statement",
         )
 
         # Test 2: Failed execution with rollback
-        print("\n" + "="*50)
+        print("\n" + "=" * 50)
         print("Test 2: Failed Execution (with rollback)")
-        print("="*50)
+        print("=" * 50)
 
         try:
             await execute_with_safety(
@@ -175,15 +164,15 @@ async def main():
                 review_manager,
                 isolator,
                 code="raise Exception('Simulated failure')",
-                artifact_desc="Code that fails"
+                artifact_desc="Code that fails",
             )
         except Exception:
             print("✓ Failure handled gracefully")
 
         # Statistics
-        print("\n" + "="*50)
+        print("\n" + "=" * 50)
         print("Final Statistics")
-        print("="*50)
+        print("=" * 50)
 
         print("\nSandbox Manager:")
         stats = await sandbox_manager.get_stats()
@@ -196,15 +185,13 @@ async def main():
         print("\nReview Manager:")
         reviews = review_manager.list_reviews()
         print(f"  Total reviews: {len(reviews)}")
-        print(
-            f"  Approved: {sum(1 for r in reviews if r.status.value == 'approved')}")
-        print(
-            f"  Rejected: {sum(1 for r in reviews if r.status.value == 'rejected')}")
+        print(f"  Approved: {sum(1 for r in reviews if r.status.value == 'approved')}")
+        print(f"  Rejected: {sum(1 for r in reviews if r.status.value == 'rejected')}")
 
     finally:
-        print("\n" + "="*50)
+        print("\n" + "=" * 50)
         print("Cleanup")
-        print("="*50)
+        print("=" * 50)
 
         # Cleanup all
         await sandbox_manager.destroy_all()

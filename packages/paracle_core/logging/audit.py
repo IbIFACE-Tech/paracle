@@ -33,9 +33,9 @@ class AuditCategory(str, Enum):
     """Categories of audit events for ISO 42001."""
 
     # AI System Events
-    AI_DECISION = "ai.decision"           # AI-made decisions
-    AI_OUTPUT = "ai.output"               # AI-generated outputs
-    AI_TRAINING = "ai.training"           # Model training events
+    AI_DECISION = "ai.decision"  # AI-made decisions
+    AI_OUTPUT = "ai.output"  # AI-generated outputs
+    AI_TRAINING = "ai.training"  # Model training events
 
     # Agent Events
     AGENT_CREATED = "agent.created"
@@ -92,11 +92,11 @@ class AuditOutcome(str, Enum):
 class AuditSeverity(str, Enum):
     """Severity level for audit events."""
 
-    INFO = "info"           # Normal operations
-    LOW = "low"             # Minor concerns
-    MEDIUM = "medium"       # Moderate concerns
-    HIGH = "high"           # Significant concerns
-    CRITICAL = "critical"   # Security/compliance critical
+    INFO = "info"  # Normal operations
+    LOW = "low"  # Minor concerns
+    MEDIUM = "medium"  # Moderate concerns
+    HIGH = "high"  # Significant concerns
+    CRITICAL = "critical"  # Security/compliance critical
 
 
 class AuditEvent(BaseModel):
@@ -213,7 +213,7 @@ class AuditEvent(BaseModel):
             parts.insert(2, f"[{self.correlation_id[:8]}]")
 
         if self.reason:
-            parts.append(f"reason=\"{self.reason}\"")
+            parts.append(f'reason="{self.reason}"')
 
         return " ".join(parts)
 

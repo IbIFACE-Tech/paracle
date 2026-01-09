@@ -291,7 +291,9 @@ class TestPersistentEventStore:
 
         # Restore from checkpoint
         replayed = []
-        checkpoint = store.restore_from_checkpoint("chk_1", lambda e: replayed.append(e))
+        checkpoint = store.restore_from_checkpoint(
+            "chk_1", lambda e: replayed.append(e)
+        )
 
         assert checkpoint is not None
         assert checkpoint["state"]["step"] == 3
@@ -376,7 +378,9 @@ class TestCheckpointManager:
         assert len(all_checkpoints) == 5
 
         # Get range
-        range_checkpoints = manager.get_checkpoints("exec_456", from_index=1, to_index=3)
+        range_checkpoints = manager.get_checkpoints(
+            "exec_456", from_index=1, to_index=3
+        )
         assert len(range_checkpoints) == 3
 
     def test_get_latest_checkpoint(self):
@@ -538,7 +542,9 @@ class TestWorkflowRollbackManager:
             )
             manager.register_compensation(
                 step_name,
-                CompensatingAction(step_name=step_name, action_type="mock", required=True),
+                CompensatingAction(
+                    step_name=step_name, action_type="mock", required=True
+                ),
             )
 
         result = await manager.rollback("exec_456")

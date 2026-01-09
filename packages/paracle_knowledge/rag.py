@@ -178,9 +178,7 @@ class RAGEngine:
             rerank_results = await self._reranker.rerank(
                 question, chunks_with_scores, top_k=final_top_k
             )
-            chunks_with_scores = [
-                (r.chunk, r.combined_score) for r in rerank_results
-            ]
+            chunks_with_scores = [(r.chunk, r.combined_score) for r in rerank_results]
         else:
             chunks_with_scores = chunks_with_scores[:final_top_k]
 
@@ -303,7 +301,11 @@ class RAGEngine:
                     document_name=chunk.metadata.custom.get("document_name", ""),
                     file_path=chunk.metadata.custom.get("file_path"),
                     chunk_id=chunk.id,
-                    content=chunk.content[:200] + "..." if len(chunk.content) > 200 else chunk.content,
+                    content=(
+                        chunk.content[:200] + "..."
+                        if len(chunk.content) > 200
+                        else chunk.content
+                    ),
                     line_start=chunk.metadata.start_line,
                     line_end=chunk.metadata.end_line,
                     score=score,
@@ -335,11 +337,7 @@ class RAGEngine:
         coverage = min(len(scores) / self._config.final_top_k, 1.0)
 
         # Weighted combination
-        confidence = (
-            0.4 * top_score
-            + 0.3 * avg_score
-            + 0.3 * coverage
-        )
+        confidence = 0.4 * top_score + 0.3 * avg_score + 0.3 * coverage
 
         return min(max(confidence, 0.0), 1.0)
 
@@ -389,7 +387,7 @@ class RAGChain:
         all_chunks = []
         all_sources = []
 
-        for sub_q in sub_questions[:self._max_steps]:
+        for sub_q in sub_questions[: self._max_steps]:
             response = await self._rag.query(sub_q, context)
             all_chunks.extend(response.chunks)
             all_sources.extend(response.sources)

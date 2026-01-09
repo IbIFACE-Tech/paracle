@@ -105,8 +105,7 @@ class VersionManagementTool(BaseTool):
             current_version = current_result.get("version")
 
         # Parse version
-        match = re.match(
-            r"(\d+)\.(\d+)\.(\d+)(?:-([a-z]+)\.?(\d+))?", current_version)
+        match = re.match(r"(\d+)\.(\d+)\.(\d+)(?:-([a-z]+)\.?(\d+))?", current_version)
         if not match:
             return {"error": f"Invalid version format: {current_version}"}
 
@@ -769,8 +768,7 @@ class GitHubCLITool(BaseTool):
             if action == "pr_list":
                 state = kwargs.get("state", "open")
                 limit = kwargs.get("limit", 30)
-                cmd = ["gh", "pr", "list", "--state",
-                       state, "--limit", str(limit)]
+                cmd = ["gh", "pr", "list", "--state", state, "--limit", str(limit)]
 
             elif action == "pr_create":
                 title = kwargs.get("title", "")
@@ -782,8 +780,17 @@ class GitHubCLITool(BaseTool):
                 if not title or not head:
                     return {"error": "title and head branch are required"}
 
-                cmd = ["gh", "pr", "create", "--title",
-                       title, "--base", base, "--head", head]
+                cmd = [
+                    "gh",
+                    "pr",
+                    "create",
+                    "--title",
+                    title,
+                    "--base",
+                    base,
+                    "--head",
+                    head,
+                ]
                 if body:
                     cmd.extend(["--body", body])
                 if draft:
@@ -970,8 +977,7 @@ class GitHubCLITool(BaseTool):
             if action == "issue_list":
                 state = kwargs.get("state", "open")
                 limit = kwargs.get("limit", 30)
-                cmd = ["gh", "issue", "list", "--state",
-                       state, "--limit", str(limit)]
+                cmd = ["gh", "issue", "list", "--state", state, "--limit", str(limit)]
 
             elif action == "issue_create":
                 title = kwargs.get("title", "")

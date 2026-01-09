@@ -275,9 +275,7 @@ class ProviderChain(BaseProvider):
         )
 
         # Count available providers
-        available = sum(
-            1 for p in self._providers if p.is_available
-        )
+        available = sum(1 for p in self._providers if p.is_available)
 
         if available == 0:
             self._set_error("No providers available")
@@ -390,9 +388,10 @@ class ProviderChain(BaseProvider):
         if self._strategy == FallbackStrategy.ROUND_ROBIN:
             # Rotate through providers
             n = len(available)
-            rotated = available[self._round_robin_index :] + available[
-                : self._round_robin_index
-            ]
+            rotated = (
+                available[self._round_robin_index :]
+                + available[: self._round_robin_index]
+            )
             self._round_robin_index = (self._round_robin_index + 1) % n
             return rotated
 

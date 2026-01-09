@@ -52,7 +52,10 @@ class TestMCPCapability:
     def test_initialization(self, mcp_capability):
         """Test capability initialization."""
         assert mcp_capability.name == "mcp"
-        assert "MCP" in mcp_capability.description or "Model Context Protocol" in mcp_capability.description
+        assert (
+            "MCP" in mcp_capability.description
+            or "Model Context Protocol" in mcp_capability.description
+        )
         assert mcp_capability.is_connected is False
 
     @pytest.mark.asyncio

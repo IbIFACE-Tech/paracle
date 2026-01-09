@@ -15,7 +15,9 @@ class CapabilityConfig(BaseModel):
     """Base configuration for capabilities."""
 
     enabled: bool = Field(default=True, description="Whether capability is enabled")
-    timeout: float = Field(default=30.0, ge=1.0, le=300.0, description="Timeout in seconds")
+    timeout: float = Field(
+        default=30.0, ge=1.0, le=300.0, description="Timeout in seconds"
+    )
     max_retries: int = Field(default=3, ge=0, le=10, description="Max retry attempts")
 
 
@@ -27,7 +29,9 @@ class CapabilityResult(BaseModel):
     output: Any = Field(default=None, description="Execution output")
     error: str | None = Field(default=None, description="Error message if failed")
     duration_ms: float = Field(default=0.0, description="Execution duration in ms")
-    metadata: dict[str, Any] = Field(default_factory=dict, description="Additional metadata")
+    metadata: dict[str, Any] = Field(
+        default_factory=dict, description="Additional metadata"
+    )
     timestamp: datetime = Field(default_factory=datetime.utcnow)
 
     @classmethod

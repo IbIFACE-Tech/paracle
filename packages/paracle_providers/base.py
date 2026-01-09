@@ -52,9 +52,7 @@ class LLMConfig(BaseModel):
     stop_sequences: list[str] | None = Field(
         default=None, description="Sequences where the API will stop generating"
     )
-    timeout: float = Field(
-        default=30.0, gt=0, description="Request timeout in seconds"
-    )
+    timeout: float = Field(default=30.0, gt=0, description="Request timeout in seconds")
 
 
 class TokenUsage(BaseModel):
@@ -95,13 +93,13 @@ class StreamChunk(BaseModel):
     model_config = ConfigDict(frozen=True)
 
     content: str = Field(default="", description="Incremental content")
-    finish_reason: str | None = Field(default=None, description="Finish reason if last chunk")
+    finish_reason: str | None = Field(
+        default=None, description="Finish reason if last chunk"
+    )
     tool_calls: list[dict[str, Any]] | None = Field(
         default=None, description="Tool calls in this chunk"
     )
-    metadata: dict[str, Any] = Field(
-        default_factory=dict, description="Chunk metadata"
-    )
+    metadata: dict[str, Any] = Field(default_factory=dict, description="Chunk metadata")
 
 
 class LLMProvider(ABC):

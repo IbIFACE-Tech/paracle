@@ -26,6 +26,7 @@ logger = logging.getLogger(__name__)
 # EXAMPLE 1: BranchManager (Low-Level Operations)
 # =============================================================================
 
+
 def example_branch_manager():
     """Example: Using BranchManager for low-level git operations."""
     print("\n" + "=" * 60)
@@ -43,8 +44,7 @@ def example_branch_manager():
     # Create execution branch
     print("\n1. Creating execution branch...")
     branch_info = manager.create_execution_branch(
-        execution_id="demo-001",
-        base_branch=current_branch
+        execution_id="demo-001", base_branch=current_branch
     )
     print(f"   ✓ Created: {branch_info.name}")
     print(f"   Base: {branch_info.base_branch}")
@@ -55,9 +55,7 @@ def example_branch_manager():
     branches = manager.list_execution_branches()
     print(f"   Found {len(branches)} execution branches:")
     for branch in branches[:5]:  # Show first 5
-        print(
-            f"   - {branch.name} ({branch.commit_count} commits)"
-        )
+        print(f"   - {branch.name} ({branch.commit_count} commits)")
 
     # Switch back to original branch
     print(f"\n3. Switching back to {current_branch}...")
@@ -66,12 +64,11 @@ def example_branch_manager():
 
     # Merge execution branch (if you want to keep changes)
     merge_choice = input("\n   Merge demo branch? (y/N): ").lower()
-    if merge_choice == 'y':
+    if merge_choice == "y":
         print(f"\n4. Merging {branch_info.name}...")
         try:
             manager.merge_execution_branch(
-                branch_name=branch_info.name,
-                target_branch=current_branch
+                branch_name=branch_info.name, target_branch=current_branch
             )
             print("   ✓ Merged successfully")
         except RuntimeError as e:
@@ -79,12 +76,9 @@ def example_branch_manager():
 
     # Delete execution branch
     delete_choice = input("\n   Delete demo branch? (y/N): ").lower()
-    if delete_choice == 'y':
+    if delete_choice == "y":
         print(f"\n5. Deleting {branch_info.name}...")
-        manager.delete_execution_branch(
-            branch_name=branch_info.name,
-            force=False
-        )
+        manager.delete_execution_branch(branch_name=branch_info.name, force=False)
         print("   ✓ Deleted")
     else:
         print(
@@ -99,6 +93,7 @@ def example_branch_manager():
 # EXAMPLE 2: ExecutionManager (High-Level Lifecycle)
 # =============================================================================
 
+
 async def example_execution_manager():
     """Example: Using ExecutionManager for execution lifecycle."""
     print("\n" + "=" * 60)
@@ -111,7 +106,7 @@ async def example_execution_manager():
         auto_commit=True,
         auto_merge=False,  # Manual merge for demo
         auto_cleanup=False,  # Manual cleanup for demo
-        base_branch="main"
+        base_branch="main",
     )
 
     manager = ExecutionManager(config=config, repo_path=".")
@@ -134,20 +129,18 @@ async def example_execution_manager():
     manager.commit_changes(
         execution_id=execution_id,
         message="feat: Add demo file (step 1)",
-        files=["demo_file.txt"]
+        files=["demo_file.txt"],
     )
     print("   ✓ Committed step 1")
 
     # Step 2: Modify file
-    test_file.write_text(
-        test_file.read_text() + "Step 2: Additional content\n"
-    )
+    test_file.write_text(test_file.read_text() + "Step 2: Additional content\n")
     print("   - Modified demo_file.txt")
 
     manager.commit_changes(
         execution_id=execution_id,
         message="feat: Update demo file (step 2)",
-        files=["demo_file.txt"]
+        files=["demo_file.txt"],
     )
     print("   ✓ Committed step 2")
 
@@ -161,7 +154,7 @@ async def example_execution_manager():
     print(f"\n4. Completing execution: {execution_id}")
 
     success_choice = input("   Mark as successful? (Y/n): ").lower()
-    success = success_choice != 'n'
+    success = success_choice != "n"
 
     manager.complete_execution(execution_id, success=success)
 
@@ -169,9 +162,7 @@ async def example_execution_manager():
         print("   ✓ Merged to main (auto)")
     else:
         print("   ✓ Execution completed (branch kept)")
-        print(
-            f"   To merge: paracle git merge {info['branch_name']}"
-        )
+        print(f"   To merge: paracle git merge {info['branch_name']}")
 
     # Cleanup test file
     test_file.unlink(missing_ok=True)
@@ -182,6 +173,7 @@ async def example_execution_manager():
 # =============================================================================
 # EXAMPLE 3: Integration with Agent Execution
 # =============================================================================
+
 
 async def example_agent_integration():
     """Example: Git workflows with agent execution."""
@@ -195,7 +187,7 @@ async def example_agent_integration():
         auto_commit=True,
         auto_merge=True,  # Auto-merge on success
         auto_cleanup=True,  # Auto-cleanup merged branches
-        base_branch="main"
+        base_branch="main",
     )
 
     git_manager = ExecutionManager(config=config, repo_path=".")
@@ -218,7 +210,7 @@ async def example_agent_integration():
         git_manager.commit_changes(
             execution_id=execution_id,
             message="refactor: Analyze codebase structure",
-            files=[]  # No files for this step
+            files=[],  # No files for this step
         )
         print("   ✓ Analysis complete")
 
@@ -233,7 +225,7 @@ async def example_agent_integration():
         git_manager.commit_changes(
             execution_id=execution_id,
             message="feat: Implement feature X",
-            files=["agent_output.txt"]
+            files=["agent_output.txt"],
         )
         print("   ✓ Implementation complete")
 
@@ -241,14 +233,12 @@ async def example_agent_integration():
         print("   - Running tests...")
         await asyncio.sleep(0.5)
 
-        demo_file.write_text(
-            demo_file.read_text() + "- Tests: PASSED\n"
-        )
+        demo_file.write_text(demo_file.read_text() + "- Tests: PASSED\n")
 
         git_manager.commit_changes(
             execution_id=execution_id,
             message="test: Add tests for feature X",
-            files=["agent_output.txt"]
+            files=["agent_output.txt"],
         )
         print("   ✓ Tests passed")
 
@@ -275,6 +265,7 @@ async def example_agent_integration():
 # EXAMPLE 4: Cleanup and Maintenance
 # =============================================================================
 
+
 def example_cleanup():
     """Example: Cleanup old and merged branches."""
     print("\n" + "=" * 60)
@@ -297,7 +288,7 @@ def example_cleanup():
     print("\n2. Cleaning up merged branches...")
     cleanup_choice = input("   Proceed with cleanup? (y/N): ").lower()
 
-    if cleanup_choice == 'y':
+    if cleanup_choice == "y":
         count = manager.cleanup_merged_branches(target_branch="main")
         print(f"   ✓ Cleaned up {count} merged branches")
     else:
@@ -318,6 +309,7 @@ def example_cleanup():
 # =============================================================================
 # MAIN
 # =============================================================================
+
 
 async def main():
     """Run all git workflow examples."""
@@ -356,6 +348,7 @@ async def main():
     except Exception as e:
         print(f"\n✗ Error: {e}")
         import traceback
+
         traceback.print_exc()
 
 

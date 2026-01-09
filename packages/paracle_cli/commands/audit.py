@@ -68,7 +68,9 @@ def search_events(
                 try:
                     event_type_filter = AuditEventType[event_type.upper()]
                 except KeyError:
-                    console.print(f"[yellow]Warning: Unknown event type '{event_type}'[/yellow]")
+                    console.print(
+                        f"[yellow]Warning: Unknown event type '{event_type}'[/yellow]"
+                    )
 
         # Parse outcome
         outcome_filter = None
@@ -149,20 +151,22 @@ def show_event(event_id: str, db_path: str | None, as_json: bool) -> None:
         if as_json:
             click.echo(json.dumps(event.to_dict(), indent=2, default=str))
         else:
-            console.print(Panel(
-                f"[dim]Event ID:[/dim] {event.event_id}\n"
-                f"[dim]Type:[/dim] {event.event_type.value}\n"
-                f"[dim]Timestamp:[/dim] {event.timestamp.isoformat()}\n"
-                f"[dim]Actor:[/dim] {event.actor} ({event.actor_type})\n"
-                f"[dim]Action:[/dim] {event.action}\n"
-                f"[dim]Target:[/dim] {event.target or '(none)'}\n"
-                f"[dim]Outcome:[/dim] {event.outcome.value}\n"
-                f"[dim]Risk Score:[/dim] {event.risk_score or 'N/A'}\n"
-                f"[dim]Risk Level:[/dim] {event.risk_level or 'N/A'}\n"
-                f"[dim]Policy ID:[/dim] {event.policy_id or 'N/A'}\n"
-                f"[dim]ISO Control:[/dim] {event.iso_control or 'N/A'}",
-                title="Audit Event Details"
-            ))
+            console.print(
+                Panel(
+                    f"[dim]Event ID:[/dim] {event.event_id}\n"
+                    f"[dim]Type:[/dim] {event.event_type.value}\n"
+                    f"[dim]Timestamp:[/dim] {event.timestamp.isoformat()}\n"
+                    f"[dim]Actor:[/dim] {event.actor} ({event.actor_type})\n"
+                    f"[dim]Action:[/dim] {event.action}\n"
+                    f"[dim]Target:[/dim] {event.target or '(none)'}\n"
+                    f"[dim]Outcome:[/dim] {event.outcome.value}\n"
+                    f"[dim]Risk Score:[/dim] {event.risk_score or 'N/A'}\n"
+                    f"[dim]Risk Level:[/dim] {event.risk_level or 'N/A'}\n"
+                    f"[dim]Policy ID:[/dim] {event.policy_id or 'N/A'}\n"
+                    f"[dim]ISO Control:[/dim] {event.iso_control or 'N/A'}",
+                    title="Audit Event Details",
+                )
+            )
 
             if event.context:
                 console.print("\n[bold]Context:[/bold]")
@@ -172,7 +176,9 @@ def show_event(event_id: str, db_path: str | None, as_json: bool) -> None:
             if event.event_hash:
                 console.print(f"\n[dim]Hash:[/dim] {event.event_hash[:32]}...")
                 if event.previous_hash:
-                    console.print(f"[dim]Previous Hash:[/dim] {event.previous_hash[:32]}...")
+                    console.print(
+                        f"[dim]Previous Hash:[/dim] {event.previous_hash[:32]}..."
+                    )
 
     except ImportError:
         console.print("[red]Error: paracle_audit package not installed[/red]")
@@ -184,9 +190,14 @@ def show_event(event_id: str, db_path: str | None, as_json: bool) -> None:
 
 @audit.command("export")
 @click.argument("output_path", type=click.Path())
-@click.option("--format", "-f", "fmt", default="json",
-              type=click.Choice(["json", "csv", "jsonl", "syslog"]),
-              help="Export format")
+@click.option(
+    "--format",
+    "-f",
+    "fmt",
+    default="json",
+    type=click.Choice(["json", "csv", "jsonl", "syslog"]),
+    help="Export format",
+)
 @click.option("--actor", "-a", help="Filter by actor")
 @click.option("--type", "-t", "event_type", help="Filter by event type")
 @click.option("--since", "-s", help="Events since (e.g., '1h', '24h', '7d')")
@@ -227,7 +238,9 @@ def export_events(
             try:
                 end_time = datetime.fromisoformat(until_time)
             except ValueError:
-                console.print(f"[yellow]Warning: Could not parse until time '{until_time}'[/yellow]")
+                console.print(
+                    f"[yellow]Warning: Could not parse until time '{until_time}'[/yellow]"
+                )
 
         # Parse event type
         event_type_filter = None
@@ -291,14 +304,20 @@ def verify_integrity(db_path: str | None, max_events: int, as_json: bool) -> Non
                 console.print("[green]✓ Audit trail integrity verified[/green]")
             else:
                 console.print("[red]✗ Integrity violation detected![/red]")
-                console.print(f"[dim]Violation at:[/dim] {result.get('violation_event')}")
+                console.print(
+                    f"[dim]Violation at:[/dim] {result.get('violation_event')}"
+                )
                 console.print(f"[dim]Type:[/dim] {result.get('violation_type')}")
 
             console.print(f"\n[dim]Events verified:[/dim] {result['events_verified']}")
             if result.get("first_event_id"):
-                console.print(f"[dim]First event:[/dim] {result['first_event_id'][:16]}...")
+                console.print(
+                    f"[dim]First event:[/dim] {result['first_event_id'][:16]}..."
+                )
             if result.get("last_event_id"):
-                console.print(f"[dim]Last event:[/dim] {result['last_event_id'][:16]}...")
+                console.print(
+                    f"[dim]Last event:[/dim] {result['last_event_id'][:16]}..."
+                )
 
     except ImportError:
         console.print("[red]Error: paracle_audit package not installed[/red]")
@@ -322,21 +341,21 @@ def show_stats(db_path: str | None, as_json: bool) -> None:
         if as_json:
             click.echo(json.dumps(stats, indent=2, default=str))
         else:
-            console.print(Panel(
-                f"[dim]Total Events:[/dim] {stats.get('total_events', 0)}\n"
-                f"[dim]Hash Chain Enabled:[/dim] {stats.get('hash_chain_enabled', True)}\n"
-                f"[dim]Event Hooks:[/dim] {stats.get('event_hooks_count', 0)}\n"
-                f"[dim]Earliest Event:[/dim] {stats.get('earliest_event', 'N/A')}\n"
-                f"[dim]Latest Event:[/dim] {stats.get('latest_event', 'N/A')}",
-                title="Audit Statistics"
-            ))
+            console.print(
+                Panel(
+                    f"[dim]Total Events:[/dim] {stats.get('total_events', 0)}\n"
+                    f"[dim]Hash Chain Enabled:[/dim] {stats.get('hash_chain_enabled', True)}\n"
+                    f"[dim]Event Hooks:[/dim] {stats.get('event_hooks_count', 0)}\n"
+                    f"[dim]Earliest Event:[/dim] {stats.get('earliest_event', 'N/A')}\n"
+                    f"[dim]Latest Event:[/dim] {stats.get('latest_event', 'N/A')}",
+                    title="Audit Statistics",
+                )
+            )
 
             if stats.get("by_type"):
                 console.print("\n[bold]Events by Type:[/bold]")
                 for event_type, count in sorted(
-                    stats["by_type"].items(),
-                    key=lambda x: x[1],
-                    reverse=True
+                    stats["by_type"].items(), key=lambda x: x[1], reverse=True
                 ):
                     bar = "█" * min(count, 30)
                     console.print(f"  {event_type:25} {bar} {count}")
@@ -344,9 +363,7 @@ def show_stats(db_path: str | None, as_json: bool) -> None:
             if stats.get("by_outcome"):
                 console.print("\n[bold]Events by Outcome:[/bold]")
                 for outcome, count in sorted(
-                    stats["by_outcome"].items(),
-                    key=lambda x: x[1],
-                    reverse=True
+                    stats["by_outcome"].items(), key=lambda x: x[1], reverse=True
                 ):
                     bar = "█" * min(count, 30)
                     console.print(f"  {outcome:15} {bar} {count}")
@@ -364,7 +381,9 @@ def show_stats(db_path: str | None, as_json: bool) -> None:
 @click.option("--archive", "-a", type=click.Path(), help="Archive path before deletion")
 @click.option("--db", "db_path", help="Path to audit database")
 @click.option("--yes", "-y", is_flag=True, help="Skip confirmation")
-def apply_retention(days: int, archive: str | None, db_path: str | None, yes: bool) -> None:
+def apply_retention(
+    days: int, archive: str | None, db_path: str | None, yes: bool
+) -> None:
     """Apply retention policy (delete old events).
 
     Example: paracle audit retention 90 --archive ./archive.jsonl
@@ -383,7 +402,9 @@ def apply_retention(days: int, archive: str | None, db_path: str | None, yes: bo
             return
 
         if not yes:
-            console.print(f"[yellow]This will delete {count} events older than {days} days[/yellow]")
+            console.print(
+                f"[yellow]This will delete {count} events older than {days} days[/yellow]"
+            )
             if archive:
                 console.print(f"[dim]Events will be archived to: {archive}[/dim]")
             if not click.confirm("Proceed?"):
@@ -398,7 +419,9 @@ def apply_retention(days: int, archive: str | None, db_path: str | None, yes: bo
         console.print(f"[green]✓[/green] Deleted {result['deleted_count']} events")
         if result.get("archived_path"):
             console.print(f"[dim]Archived to:[/dim] {result['archived_path']}")
-            console.print(f"[dim]Archived count:[/dim] {result.get('archived_count', 'N/A')}")
+            console.print(
+                f"[dim]Archived count:[/dim] {result.get('archived_count', 'N/A')}"
+            )
 
     except ImportError:
         console.print("[red]Error: paracle_audit package not installed[/red]")
@@ -436,14 +459,16 @@ def generate_report(
         elif as_json:
             click.echo(json.dumps(report, indent=2, default=str))
         else:
-            console.print(Panel(
-                f"[dim]Verification Time:[/dim] {report['verification_time']}\n"
-                f"[dim]Total Events:[/dim] {report['total_events']}\n"
-                f"[dim]Events Verified:[/dim] {report['events_verified']}\n"
-                f"[dim]Chain Valid:[/dim] {'✓ Yes' if report['chain_valid'] else '✗ No'}\n"
-                f"[dim]Violations:[/dim] {report['violations_count']}",
-                title="Integrity Report"
-            ))
+            console.print(
+                Panel(
+                    f"[dim]Verification Time:[/dim] {report['verification_time']}\n"
+                    f"[dim]Total Events:[/dim] {report['total_events']}\n"
+                    f"[dim]Events Verified:[/dim] {report['events_verified']}\n"
+                    f"[dim]Chain Valid:[/dim] {'✓ Yes' if report['chain_valid'] else '✗ No'}\n"
+                    f"[dim]Violations:[/dim] {report['violations_count']}",
+                    title="Integrity Report",
+                )
+            )
 
             if report.get("violations"):
                 console.print("\n[red][bold]Violations Found:[/bold][/red]")

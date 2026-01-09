@@ -70,23 +70,17 @@ async def main():
     await manager.approve(
         review2_id,
         reviewer="alice@example.com",
-        comment="Verified change is needed for testing"
+        comment="Verified change is needed for testing",
     )
     review2 = await manager.get_review(review2_id)
-    print(
-        f"   Approvals: {review2.approval_count()}/{review2.required_approvals}")
+    print(f"   Approvals: {review2.approval_count()}/{review2.required_approvals}")
     print(f"   Status: {review2.status.value}")
 
     # 4. Second approval
     print("\n4. Second reviewer approving...")
-    await manager.approve(
-        review2_id,
-        reviewer="bob@example.com",
-        comment="Looks good"
-    )
+    await manager.approve(review2_id, reviewer="bob@example.com", comment="Looks good")
     review2 = await manager.get_review(review2_id)
-    print(
-        f"   Approvals: {review2.approval_count()}/{review2.required_approvals}")
+    print(f"   Approvals: {review2.approval_count()}/{review2.required_approvals}")
     print(f"   Status: {review2.status.value}")
     print("   ✓ Fully approved!")
 
@@ -110,7 +104,7 @@ async def main():
     await manager.reject(
         review3_id,
         reviewer="charlie@example.com",
-        comment="Too dangerous - deletes all data"
+        comment="Too dangerous - deletes all data",
     )
     review3 = await manager.get_review(review3_id)
     print(f"   Status: {review3.status.value}")
@@ -120,8 +114,10 @@ async def main():
     print("\n7. All reviews:")
     all_reviews = manager.list_reviews()
     for review in all_reviews:
-        print(f"   - {review.review_id}: {review.artifact_type} "
-              f"({review.risk_level} risk) → {review.status.value}")
+        print(
+            f"   - {review.review_id}: {review.artifact_type} "
+            f"({review.risk_level} risk) → {review.status.value}"
+        )
 
     # 8. List pending reviews
     print("\n8. Pending reviews:")
@@ -132,12 +128,9 @@ async def main():
     print("\n9. Review statistics:")
     all_reviews = manager.list_reviews()
     print(f"   Total: {len(all_reviews)}")
-    print(
-        f"   Approved: {sum(1 for r in all_reviews if r.status.value == 'approved')}")
-    print(
-        f"   Rejected: {sum(1 for r in all_reviews if r.status.value == 'rejected')}")
-    print(
-        f"   Pending: {sum(1 for r in all_reviews if r.status.value == 'pending')}")
+    print(f"   Approved: {sum(1 for r in all_reviews if r.status.value == 'approved')}")
+    print(f"   Rejected: {sum(1 for r in all_reviews if r.status.value == 'rejected')}")
+    print(f"   Pending: {sum(1 for r in all_reviews if r.status.value == 'pending')}")
 
     # 10. Review decisions
     print("\n10. Review decision history:")

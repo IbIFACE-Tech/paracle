@@ -188,7 +188,8 @@ def interactive_checkpoint():
     # Show current state
     phase = state.get("current_phase", {})
     print(
-        f"📍 Current Phase: {phase.get('id', 'unknown')} ({phase.get('progress', '0%')})")
+        f"📍 Current Phase: {phase.get('id', 'unknown')} ({phase.get('progress', '0%')})"
+    )
     print()
 
     # Ask about progress
@@ -251,29 +252,13 @@ def interactive_checkpoint():
 def main():
     parser = argparse.ArgumentParser(description="Paracle Session Checkpoint")
     parser.add_argument(
-        "--interactive", "-i",
-        action="store_true",
-        help="Interactive checkpoint mode"
+        "--interactive", "-i", action="store_true", help="Interactive checkpoint mode"
     )
+    parser.add_argument("--progress", type=int, help="Set phase progress (0-100)")
+    parser.add_argument("--complete", type=str, help="Mark item as completed")
+    parser.add_argument("--in-progress", type=str, help="Mark item as in-progress")
     parser.add_argument(
-        "--progress",
-        type=int,
-        help="Set phase progress (0-100)"
-    )
-    parser.add_argument(
-        "--complete",
-        type=str,
-        help="Mark item as completed"
-    )
-    parser.add_argument(
-        "--in-progress",
-        type=str,
-        help="Mark item as in-progress"
-    )
-    parser.add_argument(
-        "--summary",
-        action="store_true",
-        help="Show checkpoint summary"
+        "--summary", action="store_true", help="Show checkpoint summary"
     )
 
     args = parser.parse_args()

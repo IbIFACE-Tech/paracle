@@ -90,9 +90,7 @@ class TestHTTPPool:
     def test_init_without_httpx(self):
         """Test initialization fails without httpx."""
         with patch.dict("sys.modules", {"httpx": None}):
-            with patch(
-                "paracle_connection_pool.http_pool.HTTPX_AVAILABLE", False
-            ):
+            with patch("paracle_connection_pool.http_pool.HTTPX_AVAILABLE", False):
                 with pytest.raises(ImportError):
                     HTTPPool()
 

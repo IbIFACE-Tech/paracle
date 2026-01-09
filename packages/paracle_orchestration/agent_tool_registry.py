@@ -220,10 +220,7 @@ class AgentToolRegistry:
         if agent_id:
             return {agent_id: list(self._registry.get(agent_id, {}).keys())}
 
-        return {
-            agent: list(tools.keys())
-            for agent, tools in self._registry.items()
-        }
+        return {agent: list(tools.keys()) for agent, tools in self._registry.items()}
 
     def has_tool(self, agent_id: str, tool_name: str) -> bool:
         """Check if an agent has a specific tool.

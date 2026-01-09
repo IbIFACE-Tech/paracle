@@ -33,9 +33,7 @@ class TestAIComplianceEngine:
         assert not result.is_valid
         assert result.category == FileCategory.OPERATIONAL_DATA
         assert "memory/data" in result.error
-        assert result.suggested_path == Path(
-            ".parac/memory/data/costs.db"
-        )
+        assert result.suggested_path == Path(".parac/memory/data/costs.db")
         assert result.auto_fix_available
 
     def test_validate_database_in_correct_location(self, engine):
@@ -53,15 +51,11 @@ class TestAIComplianceEngine:
         assert not result.is_valid
         assert result.category == FileCategory.LOGS
         assert "memory/logs" in result.error
-        assert result.suggested_path == Path(
-            ".parac/memory/logs/agent.log"
-        )
+        assert result.suggested_path == Path(".parac/memory/logs/agent.log")
 
     def test_validate_log_in_correct_location(self, engine):
         """Test validation passes for log in correct location."""
-        result = engine.validate_file_path(
-            ".parac/memory/logs/agent_actions.log"
-        )
+        result = engine.validate_file_path(".parac/memory/logs/agent_actions.log")
 
         assert result.is_valid
         assert result.category == FileCategory.LOGS
@@ -74,9 +68,7 @@ class TestAIComplianceEngine:
         assert result.category == FileCategory.KNOWLEDGE
 
         # Correct location
-        result = engine.validate_file_path(
-            ".parac/memory/knowledge/architecture.md"
-        )
+        result = engine.validate_file_path(".parac/memory/knowledge/architecture.md")
         assert result.is_valid
 
     def test_validate_decisions_file(self, engine):
@@ -85,9 +77,7 @@ class TestAIComplianceEngine:
         result = engine.validate_file_path(".parac/decisions.md")
         assert not result.is_valid
         assert result.category == FileCategory.DECISIONS
-        assert result.suggested_path == Path(
-            ".parac/roadmap/decisions.md"
-        )
+        assert result.suggested_path == Path(".parac/roadmap/decisions.md")
 
         # Correct location
         result = engine.validate_file_path(".parac/roadmap/decisions.md")
@@ -166,9 +156,7 @@ class TestAIComplianceEngine:
     def test_generate_pre_save_validation(self, engine):
         """Test pre-save validation for IDE hooks."""
         # Valid path
-        response = engine.generate_pre_save_validation(
-            ".parac/memory/data/costs.db"
-        )
+        response = engine.generate_pre_save_validation(".parac/memory/data/costs.db")
         assert response["allow_save"] is True
 
         # Invalid path
@@ -181,9 +169,7 @@ class TestAIComplianceEngine:
 
     def test_get_structure_documentation(self, engine):
         """Test getting documentation for categories."""
-        docs = engine.get_structure_documentation(
-            FileCategory.OPERATIONAL_DATA
-        )
+        docs = engine.get_structure_documentation(FileCategory.OPERATIONAL_DATA)
         assert "memory/data" in docs
         assert ".db" in docs
 

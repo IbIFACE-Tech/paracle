@@ -28,6 +28,7 @@ def cached_llm_call(ttl: int = 3600):
             ...
         ```
     """
+
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
         async def async_wrapper(
@@ -111,6 +112,7 @@ def cached_llm_call(ttl: int = 3600):
 
         # Return appropriate wrapper based on function type
         import inspect
+
         if inspect.iscoroutinefunction(func):
             return async_wrapper
         else:

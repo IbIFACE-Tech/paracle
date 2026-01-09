@@ -20,7 +20,13 @@ _mcp_registry = MCPToolRegistry()
 
 
 @click.group(invoke_without_command=True)
-@click.option("--list", "-l", "list_flag", is_flag=True, help="List all tools (shortcut for 'list')")
+@click.option(
+    "--list",
+    "-l",
+    "list_flag",
+    is_flag=True,
+    help="List all tools (shortcut for 'list')",
+)
 @click.pass_context
 def tools(ctx: click.Context, list_flag: bool) -> None:
     """Manage tools (built-in and MCP).
@@ -64,6 +70,7 @@ def list_tools(category: str | None, output_json: bool) -> None:
     try:
         # Get builtin tools with safe defaults
         import os
+
         current_dir = os.getcwd()
         registry = BuiltinToolRegistry(
             filesystem_paths=[current_dir],
@@ -73,9 +80,7 @@ def list_tools(category: str | None, output_json: bool) -> None:
 
         # Filter by category if specified
         if category and category != "mcp":
-            builtin_tools = [
-                t for t in builtin_tools if t.get("category") == category
-            ]
+            builtin_tools = [t for t in builtin_tools if t.get("category") == category]
 
         # Get MCP tools from registry
         mcp_tool_ids = _mcp_registry.list_tools()
@@ -83,18 +88,21 @@ def list_tools(category: str | None, output_json: bool) -> None:
         for tool_id in mcp_tool_ids:
             tool = _mcp_registry.get_tool(tool_id)
             if tool:
-                mcp_tools.append({
-                    "name": tool_id,
-                    "category": "mcp",
-                    "description": tool.get("description", ""),
-                    "server": tool.get("server", ""),
-                })
+                mcp_tools.append(
+                    {
+                        "name": tool_id,
+                        "category": "mcp",
+                        "description": tool.get("description", ""),
+                        "server": tool.get("server", ""),
+                    }
+                )
 
         all_tools = builtin_tools + mcp_tools
 
         if output_json:
-            console.print_json(json.dumps(
-                {"tools": all_tools, "total": len(all_tools)}))
+            console.print_json(
+                json.dumps({"tools": all_tools, "total": len(all_tools)})
+            )
             return
 
         if not all_tools:
@@ -112,7 +120,9 @@ def list_tools(category: str | None, output_json: bool) -> None:
 
         for tool in all_tools:
             source = "builtin" if tool in builtin_tools else "MCP"
-            source_style = "[green]builtin[/green]" if source == "builtin" else "[blue]MCP[/blue]"
+            source_style = (
+                "[green]builtin[/green]" if source == "builtin" else "[blue]MCP[/blue]"
+            )
 
             desc = tool.get("description", "")
             desc_short = desc[:60] + "..." if len(desc) > 60 else desc
@@ -151,6 +161,7 @@ def info_tool(tool_name: str, output_json: bool) -> None:
     try:
         # Get builtin tools with safe defaults
         import os
+
         current_dir = os.getcwd()
         registry = BuiltinToolRegistry(
             filesystem_paths=[current_dir],
@@ -160,7 +171,8 @@ def info_tool(tool_name: str, output_json: bool) -> None:
         if not registry.has_tool(tool_name):
             console.print(f"[red]✗ Tool not found:[/red] {tool_name}")
             console.print(
-                "\n[dim]Use 'paracle tools list' to see available tools[/dim]")
+                "\n[dim]Use 'paracle tools list' to see available tools[/dim]"
+            )
             raise click.Abort()
 
         tool = registry.get_tool(tool_name)
@@ -192,8 +204,7 @@ def info_tool(tool_name: str, output_json: bool) -> None:
                 param_desc = param_info.get("description", "")
 
                 req_badge = "[red]*[/red]" if required else " "
-                console.print(
-                    f"  {req_badge} [cyan]{param_name}[/cyan] ({param_type})")
+                console.print(f"  {req_badge} [cyan]{param_name}[/cyan] ({param_type})")
                 if param_desc:
                     console.print(f"      {param_desc}")
         else:
@@ -236,6 +247,7 @@ def test_tool(tool_name: str, param: tuple[str, ...], output_json: bool) -> None
     try:
         # Get builtin tools with safe defaults
         import os
+
         current_dir = os.getcwd()
         registry = BuiltinToolRegistry(
             filesystem_paths=[current_dir],
@@ -250,10 +262,10 @@ def test_tool(tool_name: str, param: tuple[str, ...], output_json: bool) -> None
         params = {}
         for param_pair in param:
             if "=" not in param_pair:
+                console.print(f"[red]✗ Invalid parameter format:[/red] {param_pair}")
                 console.print(
-                    f"[red]✗ Invalid parameter format:[/red] {param_pair}")
-                console.print(
-                    "[dim]Use key=value format, e.g., -p path=README.md[/dim]")
+                    "[dim]Use key=value format, e.g., -p path=README.md[/dim]"
+                )
                 raise click.Abort()
             key, value = param_pair.split("=", 1)
             params[key.strip()] = value.strip()
@@ -311,15 +323,13 @@ def register_tool(tool_spec_path: str, name: str | None, category: str | None) -
     Note:
         Custom tool registration is planned for Phase 5.
     """
-    console.print(
-        "[yellow]⚠️  Custom tool registration coming in Phase 5[/yellow]")
+    console.print("[yellow]⚠️  Custom tool registration coming in Phase 5[/yellow]")
     console.print(f"[dim]Spec file:[/dim] {tool_spec_path}")
     if name:
         console.print(f"[dim]Name:[/dim] {name}")
     if category:
         console.print(f"[dim]Category:[/dim] {category}")
-    console.print(
-        "\n[dim]Use built-in tools for now with 'paracle tools list'[/dim]")
+    console.print("\n[dim]Use built-in tools for now with 'paracle tools list'[/dim]")
 
 
 @tools.command("mcp-connect")
@@ -339,6 +349,7 @@ def mcp_connect(server_url: str, name: str) -> None:
     Discovers tools from the MCP server and adds them to the registry.
     """
     try:
+
         async def connect():
             client = MCPClient(server_url=server_url)
             await client.connect()
@@ -346,9 +357,7 @@ def mcp_connect(server_url: str, name: str) -> None:
             return count
 
         count = asyncio.run(connect())
-        console.print(
-            f"[green]✓[/green] Connected to MCP server '{name}'"
-        )
+        console.print(f"[green]✓[/green] Connected to MCP server '{name}'")
         console.print(f"[dim]Discovered {count} tools[/dim]")
 
     except Exception as e:
@@ -374,12 +383,14 @@ def mcp_list(server: str | None, output_json: bool) -> None:
             for tool_id in tool_ids:
                 tool = _mcp_registry.get_tool(tool_id)
                 if tool:
-                    tools_data.append({
-                        "id": tool_id,
-                        "name": tool["name"],
-                        "server": tool["server"],
-                        "description": tool.get("description", ""),
-                    })
+                    tools_data.append(
+                        {
+                            "id": tool_id,
+                            "name": tool["name"],
+                            "server": tool["server"],
+                            "description": tool.get("description", ""),
+                        }
+                    )
             console.print_json(json.dumps({"tools": tools_data}))
             return
 
@@ -390,9 +401,7 @@ def mcp_list(server: str | None, output_json: bool) -> None:
             )
             return
 
-        table = Table(
-            title="MCP Tools", show_header=True, header_style="bold blue"
-        )
+        table = Table(title="MCP Tools", show_header=True, header_style="bold blue")
         table.add_column("Tool ID", style="cyan")
         table.add_column("Server")
         table.add_column("Description")
@@ -441,9 +450,7 @@ def mcp_search(query: str) -> None:
             if tool:
                 console.print(f"  [cyan]{tool_id}[/cyan]")
                 console.print(f"    {tool.get('description', '')}")
-                console.print(
-                    f"    [dim]Server: {tool.get('server', '')}[/dim]\n"
-                )
+                console.print(f"    [dim]Server: {tool.get('server', '')}[/dim]\n")
 
     except Exception as e:
         console.print(f"[red]Error:[/red] {e}")

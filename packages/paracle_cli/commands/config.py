@@ -130,12 +130,8 @@ def show(format: str, section: str, parac_root: Path | None) -> None:
 
         # Display configuration
         if format == "yaml":
-            yaml_str = yaml.dump(
-                config_dict, default_flow_style=False, sort_keys=False
-            )
-            syntax = Syntax(
-                yaml_str, "yaml", theme="monokai", line_numbers=False
-            )
+            yaml_str = yaml.dump(config_dict, default_flow_style=False, sort_keys=False)
+            syntax = Syntax(yaml_str, "yaml", theme="monokai", line_numbers=False)
             console.print(
                 Panel(syntax, title="Effective Configuration", border_style="cyan")
             )
@@ -144,9 +140,7 @@ def show(format: str, section: str, parac_root: Path | None) -> None:
             import json
 
             json_str = json.dumps(config_dict, indent=2)
-            syntax = Syntax(
-                json_str, "json", theme="monokai", line_numbers=False
-            )
+            syntax = Syntax(json_str, "json", theme="monokai", line_numbers=False)
             console.print(
                 Panel(syntax, title="Effective Configuration", border_style="cyan")
             )
@@ -260,9 +254,7 @@ def validate(parac_root: Path | None) -> None:
 
                 # Validate ranges
                 if config.logs.global_config.max_line_length > 10000:
-                    warnings.append(
-                        "logs.global.max_line_length > 10000 (very large)"
-                    )
+                    warnings.append("logs.global.max_line_length > 10000 (very large)")
 
                 if config.logs.global_config.max_file_size_mb > 1000:
                     warnings.append(
@@ -270,9 +262,7 @@ def validate(parac_root: Path | None) -> None:
                     )
 
                 if config.adr.limits.max_total_length > 50000:
-                    warnings.append(
-                        "adr.limits.max_total_length > 50000 (very large)"
-                    )
+                    warnings.append("adr.limits.max_total_length > 50000 (very large)")
 
             except Exception as e:
                 errors.append(f"Failed to load configuration: {e}")
@@ -359,24 +349,16 @@ def files(parac_root: Path | None) -> None:
                     if include_file.exists():
                         size = include_file.stat().st_size
                         size_str = f"{size:,} bytes"
-                        table.add_row(
-                            include, "✓ Loaded", size_str, "Include"
-                        )
+                        table.add_row(include, "✓ Loaded", size_str, "Include")
                     else:
-                        table.add_row(
-                            include, "✗ Missing", "-", "Include"
-                        )
+                        table.add_row(include, "✗ Missing", "-", "Include")
 
         console.print(table)
 
         # Summary
         total_files = len(table.rows)
-        loaded = sum(
-            1 for row in table.rows if row._cells[1] == "✓ Loaded"
-        )
-        console.print(
-            f"\n[dim]Total: {total_files} files, {loaded} loaded[/dim]"
-        )
+        loaded = sum(1 for row in table.rows if row._cells[1] == "✓ Loaded")
+        console.print(f"\n[dim]Total: {total_files} files, {loaded} loaded[/dim]")
 
     except click.Abort:
         raise

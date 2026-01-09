@@ -261,9 +261,7 @@ class WebCapability(BaseCapability):
             # Fallback to simulated results on error
             return self._simulate_search(query, num_results)
 
-    def _simulate_search(
-        self, query: str, num_results: int
-    ) -> list[dict[str, Any]]:
+    def _simulate_search(self, query: str, num_results: int) -> list[dict[str, Any]]:
         """Generate simulated search results for testing."""
         results = []
         for i in range(min(num_results, 5)):

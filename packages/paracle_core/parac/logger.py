@@ -112,8 +112,12 @@ class AgentLogger:
         self.logs_dir = parac_root / (
             config.logs.base_path if config else "memory/logs"
         )
-        self.actions_log = self.log_files.get("actions", self.logs_dir / "agent_actions.log")
-        self.decisions_log = self.log_files.get("decisions", self.logs_dir / "decisions.log")
+        self.actions_log = self.log_files.get(
+            "actions", self.logs_dir / "agent_actions.log"
+        )
+        self.decisions_log = self.log_files.get(
+            "decisions", self.logs_dir / "decisions.log"
+        )
 
         # Ensure logs directory exists
         self.logs_dir.mkdir(parents=True, exist_ok=True)

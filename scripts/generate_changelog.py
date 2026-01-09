@@ -22,10 +22,7 @@ def run_git_command(cmd: list[str]) -> str:
     """Run a git command and return output."""
     try:
         result = subprocess.run(
-            ['git'] + cmd,
-            capture_output=True,
-            text=True,
-            check=True
+            ["git"] + cmd, capture_output=True, text=True, check=True
         )
         return result.stdout.strip()
     except subprocess.CalledProcessError as e:
@@ -35,9 +32,9 @@ def run_git_command(cmd: list[str]) -> str:
 
 def get_commits(from_ref: str, to_ref: str) -> list[str]:
     """Get commit messages between two refs."""
-    cmd = ['log', f'{from_ref}..{to_ref}', '--pretty=format:%s']
+    cmd = ["log", f"{from_ref}..{to_ref}", "--pretty=format:%s"]
     output = run_git_command(cmd)
-    return [line for line in output.split('\n') if line.strip()]
+    return [line for line in output.split("\n") if line.strip()]
 
 
 def parse_commit(commit_msg: str) -> tuple[str, str, str, bool]:
@@ -47,17 +44,14 @@ def parse_commit(commit_msg: str) -> tuple[str, str, str, bool]:
     Returns: (type, scope, subject, is_breaking)
     """
     # Match: type(scope)!: subject or type!: subject
-    match = re.match(
-        r'^(\w+)(?:\(([^)]+)\))?(!?):\s*(.+)$',
-        commit_msg
-    )
+    match = re.match(r"^(\w+)(?:\(([^)]+)\))?(!?):\s*(.+)$", commit_msg)
 
     if not match:
-        return ('other', '', commit_msg, False)
+        return ("other", "", commit_msg, False)
 
     type_, scope, breaking_marker, subject = match.groups()
-    scope = scope or ''
-    is_breaking = breaking_marker == '!' or 'BREAKING CHANGE' in commit_msg
+    scope = scope or ""
+    is_breaking = breaking_marker == "!" or "BREAKING CHANGE" in commit_msg
 
     return (type_, scope, subject, is_breaking)
 
@@ -80,7 +74,7 @@ def group_commits(commits: list[str]) -> dict[str, list[tuple[str, str]]]:
         groups[type_].append((scope, subject))
 
     if breaking_changes:
-        groups['breaking'] = breaking_changes
+        groups["breaking"] = breaking_changes
 
     return groups
 
@@ -102,10 +96,7 @@ def format_changelog_section(title: str, commits: list[tuple[str, str]]) -> str:
 
 
 def generate_changelog_entry(
-    version: str,
-    from_ref: str,
-    to_ref: str,
-    date: str = None
+    version: str, from_ref: str, to_ref: str, date: str = None
 ) -> str:
     """Generate changelog entry for a version."""
     if date is None:
@@ -124,23 +115,21 @@ def generate_changelog_entry(
     groups = group_commits(commits)
 
     # Build changelog entry
-    lines = [
-        f"\n## [{version}] - {date}\n"
-    ]
+    lines = [f"\n## [{version}] - {date}\n"]
 
     # Type mapping to changelog sections
     section_map = {
-        'feat': ('Added', 'feat'),
-        'fix': ('Fixed', 'fix'),
-        'perf': ('Performance', 'perf'),
-        'docs': ('Documentation', 'docs'),
-        'style': ('Style', 'style'),
-        'refactor': ('Refactored', 'refactor'),
-        'test': ('Tests', 'test'),
-        'build': ('Build', 'build'),
-        'ci': ('CI/CD', 'ci'),
-        'chore': ('Chore', 'chore'),
-        'breaking': ('Breaking Changes', 'breaking'),
+        "feat": ("Added", "feat"),
+        "fix": ("Fixed", "fix"),
+        "perf": ("Performance", "perf"),
+        "docs": ("Documentation", "docs"),
+        "style": ("Style", "style"),
+        "refactor": ("Refactored", "refactor"),
+        "test": ("Tests", "test"),
+        "build": ("Build", "build"),
+        "ci": ("CI/CD", "ci"),
+        "chore": ("Chore", "chore"),
+        "breaking": ("Breaking Changes", "breaking"),
     }
 
     # Add sections in order
@@ -151,8 +140,8 @@ def generate_changelog_entry(
                 lines.append(section)
 
     # Add other commits
-    if 'other' in groups:
-        section = format_changelog_section('Other', groups['other'])
+    if "other" in groups:
+        section = format_changelog_section("Other", groups["other"])
         if section:
             lines.append(section)
 
@@ -162,7 +151,7 @@ def generate_changelog_entry(
 def get_latest_tag() -> str:
     """Get the latest git tag."""
     try:
-        return run_git_command(['describe', '--tags', '--abbrev=0'])
+        return run_git_command(["describe", "--tags", "--abbrev=0"])
     except:
         return None
 
@@ -172,11 +161,12 @@ def update_changelog_file(root: Path, new_entry: str, dry_run: bool = False) -> 
     changelog_path = root / "CHANGELOG.md"
 
     if changelog_path.exists():
-        content = changelog_path.read_text(encoding='utf-8')
+        content = changelog_path.read_text(encoding="utf-8")
 
         # Find insertion point (after ## [Unreleased] section)
         unreleased_match = re.search(
-            r'## \[Unreleased\].*?\n(?=## \[|$)', content, re.DOTALL)
+            r"## \[Unreleased\].*?\n(?=## \[|$)", content, re.DOTALL
+        )
 
         if unreleased_match:
             # Insert after [Unreleased] section
@@ -184,11 +174,10 @@ def update_changelog_file(root: Path, new_entry: str, dry_run: bool = False) -> 
             updated = content[:insert_pos] + new_entry + content[insert_pos:]
         else:
             # No [Unreleased] section, insert after header
-            header_match = re.search(r'# Changelog\n+', content)
+            header_match = re.search(r"# Changelog\n+", content)
             if header_match:
                 insert_pos = header_match.end()
-                updated = content[:insert_pos] + \
-                    new_entry + content[insert_pos:]
+                updated = content[:insert_pos] + new_entry + content[insert_pos:]
             else:
                 # Prepend to file
                 updated = new_entry + "\n" + content
@@ -211,7 +200,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
         print(new_entry)
         print("=" * 80)
     else:
-        changelog_path.write_text(updated, encoding='utf-8')
+        changelog_path.write_text(updated, encoding="utf-8")
         print(f"✅ Updated {changelog_path}")
 
 
@@ -221,33 +210,26 @@ def main():
         description="Generate changelog from conventional commits"
     )
     parser.add_argument(
-        'from_ref',
-        nargs='?',
-        help="Starting git ref (tag or commit). Default: latest tag"
+        "from_ref",
+        nargs="?",
+        help="Starting git ref (tag or commit). Default: latest tag",
     )
     parser.add_argument(
-        'to_ref',
-        nargs='?',
-        default='HEAD',
-        help="Ending git ref. Default: HEAD"
+        "to_ref", nargs="?", default="HEAD", help="Ending git ref. Default: HEAD"
+    )
+    parser.add_argument("--version", help="Version for changelog entry")
+    parser.add_argument(
+        "--date", help="Date for changelog entry (YYYY-MM-DD). Default: today"
     )
     parser.add_argument(
-        '--version',
-        help="Version for changelog entry"
+        "--dry-run",
+        action="store_true",
+        help="Show what would be done without making changes",
     )
     parser.add_argument(
-        '--date',
-        help="Date for changelog entry (YYYY-MM-DD). Default: today"
-    )
-    parser.add_argument(
-        '--dry-run',
-        action='store_true',
-        help="Show what would be done without making changes"
-    )
-    parser.add_argument(
-        '--stdout',
-        action='store_true',
-        help="Print changelog to stdout instead of updating file"
+        "--stdout",
+        action="store_true",
+        help="Print changelog to stdout instead of updating file",
     )
 
     args = parser.parse_args()
@@ -262,14 +244,13 @@ def main():
             from_ref = get_latest_tag()
             if not from_ref:
                 print("⚠️  No tags found. Using first commit.")
-                from_ref = run_git_command(
-                    ['rev-list', '--max-parents=0', 'HEAD'])
+                from_ref = run_git_command(["rev-list", "--max-parents=0", "HEAD"])
 
         # Determine version
         version = args.version
         if not version:
             # Try to extract from to_ref if it's a tag
-            if args.to_ref.startswith('v'):
+            if args.to_ref.startswith("v"):
                 version = args.to_ref[1:]  # Remove 'v' prefix
             else:
                 version = "Unreleased"
@@ -279,12 +260,7 @@ def main():
         print(f"📍 To: {args.to_ref}")
 
         # Generate changelog entry
-        entry = generate_changelog_entry(
-            version,
-            from_ref,
-            args.to_ref,
-            args.date
-        )
+        entry = generate_changelog_entry(version, from_ref, args.to_ref, args.date)
 
         if not entry:
             print("⚠️  No changes to document")
@@ -302,16 +278,19 @@ def main():
                 print("\nNext steps:")
                 print("  1. Review CHANGELOG.md")
                 print("  2. Edit if needed (add migration notes, etc.)")
-                print("  3. Commit: git commit -am 'docs(changelog): update for vX.Y.Z'")
+                print(
+                    "  3. Commit: git commit -am 'docs(changelog): update for vX.Y.Z'"
+                )
 
     except Exception as e:
         print(f"❌ Error: {e}")
         import traceback
+
         traceback.print_exc()
         return 1
 
     return 0
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     exit(main())

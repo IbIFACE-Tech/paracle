@@ -248,7 +248,9 @@ class TestMemoryCapability:
         assert result.success is True
         assert result.output["added"] is True
 
-        result = await memory_capability.add_context("assistant", "I'm doing well, thank you!")
+        result = await memory_capability.add_context(
+            "assistant", "I'm doing well, thank you!"
+        )
         assert result.success is True
 
         # Get context

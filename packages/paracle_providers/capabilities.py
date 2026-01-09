@@ -58,10 +58,8 @@ class ModelInfo(BaseModel):
     output_cost_per_million: float | None = Field(
         default=None, description="Output cost per million tokens (USD)"
     )
-    release_date: str | None = Field(
-        default=None, description="Model release date")
-    deprecated: bool = Field(
-        default=False, description="Whether model is deprecated")
+    release_date: str | None = Field(default=None, description="Model release date")
+    deprecated: bool = Field(default=False, description="Whether model is deprecated")
     metadata: dict[str, Any] = Field(
         default_factory=dict, description="Additional model metadata"
     )
@@ -88,11 +86,9 @@ class ProviderInfo(BaseModel):
 
     provider_id: str = Field(..., description="Provider identifier")
     display_name: str = Field(..., description="Human-readable name")
-    description: str | None = Field(
-        default=None, description="Provider description")
+    description: str | None = Field(default=None, description="Provider description")
     website: str | None = Field(default=None, description="Provider website")
-    api_docs: str | None = Field(
-        default=None, description="API documentation URL")
+    api_docs: str | None = Field(default=None, description="API documentation URL")
     requires_api_key: bool = Field(
         default=True, description="Whether API key is required"
     )
@@ -110,9 +106,7 @@ class ProviderInfo(BaseModel):
                 return model
         return None
 
-    def list_models(
-        self, capability: ModelCapability | None = None
-    ) -> list[ModelInfo]:
+    def list_models(self, capability: ModelCapability | None = None) -> list[ModelInfo]:
         """List models, optionally filtered by capability."""
         if capability is None:
             return self.models

@@ -50,8 +50,15 @@ def sanitize_args(args: tuple, kwargs: dict) -> dict[str, Any]:
 
     # Sensitive keys to exclude
     sensitive_keys = {
-        "password", "token", "api_key", "secret", "credentials",
-        "auth", "authorization", "private_key", "access_token"
+        "password",
+        "token",
+        "api_key",
+        "secret",
+        "credentials",
+        "auth",
+        "authorization",
+        "private_key",
+        "access_token",
     }
 
     # Add kwargs (excluding sensitive)
@@ -75,8 +82,7 @@ def sanitize_args(args: tuple, kwargs: dict) -> dict[str, Any]:
     # Add positional args
     if args:
         sanitized["_args"] = [
-            f"<{arg.__class__.__name__}>" if hasattr(
-                arg, "__class__") else str(arg)
+            f"<{arg.__class__.__name__}>" if hasattr(arg, "__class__") else str(arg)
             for arg in args[:5]  # Limit to first 5 args
         ]
 
@@ -126,6 +132,7 @@ def log_agent_action(
         desc = description or _get_function_description(func)
 
         if is_async:
+
             @functools.wraps(func)
             async def async_wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
                 start_time = datetime.now()
@@ -175,6 +182,7 @@ def log_agent_action(
             return async_wrapper  # type: ignore
 
         else:
+
             @functools.wraps(func)
             def sync_wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
                 start_time = datetime.now()

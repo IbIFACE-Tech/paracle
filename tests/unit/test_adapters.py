@@ -26,6 +26,7 @@ from paracle_adapters import (
 # Test Fixtures
 # ============================================================================
 
+
 @pytest.fixture
 def sample_agent_spec():
     """Create a sample agent specification."""
@@ -108,6 +109,7 @@ class MockAdapter(FrameworkAdapter):
 # Base Adapter Tests
 # ============================================================================
 
+
 class TestFrameworkAdapter:
     """Tests for the FrameworkAdapter base class."""
 
@@ -177,6 +179,7 @@ class TestFrameworkAdapter:
 # Registry Tests
 # ============================================================================
 
+
 class TestAdapterRegistry:
     """Tests for the AdapterRegistry."""
 
@@ -230,6 +233,7 @@ class TestAdapterRegistry:
 # Exception Tests
 # ============================================================================
 
+
 class TestAdapterExceptions:
     """Tests for adapter exceptions."""
 
@@ -274,6 +278,7 @@ class TestAdapterExceptions:
 # Lazy Import Tests
 # ============================================================================
 
+
 class TestLazyImports:
     """Tests for lazy adapter imports."""
 
@@ -297,22 +302,26 @@ class TestLazyImports:
 # LangChain Adapter Tests (Mocked)
 # ============================================================================
 
+
 class TestLangChainAdapterMocked:
     """Tests for LangChain adapter with mocked dependencies."""
 
     @pytest.fixture
     def mock_langchain(self):
         """Mock LangChain dependencies."""
-        with patch.dict("sys.modules", {
-            "langchain_core": MagicMock(),
-            "langchain_core.language_models": MagicMock(),
-            "langchain_core.messages": MagicMock(),
-            "langchain_core.tools": MagicMock(),
-            "langchain_core.prompts": MagicMock(),
-            "langgraph": MagicMock(),
-            "langgraph.prebuilt": MagicMock(),
-            "langgraph.graph": MagicMock(),
-        }):
+        with patch.dict(
+            "sys.modules",
+            {
+                "langchain_core": MagicMock(),
+                "langchain_core.language_models": MagicMock(),
+                "langchain_core.messages": MagicMock(),
+                "langchain_core.tools": MagicMock(),
+                "langchain_core.prompts": MagicMock(),
+                "langgraph": MagicMock(),
+                "langgraph.prebuilt": MagicMock(),
+                "langgraph.graph": MagicMock(),
+            },
+        ):
             yield
 
     def test_langchain_adapter_available(self):
@@ -326,6 +335,7 @@ class TestLangChainAdapterMocked:
         """Test version info retrieval."""
         try:
             from paracle_adapters.langchain_adapter import LangChainAdapter
+
             info = LangChainAdapter.get_version_info()
             assert "langchain_available" in info
         except ImportError:
@@ -335,6 +345,7 @@ class TestLangChainAdapterMocked:
 # ============================================================================
 # LlamaIndex Adapter Tests (Mocked)
 # ============================================================================
+
 
 class TestLlamaIndexAdapterMocked:
     """Tests for LlamaIndex adapter with mocked dependencies."""
@@ -349,6 +360,7 @@ class TestLlamaIndexAdapterMocked:
 # CrewAI Adapter Tests (Mocked)
 # ============================================================================
 
+
 class TestCrewAIAdapterMocked:
     """Tests for CrewAI adapter with mocked dependencies."""
 
@@ -361,6 +373,7 @@ class TestCrewAIAdapterMocked:
 # ============================================================================
 # AutoGen Adapter Tests (Mocked)
 # ============================================================================
+
 
 class TestAutoGenAdapterMocked:
     """Tests for AutoGen adapter with mocked dependencies."""
@@ -375,6 +388,7 @@ class TestAutoGenAdapterMocked:
 # MSAF Adapter Tests (Mocked)
 # ============================================================================
 
+
 class TestMSAFAdapterMocked:
     """Tests for MSAF adapter with mocked dependencies."""
 
@@ -387,6 +401,7 @@ class TestMSAFAdapterMocked:
 # ============================================================================
 # Integration Tests with Real Adapters (when available)
 # ============================================================================
+
 
 class TestRealAdaptersWhenAvailable:
     """Integration tests that run only when adapters are installed."""

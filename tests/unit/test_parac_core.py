@@ -213,7 +213,12 @@ class TestParacValidator:
         state = {
             "version": "1.0",
             "project": {"name": "test", "version": "0.0.1"},
-            "current_phase": {"id": "phase_1", "name": "Test", "status": "active", "progress": "0%"},
+            "current_phase": {
+                "id": "phase_1",
+                "name": "Test",
+                "status": "active",
+                "progress": "0%",
+            },
         }
         with open(parac_root / "memory" / "context" / "current_state.yaml", "w") as f:
             yaml.dump(state, f)

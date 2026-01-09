@@ -14,8 +14,7 @@ from typing import Any
 
 # Setup logging
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger("test_github_agents")
 
@@ -23,9 +22,9 @@ logger = logging.getLogger("test_github_agents")
 async def test_workflow_with_github_agent():
     """Test a simple workflow using real GitHub agents."""
 
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("🧪 TEST: GitHub Agents + Paracle Workflows")
-    print("="*70 + "\n")
+    print("=" * 70 + "\n")
 
     # Step 1: Load GitHub agent
     print("📋 Step 1: Loading GitHub agent...")
@@ -50,6 +49,7 @@ async def test_workflow_with_github_agent():
         return False
 
     import yaml
+
     with open(workflow_path, "r", encoding="utf-8") as f:
         workflow_def = yaml.safe_load(f)
 
@@ -71,15 +71,17 @@ async def test_workflow_with_github_agent():
         print("⚠️  Agent compiler not available, using manual parsing")
         # Fallback: manual parsing of frontmatter
         import re
-        match = re.search(r'^---\n(.*?)\n---', agent_content, re.DOTALL)
+
+        match = re.search(r"^---\n(.*?)\n---", agent_content, re.DOTALL)
         if match:
             import yaml
+
             frontmatter = yaml.safe_load(match.group(1))
             agent_spec = {
                 "name": "coder",
                 "description": frontmatter.get("description", ""),
                 "tools": frontmatter.get("tools", []),
-                "role": "Core Developer"
+                "role": "Core Developer",
             }
             print(f"✅ Parsed via frontmatter:")
             print(f"   Description: {agent_spec['description']}")
@@ -97,7 +99,7 @@ async def test_workflow_with_github_agent():
             description=agent_spec.get("description", "Code implementation agent"),
             model="gpt-4",
             provider="openai",
-            temperature=0.7
+            temperature=0.7,
         )
 
         print(f"✅ Created Paracle AgentSpec:")
@@ -168,9 +170,9 @@ async def test_workflow_with_github_agent():
         print(f"⚠️  Adapter test failed: {e}")
 
     # Final summary
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("📊 TEST SUMMARY")
-    print("="*70)
+    print("=" * 70)
     print("✅ GitHub agent loaded (.github/agents/coder.agent.md)")
     print("✅ Workflow loaded (.parac/workflows/definitions/code_review.yaml)")
     print("✅ Agent spec parsed")
@@ -181,8 +183,10 @@ async def test_workflow_with_github_agent():
     print("\n💡 Next steps:")
     print("   1. Fix MCP tool bug (workflow_run)")
     print("   2. Enable terminal tools for real execution")
-    print("   3. Run: paracle workflow run code_review --inputs '{\"changed_files\": [\"test.py\"]}'")
-    print("="*70 + "\n")
+    print(
+        '   3. Run: paracle workflow run code_review --inputs \'{"changed_files": ["test.py"]}\''
+    )
+    print("=" * 70 + "\n")
 
     return True
 
@@ -190,9 +194,9 @@ async def test_workflow_with_github_agent():
 async def test_simple_code_review():
     """Test code review workflow with a real file."""
 
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("🧪 TEST: Simple Code Review Workflow")
-    print("="*70 + "\n")
+    print("=" * 70 + "\n")
 
     # Find a Python file to review
     test_file = Path("packages/paracle_tools/reviewer_tools.py")
@@ -212,7 +216,7 @@ async def test_simple_code_review():
         ("security_check", "Scanning for vulnerabilities"),
         ("code_quality", "Reviewing code quality"),
         ("test_coverage", "Checking test coverage"),
-        ("generate_report", "Generating review report")
+        ("generate_report", "Generating review report"),
     ]
 
     for idx, (step_id, description) in enumerate(steps, 1):
@@ -242,12 +246,12 @@ async def main():
     success2 = await test_simple_code_review()
 
     # Summary
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("🏁 FINAL RESULTS")
-    print("="*70)
+    print("=" * 70)
     print(f"Test 1 (Integration): {'✅ PASSED' if success1 else '❌ FAILED'}")
     print(f"Test 2 (Code Review): {'✅ PASSED' if success2 else '❌ FAILED'}")
-    print("="*70 + "\n")
+    print("=" * 70 + "\n")
 
     return success1 and success2
 
@@ -262,5 +266,6 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n\n❌ Test failed with error: {e}")
         import traceback
+
         traceback.print_exc()
         exit(1)

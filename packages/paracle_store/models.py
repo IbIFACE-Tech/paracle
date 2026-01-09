@@ -59,7 +59,9 @@ class AgentModel(Base):
     metadata_json: Mapped[dict | None] = mapped_column(JSON, nullable=True)
 
     def __repr__(self) -> str:
-        return f"<AgentModel(id={self.id!r}, name={self.name!r}, status={self.status!r})>"
+        return (
+            f"<AgentModel(id={self.id!r}, name={self.name!r}, status={self.status!r})>"
+        )
 
 
 class WorkflowModel(Base):
@@ -134,9 +136,7 @@ class EventModel(Base):
 
     __tablename__ = "events"
 
-    sequence: Mapped[int] = mapped_column(
-        Integer, primary_key=True, autoincrement=True
-    )
+    sequence: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     event_id: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
     event_type: Mapped[str] = mapped_column(String(128), nullable=False, index=True)
     source: Mapped[str | None] = mapped_column(String(255), nullable=True)
@@ -246,4 +246,6 @@ class ToolModel(Base):
     )
 
     def __repr__(self) -> str:
-        return f"<ToolModel(id={self.id!r}, name={self.name!r}, source={self.source!r})>"
+        return (
+            f"<ToolModel(id={self.id!r}, name={self.name!r}, source={self.source!r})>"
+        )

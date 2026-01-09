@@ -36,12 +36,12 @@ def list_policies(enabled: bool, policy_type: str | None, as_json: bool) -> None
         policies = engine.list_policies(enabled_only=enabled)
 
         if policy_type:
-            policies = [p for p in policies if p.type.value ==
-                        policy_type.upper()]
+            policies = [p for p in policies if p.type.value == policy_type.upper()]
 
         if as_json:
-            click.echo(json.dumps([p.model_dump()
-                       for p in policies], indent=2, default=str))
+            click.echo(
+                json.dumps([p.model_dump() for p in policies], indent=2, default=str)
+            )
         else:
             if not policies:
                 console.print("[yellow]No policies found[/yellow]")
@@ -60,7 +60,9 @@ def list_policies(enabled: bool, policy_type: str | None, as_json: bool) -> None
                 if len(p.actions) > 3:
                     actions += f" (+{len(p.actions) - 3})"
 
-                status = "[green]Enabled[/green]" if p.enabled else "[dim]Disabled[/dim]"
+                status = (
+                    "[green]Enabled[/green]" if p.enabled else "[dim]Disabled[/dim]"
+                )
                 risk = p.risk_level or "-"
 
                 table.add_row(
@@ -75,8 +77,7 @@ def list_policies(enabled: bool, policy_type: str | None, as_json: bool) -> None
             console.print(table)
 
     except ImportError:
-        console.print(
-            "[red]Error: paracle_governance package not installed[/red]")
+        console.print("[red]Error: paracle_governance package not installed[/red]")
         raise SystemExit(1)
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -110,20 +111,22 @@ def show_policy(policy_id: str, as_json: bool) -> None:
         if as_json:
             click.echo(policy.model_dump_json(indent=2))
         else:
-            console.print(Panel(
-                f"[bold cyan]{policy.name}[/bold cyan]\n\n"
-                f"[dim]ID:[/dim] {policy.id}\n"
-                f"[dim]Type:[/dim] {policy.type.value}\n"
-                f"[dim]Description:[/dim] {policy.description or '(none)'}\n"
-                f"[dim]Version:[/dim] {policy.version}\n"
-                f"[dim]Priority:[/dim] {policy.priority}\n"
-                f"[dim]Risk Level:[/dim] {policy.risk_level or '(not set)'}\n"
-                f"[dim]ISO Control:[/dim] {policy.iso_control or '(none)'}\n"
-                f"[dim]Enabled:[/dim] {'Yes' if policy.enabled else 'No'}\n"
-                f"[dim]Approval Required:[/dim] "
-                f"{policy.approval_required_by or 'No'}",
-                title="Policy Details"
-            ))
+            console.print(
+                Panel(
+                    f"[bold cyan]{policy.name}[/bold cyan]\n\n"
+                    f"[dim]ID:[/dim] {policy.id}\n"
+                    f"[dim]Type:[/dim] {policy.type.value}\n"
+                    f"[dim]Description:[/dim] {policy.description or '(none)'}\n"
+                    f"[dim]Version:[/dim] {policy.version}\n"
+                    f"[dim]Priority:[/dim] {policy.priority}\n"
+                    f"[dim]Risk Level:[/dim] {policy.risk_level or '(not set)'}\n"
+                    f"[dim]ISO Control:[/dim] {policy.iso_control or '(none)'}\n"
+                    f"[dim]Enabled:[/dim] {'Yes' if policy.enabled else 'No'}\n"
+                    f"[dim]Approval Required:[/dim] "
+                    f"{policy.approval_required_by or 'No'}",
+                    title="Policy Details",
+                )
+            )
 
             if policy.actions:
                 console.print("\n[bold]Actions Covered:[/bold]")
@@ -133,8 +136,7 @@ def show_policy(policy_id: str, as_json: bool) -> None:
             if policy.conditions:
                 console.print("\n[bold]Conditions:[/bold]")
                 for cond in policy.conditions:
-                    console.print(
-                        f"  • {cond.field} {cond.operator} {cond.value}")
+                    console.print(f"  • {cond.field} {cond.operator} {cond.value}")
 
             if policy.actors:
                 console.print("\n[bold]Actors:[/bold]")
@@ -142,8 +144,7 @@ def show_policy(policy_id: str, as_json: bool) -> None:
                     console.print(f"  • {actor}")
 
     except ImportError:
-        console.print(
-            "[red]Error: paracle_governance package not installed[/red]")
+        console.print("[red]Error: paracle_governance package not installed[/red]")
         raise SystemExit(1)
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -211,19 +212,18 @@ def evaluate_action(
                 for pid in result.applied_policies:
                     policy = engine.get_policy(pid)
                     if policy:
-                        console.print(
-                            f"  • {policy.name} ({policy.type.value})")
+                        console.print(f"  • {policy.name} ({policy.type.value})")
 
             if result.reason:
                 console.print(f"\n[dim]Reason:[/dim] {result.reason}")
 
             if result.requires_approval:
                 console.print(
-                    f"\n[yellow]⚠ Requires approval from: {result.approval_required_by}[/yellow]")
+                    f"\n[yellow]⚠ Requires approval from: {result.approval_required_by}[/yellow]"
+                )
 
     except ImportError:
-        console.print(
-            "[red]Error: paracle_governance package not installed[/red]")
+        console.print("[red]Error: paracle_governance package not installed[/red]")
         raise SystemExit(1)
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -234,10 +234,13 @@ def evaluate_action(
 @click.argument("actor")
 @click.argument("action")
 @click.option("--target", "-t", help="Target resource")
-@click.option("--data-sensitivity", "-d", default="internal",
-              type=click.Choice(
-                  ["public", "internal", "confidential", "restricted"]),
-              help="Data sensitivity level")
+@click.option(
+    "--data-sensitivity",
+    "-d",
+    default="internal",
+    type=click.Choice(["public", "internal", "confidential", "restricted"]),
+    help="Data sensitivity level",
+)
 @click.option("--json", "as_json", is_flag=True, help="Output as JSON")
 def calculate_risk(
     actor: str,
@@ -280,14 +283,13 @@ def calculate_risk(
 
             console.print("\n[bold]Risk Assessment[/bold]")
             console.print(
-                f"Score: [{color}]{result.score:.1f}[/{color}] ({result.level.value})")
+                f"Score: [{color}]{result.score:.1f}[/{color}] ({result.level.value})"
+            )
             console.print(f"Action Required: {result.action.value}")
 
             console.print("\n[bold]Factor Contributions:[/bold]")
             for factor, contribution in sorted(
-                result.factor_contributions.items(),
-                key=lambda x: x[1],
-                reverse=True
+                result.factor_contributions.items(), key=lambda x: x[1], reverse=True
             ):
                 bar_len = int(contribution / 5)
                 bar = "█" * bar_len + "░" * (20 - bar_len)
@@ -295,11 +297,11 @@ def calculate_risk(
 
             if result.action.value != "ALLOW":
                 console.print(
-                    f"\n[yellow]⚠ Recommended: {result.action.value}[/yellow]")
+                    f"\n[yellow]⚠ Recommended: {result.action.value}[/yellow]"
+                )
 
     except ImportError:
-        console.print(
-            "[red]Error: paracle_governance package not installed[/red]")
+        console.print("[red]Error: paracle_governance package not installed[/red]")
         raise SystemExit(1)
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -332,8 +334,7 @@ def load_policies(policy_file: str, validate_only: bool) -> None:
                 console.print(f"  • {p.name} ({p.type.value})")
 
     except ImportError:
-        console.print(
-            "[red]Error: paracle_governance package not installed[/red]")
+        console.print("[red]Error: paracle_governance package not installed[/red]")
         raise SystemExit(1)
     except Exception as e:
         console.print(f"[red]Error loading policies: {e}[/red]")
@@ -348,11 +349,13 @@ def show_defaults(as_json: bool) -> None:
         from paracle_governance.policies import DEFAULT_POLICIES
 
         if as_json:
-            click.echo(json.dumps(
-                {k: v.model_dump() for k, v in DEFAULT_POLICIES.items()},
-                indent=2,
-                default=str
-            ))
+            click.echo(
+                json.dumps(
+                    {k: v.model_dump() for k, v in DEFAULT_POLICIES.items()},
+                    indent=2,
+                    default=str,
+                )
+            )
         else:
             console.print("[bold]Default Policies[/bold]\n")
             for policy_id, policy in DEFAULT_POLICIES.items():
@@ -362,15 +365,16 @@ def show_defaults(as_json: bool) -> None:
                     f"[dim]Risk Level:[/dim] {policy.risk_level or 'N/A'}\n"
                     f"[dim]ISO Control:[/dim] {policy.iso_control or 'N/A'}"
                 )
-                console.print(Panel(
-                    content,
-                    title=f"[cyan]{policy.name}[/cyan]",
-                    subtitle=f"ID: {policy_id}",
-                ))
+                console.print(
+                    Panel(
+                        content,
+                        title=f"[cyan]{policy.name}[/cyan]",
+                        subtitle=f"ID: {policy_id}",
+                    )
+                )
 
     except ImportError:
-        console.print(
-            "[red]Error: paracle_governance package not installed[/red]")
+        console.print("[red]Error: paracle_governance package not installed[/red]")
         raise SystemExit(1)
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -426,12 +430,10 @@ def monitor(auto_repair: bool, repair_delay: float, daemon: bool):
         )
 
         # Display startup banner
-        console.print(
-            "\n[bold cyan]🛡️  Paracle Governance Monitor[/bold cyan]")
+        console.print("\n[bold cyan]🛡️  Paracle Governance Monitor[/bold cyan]")
         console.print("=" * 60)
         console.print(f"Monitoring: {monitor_instance.parac_root}")
-        console.print(
-            f"Auto-repair: {'✅ Enabled' if auto_repair else '❌ Disabled'}")
+        console.print(f"Auto-repair: {'✅ Enabled' if auto_repair else '❌ Disabled'}")
         if auto_repair:
             console.print(f"Repair delay: {repair_delay}s")
         console.print("=" * 60)
@@ -461,6 +463,7 @@ def monitor(auto_repair: bool, repair_delay: float, daemon: bool):
 
 def _display_live_dashboard(monitor_instance):
     """Display live monitoring dashboard."""
+
     def generate_table() -> Table:
         """Generate dashboard table."""
         health = monitor_instance.get_health()
@@ -477,21 +480,15 @@ def _display_live_dashboard(monitor_instance):
             "critical": "red",
         }.get(health.status, "white")
         table.add_row(
-            "Status",
-            f"[{status_color}]{health.status.upper()}[/{status_color}]"
+            "Status", f"[{status_color}]{health.status.upper()}[/{status_color}]"
         )
 
         # Health percentage
         health_pct = health.health_percentage
         health_color = (
-            "green" if health_pct >= 95
-            else "yellow" if health_pct >= 80
-            else "red"
+            "green" if health_pct >= 95 else "yellow" if health_pct >= 80 else "red"
         )
-        table.add_row(
-            "Health",
-            f"[{health_color}]{health_pct:.1f}%[/{health_color}]"
-        )
+        table.add_row("Health", f"[{health_color}]{health_pct:.1f}%[/{health_color}]")
 
         # Files
         table.add_row("Total Files", f"{health.total_files}")
@@ -501,8 +498,7 @@ def _display_live_dashboard(monitor_instance):
 
         # Auto-repair
         auto_repair_status = (
-            "✅ Enabled" if health.auto_repair_enabled
-            else "❌ Disabled"
+            "✅ Enabled" if health.auto_repair_enabled else "❌ Disabled"
         )
         table.add_row("Auto-Repair", auto_repair_status)
 
@@ -515,10 +511,7 @@ def _display_live_dashboard(monitor_instance):
         table.add_row("Last Check", last_check_str)
 
         # Violation rate
-        table.add_row(
-            "Violation Rate",
-            f"{health.violation_rate:.2f}/hour"
-        )
+        table.add_row("Violation Rate", f"{health.violation_rate:.2f}/hour")
 
         return table
 
@@ -586,13 +579,10 @@ def _display_health_panel(health, verbose: bool, monitor_instance):
     # Build content
     content = []
     content.append(
-        f"[bold {color}]{emoji} Status: "
-        f"{health.status.upper()}[/bold {color}]"
+        f"[bold {color}]{emoji} Status: " f"{health.status.upper()}[/bold {color}]"
     )
     content.append("")
-    content.append(
-        f"Health: [{color}]{health.health_percentage:.1f}%[/{color}]"
-    )
+    content.append(f"Health: [{color}]{health.health_percentage:.1f}%[/{color}]")
     content.append(f"Total Files: {health.total_files}")
     content.append(f"Valid Files: [green]{health.valid_files}[/green]")
     content.append(f"Violations: [red]{health.violations}[/red]")
@@ -619,13 +609,11 @@ def _display_health_panel(health, verbose: bool, monitor_instance):
             console.print(f"     Fix: Move to {v.suggested_path}")
 
         console.print(
-            "\n[yellow]Run 'paracle governance repair' "
-            "to fix violations[/yellow]"
+            "\n[yellow]Run 'paracle governance repair' " "to fix violations[/yellow]"
         )
     else:
         console.print(
-            "\n[green]✅ No violations found - "
-            "governance is healthy![/green]"
+            "\n[green]✅ No violations found - " "governance is healthy![/green]"
         )
 
     # Verbose information
@@ -637,9 +625,7 @@ def _display_health_panel(health, verbose: bool, monitor_instance):
             repaired_ago = _format_duration(
                 (datetime.now() - v.repaired_at).total_seconds()
             )
-            console.print(
-                f"  ✅ {v.path} → {v.suggested_path} ({repaired_ago} ago)"
-            )
+            console.print(f"  ✅ {v.path} → {v.suggested_path} ({repaired_ago} ago)")
 
     console.print()
 
@@ -687,9 +673,7 @@ def repair(dry_run: bool, force: bool):
             return
 
         # Display violations
-        console.print(
-            f"\n[yellow]Found {len(violations)} violation(s):[/yellow]\n"
-        )
+        console.print(f"\n[yellow]Found {len(violations)} violation(s):[/yellow]\n")
 
         for i, v in enumerate(violations, 1):
             console.print(f"{i}. {v.path}")
@@ -697,9 +681,7 @@ def repair(dry_run: bool, force: bool):
             console.print(f"   Issue: {v.error}\n")
 
         if dry_run:
-            console.print(
-                "[yellow]Dry run - no repairs performed[/yellow]\n"
-            )
+            console.print("[yellow]Dry run - no repairs performed[/yellow]\n")
             return
 
         # Confirm
@@ -753,19 +735,14 @@ def history(limit: int):
             return
 
         # Display history
-        console.print(
-            f"\n[bold cyan]Repair History (last {limit}):[/bold cyan]\n"
-        )
+        console.print(f"\n[bold cyan]Repair History (last {limit}):[/bold cyan]\n")
 
         for v in repaired[-limit:]:
             if v.repaired_at:
                 timestamp = v.repaired_at.strftime("%Y-%m-%d %H:%M:%S")
                 console.print(f"[dim]{timestamp}[/dim]")
                 console.print(f"  {v.path} → {v.suggested_path}")
-                action_str = (
-                    v.repair_action.value if v.repair_action
-                    else 'unknown'
-                )
+                action_str = v.repair_action.value if v.repair_action else "unknown"
                 console.print(f"  Action: {action_str}\n")
 
         console.print(f"[green]Total repairs: {len(repaired)}[/green]\n")

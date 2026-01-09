@@ -49,7 +49,7 @@ class AgentRunMetadata(BaseModel):
     # Additional metadata
     metadata: dict[str, Any] = Field(default_factory=dict)
 
-    @field_serializer('started_at', 'completed_at', when_used='json')
+    @field_serializer("started_at", "completed_at", when_used="json")
     def serialize_datetime(self, dt: datetime | None) -> str | None:
         return dt.isoformat() if dt else None
 
@@ -83,7 +83,7 @@ class WorkflowRunMetadata(BaseModel):
     # Additional metadata
     metadata: dict[str, Any] = Field(default_factory=dict)
 
-    @field_serializer('started_at', 'completed_at', when_used='json')
+    @field_serializer("started_at", "completed_at", when_used="json")
     def serialize_datetime(self, dt: datetime | None) -> str | None:
         return dt.isoformat() if dt else None
 

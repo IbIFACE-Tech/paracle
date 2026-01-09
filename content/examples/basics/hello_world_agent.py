@@ -14,7 +14,7 @@ def main() -> None:
         provider="openai",  # Will be implemented in Phase 2
         model="gpt-4",
         temperature=0.7,
-        system_prompt="You are a friendly assistant that greets users."
+        system_prompt="You are a friendly assistant that greets users.",
     )
 
     # Create agent instance

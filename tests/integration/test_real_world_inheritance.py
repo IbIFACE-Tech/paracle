@@ -44,7 +44,7 @@ class TestRealWorldInheritance:
             metadata={
                 "role": "reviewer",
                 "experience_level": "senior",
-            }
+            },
         )
         repo.register_spec(base_spec)
         base_agent = factory_obj.create(base_spec)
@@ -63,7 +63,7 @@ class TestRealWorldInheritance:
             metadata={
                 "language": "python",
                 "pep8_strict": True,
-            }
+            },
         )
         repo.register_spec(python_spec)
         python_agent = factory_obj.create(python_spec)
@@ -82,7 +82,7 @@ class TestRealWorldInheritance:
             metadata={
                 "framework": "fastapi",
                 "api_version": "v1",
-            }
+            },
         )
         repo.register_spec(fastapi_spec)
         fastapi_agent = factory_obj.create(fastapi_spec)
@@ -101,7 +101,7 @@ class TestRealWorldInheritance:
             metadata={
                 "security_level": "high",
                 "owasp_version": "2023",
-            }
+            },
         )
         repo.register_spec(security_spec)
         security_agent = factory_obj.create(security_spec)
@@ -275,8 +275,10 @@ class TestRealWorldInheritance:
         # Each prompt should be unique and specialized
         assert "experienced code reviewer" in base.system_prompt.lower()
         assert "python expert" in python.system_prompt.lower()
-        assert "fastapi" in fastapi.system_prompt.lower(
-        ) or "rest api" in fastapi.system_prompt.lower()
+        assert (
+            "fastapi" in fastapi.system_prompt.lower()
+            or "rest api" in fastapi.system_prompt.lower()
+        )
         assert "security expert" in security.system_prompt.lower()
 
     def test_no_duplicate_tools(self, agent_hierarchy: dict) -> None:
@@ -374,7 +376,9 @@ class TestRealWorldInheritance:
         assert "python-best-practices" in security_spec.skills  # From python
         assert "api-design" in security_spec.skills  # From fastapi
 
-    def test_dry_principle_benefit(self, agent_hierarchy: dict, factory: AgentFactory) -> None:
+    def test_dry_principle_benefit(
+        self, agent_hierarchy: dict, factory: AgentFactory
+    ) -> None:
         """Test DRY principle benefit.
 
         If we update the base agent, all children should inherit the change.
@@ -390,14 +394,13 @@ class TestRealWorldInheritance:
             model="gpt-4",
             temperature=0.3,
             system_prompt="Updated system prompt",
-            tools=["read_file", "grep_search",
-                   "new_common_tool"],  # Added tool
+            tools=["read_file", "grep_search", "new_common_tool"],  # Added tool
             skills=["code-review", "new_common_skill"],  # Added skill
             metadata={
                 "role": "reviewer",
                 "experience_level": "senior",
                 "version": "2.0",  # New metadata
-            }
+            },
         )
 
         # Save updated base (would update existing in real scenario)

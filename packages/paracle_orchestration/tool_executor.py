@@ -34,12 +34,12 @@ class ToolEnabledAgentExecutor(AgentExecutor):
         """
         if self.agent_id:
             tools = agent_tool_registry.get_tools_for_agent(self.agent_id)
-            logger.info(
-                f"Loaded {len(tools)} tools for agent '{self.agent_id}'")
+            logger.info(f"Loaded {len(tools)} tools for agent '{self.agent_id}'")
             return tools
 
         # Fallback: load git tools for backward compatibility
         from paracle_tools import git_add, git_commit, git_push, git_status, git_tag
+
         logger.warning("No agent_id provided, loading git tools only")
         return {
             "git_add": git_add,

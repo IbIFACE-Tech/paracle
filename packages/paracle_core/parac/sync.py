@@ -111,16 +111,12 @@ class ParacSynchronizer:
         info = GitInfo()
 
         # Current branch
-        success, output = self._run_git_command(
-            ["rev-parse", "--abbrev-ref", "HEAD"]
-        )
+        success, output = self._run_git_command(["rev-parse", "--abbrev-ref", "HEAD"])
         if success:
             info.branch = output.strip()
 
         # Last commit
-        success, output = self._run_git_command(
-            ["log", "-1", "--format=%h %s"]
-        )
+        success, output = self._run_git_command(["log", "-1", "--format=%h %s"])
         if success:
             info.last_commit = output.strip()
 
@@ -168,13 +164,17 @@ class ParacSynchronizer:
         if packages_dir.exists():
             py_count = len(list(packages_dir.rglob("*.py")))
             if metrics.get("python_files") != py_count:
-                changes.append(f"python_files: {metrics.get('python_files')} → {py_count}")
+                changes.append(
+                    f"python_files: {metrics.get('python_files')} → {py_count}"
+                )
                 metrics["python_files"] = py_count
 
         if tests_dir.exists():
             test_count = len(list(tests_dir.rglob("test_*.py")))
             if metrics.get("test_files") != test_count:
-                changes.append(f"test_files: {metrics.get('test_files')} → {test_count}")
+                changes.append(
+                    f"test_files: {metrics.get('test_files')} → {test_count}"
+                )
                 metrics["test_files"] = test_count
 
         if changes:

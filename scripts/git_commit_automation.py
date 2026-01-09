@@ -44,8 +44,7 @@ async def git_commit_all(message: str, cwd: str = ".") -> dict:
     status_result = await git_status.execute(cwd=cwd)
 
     if not status_result.success:
-        console.print(
-            f"[red]❌ Failed to check status: {status_result.error}[/red]")
+        console.print(f"[red]❌ Failed to check status: {status_result.error}[/red]")
         return {"success": False, "error": "Status check failed"}
 
     results["status"] = status_result.output
@@ -55,12 +54,10 @@ async def git_commit_all(message: str, cwd: str = ".") -> dict:
     table.add_column("Type", style="cyan")
     table.add_column("Count", style="yellow")
 
-    table.add_row("Modified", str(
-        len(status_result.output.get("modified", []))))
+    table.add_row("Modified", str(len(status_result.output.get("modified", []))))
     table.add_row("Added", str(len(status_result.output.get("added", []))))
     table.add_row("Deleted", str(len(status_result.output.get("deleted", []))))
-    table.add_row("Untracked", str(
-        len(status_result.output.get("untracked", []))))
+    table.add_row("Untracked", str(len(status_result.output.get("untracked", []))))
     table.add_row("TOTAL", str(status_result.output.get("total_changes", 0)))
 
     console.print(table)
@@ -75,8 +72,7 @@ async def git_commit_all(message: str, cwd: str = ".") -> dict:
     add_result = await git_add.execute(files="-A", cwd=cwd)
 
     if not add_result.success:
-        console.print(
-            f"[red]❌ Failed to stage files: {add_result.error}[/red]")
+        console.print(f"[red]❌ Failed to stage files: {add_result.error}[/red]")
         return {"success": False, "error": "Stage failed"}
 
     results["add"] = add_result.output
@@ -120,11 +116,9 @@ async def main():
     if len(sys.argv) < 2:
         console.print("[red]❌ Error: Commit message required[/red]")
         console.print("\nUsage:")
-        console.print(
-            "  python scripts/git_commit_automation.py \"commit message\"")
+        console.print('  python scripts/git_commit_automation.py "commit message"')
         console.print("\nExample:")
-        console.print(
-            "  python scripts/git_commit_automation.py \"docs: add git tools\"")
+        console.print('  python scripts/git_commit_automation.py "docs: add git tools"')
         sys.exit(1)
 
     message = sys.argv[1]
@@ -136,8 +130,7 @@ async def main():
         if result["success"]:
             sys.exit(0)
         else:
-            console.print(
-                f"\n[red]❌ Workflow failed: {result.get('error')}[/red]")
+            console.print(f"\n[red]❌ Workflow failed: {result.get('error')}[/red]")
             sys.exit(1)
 
     except KeyboardInterrupt:

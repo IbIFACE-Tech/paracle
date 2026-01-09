@@ -19,8 +19,7 @@ from paracle_orchestration.exceptions import InvalidWorkflowError
 class ExecutionGroup(BaseModel):
     """Group of steps that can execute in parallel."""
 
-    group_number: int = Field(...,
-                              description="Execution group index (0-based)")
+    group_number: int = Field(..., description="Execution group index (0-based)")
     steps: list[str] = Field(..., description="Step IDs in this group")
     can_parallelize: bool = Field(
         default=True, description="Whether steps can run in parallel"
@@ -35,21 +34,15 @@ class ExecutionPlan(BaseModel):
 
     workflow_name: str = Field(..., description="Workflow name")
     total_steps: int = Field(..., description="Total number of steps")
-    execution_order: list[str] = Field(
-        ..., description="Steps in topological order"
-    )
+    execution_order: list[str] = Field(..., description="Steps in topological order")
     parallel_groups: list[ExecutionGroup] = Field(
         ..., description="Parallel execution groups"
     )
-    approval_gates: list[str] = Field(
-        ..., description="Steps requiring human approval"
-    )
+    approval_gates: list[str] = Field(..., description="Steps requiring human approval")
     estimated_tokens: int | None = Field(
         None, description="Estimated total tokens (if models known)"
     )
-    estimated_cost_usd: float | None = Field(
-        None, description="Estimated cost in USD"
-    )
+    estimated_cost_usd: float | None = Field(None, description="Estimated cost in USD")
     estimated_time_seconds: int | None = Field(
         None, description="Estimated total execution time"
     )
@@ -103,8 +96,7 @@ class WorkflowPlanner:
         execution_order = self._topological_sort(workflow.steps)
 
         # 3. Identify parallel groups
-        parallel_groups = self._find_parallel_groups(
-            workflow.steps, execution_order)
+        parallel_groups = self._find_parallel_groups(workflow.steps, execution_order)
 
         # 4. Find approval gates
         approval_gates = self._find_approval_gates(workflow.steps)
@@ -183,8 +175,7 @@ class WorkflowPlanner:
                 adj_list[dep].append(step.id)
 
         # Kahn's algorithm
-        queue = deque(
-            [step_id for step_id, degree in in_degree.items() if degree == 0])
+        queue = deque([step_id for step_id, degree in in_degree.items() if degree == 0])
         result = []
 
         while queue:
@@ -197,8 +188,7 @@ class WorkflowPlanner:
                     queue.append(neighbor)
 
         if len(result) != len(steps):
-            raise InvalidWorkflowError(
-                "Cycle detected in workflow dependencies")
+            raise InvalidWorkflowError("Cycle detected in workflow dependencies")
 
         return result
 
@@ -224,8 +214,7 @@ class WorkflowPlanner:
 
             # Check if can add to current group
             # Can parallelize if no dependencies within current group
-            can_add_to_group = all(
-                dep not in current_group for dep in step.depends_on)
+            can_add_to_group = all(dep not in current_group for dep in step.depends_on)
 
             if not can_add_to_group and current_group:
                 # Finalize current group and start new one

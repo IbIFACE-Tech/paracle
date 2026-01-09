@@ -128,7 +128,9 @@ async def example_group_management():
     groups = await store.list_groups()
     print(f"\nAll groups ({len(groups)}):")
     for g in groups:
-        print(f"  - {g.name}: {len(g.members)} members, pattern={g.communication_pattern.value}")
+        print(
+            f"  - {g.name}: {len(g.members)} members, pattern={g.communication_pattern.value}"
+        )
 
     # Get specific group
     retrieved = await store.get_group(review_team.id)
@@ -360,7 +362,9 @@ async def example_persistence():
             session = GroupSession(
                 group_id=group.id,
                 goal=f"Task {i + 1}",
-                status=GroupSessionStatus.COMPLETED if i < 2 else GroupSessionStatus.ACTIVE,
+                status=(
+                    GroupSessionStatus.COMPLETED if i < 2 else GroupSessionStatus.ACTIVE
+                ),
             )
             session.add_message(
                 GroupMessage.create(
@@ -389,6 +393,7 @@ async def example_persistence():
     finally:
         # Clean up (ignore errors on Windows due to file locks)
         import shutil
+
         try:
             shutil.rmtree(tmpdir, ignore_errors=True)
         except Exception:

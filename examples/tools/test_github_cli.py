@@ -43,14 +43,10 @@ async def test_github_cli():
 
     # Test 2: List open pull requests
     print("\n2. Listing open pull requests...")
-    pr_result = await github_cli.execute(
-        action="pr_list", state="open", limit=5
-    )
+    pr_result = await github_cli.execute(action="pr_list", state="open", limit=5)
 
     pr_success = (
-        pr_result.success
-        and pr_result.output
-        and pr_result.output.get("success")
+        pr_result.success and pr_result.output and pr_result.output.get("success")
     )
     if pr_success:
         print("✅ Pull requests listed")
@@ -59,19 +55,13 @@ async def test_github_cli():
         else:
             print("  No open pull requests")
     else:
-        stderr = (
-            pr_result.output.get("stderr", "")
-            if pr_result.output
-            else ""
-        )
+        stderr = pr_result.output.get("stderr", "") if pr_result.output else ""
         error = stderr or pr_result.error or "Unknown error"
         print(f"⚠️  Could not list PRs: {error}")
 
     # Test 3: List releases
     print("\n3. Listing releases...")
-    release_result = await github_cli.execute(
-        action="release_list", limit=5
-    )
+    release_result = await github_cli.execute(action="release_list", limit=5)
 
     release_success = (
         release_result.success
@@ -86,9 +76,7 @@ async def test_github_cli():
             print("  No releases found")
     else:
         stderr = (
-            release_result.output.get("stderr", "")
-            if release_result.output
-            else ""
+            release_result.output.get("stderr", "") if release_result.output else ""
         )
         error = stderr or release_result.error or "Unknown error"
         print(f"⚠️  Could not list releases: {error}")
@@ -110,9 +98,7 @@ async def test_github_cli():
             print("  No workflows found")
     else:
         stderr = (
-            workflow_result.output.get("stderr", "")
-            if workflow_result.output
-            else ""
+            workflow_result.output.get("stderr", "") if workflow_result.output else ""
         )
         error = stderr or workflow_result.error or "Unknown error"
         print(f"⚠️  Could not list workflows: {error}")

@@ -73,9 +73,7 @@ class AgentCoordinator:
 
             parac_path = Path(parac_dir) if parac_dir else None
             self.skill_loader = SkillLoader(parac_path)
-            self.skill_injector = SkillInjector(
-                injection_mode=skill_injection_mode
-            )
+            self.skill_injector = SkillInjector(injection_mode=skill_injection_mode)
             logger.info(
                 f"Skill system enabled (mode: {skill_injection_mode}, "
                 f"parac_dir: {self.skill_loader.parac_dir})"
@@ -131,9 +129,7 @@ class AgentCoordinator:
                     )
 
                     # Create skill context for provider
-                    skill_context = (
-                        self.skill_injector.create_skill_context(skills)
-                    )
+                    skill_context = self.skill_injector.create_skill_context(skills)
 
                     skill_ids = [s.skill_id for s in skills]
                     logger.info(
@@ -142,8 +138,7 @@ class AgentCoordinator:
                     )
             except Exception as e:
                 logger.warning(
-                    f"Failed to load skills for "
-                    f"agent {agent.spec.name}: {e}"
+                    f"Failed to load skills for " f"agent {agent.spec.name}: {e}"
                 )
 
         # Get or create agent instance
@@ -160,9 +155,7 @@ class AgentCoordinator:
 
         # Execute agent (actual provider call happens here)
         try:
-            result = await self._execute_agent_instance(
-                agent_instance, full_inputs
-            )
+            result = await self._execute_agent_instance(agent_instance, full_inputs)
 
             execution_time = (_utcnow() - start_time).total_seconds()
 
@@ -226,11 +219,13 @@ class AgentCoordinator:
         processed_results = []
         for i, result in enumerate(results):
             if isinstance(result, Exception):
-                processed_results.append({
-                    "agent_id": agents[i].id,
-                    "error": str(result),
-                    "success": False,
-                })
+                processed_results.append(
+                    {
+                        "agent_id": agents[i].id,
+                        "error": str(result),
+                        "success": False,
+                    }
+                )
             else:
                 processed_results.append(result)
 

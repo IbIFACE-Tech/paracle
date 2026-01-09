@@ -19,9 +19,7 @@ class TestAIProviderHelper:
     def test_get_ai_provider_none_available(self, monkeypatch):
         """Test graceful handling when no AI available."""
         # Mock paracle_meta as not available
-        monkeypatch.setattr(
-            "paracle_cli.ai_helper._load_ai_config", lambda: None
-        )
+        monkeypatch.setattr("paracle_cli.ai_helper._load_ai_config", lambda: None)
 
         # Should return None when no providers available
         result = get_ai_provider()
@@ -115,9 +113,7 @@ class TestProviderConfiguration:
         from paracle_cli.ai_helper import _load_ai_config
 
         # Point to non-existent directory
-        monkeypatch.setattr(
-            "paracle_cli.ai_helper.find_parac_root", lambda: tmp_path
-        )
+        monkeypatch.setattr("paracle_cli.ai_helper.find_parac_root", lambda: tmp_path)
 
         config = _load_ai_config()
         assert config is None
@@ -130,17 +126,17 @@ class TestProviderConfiguration:
         config_dir = tmp_path / "config"
         config_dir.mkdir()
         config_file = config_dir / "ai.yaml"
-        config_file.write_text("""
+        config_file.write_text(
+            """
 ai:
   provider: meta
   providers:
     meta:
       model: gpt-4-turbo
-""")
-
-        monkeypatch.setattr(
-            "paracle_cli.ai_helper.find_parac_root", lambda: tmp_path
+"""
         )
+
+        monkeypatch.setattr("paracle_cli.ai_helper.find_parac_root", lambda: tmp_path)
 
         config = _load_ai_config()
         assert config is not None

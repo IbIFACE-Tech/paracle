@@ -17,6 +17,7 @@ import yaml
 
 class ValidationError(Exception):
     """Raised when validation fails."""
+
     pass
 
 
@@ -62,8 +63,7 @@ class GovernanceValidator:
 
         for file_path in ide_files:
             if not file_path.exists():
-                self.warning(
-                    f"File not found: {file_path.relative_to(self.root)}")
+                self.warning(f"File not found: {file_path.relative_to(self.root)}")
                 continue
 
             content = file_path.read_text(encoding="utf-8")
@@ -165,7 +165,7 @@ class GovernanceValidator:
         progress_str = state.get("current_phase", {}).get("progress", "0")
         try:
             # Remove % if present and convert to int
-            progress = int(str(progress_str).rstrip('%'))
+            progress = int(str(progress_str).rstrip("%"))
             if not (0 <= progress <= 100):
                 self.error(f"Invalid progress: {progress}% (must be 0-100)")
             else:
@@ -179,23 +179,22 @@ class GovernanceValidator:
         """Validate all YAML files in .parac/ have valid syntax."""
         click.echo("\nValidating YAML syntax...")
 
-        yaml_files = list(self.parac.rglob("*.yaml")) + \
-            list(self.parac.rglob("*.yml"))
+        yaml_files = list(self.parac.rglob("*.yaml")) + list(self.parac.rglob("*.yml"))
 
         for yaml_path in yaml_files:
             # Skip snapshots, logs, and templates (which may have Jinja2 syntax)
-            if ("snapshots" in yaml_path.parts or
-                "logs" in yaml_path.parts or
-                    "template" in yaml_path.name.lower()):
+            if (
+                "snapshots" in yaml_path.parts
+                or "logs" in yaml_path.parts
+                or "template" in yaml_path.name.lower()
+            ):
                 continue
 
             try:
                 yaml.safe_load(yaml_path.read_text(encoding="utf-8"))
-                self.success(
-                    f"Valid YAML: {yaml_path.relative_to(self.parac)}")
+                self.success(f"Valid YAML: {yaml_path.relative_to(self.parac)}")
             except yaml.YAMLError as e:
-                self.error(
-                    f"Invalid YAML in {yaml_path.relative_to(self.parac)}: {e}")
+                self.error(f"Invalid YAML in {yaml_path.relative_to(self.parac)}: {e}")
 
         return len(self.errors) == 0
 
@@ -220,8 +219,7 @@ class GovernanceValidator:
         expected = list(range(1, len(adr_numbers) + 1))
         if adr_numbers != expected:
             missing = set(expected) - set(adr_numbers)
-            self.error(
-                f"ADR numbering not sequential. Missing: {sorted(missing)}")
+            self.error(f"ADR numbering not sequential. Missing: {sorted(missing)}")
         else:
             self.success(f"ADR numbering valid (1-{max(adr_numbers)})")
 
@@ -240,8 +238,7 @@ class GovernanceValidator:
             click.echo("\nErrors:")
             for error in self.errors:
                 click.echo(f"  {error}")
-            click.echo(
-                f"\n[FAIL] Validation failed with {len(self.errors)} error(s)")
+            click.echo(f"\n[FAIL] Validation failed with {len(self.errors)} error(s)")
             return False
         else:
             click.echo("\n[PASS] All validations passed!")
@@ -250,7 +247,7 @@ class GovernanceValidator:
 
 @click.group(invoke_without_command=True)
 @click.pass_context
-@click.option('--all', 'run_all', is_flag=True, help='Run all validation checks')
+@click.option("--all", "run_all", is_flag=True, help="Run all validation checks")
 def validate(ctx, run_all):
     """Validate governance compliance and structure."""
     if run_all:

@@ -98,8 +98,7 @@ class LockManager:
                         # Same agent, extend lock
                         lock.expires_at = datetime.utcnow() + timedelta(seconds=timeout)
                         with open(lock_path, "w") as f:
-                            json.dump(lock.model_dump(
-                                mode="json"), f, default=str)
+                            json.dump(lock.model_dump(mode="json"), f, default=str)
                         return True
                     else:
                         # Different agent holds lock

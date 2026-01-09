@@ -45,43 +45,33 @@ class ShellConfig(CapabilityConfig):
     """Configuration for Shell capability."""
 
     working_directory: str | None = Field(
-        default=None,
-        description="Working directory for commands (defaults to cwd)"
+        default=None, description="Working directory for commands (defaults to cwd)"
     )
     shell: str | None = Field(
-        default=None,
-        description="Shell to use (defaults to system shell)"
+        default=None, description="Shell to use (defaults to system shell)"
     )
     env_vars: dict[str, str] = Field(
-        default_factory=dict,
-        description="Additional environment variables"
+        default_factory=dict, description="Additional environment variables"
     )
-    inherit_env: bool = Field(
-        default=True,
-        description="Inherit current environment"
-    )
+    inherit_env: bool = Field(default=True, description="Inherit current environment")
     max_output_size: int = Field(
-        default=1024 * 1024,  # 1 MB
-        ge=1024,
-        description="Maximum output size in bytes"
+        default=1024 * 1024, ge=1024, description="Maximum output size in bytes"  # 1 MB
     )
     allowed_commands: list[str] | None = Field(
-        default=None,
-        description="Allowed command prefixes (None = all)"
+        default=None, description="Allowed command prefixes (None = all)"
     )
     blocked_commands: list[str] = Field(
         default_factory=lambda: ["rm -rf /", "mkfs", "dd if=", ":(){:|:&};:"],
-        description="Blocked command patterns"
+        description="Blocked command patterns",
     )
     enable_background: bool = Field(
-        default=True,
-        description="Enable background process execution"
+        default=True, description="Enable background process execution"
     )
     default_timeout: float = Field(
         default=60.0,
         ge=1.0,
         le=3600.0,
-        description="Default command timeout in seconds"
+        description="Default command timeout in seconds",
     )
 
 
@@ -193,7 +183,9 @@ class ShellCapability(BaseCapability):
                     allowed = True
                     break
             if not allowed:
-                raise ValueError(f"Command not in allowed list. Allowed: {self.config.allowed_commands}")
+                raise ValueError(
+                    f"Command not in allowed list. Allowed: {self.config.allowed_commands}"
+                )
 
     async def execute(self, **kwargs) -> CapabilityResult:
         """Execute shell operation.
@@ -370,7 +362,7 @@ class ShellCapability(BaseCapability):
 
         # Truncate if too large
         if len(output) > self.config.max_output_size:
-            output = output[:self.config.max_output_size]
+            output = output[: self.config.max_output_size]
             truncated = True
         else:
             truncated = False
@@ -535,6 +527,7 @@ class ShellCapability(BaseCapability):
     async def _which(self, command: str) -> dict[str, Any]:
         """Find command path."""
         import shutil
+
         path = shutil.which(command)
         return {
             "command": command,

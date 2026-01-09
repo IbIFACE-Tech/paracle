@@ -42,8 +42,9 @@ class ConflictDetector:
 
     def __init__(self):
         """Initialize conflict detector."""
-        self.modifications: dict[str, list[tuple[str, str]]] = {
-        }  # file -> [(agent_id, hash)]
+        self.modifications: dict[str, list[tuple[str, str]]] = (
+            {}
+        )  # file -> [(agent_id, hash)]
         self.conflicts: list[FileConflict] = []
 
     def _hash_file(self, file_path: Path) -> str:

@@ -212,15 +212,18 @@ class MCPExporter(BaseExporter):
 
         for tool in skill.tools:
             # Tool definition
-            tools_list.append(f'''    {{
+            tools_list.append(
+                f"""    {{
         "name": "{tool.name}",
         "description": "{tool.description}",
         "inputSchema": {json.dumps(tool.input_schema, indent=8)}
-    }}''')
+    }}"""
+            )
 
             # Handler stub
             handler_name = tool.name.replace("-", "_")
-            handlers.append(f'''
+            handlers.append(
+                f'''
 async def handle_{handler_name}(params: dict) -> dict:
     """Handle {tool.name} tool call.
 
@@ -232,7 +235,8 @@ async def handle_{handler_name}(params: dict) -> dict:
     """
     # TODO: Implement tool logic
     return {{"result": "Not implemented"}}
-''')
+'''
+            )
 
         tools_json = ",\n".join(tools_list)
         handlers_code = "\n".join(handlers)

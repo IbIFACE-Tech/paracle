@@ -370,22 +370,21 @@ class ChatSession(Session):
         assistant_msg = await self.add_message(
             "assistant",
             response.content,
-            tool_calls=[
-                {"id": tc.id, "name": tc.name, "input": tc.input}
-                for tc in (response.tool_calls or [])
-            ]
-            if response.tool_calls
-            else None,
+            tool_calls=(
+                [
+                    {"id": tc.id, "name": tc.name, "input": tc.input}
+                    for tc in (response.tool_calls or [])
+                ]
+                if response.tool_calls
+                else None
+            ),
         )
 
         return assistant_msg
 
     def _build_request(self) -> LLMRequest:
         """Build LLM request from conversation history."""
-        messages = [
-            LLMMessage(role=m.role, content=m.content)
-            for m in self.messages
-        ]
+        messages = [LLMMessage(role=m.role, content=m.content) for m in self.messages]
 
         return LLMRequest(
             messages=messages,

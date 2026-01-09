@@ -144,8 +144,7 @@ class TestFullDashboard:
             error = ValueError(f"Error {i}")
             registry.record_error(error, "test_component")
 
-        full_dashboard = dashboard.generate_full_dashboard(
-            hours=1, top_errors_limit=5)
+        full_dashboard = dashboard.generate_full_dashboard(hours=1, top_errors_limit=5)
 
         assert "generated_at" in full_dashboard
         assert "summary" in full_dashboard
@@ -228,8 +227,7 @@ class TestHealthScore:
         health = dashboard.generate_health_score()
 
         assert 0 <= health["score"] <= 100
-        assert health["status"] in ["excellent",
-                                    "good", "fair", "poor", "critical"]
+        assert health["status"] in ["excellent", "good", "fair", "poor", "critical"]
 
     def test_health_score_with_critical_errors(self):
         """Test health score degraded by critical errors."""

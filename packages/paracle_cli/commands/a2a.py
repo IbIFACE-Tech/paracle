@@ -129,7 +129,9 @@ def serve(
 
     console.print(f"[green]Starting A2A server on {host}:{port}[/green]")
     console.print(f"  Base path: {config.base_path}")
-    console.print(f"  Agents: {'all' if config.expose_all_agents else ', '.join(agents)}")
+    console.print(
+        f"  Agents: {'all' if config.expose_all_agents else ', '.join(agents)}"
+    )
     console.print(f"  Streaming: {not no_streaming}")
     console.print(f"  Auth: {auth}")
     console.print()
@@ -249,7 +251,11 @@ async def _list_remote_agents(url: str, output_format: str) -> None:
                 table.add_row(
                     card.id or "N/A",
                     card.name,
-                    (card.description[:50] + "...") if len(card.description) > 50 else card.description,
+                    (
+                        (card.description[:50] + "...")
+                        if len(card.description) > 50
+                        else card.description
+                    ),
                 )
 
             console.print(table)
@@ -305,13 +311,17 @@ async def _discover_agent(url: str, output_format: str) -> None:
             if card.capabilities:
                 console.print("[bold]Capabilities:[/bold]")
                 console.print(f"  Streaming: {card.capabilities.streaming}")
-                console.print(f"  Push notifications: {card.capabilities.push_notifications}")
+                console.print(
+                    f"  Push notifications: {card.capabilities.push_notifications}"
+                )
                 console.print()
 
             if card.skills:
                 console.print("[bold]Skills:[/bold]")
                 for skill in card.skills:
-                    console.print(f"  - {skill.name}: {skill.description or 'No description'}")
+                    console.print(
+                        f"  - {skill.name}: {skill.description or 'No description'}"
+                    )
 
     except Exception as e:
         console.print(f"[red]Error discovering agent:[/red] {e}")
@@ -403,7 +413,9 @@ async def _invoke_agent(
                     )
 
                     if isinstance(event, TaskStatusUpdateEvent):
-                        console.print(f"[cyan]Status:[/cyan] {event.status.state.value}")
+                        console.print(
+                            f"[cyan]Status:[/cyan] {event.status.state.value}"
+                        )
                         if event.status.message:
                             console.print(f"  {event.status.message}")
                     elif isinstance(event, TaskArtifactUpdateEvent):
@@ -505,7 +517,9 @@ async def _check_status(
             if task.status.message:
                 console.print(f"[bold]Message:[/bold] {task.status.message}")
             if task.status.progress is not None:
-                console.print(f"[bold]Progress:[/bold] {task.status.progress * 100:.1f}%")
+                console.print(
+                    f"[bold]Progress:[/bold] {task.status.progress * 100:.1f}%"
+                )
             if task.context_id:
                 console.print(f"[bold]Context:[/bold] {task.context_id}")
 

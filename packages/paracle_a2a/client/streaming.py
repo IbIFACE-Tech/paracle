@@ -171,11 +171,7 @@ class StreamingHandler:
         event_type = sse_event.event
 
         # SDK requires context_id, generate if missing
-        context_id = (
-            data.get("contextId")
-            or data.get("context_id")
-            or str(ULID())
-        )
+        context_id = data.get("contextId") or data.get("context_id") or str(ULID())
 
         if event_type == "task/status":
             # Parse status - SDK TaskStatus has state, message, timestamp

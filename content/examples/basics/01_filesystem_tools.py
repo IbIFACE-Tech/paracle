@@ -33,7 +33,7 @@ async def main():
     # Write a simple text file
     result = await write_file.execute(
         path=str(example_dir / "hello.txt"),
-        content="Hello, Paracle!\nThis is a test file."
+        content="Hello, Paracle!\nThis is a test file.",
     )
 
     if result.success:
@@ -54,8 +54,7 @@ tools:
 """
 
     result = await write_file.execute(
-        path=str(example_dir / "config.yaml"),
-        content=config_content
+        path=str(example_dir / "config.yaml"), content=config_content
     )
 
     if result.success:
@@ -65,7 +64,7 @@ tools:
     result = await write_file.execute(
         path=str(example_dir / "data" / "output.json"),
         content='{"status": "success", "count": 42}',
-        create_dirs=True
+        create_dirs=True,
     )
 
     if result.success:
@@ -80,18 +79,15 @@ tools:
 
     if result.success:
         print(f"✓ Found {result.output['count']} items in {result.output['path']}")
-        for entry in result.output['entries']:
-            icon = "📁" if entry['type'] == 'directory' else "📄"
-            size = f"({entry.get('size', 0)} bytes)" if entry['type'] == 'file' else ""
+        for entry in result.output["entries"]:
+            icon = "📁" if entry["type"] == "directory" else "📄"
+            size = f"({entry.get('size', 0)} bytes)" if entry["type"] == "file" else ""
             print(f"  {icon} {entry['name']} {size}")
 
     # List recursively
     print("\n3. Listing recursively...")
 
-    result = await list_directory.execute(
-        path=str(example_dir),
-        recursive=True
-    )
+    result = await list_directory.execute(path=str(example_dir), recursive=True)
 
     if result.success:
         print(f"✓ Found {result.output['count']} total items (recursive)")
@@ -114,7 +110,7 @@ tools:
 
     if result.success:
         print(f"\n✓ Read config file:")
-        print(result.output['content'])
+        print(result.output["content"])
 
     # =========================================================================
     # 5. PATH RESTRICTIONS (Security)
@@ -127,9 +123,7 @@ tools:
     restricted_reader = ReadFileTool(allowed_paths=[str(example_dir)])
 
     # This will succeed (within allowed path)
-    result = await restricted_reader.execute(
-        path=str(example_dir / "hello.txt")
-    )
+    result = await restricted_reader.execute(path=str(example_dir / "hello.txt"))
     print(f"✓ Allowed path access: {result.success}")
 
     # This will fail (outside allowed path)
@@ -144,9 +138,7 @@ tools:
     print("\n6. Cleaning up...")
 
     # Delete individual file
-    result = await delete_file.execute(
-        path=str(example_dir / "hello.txt")
-    )
+    result = await delete_file.execute(path=str(example_dir / "hello.txt"))
 
     if result.success:
         print(f"✓ Deleted: {result.output['path']}")
@@ -158,6 +150,7 @@ tools:
 
     # Clean up example directory
     import shutil
+
     shutil.rmtree(example_dir)
     print("\n✓ Cleaned up example directory")
 

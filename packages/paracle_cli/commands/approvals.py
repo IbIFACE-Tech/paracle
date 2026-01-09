@@ -16,7 +16,13 @@ console = Console()
 
 
 @click.group(invoke_without_command=True)
-@click.option("--list", "-l", "list_flag", is_flag=True, help="List pending approvals (shortcut for 'list')")
+@click.option(
+    "--list",
+    "-l",
+    "list_flag",
+    is_flag=True,
+    help="List pending approvals (shortcut for 'list')",
+)
 @click.pass_context
 def approvals(ctx: click.Context, list_flag: bool) -> None:
     """Manage approval requests (Human-in-the-Loop).
@@ -41,7 +47,14 @@ def approvals(ctx: click.Context, list_flag: bool) -> None:
         $ paracle approvals stats
     """
     if list_flag:
-        ctx.invoke(list_approvals, status="pending", workflow_id=None, priority=None, limit=100, output_json=False)
+        ctx.invoke(
+            list_approvals,
+            status="pending",
+            workflow_id=None,
+            priority=None,
+            limit=100,
+            output_json=False,
+        )
     elif ctx.invoked_subcommand is None:
         click.echo(ctx.get_help())
 
@@ -89,9 +102,7 @@ def list_approvals(
                 workflow_id=workflow_id, priority=priority
             )
         else:
-            result = client.approvals_list_decided(
-                workflow_id=workflow_id, limit=limit
-            )
+            result = client.approvals_list_decided(workflow_id=workflow_id, limit=limit)
 
         if output_json:
             console.print_json(json.dumps(result))
@@ -182,11 +193,15 @@ def get_approval(approval_id: str, output_json: bool) -> None:
             return
 
         # Display detailed view
-        console.print(f"\n[bold cyan]Approval Request: {result.get('id')}[/bold cyan]\n")
+        console.print(
+            f"\n[bold cyan]Approval Request: {result.get('id')}[/bold cyan]\n"
+        )
 
         console.print(f"[bold]Workflow:[/bold] {result.get('workflow_id')}")
         console.print(f"[bold]Execution:[/bold] {result.get('execution_id')}")
-        console.print(f"[bold]Step:[/bold] {result.get('step_name')} ({result.get('step_id')})")
+        console.print(
+            f"[bold]Step:[/bold] {result.get('step_name')} ({result.get('step_id')})"
+        )
         console.print(f"[bold]Agent:[/bold] {result.get('agent_name')}")
 
         # Status with styling

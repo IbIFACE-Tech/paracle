@@ -86,8 +86,7 @@ class NetworkIsolator:
             labels = config.labels.copy()
             if policy:
                 labels["paracle.policy.internet"] = str(policy.allow_internet)
-                labels["paracle.policy.intra_network"] = str(
-                    policy.allow_intra_network)
+                labels["paracle.policy.intra_network"] = str(policy.allow_intra_network)
 
             # Create network
             network = client.networks.create(
@@ -112,9 +111,7 @@ class NetworkIsolator:
             return network
 
         except APIError as e:
-            raise NetworkIsolationError(
-                f"Failed to create network: {e}"
-            ) from e
+            raise NetworkIsolationError(f"Failed to create network: {e}") from e
 
     async def attach_container(
         self,
@@ -178,9 +175,7 @@ class NetworkIsolator:
             )
 
         except APIError as e:
-            logger.warning(
-                f"Failed to detach container from network: {e}"
-            )
+            logger.warning(f"Failed to detach container from network: {e}")
 
     async def remove_network(self, network_id: str) -> None:
         """Remove network.

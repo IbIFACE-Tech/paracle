@@ -58,9 +58,7 @@ class TestLogsAPI:
 
         return project
 
-    def test_log_action(
-        self, client: TestClient, temp_parac_project: Path
-    ) -> None:
+    def test_log_action(self, client: TestClient, temp_parac_project: Path) -> None:
         """Test POST /logs/action endpoint."""
         response = client.post(
             "/logs/action",
@@ -114,9 +112,7 @@ class TestLogsAPI:
         data = response.json()
         assert data["agent"] == "SystemAgent"
 
-    def test_log_decision(
-        self, client: TestClient, temp_parac_project: Path
-    ) -> None:
+    def test_log_decision(self, client: TestClient, temp_parac_project: Path) -> None:
         """Test POST /logs/decision endpoint."""
         response = client.post(
             "/logs/decision",
@@ -167,9 +163,7 @@ class TestLogsAPI:
         assert "logs" in data
         assert "count" in data
 
-    def test_get_today_logs(
-        self, client: TestClient, temp_parac_project: Path
-    ) -> None:
+    def test_get_today_logs(self, client: TestClient, temp_parac_project: Path) -> None:
         """Test GET /logs/today endpoint."""
         # Log an action today
         client.post(
@@ -187,14 +181,16 @@ class TestLogsAPI:
         assert "logs" in data
         assert data["count"] >= 1
 
-    def test_get_agent_logs(
-        self, client: TestClient, temp_parac_project: Path
-    ) -> None:
+    def test_get_agent_logs(self, client: TestClient, temp_parac_project: Path) -> None:
         """Test GET /logs/agent/{agent} endpoint."""
         # Log actions from different agents
         client.post(
             "/logs/action",
-            json={"action": "IMPLEMENTATION", "description": "Code 1", "agent": "CoderAgent"},
+            json={
+                "action": "IMPLEMENTATION",
+                "description": "Code 1",
+                "agent": "CoderAgent",
+            },
         )
         client.post(
             "/logs/action",

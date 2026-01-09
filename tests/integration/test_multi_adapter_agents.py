@@ -19,8 +19,7 @@ from paracle_adapters import list_available_adapters
 
 # Skip all tests if no API key
 pytestmark = pytest.mark.skipif(
-    not os.getenv("OPENAI_API_KEY"),
-    reason="OPENAI_API_KEY not set"
+    not os.getenv("OPENAI_API_KEY"), reason="OPENAI_API_KEY not set"
 )
 
 
@@ -147,12 +146,17 @@ class TestMultiAgentCollaboration:
         available = list_available_adapters()
 
         # Need at least 2 different adapters
-        if sum([
-            available.get("langchain", False),
-            available.get("llamaindex", False),
-            available.get("autogen", False),
-            available.get("msaf", False),
-        ]) < 2:
+        if (
+            sum(
+                [
+                    available.get("langchain", False),
+                    available.get("llamaindex", False),
+                    available.get("autogen", False),
+                    available.get("msaf", False),
+                ]
+            )
+            < 2
+        ):
             pytest.skip("Need at least 2 adapters for pipeline test")
 
         # Step 1: Use first available adapter to generate a math problem
@@ -163,12 +167,14 @@ class TestMultiAgentCollaboration:
         if available.get("langchain"):
             from langchain_openai import ChatOpenAI
             from paracle_adapters.langchain_adapter import LangChainAdapter
+
             llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.7)
             adapters.append(("langchain", LangChainAdapter(llm=llm)))
 
         if available.get("msaf") and len(adapters) < 2:
             from agent_framework.openai import OpenAIResponsesClient
             from paracle_adapters.msaf_adapter import MSAFAdapter
+
             client = OpenAIResponsesClient(
                 api_key=os.getenv("OPENAI_API_KEY"),
                 model_id="gpt-4o-mini",
@@ -177,6 +183,7 @@ class TestMultiAgentCollaboration:
 
         if available.get("autogen") and len(adapters) < 2:
             from paracle_adapters.autogen_adapter import AutoGenAdapter
+
             llm_config = {
                 "model": "gpt-4o-mini",
                 "api_key": os.getenv("OPENAI_API_KEY"),
@@ -187,6 +194,7 @@ class TestMultiAgentCollaboration:
         if available.get("llamaindex") and len(adapters) < 2:
             from llama_index.llms.openai import OpenAI as LlamaOpenAI
             from paracle_adapters.llamaindex_adapter import LlamaIndexAdapter
+
             llm = LlamaOpenAI(model="gpt-4o-mini", temperature=0)
             adapters.append(("llamaindex", LlamaIndexAdapter(llm=llm)))
 
@@ -224,16 +232,14 @@ class TestMultiAgentCollaboration:
 
         # Step 1: Generate problem
         gen_result = await generator_adapter.execute_agent(
-            generator,
-            {"input": "Generate a simple addition problem."}
+            generator, {"input": "Generate a simple addition problem."}
         )
         problem = gen_result["response"]
         print(f"[{generator_name}] Generated: {problem}")
 
         # Step 2: Solve problem
         solve_result = await solver_adapter.execute_agent(
-            solver,
-            {"input": f"Solve this: {problem}"}
+            solver, {"input": f"Solve this: {problem}"}
         )
         solution = solve_result["response"]
         print(f"[{solver_name}] Solution: {solution}")
@@ -260,12 +266,14 @@ class TestMultiAgentRoles:
         if available.get("langchain"):
             from langchain_openai import ChatOpenAI
             from paracle_adapters.langchain_adapter import LangChainAdapter
+
             llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.3)
             adapters["researcher"] = ("langchain", LangChainAdapter(llm=llm))
 
         if available.get("msaf"):
             from agent_framework.openai import OpenAIResponsesClient
             from paracle_adapters.msaf_adapter import MSAFAdapter
+
             client = OpenAIResponsesClient(
                 api_key=os.getenv("OPENAI_API_KEY"),
                 model_id="gpt-4o-mini",
@@ -274,6 +282,7 @@ class TestMultiAgentRoles:
 
         if available.get("autogen"):
             from paracle_adapters.autogen_adapter import AutoGenAdapter
+
             llm_config = {
                 "model": "gpt-4o-mini",
                 "api_key": os.getenv("OPENAI_API_KEY"),
@@ -465,8 +474,7 @@ class TestAdapterInteroperability:
             model="gpt-4o-mini",
             provider="openai",
             system_prompt=(
-                "Extract the name and age from the text. "
-                "Format: Name: X, Age: Y"
+                "Extract the name and age from the text. " "Format: Name: X, Age: Y"
             ),
         )
         extractor = await lc_adapter.create_agent(extractor_spec)
@@ -489,18 +497,14 @@ class TestAdapterInteroperability:
 
         # Step 1: Extract data with LangChain
         text = "John is a 30 year old developer from New York."
-        extract_result = await lc_adapter.execute_agent(
-            extractor,
-            {"input": text}
-        )
+        extract_result = await lc_adapter.execute_agent(extractor, {"input": text})
         extracted = extract_result["response"]
         print(f"[LangChain Extractor] Input: {text}")
         print(f"[LangChain Extractor] Output: {extracted}")
 
         # Step 2: Process with MSAF
         process_result = await msaf_adapter.execute_agent(
-            processor,
-            {"input": f"Person data: {extracted}"}
+            processor, {"input": f"Person data: {extracted}"}
         )
         processed = process_result["response"]
         print(f"[MSAF Processor] Output: {processed}")
@@ -510,8 +514,9 @@ class TestAdapterInteroperability:
 
         # Verify data flowed through
         assert "30" in extracted or "John" in extracted, "Should extract data"
-        assert "1996" in str(processed) or "1995" in str(processed), \
-            f"Birth year should be ~1996, got: {processed}"
+        assert "1996" in str(processed) or "1995" in str(
+            processed
+        ), f"Birth year should be ~1996, got: {processed}"
 
 
 if __name__ == "__main__":

@@ -76,8 +76,7 @@ class DAG:
             for dep in deps:
                 if dep not in self.steps:
                     raise InvalidWorkflowError(
-                        f"Step '{step_id}' depends on "
-                        f"non-existent step '{dep}'"
+                        f"Step '{step_id}' depends on " f"non-existent step '{dep}'"
                     )
 
         # Check for cycles using DFS
@@ -122,8 +121,7 @@ class DAG:
         in_degree = {step: len(self.graph[step]) for step in self.steps}
 
         # Queue of nodes with in-degree 0 (no dependencies)
-        queue = deque(
-            [step for step, degree in in_degree.items() if degree == 0])
+        queue = deque([step for step, degree in in_degree.items() if degree == 0])
         result = []
 
         while queue:
@@ -168,9 +166,7 @@ class DAG:
 
         while remaining:
             # Find all nodes with in-degree 0 in remaining set
-            current_level = [
-                step for step in remaining if in_degree[step] == 0
-            ]
+            current_level = [step for step in remaining if in_degree[step] == 0]
 
             if not current_level:
                 # No nodes with in-degree 0 - there's a cycle

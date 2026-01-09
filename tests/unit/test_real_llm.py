@@ -88,8 +88,8 @@ steps:
                 json={
                     "workflow_id": "test_openai_workflow",
                     "inputs": {},
-                    "async_execution": False  # Use synchronous execution
-                }
+                    "async_execution": False,  # Use synchronous execution
+                },
             )
 
             if response.status_code != 202:
@@ -118,8 +118,7 @@ steps:
             )
 
             if status_response.status_code != 200:
-                print(
-                    f"❌ Status retrieval failed: {status_response.status_code}")
+                print(f"❌ Status retrieval failed: {status_response.status_code}")
                 # Continue anyway, use data from execute response
                 status_data = data
             else:
@@ -179,6 +178,7 @@ steps:
         except Exception as e:
             print(f"❌ Error: {e}")
             import traceback
+
             traceback.print_exc()
             return False
 
@@ -199,7 +199,7 @@ async def compare_mock_vs_real():
         try:
             response = await client.post(
                 f"{API_BASE_URL}/api/workflows/execute",
-                json={"workflow_id": "hello_world"}
+                json={"workflow_id": "hello_world"},
             )
 
             if response.status_code == 202:

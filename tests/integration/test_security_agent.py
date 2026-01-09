@@ -96,18 +96,13 @@ def agent_factory(security_agent_spec):
 class TestSecurityAgentBasics:
     """Test basic security agent functionality."""
 
-    def test_security_agent_creation(
-        self, security_agent_spec, agent_factory
-    ):
+    def test_security_agent_creation(self, security_agent_spec, agent_factory):
         """Test creating base security agent."""
         agent = agent_factory.create(security_agent_spec)
         effective = agent.get_effective_spec()
 
         assert effective.name == "security"
-        assert (
-            effective.description
-            == "Security auditing and vulnerability detection"
-        )
+        assert effective.description == "Security auditing and vulnerability detection"
         assert effective.temperature == 0.2
         assert len(effective.tools) == 12
         assert len(effective.skills) == 4
@@ -415,7 +410,11 @@ class TestSecurityAgentWorkflows:
     """Test security agent in workflow scenarios."""
 
     def test_security_workflow_with_multiple_agents(
-        self, security_agent_spec, python_security_spec, api_security_spec, agent_factory
+        self,
+        security_agent_spec,
+        python_security_spec,
+        api_security_spec,
+        agent_factory,
     ):
         """Test security workflow using multiple specialized agents."""
         repo = agent_factory._spec_provider.__self__

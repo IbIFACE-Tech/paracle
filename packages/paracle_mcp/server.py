@@ -116,8 +116,7 @@ class ParacleMCPServer:
             for agent_id in agent_tool_registry.list_agents():
                 agent_tools = agent_tool_registry.get_tools_for_agent(agent_id)
                 all_tools.update(agent_tools)
-            logger.info(
-                f"Loaded {len(all_tools)} tools from agent_tool_registry")
+            logger.info(f"Loaded {len(all_tools)} tools from agent_tool_registry")
         except ImportError as e:
             logger.warning(f"Could not import agent_tool_registry: {e}")
 
@@ -153,17 +152,24 @@ class ParacleMCPServer:
             tool_name = py_file.stem
             try:
                 # Load module dynamically
-                spec = importlib.util.spec_from_file_location(
-                    tool_name, py_file)
+                spec = importlib.util.spec_from_file_location(tool_name, py_file)
                 if spec and spec.loader:
                     module = importlib.util.module_from_spec(spec)
                     spec.loader.exec_module(module)
 
                     # Get metadata from module or registry
-                    description = getattr(module, "DESCRIPTION", custom_defs.get(
-                        tool_name, {}).get("description", f"Custom tool: {tool_name}"))
-                    parameters = getattr(module, "PARAMETERS", custom_defs.get(
-                        tool_name, {}).get("parameters", {}))
+                    description = getattr(
+                        module,
+                        "DESCRIPTION",
+                        custom_defs.get(tool_name, {}).get(
+                            "description", f"Custom tool: {tool_name}"
+                        ),
+                    )
+                    parameters = getattr(
+                        module,
+                        "PARAMETERS",
+                        custom_defs.get(tool_name, {}).get("parameters", {}),
+                    )
 
                     custom_tool = CustomTool(
                         name=tool_name,
@@ -316,7 +322,16 @@ class ParacleMCPServer:
                     "properties": {
                         "workflow_id": {
                             "type": "string",
-                            "enum": workflows if workflows else ["feature_development", "bugfix", "code_review", "release"],
+                            "enum": (
+                                workflows
+                                if workflows
+                                else [
+                                    "feature_development",
+                                    "bugfix",
+                                    "code_review",
+                                    "release",
+                                ]
+                            ),
                             "description": "Workflow ID to execute",
                         },
                         "inputs": {
@@ -466,10 +481,18 @@ class ParacleMCPServer:
         # Agent router tool
         try:
             from paracle_orchestration.agent_tool_registry import agent_tool_registry
+
             agent_list = agent_tool_registry.list_agents()
         except ImportError:
-            agent_list = ["architect", "coder", "reviewer",
-                          "tester", "pm", "documenter", "releasemanager"]
+            agent_list = [
+                "architect",
+                "coder",
+                "reviewer",
+                "tester",
+                "pm",
+                "documenter",
+                "releasemanager",
+            ]
 
         schemas.append(
             {
@@ -511,7 +534,14 @@ class ParacleMCPServer:
             if path.exists():
                 with open(path, encoding="utf-8") as f:
                     content = yaml.safe_load(f)
-                return {"content": [{"type": "text", "text": yaml.dump(content, default_flow_style=False)}]}
+                return {
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": yaml.dump(content, default_flow_style=False),
+                        }
+                    ]
+                }
             return {"error": "current_state.yaml not found"}
 
         elif tool_name == "roadmap":
@@ -519,7 +549,14 @@ class ParacleMCPServer:
             if path.exists():
                 with open(path, encoding="utf-8") as f:
                     content = yaml.safe_load(f)
-                return {"content": [{"type": "text", "text": yaml.dump(content, default_flow_style=False)}]}
+                return {
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": yaml.dump(content, default_flow_style=False),
+                        }
+                    ]
+                }
             return {"error": "roadmap.yaml not found"}
 
         elif tool_name == "decisions":
@@ -542,7 +579,14 @@ class ParacleMCPServer:
                 policies_dir = self.parac_root / "policies"
                 if policies_dir.exists():
                     policies = [f.stem for f in policies_dir.glob("*.md")]
-                    return {"content": [{"type": "text", "text": f"Available policies: {', '.join(policies)}"}]}
+                    return {
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": f"Available policies: {', '.join(policies)}",
+                            }
+                        ]
+                    }
                 return {"error": "Policies directory not found"}
 
         return {"error": f"Unknown context tool: {name}"}
@@ -569,8 +613,16 @@ class ParacleMCPServer:
                     for wf in catalog.get("workflows", []):
                         if wf.get("status") == "active":
                             workflows.append(
-                                f"- {wf['name']}: {wf.get('description', '')[:100]}")
-                    return {"content": [{"type": "text", "text": "Available workflows:\n" + "\n".join(workflows)}]}
+                                f"- {wf['name']}: {wf.get('description', '')[:100]}"
+                            )
+                    return {
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": "Available workflows:\n" + "\n".join(workflows),
+                            }
+                        ]
+                    }
             return {"content": [{"type": "text", "text": "No workflows catalog found"}]}
 
         elif tool_name == "run":
@@ -585,24 +637,20 @@ class ParacleMCPServer:
                     "paracle_cli.main",
                     "workflow",
                     "run",
-                    workflow_id
+                    workflow_id,
                 ]
 
                 # Add inputs as --input key=value pairs
                 for key, value in inputs.items():
                     cmd.extend(["--input", f"{key}={value}"])
 
-                cwd = (
-                    str(self.parac_root.parent)
-                    if self.parac_root
-                    else None
-                )
+                cwd = str(self.parac_root.parent) if self.parac_root else None
                 result = subprocess.run(
                     cmd,
                     capture_output=True,
                     text=True,
                     timeout=300,  # 5 minute timeout
-                    cwd=cwd
+                    cwd=cwd,
                 )
 
                 if result.returncode == 0:
@@ -610,36 +658,19 @@ class ParacleMCPServer:
                         f"✅ Workflow '{workflow_id}' completed "
                         f"successfully\n\nOutput:\n{result.stdout}"
                     )
-                    return {
-                        "content": [{"type": "text", "text": msg}]
-                    }
+                    return {"content": [{"type": "text", "text": msg}]}
                 else:
                     msg = (
                         f"❌ Workflow '{workflow_id}' failed\n\n"
                         f"Error:\n{result.stderr}"
                     )
-                    return {
-                        "content": [{"type": "text", "text": msg}],
-                        "isError": True
-                    }
+                    return {"content": [{"type": "text", "text": msg}], "isError": True}
             except subprocess.TimeoutExpired:
-                msg = (
-                    f"⏱️ Workflow '{workflow_id}' timed out "
-                    f"after 5 minutes"
-                )
-                return {
-                    "content": [{"type": "text", "text": msg}],
-                    "isError": True
-                }
+                msg = f"⏱️ Workflow '{workflow_id}' timed out " f"after 5 minutes"
+                return {"content": [{"type": "text", "text": msg}], "isError": True}
             except Exception as e:
-                msg = (
-                    f"❌ Error executing workflow '{workflow_id}': "
-                    f"{str(e)}"
-                )
-                return {
-                    "content": [{"type": "text", "text": msg}],
-                    "isError": True
-                }
+                msg = f"❌ Error executing workflow '{workflow_id}': " f"{str(e)}"
+                return {"content": [{"type": "text", "text": msg}], "isError": True}
 
         return {"error": f"Unknown workflow tool: {name}"}
 
@@ -670,7 +701,11 @@ class ParacleMCPServer:
             with open(log_path, "a", encoding="utf-8") as f:
                 f.write(log_entry)
 
-            return {"content": [{"type": "text", "text": f"Action logged: {log_entry.strip()}"}]}
+            return {
+                "content": [
+                    {"type": "text", "text": f"Action logged: {log_entry.strip()}"}
+                ]
+            }
 
         return {"error": f"Unknown memory tool: {name}"}
 
@@ -783,7 +818,10 @@ class ParacleMCPServer:
             self.active_agent = arguments.get("agent_id")
             return {
                 "content": [
-                    {"type": "text", "text": f"Active agent set to: {self.active_agent}"}
+                    {
+                        "type": "text",
+                        "text": f"Active agent set to: {self.active_agent}",
+                    }
                 ]
             }
 
@@ -858,14 +896,13 @@ class ParacleMCPServer:
                         "serverInfo": {
                             "name": "paracle-mcp",
                             "version": "1.0.1",
-                            "icon": "https://raw.githubusercontent.com/IbIFACE-Tech/paracle-lite/main/assets/paracle_icon.png"
+                            "icon": "https://raw.githubusercontent.com/IbIFACE-Tech/paracle-lite/main/assets/paracle_icon.png",
                         },
                     }
                 else:
                     response = {"error": f"Unknown method: {method}"}
 
-                result = {"jsonrpc": "2.0",
-                          "id": request_id, "result": response}
+                result = {"jsonrpc": "2.0", "id": request_id, "result": response}
                 print(json.dumps(result), flush=True)
 
             except json.JSONDecodeError as e:
@@ -895,8 +932,7 @@ class ParacleMCPServer:
         try:
             from aiohttp import web
         except ImportError:
-            logger.error(
-                "aiohttp not installed. Install with: pip install aiohttp")
+            logger.error("aiohttp not installed. Install with: pip install aiohttp")
             raise
 
         async def handle_mcp(request):
@@ -917,7 +953,7 @@ class ParacleMCPServer:
                     "serverInfo": {
                         "name": "paracle-mcp",
                         "version": "1.0.1",
-                        "icon": "https://raw.githubusercontent.com/IbIFACE-Tech/paracle-lite/main/assets/paracle_icon.png"
+                        "icon": "https://raw.githubusercontent.com/IbIFACE-Tech/paracle-lite/main/assets/paracle_icon.png",
                     },
                 }
             else:

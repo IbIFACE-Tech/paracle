@@ -208,6 +208,8 @@ class CostReport(BaseModel):
             },
             "top_consumers": {
                 "models": [{"model": m, "cost": c} for m, c in self.top_models],
-                "workflows": [{"workflow": w, "cost": c} for w, c in self.top_workflows],
+                "workflows": [
+                    {"workflow": w, "cost": c} for w, c in self.top_workflows
+                ],
             },
         }

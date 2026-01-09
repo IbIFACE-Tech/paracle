@@ -140,7 +140,10 @@ class PolicyEvaluator:
 
                 # Categorize by type
                 if policy.type == PolicyType.DENY:
-                    if matching_deny is None or policy.priority > matching_deny.priority:
+                    if (
+                        matching_deny is None
+                        or policy.priority > matching_deny.priority
+                    ):
                         matching_deny = policy
                 elif policy.type == PolicyType.REQUIRE_APPROVAL:
                     if (
@@ -149,10 +152,16 @@ class PolicyEvaluator:
                     ):
                         matching_require_approval = policy
                 elif policy.type == PolicyType.AUDIT:
-                    if matching_audit is None or policy.priority > matching_audit.priority:
+                    if (
+                        matching_audit is None
+                        or policy.priority > matching_audit.priority
+                    ):
                         matching_audit = policy
                 elif policy.type == PolicyType.ALLOW:
-                    if matching_allow is None or policy.priority > matching_allow.priority:
+                    if (
+                        matching_allow is None
+                        or policy.priority > matching_allow.priority
+                    ):
                         matching_allow = policy
 
             except Exception as e:

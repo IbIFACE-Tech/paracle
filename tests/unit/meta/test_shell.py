@@ -311,7 +311,10 @@ class TestShellSecurity:
         # Non-allowed command
         result = await secure_capability.run("whoami")
         assert result.success is False
-        assert "not in allowed" in result.error.lower() or "allowed" in result.error.lower()
+        assert (
+            "not in allowed" in result.error.lower()
+            or "allowed" in result.error.lower()
+        )
 
         await secure_capability.shutdown()
 

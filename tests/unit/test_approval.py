@@ -302,9 +302,7 @@ class TestApprovalManager:
         assert approved.is_approved
 
     @pytest.mark.asyncio
-    async def test_any_approver_when_empty_list(
-        self, manager: ApprovalManager
-    ) -> None:
+    async def test_any_approver_when_empty_list(self, manager: ApprovalManager) -> None:
         """Test anyone can approve when approvers list is empty."""
         config = ApprovalConfig(required=True, approvers=[])
         request = await manager.create_request(
@@ -424,9 +422,7 @@ class TestApprovalManager:
         assert stats["rejected_count"] == 1
 
     @pytest.mark.asyncio
-    async def test_wait_for_decision_approved(
-        self, manager: ApprovalManager
-    ) -> None:
+    async def test_wait_for_decision_approved(self, manager: ApprovalManager) -> None:
         """Test waiting for approval decision."""
         request = await manager.create_request(
             workflow_id="wf_123",
@@ -449,9 +445,7 @@ class TestApprovalManager:
         assert is_approved is True
 
     @pytest.mark.asyncio
-    async def test_wait_for_decision_rejected(
-        self, manager: ApprovalManager
-    ) -> None:
+    async def test_wait_for_decision_rejected(self, manager: ApprovalManager) -> None:
         """Test waiting for rejection decision."""
         request = await manager.create_request(
             workflow_id="wf_123",
@@ -474,9 +468,7 @@ class TestApprovalManager:
         assert is_approved is False
 
     @pytest.mark.asyncio
-    async def test_wait_for_decision_timeout(
-        self, manager: ApprovalManager
-    ) -> None:
+    async def test_wait_for_decision_timeout(self, manager: ApprovalManager) -> None:
         """Test timeout while waiting for decision."""
         request = await manager.create_request(
             workflow_id="wf_123",

@@ -135,7 +135,13 @@ def _print_log_line(line: str):
 
 
 @click.group(invoke_without_command=True)
-@click.option("--list", "-l", "list_flag", is_flag=True, help="List log files (shortcut for 'list')")
+@click.option(
+    "--list",
+    "-l",
+    "list_flag",
+    is_flag=True,
+    help="List log files (shortcut for 'list')",
+)
 @click.pass_context
 def logs(ctx: click.Context, list_flag: bool):
     """View and manage Paracle logs.
@@ -200,8 +206,7 @@ def _list_direct() -> None:
     for name, path in sorted(log_files.items()):
         stat = path.stat()
         size = f"{stat.st_size:,} bytes"
-        modified = datetime.fromtimestamp(
-            stat.st_mtime).strftime("%Y-%m-%d %H:%M")
+        modified = datetime.fromtimestamp(stat.st_mtime).strftime("%Y-%m-%d %H:%M")
         table.add_row(name, str(path.relative_to(parac_root)), size, modified)
 
     console.print(table)
@@ -228,14 +233,12 @@ def _show_via_api(
 ) -> None:
     """Show logs via API."""
     if follow:
-        console.print(
-            "[yellow]Warning:[/yellow] Follow mode not supported via API.")
+        console.print("[yellow]Warning:[/yellow] Follow mode not supported via API.")
         console.print("[dim]Falling back to direct access...[/dim]")
         _show_direct(log_name, tail, follow, as_json, grep_pattern)
         return
 
-    result = client.logs_show(
-        log_name=log_name, tail=tail, pattern=grep_pattern)
+    result = client.logs_show(log_name=log_name, tail=tail, pattern=grep_pattern)
     lines = result.get("lines", [])
 
     if not lines:
@@ -255,8 +258,7 @@ def _show_via_api(
     else:
         # Pretty print with formatting
         for line in lines:
-            _print_log_line(line.strip() if isinstance(
-                line, str) else str(line))
+            _print_log_line(line.strip() if isinstance(line, str) else str(line))
 
 
 def _show_direct(
@@ -333,8 +335,7 @@ def _follow_log(log_path: Path, pattern: str | None):
     """Follow log file in real-time."""
     import time
 
-    console.print(
-        f"[cyan]Following {log_path.name}... (Ctrl+C to stop)[/cyan]")
+    console.print(f"[cyan]Following {log_path.name}... (Ctrl+C to stop)[/cyan]")
     console.print()
 
     # Get current file size
@@ -515,20 +516,26 @@ def _export_direct(
                 f.write(json.dumps(entry) + "\n")
     elif fmt == "csv":
         import csv
+
         with open(output_path, "w", encoding="utf-8", newline="") as f:
             if entries:
                 writer = csv.DictWriter(f, fieldnames=entries[0].keys())
                 writer.writeheader()
                 writer.writerows(entries)
 
-    console.print(
-        f"[green]OK[/green] Exported {len(entries)} entries to {output_path}")
+    console.print(f"[green]OK[/green] Exported {len(entries)} entries to {output_path}")
 
 
 @logs.command("export")
 @click.argument("log_name", default="actions")
 @click.option("--output", "-o", help="Output file path")
-@click.option("--format", "-f", "fmt", type=click.Choice(["json", "csv", "ndjson"]), default="json")
+@click.option(
+    "--format",
+    "-f",
+    "fmt",
+    type=click.Choice(["json", "csv", "ndjson"]),
+    default="json",
+)
 @click.option("--from-date", help="Filter from date (YYYY-MM-DD)")
 @click.option("--to-date", help="Filter to date (YYYY-MM-DD)")
 def export_logs(
@@ -563,7 +570,8 @@ def _audit_direct(
 
     if not audit_dir.exists():
         console.print(
-            "[yellow]No audit logs found. Audit logging may not be configured.[/yellow]")
+            "[yellow]No audit logs found. Audit logging may not be configured.[/yellow]"
+        )
         console.print("\nTo enable audit logging, configure it at startup:")
         console.print("  from paracle_core.logging import configure_logging")
         console.print("  configure_logging(audit_enabled=True)")
@@ -664,7 +672,9 @@ def _audit_direct(
 @logs.command("audit")
 @click.option("--tail", "-n", default=50, help="Number of entries to show")
 @click.option("--category", "-c", help="Filter by category (e.g., agent, workflow)")
-@click.option("--severity", "-s", help="Filter by severity (info, low, medium, high, critical)")
+@click.option(
+    "--severity", "-s", help="Filter by severity (info, low, medium, high, critical)"
+)
 def show_audit(tail: int, category: str | None, severity: str | None):
     """Show audit log (ISO 42001 compliance trail).
 

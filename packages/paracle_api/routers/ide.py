@@ -190,9 +190,7 @@ async def init_ides(request: IDEInitRequest | None = None) -> IDEInitResponse:
     if not request.ides or "all" in request.ides:
         ides_to_init = supported
     else:
-        ides_to_init = [
-            ide.lower() for ide in request.ides if ide.lower() in supported
-        ]
+        ides_to_init = [ide.lower() for ide in request.ides if ide.lower() in supported]
 
     if not ides_to_init:
         raise HTTPException(

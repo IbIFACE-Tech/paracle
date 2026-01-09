@@ -248,9 +248,7 @@ class OpenAIProvider(BaseProvider):
                         "function": {
                             "name": tc.name,
                             "arguments": (
-                                tc.input
-                                if isinstance(tc.input, str)
-                                else str(tc.input)
+                                tc.input if isinstance(tc.input, str) else str(tc.input)
                             ),
                         },
                     }
@@ -266,9 +264,11 @@ class OpenAIProvider(BaseProvider):
                         {
                             "role": "tool",
                             "tool_call_id": tr.tool_use_id,
-                            "content": tr.content
-                            if isinstance(tr.content, str)
-                            else str(tr.content),
+                            "content": (
+                                tr.content
+                                if isinstance(tr.content, str)
+                                else str(tr.content)
+                            ),
                         }
                     )
 
@@ -339,12 +339,14 @@ class OpenAIProvider(BaseProvider):
         return LLMResponse(
             content=content,
             tool_calls=tool_calls if tool_calls else None,
-            usage=LLMUsage(
-                input_tokens=response.usage.prompt_tokens,
-                output_tokens=response.usage.completion_tokens,
-            )
-            if response.usage
-            else None,
+            usage=(
+                LLMUsage(
+                    input_tokens=response.usage.prompt_tokens,
+                    output_tokens=response.usage.completion_tokens,
+                )
+                if response.usage
+                else None
+            ),
             provider=self.name,
             model=response.model,
             stop_reason=choice.finish_reason,

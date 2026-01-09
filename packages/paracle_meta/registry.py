@@ -185,18 +185,22 @@ class CapabilityRegistry:
 
     def _register_builtins(self) -> None:
         """Register built-in capabilities."""
-        for name, (module, class_name, requires_provider) in self._BUILTIN_FACTORIES.items():
+        for name, (
+            module,
+            class_name,
+            requires_provider,
+        ) in self._BUILTIN_FACTORIES.items():
             if name not in self._capabilities:
                 self._capabilities[name] = CapabilityInfo(
                     name=name,
-                    factory=lambda m=module, c=class_name: self._import_capability(m, c),
+                    factory=lambda m=module, c=class_name: self._import_capability(
+                        m, c
+                    ),
                     config=self._capabilities_config.get(name),
                     requires_provider=requires_provider,
                 )
 
-    def _import_capability(
-        self, module_path: str, class_name: str
-    ) -> "BaseCapability":
+    def _import_capability(self, module_path: str, class_name: str) -> "BaseCapability":
         """Import and instantiate a capability class."""
         import importlib
 

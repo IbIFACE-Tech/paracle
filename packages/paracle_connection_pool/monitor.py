@@ -73,7 +73,7 @@ class PoolMonitor:
 
         # Keep only recent history
         if len(self._http_stats_history) > self._max_history:
-            self._http_stats_history = self._http_stats_history[-self._max_history:]
+            self._http_stats_history = self._http_stats_history[-self._max_history :]
 
     def record_db_stats(self, stats: dict[str, Any]) -> None:
         """Record database pool statistics.
@@ -90,7 +90,7 @@ class PoolMonitor:
 
         # Keep only recent history
         if len(self._db_stats_history) > self._max_history:
-            self._db_stats_history = self._db_stats_history[-self._max_history:]
+            self._db_stats_history = self._db_stats_history[-self._max_history :]
 
     def get_current_stats(
         self,

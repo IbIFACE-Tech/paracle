@@ -82,10 +82,7 @@ class TestFrameworkAdapter:
         spec = AgentSpec(name="test-agent", provider="openai", model="gpt-4")
 
         agent_instance = await adapter.create_agent(spec)
-        result = await adapter.execute_agent(
-            agent_instance,
-            {"prompt": "Hello"}
-        )
+        result = await adapter.execute_agent(agent_instance, {"prompt": "Hello"})
 
         assert "response" in result
         assert result["response"] == "mock response"

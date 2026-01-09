@@ -101,9 +101,7 @@ class PluginLoader:
                     await self.registry.register(plugin, config)
                     count += 1
             except Exception as e:
-                logger.error(
-                    f"Failed to load plugin from {plugin_file}: {e}"
-                )
+                logger.error(f"Failed to load plugin from {plugin_file}: {e}")
 
         return count
 
@@ -131,9 +129,7 @@ class PluginLoader:
                     continue
 
                 try:
-                    plugin = await self._load_plugin_by_name(
-                        plugin_config["name"]
-                    )
+                    plugin = await self._load_plugin_by_name(plugin_config["name"])
                     if plugin:
                         await self.registry.register(
                             plugin, plugin_config.get("config", {})
@@ -141,8 +137,7 @@ class PluginLoader:
                         count += 1
                 except Exception as e:
                     logger.error(
-                        f"Failed to load plugin "
-                        f"'{plugin_config['name']}': {e}"
+                        f"Failed to load plugin " f"'{plugin_config['name']}': {e}"
                     )
 
             return count
@@ -163,16 +158,12 @@ class PluginLoader:
             import importlib.metadata
 
             count = 0
-            for entry_point in importlib.metadata.entry_points(
-                group="paracle.plugins"
-            ):
+            for entry_point in importlib.metadata.entry_points(group="paracle.plugins"):
                 try:
                     plugin_class = entry_point.load()
                     plugin = plugin_class()
 
-                    config = await self._load_plugin_config(
-                        plugin.metadata.name
-                    )
+                    config = await self._load_plugin_config(plugin.metadata.name)
                     await self.registry.register(plugin, config)
                     count += 1
                 except Exception as e:
@@ -186,9 +177,7 @@ class PluginLoader:
             # importlib.metadata not available (Python < 3.8)
             return 0
 
-    async def _load_plugin_from_file(
-        self, plugin_file: Path
-    ) -> BasePlugin | None:
+    async def _load_plugin_from_file(self, plugin_file: Path) -> BasePlugin | None:
         """
         Load plugin from Python file.
 
@@ -198,9 +187,7 @@ class PluginLoader:
         Returns:
             Plugin instance or None
         """
-        spec = importlib.util.spec_from_file_location(
-            plugin_file.stem, plugin_file
-        )
+        spec = importlib.util.spec_from_file_location(plugin_file.stem, plugin_file)
         if spec and spec.loader:
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
@@ -217,9 +204,7 @@ class PluginLoader:
 
         return None
 
-    async def _load_plugin_by_name(
-        self, plugin_name: str
-    ) -> BasePlugin | None:
+    async def _load_plugin_by_name(self, plugin_name: str) -> BasePlugin | None:
         """
         Load plugin by name (from installed package).
 
@@ -245,9 +230,7 @@ class PluginLoader:
         except ImportError:
             return None
 
-    async def _load_plugin_config(
-        self, plugin_name: str
-    ) -> dict[str, Any]:
+    async def _load_plugin_config(self, plugin_name: str) -> dict[str, Any]:
         """
         Load configuration for a plugin.
 

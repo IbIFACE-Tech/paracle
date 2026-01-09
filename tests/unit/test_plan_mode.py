@@ -219,9 +219,7 @@ def test_plan_parallel_workflow(parallel_workflow):
     assert len(plan.parallel_groups) == 3
 
     # Group 1 should have 3 parallel steps (B, C, D)
-    parallel_group = next(
-        g for g in plan.parallel_groups if len(g.steps) == 3
-    )
+    parallel_group = next(g for g in plan.parallel_groups if len(g.steps) == 3)
     assert parallel_group.can_parallelize
     assert len(parallel_group.steps) == 3
     assert set(parallel_group.steps) == {"step_b", "step_c", "step_d"}
@@ -439,8 +437,7 @@ def test_optimization_suggestions_long_chain():
 
     # Should warn about long chain
     suggestions = plan.optimization_suggestions
-    assert any("chain" in s.lower() or "depth" in s.lower()
-               for s in suggestions)
+    assert any("chain" in s.lower() or "depth" in s.lower() for s in suggestions)
 
 
 # ============================================================================

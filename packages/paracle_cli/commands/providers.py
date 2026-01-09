@@ -15,7 +15,13 @@ console = Console()
 
 
 @click.group(invoke_without_command=True)
-@click.option("--list", "-l", "list_flag", is_flag=True, help="List all providers (shortcut for 'list')")
+@click.option(
+    "--list",
+    "-l",
+    "list_flag",
+    is_flag=True,
+    help="List all providers (shortcut for 'list')",
+)
 @click.pass_context
 def providers(ctx: click.Context, list_flag: bool) -> None:
     """Manage LLM providers.
@@ -96,9 +102,7 @@ def list_providers(output_json: bool) -> None:
             return
 
         # Create table
-        table = Table(
-            title="LLM Providers", show_header=True, header_style="bold cyan"
-        )
+        table = Table(title="LLM Providers", show_header=True, header_style="bold cyan")
         table.add_column("Provider", style="cyan", width=15)
         table.add_column("Status", justify="center", width=12)
         table.add_column("Models", width=40)
@@ -118,11 +122,15 @@ def list_providers(output_json: bool) -> None:
             table.add_row(info["name"], status, models, api_key)
 
         console.print(table)
-        console.print(f"\n[dim]Registered: {len(registered)} | Available: {len(known_providers)}[/dim]")
+        console.print(
+            f"\n[dim]Registered: {len(registered)} | Available: {len(known_providers)}[/dim]"
+        )
 
         if not registered:
             console.print("\n[yellow]No providers registered yet.[/yellow]")
-            console.print("[dim]Use 'paracle providers add <provider>' to register one[/dim]")
+            console.print(
+                "[dim]Use 'paracle providers add <provider>' to register one[/dim]"
+            )
 
     except Exception as e:
         console.print(f"[red]✗ Error:[/red] {e}")
@@ -158,18 +166,14 @@ def add_provider(
         # Validate provider
         supported = ["openai", "anthropic", "google", "ollama"]
         if provider_id not in supported:
-            console.print(
-                f"[red]✗ Unknown provider:[/red] {provider_id}"
-            )
+            console.print(f"[red]✗ Unknown provider:[/red] {provider_id}")
             console.print(f"[dim]Supported: {', '.join(supported)}[/dim]")
             raise click.Abort()
 
         # Check API key requirement
         requires_key = provider_id != "ollama"
         if requires_key and not api_key:
-            console.print(
-                f"[red]✗ API key required for {provider_id}[/red]"
-            )
+            console.print(f"[red]✗ API key required for {provider_id}[/red]")
             console.print(
                 f"[dim]Use --api-key option or set {provider_id.upper()}_API_KEY environment variable[/dim]"
             )
@@ -200,9 +204,7 @@ def add_provider(
         console.print("\n[dim]Test with: paracle providers test {provider_id}[/dim]")
 
         # TODO: Implement actual provider registration
-        console.print(
-            "\n[yellow]⚠️  Provider persistence coming in Phase 4[/yellow]"
-        )
+        console.print("\n[yellow]⚠️  Provider persistence coming in Phase 4[/yellow]")
 
     except click.Abort:
         raise
@@ -249,7 +251,9 @@ def test_provider(provider_id: str, model: str | None) -> None:
 
         except Exception as e:
             console.print(f"[red]✗ Provider not found or error:[/red] {e}")
-            console.print("\n[dim]Register with: paracle providers add {provider_id}[/dim]")
+            console.print(
+                "\n[dim]Register with: paracle providers add {provider_id}[/dim]"
+            )
             raise click.Abort()
 
     except click.Abort:

@@ -69,6 +69,7 @@ def get_adapter_class(name: str):
     module_path, class_name = _ADAPTER_CLASSES[name].split(":")
     try:
         import importlib
+
         module = importlib.import_module(module_path)
         return getattr(module, class_name)
     except ImportError as e:

@@ -49,8 +49,7 @@ class Alert:
     def __post_init__(self):
         """Generate fingerprint."""
         if not self.fingerprint:
-            label_str = "_".join(
-                f"{k}={v}" for k, v in sorted(self.labels.items()))
+            label_str = "_".join(f"{k}={v}" for k, v in sorted(self.labels.items()))
             self.fingerprint = f"{self.rule_name}_{label_str}"
 
     def fire(self):
@@ -164,7 +163,8 @@ class SlackChannel(NotificationChannel):
                 {
                     "color": self._severity_color(alert.severity),
                     "fields": [
-                        {"title": k, "value": v, "short": True} for k, v in alert.labels.items()
+                        {"title": k, "value": v, "short": True}
+                        for k, v in alert.labels.items()
                     ],
                 }
             ],

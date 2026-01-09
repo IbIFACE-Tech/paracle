@@ -46,8 +46,7 @@ def _find_parac_root(start_path: Path | None = None) -> Path:
         return parac_dir
 
     raise RuntimeError(
-        ".parac/ directory not found. "
-        "Run 'paracle init' to initialize a workspace."
+        ".parac/ directory not found. " "Run 'paracle init' to initialize a workspace."
     )
 
 
@@ -112,7 +111,8 @@ class BoardRepository:
     def _init_db(self) -> None:
         """Initialize database tables."""
         with sqlite3.connect(self.db_path) as conn:
-            conn.execute("""
+            conn.execute(
+                """
                 CREATE TABLE IF NOT EXISTS boards (
                     id TEXT PRIMARY KEY,
                     name TEXT NOT NULL,
@@ -122,9 +122,11 @@ class BoardRepository:
                     columns TEXT NOT NULL,
                     archived INTEGER DEFAULT 0
                 )
-            """)
+            """
+            )
 
-            conn.execute("""
+            conn.execute(
+                """
                 CREATE TABLE IF NOT EXISTS tasks (
                     id TEXT PRIMARY KEY,
                     board_id TEXT NOT NULL,
@@ -144,22 +146,29 @@ class BoardRepository:
                     blocked_by TEXT,
                     FOREIGN KEY (board_id) REFERENCES boards (id)
                 )
-            """)
+            """
+            )
 
-            conn.execute("""
+            conn.execute(
+                """
                 CREATE INDEX IF NOT EXISTS idx_tasks_board_id
                 ON tasks (board_id)
-            """)
+            """
+            )
 
-            conn.execute("""
+            conn.execute(
+                """
                 CREATE INDEX IF NOT EXISTS idx_tasks_status
                 ON tasks (status)
-            """)
+            """
+            )
 
-            conn.execute("""
+            conn.execute(
+                """
                 CREATE INDEX IF NOT EXISTS idx_tasks_assigned_to
                 ON tasks (assigned_to)
-            """)
+            """
+            )
 
             conn.commit()
 
@@ -236,8 +245,7 @@ class BoardRepository:
         with sqlite3.connect(self.db_path) as conn:
             conn.row_factory = sqlite3.Row
             if include_archived:
-                cursor = conn.execute(
-                    "SELECT * FROM boards ORDER BY created_at DESC")
+                cursor = conn.execute("SELECT * FROM boards ORDER BY created_at DESC")
             else:
                 cursor = conn.execute(
                     "SELECT * FROM boards WHERE archived = 0 ORDER BY created_at DESC"
@@ -325,12 +333,17 @@ class BoardRepository:
                     task.board_id,
                     task.title,
                     task.description,
-                    task.status if isinstance(
-                        task.status, str) else task.status.value,
-                    task.priority if isinstance(
-                        task.priority, str) else task.priority.value,
-                    task.task_type if isinstance(
-                        task.task_type, str) else task.task_type.value,
+                    task.status if isinstance(task.status, str) else task.status.value,
+                    (
+                        task.priority
+                        if isinstance(task.priority, str)
+                        else task.priority.value
+                    ),
+                    (
+                        task.task_type
+                        if isinstance(task.task_type, str)
+                        else task.task_type.value
+                    ),
                     task.assigned_to,
                     task.created_at.isoformat(),
                     task.updated_at.isoformat(),
@@ -438,12 +451,17 @@ class BoardRepository:
                 (
                     task.title,
                     task.description,
-                    task.status if isinstance(
-                        task.status, str) else task.status.value,
-                    task.priority if isinstance(
-                        task.priority, str) else task.priority.value,
-                    task.task_type if isinstance(
-                        task.task_type, str) else task.task_type.value,
+                    task.status if isinstance(task.status, str) else task.status.value,
+                    (
+                        task.priority
+                        if isinstance(task.priority, str)
+                        else task.priority.value
+                    ),
+                    (
+                        task.task_type
+                        if isinstance(task.task_type, str)
+                        else task.task_type.value
+                    ),
                     task.assigned_to,
                     task.updated_at.isoformat(),
                     task.started_at.isoformat() if task.started_at else None,
@@ -546,8 +564,7 @@ class BoardRepository:
             created_at=datetime.fromisoformat(row["created_at"]),
             updated_at=datetime.fromisoformat(row["updated_at"]),
             started_at=(
-                datetime.fromisoformat(
-                    row["started_at"]) if row["started_at"] else None
+                datetime.fromisoformat(row["started_at"]) if row["started_at"] else None
             ),
             completed_at=(
                 datetime.fromisoformat(row["completed_at"])
@@ -556,7 +573,6 @@ class BoardRepository:
             ),
             tags=json.loads(row["tags"]) if row["tags"] else [],
             metadata=json.loads(row["metadata"]) if row["metadata"] else {},
-            depends_on=json.loads(
-                row["depends_on"]) if row["depends_on"] else [],
+            depends_on=json.loads(row["depends_on"]) if row["depends_on"] else [],
             blocked_by=row["blocked_by"],
         )

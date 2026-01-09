@@ -126,9 +126,7 @@ class OpenAICompatibleProvider(LLMProvider):
                 f"{self.provider_name} API error: {e.response.status_code} - {e.response.text}"
             ) from e
         except Exception as e:
-            raise LLMProviderError(
-                f"{self.provider_name} provider error: {e}"
-            ) from e
+            raise LLMProviderError(f"{self.provider_name} provider error: {e}") from e
 
     async def stream_completion(
         self,
@@ -187,9 +185,7 @@ class OpenAICompatibleProvider(LLMProvider):
                 f"{self.provider_name} streaming error: {e.response.status_code}"
             ) from e
         except Exception as e:
-            raise LLMProviderError(
-                f"{self.provider_name} streaming error: {e}"
-            ) from e
+            raise LLMProviderError(f"{self.provider_name} streaming error: {e}") from e
 
     async def __aenter__(self):
         """Async context manager entry."""
@@ -201,6 +197,7 @@ class OpenAICompatibleProvider(LLMProvider):
 
 
 # Factory functions for common providers
+
 
 def create_lmstudio_provider(
     model: str = "local-model", port: int = 1234, **kwargs: Any
@@ -223,7 +220,9 @@ def create_lmstudio_provider(
     )
 
 
-def create_together_provider(api_key: str | None = None, **kwargs: Any) -> OpenAICompatibleProvider:
+def create_together_provider(
+    api_key: str | None = None, **kwargs: Any
+) -> OpenAICompatibleProvider:
     """
     Create provider for Together.ai.
 
@@ -413,9 +412,7 @@ def create_anyscale_provider(
 
 
 def create_cloudflare_provider(
-    api_key: str | None = None,
-    account_id: str | None = None,
-    **kwargs: Any
+    api_key: str | None = None, account_id: str | None = None, **kwargs: Any
 ) -> OpenAICompatibleProvider:
     """
     Create provider for Cloudflare Workers AI.

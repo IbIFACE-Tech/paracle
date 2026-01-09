@@ -504,9 +504,7 @@ class TestRoadmapManager:
 
     def test_update_phase_status(self, roadmap_manager):
         """Test updating a phase's status."""
-        result = roadmap_manager.update_phase_status(
-            "primary", "phase_2", "completed"
-        )
+        result = roadmap_manager.update_phase_status("primary", "phase_2", "completed")
 
         assert result is True
 
@@ -706,7 +704,12 @@ class TestFileManagementIntegration:
                 {
                     "version": "1.0",
                     "phases": [
-                        {"id": "phase_1", "name": "Phase 1", "status": "in_progress", "progress": 50.0}
+                        {
+                            "id": "phase_1",
+                            "name": "Phase 1",
+                            "status": "in_progress",
+                            "progress": 50.0,
+                        }
                     ],
                 }
             ),

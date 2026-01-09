@@ -17,7 +17,13 @@ console = Console()
 
 
 @click.group(invoke_without_command=True)
-@click.option("--list", "-l", "list_flag", is_flag=True, help="List artifact reviews (shortcut for 'list')")
+@click.option(
+    "--list",
+    "-l",
+    "list_flag",
+    is_flag=True,
+    help="List artifact reviews (shortcut for 'list')",
+)
 @click.pass_context
 def reviews(ctx: click.Context, list_flag: bool) -> None:
     """Manage artifact reviews (sandbox execution).
@@ -90,7 +96,9 @@ def list_reviews(
             return
 
         # Create table
-        table = Table(title="Artifact Reviews", show_header=True, header_style="bold cyan")
+        table = Table(
+            title="Artifact Reviews", show_header=True, header_style="bold cyan"
+        )
         table.add_column("ID", style="cyan", width=12)
         table.add_column("Artifact", width=20)
         table.add_column("Type", width=12)
@@ -174,7 +182,9 @@ def get_review(review_id: str, output_json: bool, show_content: bool) -> None:
             return
 
         # Display detailed view
-        console.print(f"\n[bold cyan]Artifact Review: {result.get('review_id')}[/bold cyan]\n")
+        console.print(
+            f"\n[bold cyan]Artifact Review: {result.get('review_id')}[/bold cyan]\n"
+        )
 
         console.print(f"[bold]Artifact ID:[/bold] {result.get('artifact_id')}")
         console.print(f"[bold]Type:[/bold] {result.get('artifact_type')}")
@@ -278,7 +288,9 @@ def approve_review(review_id: str, reviewer: str, comment: str | None) -> None:
             console.print(f"[green]Approved[/green] review {result.get('review_id')}")
             console.print("  All required approvals received.")
         else:
-            console.print(f"[yellow]Approval recorded[/yellow] for review {result.get('review_id')}")
+            console.print(
+                f"[yellow]Approval recorded[/yellow] for review {result.get('review_id')}"
+            )
             console.print(f"  Approvals: {approval_count}/{required}")
 
         console.print(f"  Artifact: {result.get('artifact_id')}")
@@ -412,7 +424,9 @@ def review_stats(output_json: bool) -> None:
         by_risk = result.get("by_risk_level", {})
         if by_risk:
             console.print()
-            risk_table = Table(title="By Risk Level", show_header=True, header_style="bold")
+            risk_table = Table(
+                title="By Risk Level", show_header=True, header_style="bold"
+            )
             risk_table.add_column("Risk Level", style="cyan")
             risk_table.add_column("Count", justify="right")
 

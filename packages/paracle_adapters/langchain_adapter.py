@@ -121,7 +121,9 @@ class LangChainAdapter(FrameworkAdapter):
             tools = self._create_tools(agent_spec)
 
             # Create system message from spec
-            system_message = agent_spec.system_prompt or "You are a helpful AI assistant."
+            system_message = (
+                agent_spec.system_prompt or "You are a helpful AI assistant."
+            )
 
             if self.use_langgraph and LANGGRAPH_AVAILABLE:
                 # Modern LangGraph ReAct agent
@@ -139,10 +141,12 @@ class LangChainAdapter(FrameworkAdapter):
                 }
             else:
                 # Fallback: Simple LLM chain without ReAct
-                prompt = ChatPromptTemplate.from_messages([
-                    ("system", system_message),
-                    MessagesPlaceholder(variable_name="messages"),
-                ])
+                prompt = ChatPromptTemplate.from_messages(
+                    [
+                        ("system", system_message),
+                        MessagesPlaceholder(variable_name="messages"),
+                    ]
+                )
                 chain = prompt | self.llm
                 return {
                     "type": "chain",
@@ -431,6 +435,7 @@ class LangChainAdapter(FrameworkAdapter):
                 func = tool_item.get("func")
 
                 if func and callable(func):
+
                     @tool
                     def custom_tool(query: str, fn: Callable = func) -> str:
                         """Custom tool wrapper."""
@@ -470,11 +475,13 @@ class LangChainAdapter(FrameworkAdapter):
         ]
 
         if LANGGRAPH_AVAILABLE:
-            features.extend([
-                "workflows",
-                "react_agents",
-                "state_graphs",
-            ])
+            features.extend(
+                [
+                    "workflows",
+                    "react_agents",
+                    "state_graphs",
+                ]
+            )
 
         return features
 

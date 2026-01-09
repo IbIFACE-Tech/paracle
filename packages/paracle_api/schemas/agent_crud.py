@@ -19,9 +19,7 @@ class AgentCreateRequest(BaseModel):
     Can either reference an existing spec by name, or provide a full spec inline.
     """
 
-    spec_name: str | None = Field(
-        None, description="Name of existing spec to use"
-    )
+    spec_name: str | None = Field(None, description="Name of existing spec to use")
     spec: AgentSpec | None = Field(
         None, description="Inline agent spec (if not using spec_name)"
     )

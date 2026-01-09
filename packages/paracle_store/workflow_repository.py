@@ -111,8 +111,7 @@ class WorkflowRepository(InMemoryRepository[Workflow]):
             List of completed workflows
         """
         return self.find_by(
-            lambda w: w.status.phase
-            in (EntityStatus.SUCCEEDED, EntityStatus.FAILED)
+            lambda w: w.status.phase in (EntityStatus.SUCCEEDED, EntityStatus.FAILED)
         )
 
     def find_by_spec_name(self, spec_name: str) -> list[Workflow]:

@@ -29,9 +29,7 @@ class GenerationAdapter:
         """Provider name."""
         return self._provider_name
 
-    async def generate_agent(
-        self, description: str, **kwargs: Any
-    ) -> dict[str, Any]:
+    async def generate_agent(self, description: str, **kwargs: Any) -> dict[str, Any]:
         """Generate agent specification from description.
 
         Args:
@@ -92,9 +90,7 @@ Only output the YAML specification, nothing else."""
 
         return {"name": agent_name, "yaml": yaml_spec, "description": description}
 
-    async def generate_skill(
-        self, description: str, **kwargs: Any
-    ) -> dict[str, Any]:
+    async def generate_skill(self, description: str, **kwargs: Any) -> dict[str, Any]:
         """Generate skill from description.
 
         Args:
@@ -208,8 +204,7 @@ steps:
         )
 
         yaml_spec = self._extract_yaml(response.content)
-        workflow_name = self._extract_name_from_yaml(
-            yaml_spec, "generated_workflow")
+        workflow_name = self._extract_name_from_yaml(yaml_spec, "generated_workflow")
 
         return {"name": workflow_name, "yaml": yaml_spec}
 

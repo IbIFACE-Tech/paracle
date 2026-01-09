@@ -68,8 +68,7 @@ def _get_remote_agent(agent_name: str) -> Any:
 @click.option(
     "--mode",
     "-m",
-    type=click.Choice(["safe", "yolo", "sandbox", "review"],
-                      case_sensitive=False),
+    type=click.Choice(["safe", "yolo", "sandbox", "review"], case_sensitive=False),
     default="safe",
     help="Execution mode: safe (default), yolo (auto-approve), sandbox (isolated), review (human-in-loop)",
 )
@@ -319,8 +318,7 @@ def _parse_inputs(input_args: tuple[str], files: tuple[str]) -> dict[str, Any]:
                 content = Path(file_path).read_text()
                 inputs["files"].append({"path": file_path, "content": content})
             except Exception as e:
-                console.print(
-                    f"[yellow]⚠️  Failed to read {file_path}: {e}[/yellow]")
+                console.print(f"[yellow]⚠️  Failed to read {file_path}: {e}[/yellow]")
 
     return inputs
 
@@ -373,8 +371,7 @@ def _dry_run(
 
     if verbose and inputs:
         for key, value in inputs.items():
-            value_str = str(value)[:50] + \
-                "..." if len(str(value)) > 50 else str(value)
+            value_str = str(value)[:50] + "..." if len(str(value)) > 50 else str(value)
             table.add_row(f"  • {key}", value_str)
 
     console.print(table)
@@ -383,9 +380,7 @@ def _dry_run(
     if is_remote:
         remote_agent = _get_remote_agent(agent_name)
         if not remote_agent:
-            console.print(
-                f"\n[red]❌ Remote agent not found: {agent_name}[/red]"
-            )
+            console.print(f"\n[red]❌ Remote agent not found: {agent_name}[/red]")
             console.print(
                 "[dim]Define remote agents in .parac/agents/manifest.yaml under remote_agents:[/dim]"
             )
@@ -561,9 +556,7 @@ async def _execute_agent_task(
         TextColumn("[progress.description]{task.description}"),
         console=console,
     ) as progress:
-        task_id = progress.add_task(
-            f"[cyan]Executing {agent_name}...", total=None
-        )
+        task_id = progress.add_task(f"[cyan]Executing {agent_name}...", total=None)
 
         try:
             result = await asyncio.wait_for(
@@ -613,8 +606,9 @@ def _display_results(result: dict[str, Any], verbose: bool) -> None:
     if "outputs" in result and result["outputs"]:
         console.print("[bold]Outputs:[/bold]")
         for key, value in result["outputs"].items():
-            value_str = str(value)[:200] + \
-                "..." if len(str(value)) > 200 else str(value)
+            value_str = (
+                str(value)[:200] + "..." if len(str(value)) > 200 else str(value)
+            )
             console.print(f"  • [cyan]{key}[/cyan]: {value_str}")
 
     # Display cost information
@@ -625,16 +619,13 @@ def _display_results(result: dict[str, Any], verbose: bool) -> None:
 
         if verbose:
             console.print(f"  • Prompt tokens: {cost['prompt_tokens']}")
-            console.print(
-                f"  • Completion tokens: {cost['completion_tokens']}")
+            console.print(f"  • Completion tokens: {cost['completion_tokens']}")
             console.print(f"  • Provider: {cost['provider']}")
             console.print(f"  • Model: {cost['model']}")
 
     # Display verbose information
     if verbose and "execution_time" in result:
-        console.print(
-            f"\n[dim]Execution time: {result['execution_time']:.2f}s[/dim]"
-        )
+        console.print(f"\n[dim]Execution time: {result['execution_time']:.2f}s[/dim]")
 
 
 def _save_output(result: dict[str, Any], output_path: str) -> None:

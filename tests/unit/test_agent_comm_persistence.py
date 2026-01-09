@@ -248,7 +248,9 @@ class TestSQLiteSessionStore:
         retrieved = await sqlite_store.get_session(session.id)
 
         assert len(retrieved.messages) == len(session.messages)
-        assert retrieved.messages[0].get_text_content() == "Goal: Complete the test task"
+        assert (
+            retrieved.messages[0].get_text_content() == "Goal: Complete the test task"
+        )
         assert retrieved.messages[1].sender == "agent-a"
         assert retrieved.messages[2].message_type == MessageType.PROPOSE
 

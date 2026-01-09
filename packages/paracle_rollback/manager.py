@@ -77,9 +77,7 @@ class RollbackManager:
             # Enforce max snapshots limit
             await self._enforce_snapshot_limit(container_id)
 
-            logger.info(
-                f"Created snapshot {snapshot.snapshot_id} for {container_id}"
-            )
+            logger.info(f"Created snapshot {snapshot.snapshot_id} for {container_id}")
 
             return snapshot.snapshot_id
 
@@ -113,9 +111,7 @@ class RollbackManager:
         target_container = container_id or snapshot.sandbox_id
 
         try:
-            logger.info(
-                f"Rolling back {target_container} to snapshot {snapshot_id}"
-            )
+            logger.info(f"Rolling back {target_container} to snapshot {snapshot_id}")
 
             # Create backup before rollback if configured
             if self.config.backup_before_rollback:
@@ -170,9 +166,7 @@ class RollbackManager:
 
         try:
             await self.rollback(latest_snapshot_id, container_id)
-            logger.info(
-                f"Auto-rollback successful for {container_id} due to {trigger}"
-            )
+            logger.info(f"Auto-rollback successful for {container_id} due to {trigger}")
             return True
 
         except Exception as e:
@@ -261,8 +255,7 @@ class RollbackManager:
                     await self.delete_snapshot(snapshot_id)
                     deleted += 1
                 except Exception as e:
-                    logger.error(
-                        f"Failed to delete snapshot {snapshot_id}: {e}")
+                    logger.error(f"Failed to delete snapshot {snapshot_id}: {e}")
 
         logger.info(f"Cleaned up {deleted} old snapshots")
         return deleted

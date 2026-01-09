@@ -17,11 +17,13 @@ class ReviewError(Exception):
 
 class ReviewNotFoundError(ReviewError):
     """Raised when review is not found."""
+
     pass
 
 
 class ReviewAlreadyDecidedError(ReviewError):
     """Raised when attempting to modify decided review."""
+
     pass
 
 
@@ -50,4 +52,5 @@ class InsufficientApprovalsError(ReviewError):
 
 class ReviewTimeoutError(ReviewError):
     """Raised when review times out."""
+
     pass

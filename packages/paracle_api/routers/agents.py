@@ -50,7 +50,7 @@ def get_parac_root_or_raise() -> Path:
     response_model=AgentListResponse,
     operation_id="listAgents",
     summary="List all discovered agents",
-    description="Discover and list all agents from .parac/agents/specs/"
+    description="Discover and list all agents from .parac/agents/specs/",
 )
 async def list_agents() -> AgentListResponse:
     """List all discovered agents.
@@ -88,7 +88,7 @@ async def list_agents() -> AgentListResponse:
     response_model=AgentMetadataResponse,
     operation_id="getAgentById",
     summary="Get agent metadata by ID",
-    description="Retrieve detailed metadata for a specific agent"
+    description="Retrieve detailed metadata for a specific agent",
 )
 async def get_agent(agent_id: str) -> AgentMetadataResponse:
     """Get agent metadata by ID.
@@ -126,7 +126,7 @@ async def get_agent(agent_id: str) -> AgentMetadataResponse:
     "/{agent_id}/spec",
     response_model=AgentSpecResponse,
     operation_id="getAgentSpec",
-    summary="Get agent specification"
+    summary="Get agent specification",
 )
 async def get_agent_spec(agent_id: str) -> AgentSpecResponse:
     """Get agent specification content.
@@ -177,7 +177,7 @@ async def get_agent_spec(agent_id: str) -> AgentSpecResponse:
     response_model=ManifestResponse,
     tags=["manifest"],
     operation_id="getManifest",
-    summary="Get agent manifest"
+    summary="Get agent manifest",
 )
 async def get_manifest() -> ManifestResponse:
     """Get manifest as JSON.
@@ -200,10 +200,7 @@ async def get_manifest() -> ManifestResponse:
         generated_at=manifest_data["generated_at"],
         workspace_root=manifest_data["workspace"]["root"],
         parac_root=manifest_data["workspace"]["parac_root"],
-        agents=[
-            ManifestAgentEntry(**agent)
-            for agent in manifest_data["agents"]
-        ],
+        agents=[ManifestAgentEntry(**agent) for agent in manifest_data["agents"]],
         count=len(manifest_data["agents"]),
     )
 
@@ -213,7 +210,7 @@ async def get_manifest() -> ManifestResponse:
     response_model=ManifestWriteResponse,
     tags=["manifest"],
     operation_id="writeManifest",
-    summary="Write agent manifest to file"
+    summary="Write agent manifest to file",
 )
 async def write_manifest(
     force: bool = Query(

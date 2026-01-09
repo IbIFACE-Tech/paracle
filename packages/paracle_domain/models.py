@@ -70,15 +70,11 @@ class AgentSpec(BaseModel):
     temperature: float = Field(default=0.7, ge=0.0, le=2.0)
     max_tokens: int | None = Field(default=None, gt=0)
     system_prompt: str | None = Field(None, description="System prompt")
-    parent: str | None = Field(
-        None, description="Parent agent name for inheritance"
-    )
-    tools: list[str] = Field(
-        default_factory=list, description="List of tool names"
-    )
+    parent: str | None = Field(None, description="Parent agent name for inheritance")
+    tools: list[str] = Field(default_factory=list, description="List of tool names")
     skills: list[str] = Field(
         default_factory=list,
-        description="List of skill IDs (from .parac/agents/skills/)"
+        description="List of skill IDs (from .parac/agents/skills/)",
     )
     config: dict[str, Any] = Field(
         default_factory=dict, description="Additional configuration"
@@ -119,7 +115,7 @@ class Agent(BaseModel):
     created_at: datetime = Field(default_factory=utc_now)
     updated_at: datetime = Field(default_factory=utc_now)
 
-    @field_serializer('created_at', 'updated_at', when_used='json')
+    @field_serializer("created_at", "updated_at", when_used="json")
     def serialize_datetime(self, dt: datetime) -> str:
         return dt.isoformat()
 
@@ -156,22 +152,15 @@ class WorkflowStep(BaseModel):
     name: str = Field(..., description="Step name")
     agent: str = Field(..., description="Agent name to execute")
     prompt: str | None = Field(None, description="Prompt template")
-    inputs: dict[str, Any] = Field(
-        default_factory=dict, description="Input mappings"
-    )
-    outputs: dict[str, Any] = Field(
-        default_factory=dict, description="Output mappings"
-    )
-    depends_on: list[str] = Field(
-        default_factory=list, description="Step dependencies"
-    )
+    inputs: dict[str, Any] = Field(default_factory=dict, description="Input mappings")
+    outputs: dict[str, Any] = Field(default_factory=dict, description="Output mappings")
+    depends_on: list[str] = Field(default_factory=list, description="Step dependencies")
     config: dict[str, Any] = Field(
         default_factory=dict, description="Step configuration"
     )
     # Human-in-the-Loop approval (ISO 42001)
     requires_approval: bool = Field(
-        default=False,
-        description="Require human approval after step execution"
+        default=False, description="Require human approval after step execution"
     )
     approval_config: dict[str, Any] = Field(
         default_factory=dict,
@@ -185,9 +174,7 @@ class WorkflowSpec(BaseModel):
     name: str = Field(..., description="Workflow name")
     description: str | None = Field(None, description="Workflow description")
     steps: list[WorkflowStep] = Field(..., description="Workflow steps")
-    inputs: dict[str, Any] = Field(
-        default_factory=dict, description="Workflow inputs"
-    )
+    inputs: dict[str, Any] = Field(default_factory=dict, description="Workflow inputs")
     outputs: dict[str, Any] = Field(
         default_factory=dict, description="Workflow outputs"
     )
@@ -219,7 +206,7 @@ class Workflow(BaseModel):
     created_at: datetime = Field(default_factory=utc_now)
     updated_at: datetime = Field(default_factory=utc_now)
 
-    @field_serializer('created_at', 'updated_at', when_used='json')
+    @field_serializer("created_at", "updated_at", when_used="json")
     def serialize_datetime(self, dt: datetime) -> str:
         return dt.isoformat()
 
@@ -274,7 +261,7 @@ class Tool(BaseModel):
     enabled: bool = Field(default=True)
     created_at: datetime = Field(default_factory=utc_now)
 
-    @field_serializer('created_at', when_used='json')
+    @field_serializer("created_at", when_used="json")
     def serialize_datetime(self, dt: datetime) -> str:
         return dt.isoformat()
 
@@ -321,8 +308,7 @@ class ApprovalConfig(BaseModel):
         default=3600, ge=60, description="Approval timeout (default 1 hour)"
     )
     priority: ApprovalPriority = Field(
-        default=ApprovalPriority.MEDIUM,
-        description="Priority for approval queue"
+        default=ApprovalPriority.MEDIUM, description="Priority for approval queue"
     )
     auto_reject_on_timeout: bool = Field(
         default=False, description="Auto-reject if timeout expires"
@@ -369,13 +355,10 @@ class ApprovalRequest(BaseModel):
     priority: ApprovalPriority = Field(default=ApprovalPriority.MEDIUM)
     config: ApprovalConfig = Field(default_factory=ApprovalConfig)
     created_at: datetime = Field(default_factory=utc_now)
-    expires_at: datetime | None = Field(
-        None, description="When approval expires")
-    decided_at: datetime | None = Field(
-        None, description="When decision was made")
+    expires_at: datetime | None = Field(None, description="When approval expires")
+    decided_at: datetime | None = Field(None, description="When decision was made")
     decided_by: str | None = Field(None, description="Who approved/rejected")
-    decision_reason: str | None = Field(
-        None, description="Reason for decision")
+    decision_reason: str | None = Field(None, description="Reason for decision")
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     def approve(self, approver: str, reason: str | None = None) -> None:
@@ -586,10 +569,7 @@ class RetryPolicy(BaseModel):
             return True
 
         # Check error category
-        if (
-            condition.error_categories
-            and error_category in condition.error_categories
-        ):
+        if condition.error_categories and error_category in condition.error_categories:
             return True
 
         # Check status code (if error has one)

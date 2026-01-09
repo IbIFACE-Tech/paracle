@@ -89,9 +89,7 @@ class AnthropicProvider(LLMProvider, RetryableProvider):
         """
 
         async def _make_request() -> LLMResponse:
-            return await self._raw_chat_completion(
-                messages, config, model, **kwargs
-            )
+            return await self._raw_chat_completion(messages, config, model, **kwargs)
 
         operation_name = f"anthropic.chat_completion({model})"
         return await self.with_retry(_make_request, operation_name)
@@ -113,10 +111,12 @@ class AnthropicProvider(LLMProvider, RetryableProvider):
                 if msg.role == "system":
                     system_message = msg.content
                 else:
-                    conversation_messages.append({
-                        "role": msg.role,
-                        "content": msg.content,
-                    })
+                    conversation_messages.append(
+                        {
+                            "role": msg.role,
+                            "content": msg.content,
+                        }
+                    )
 
             # Build request parameters
             params = {
@@ -155,7 +155,8 @@ class AnthropicProvider(LLMProvider, RetryableProvider):
                 usage=TokenUsage(
                     prompt_tokens=response.usage.input_tokens,
                     completion_tokens=response.usage.output_tokens,
-                    total_tokens=response.usage.input_tokens + response.usage.output_tokens,
+                    total_tokens=response.usage.input_tokens
+                    + response.usage.output_tokens,
                 ),
                 model=response.model,
                 metadata={
@@ -172,9 +173,7 @@ class AnthropicProvider(LLMProvider, RetryableProvider):
             ) from e
         except AnthropicError as e:
             if "authentication" in str(e).lower() or "api_key" in str(e).lower():
-                raise ProviderAuthenticationError(
-                    str(e), provider="anthropic"
-                ) from e
+                raise ProviderAuthenticationError(str(e), provider="anthropic") from e
             if "timeout" in str(e).lower():
                 raise ProviderTimeoutError(
                     str(e), provider="anthropic", timeout=config.timeout
@@ -214,10 +213,12 @@ class AnthropicProvider(LLMProvider, RetryableProvider):
                 if msg.role == "system":
                     system_message = msg.content
                 else:
-                    conversation_messages.append({
-                        "role": msg.role,
-                        "content": msg.content,
-                    })
+                    conversation_messages.append(
+                        {
+                            "role": msg.role,
+                            "content": msg.content,
+                        }
+                    )
 
             # Build request parameters
             params = {

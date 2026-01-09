@@ -174,12 +174,7 @@ class AgentSpecFormatter:
 
         if governance_match:
             insert_pos = governance_match.end()
-            return (
-                content[:insert_pos]
-                + "\n\n"
-                + skills_content
-                + content[insert_pos:]
-            )
+            return content[:insert_pos] + "\n\n" + skills_content + content[insert_pos:]
 
         return content + "\n\n" + skills_content
 
@@ -250,7 +245,9 @@ class AgentSpecFormatter:
                         f"### After Completing Work\n\nLog to `{path}`:",
                     )
                 else:
-                    governance_content += f"\n\n### After Completing Work\n\nLog to `{path}`"
+                    governance_content += (
+                        f"\n\n### After Completing Work\n\nLog to `{path}`"
+                    )
             else:
                 # Add to "Before Starting Any Task" if exists
                 if "### Before Starting Any Task" in governance_content:
@@ -262,14 +259,17 @@ class AgentSpecFormatter:
                             governance_content,
                         )
                 else:
-                    governance_content = f"### Before Starting Any Task\n\n- Read `{path}`\n" + governance_content
+                    governance_content = (
+                        f"### Before Starting Any Task\n\n- Read `{path}`\n"
+                        + governance_content
+                    )
 
         # Reconstruct content
         return (
-            content[:governance_match.start()]
+            content[: governance_match.start()]
             + "## Governance Integration\n"
             + governance_content
-            + content[governance_match.end():]
+            + content[governance_match.end() :]
         )
 
     def _get_governance_template(self) -> str:

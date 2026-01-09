@@ -20,29 +20,23 @@ class NetworkPolicy(BaseModel):
         allowed_ips: IP addresses/ranges to allow (allowlist mode)
     """
 
-    allow_internet: bool = Field(
-        default=False,
-        description="Allow internet access"
-    )
+    allow_internet: bool = Field(default=False, description="Allow internet access")
 
     allow_intra_network: bool = Field(
-        default=True,
-        description="Allow communication within network"
+        default=True, description="Allow communication within network"
     )
 
     allowed_ports: list[int] = Field(
-        default_factory=list,
-        description="Allowed ports for outbound connections"
+        default_factory=list, description="Allowed ports for outbound connections"
     )
 
     blocked_ips: list[str] = Field(
-        default_factory=list,
-        description="Blocked IP addresses/CIDR ranges"
+        default_factory=list, description="Blocked IP addresses/CIDR ranges"
     )
 
     allowed_ips: list[str] = Field(
         default_factory=list,
-        description="Allowed IP addresses/CIDR (if set, only these allowed)"
+        description="Allowed IP addresses/CIDR (if set, only these allowed)",
     )
 
     model_config = {
@@ -73,44 +67,31 @@ class NetworkConfig(BaseModel):
         options: Driver-specific options
     """
 
-    driver: NetworkDriver = Field(
-        default="bridge",
-        description="Network driver type"
-    )
+    driver: NetworkDriver = Field(default="bridge", description="Network driver type")
 
     subnet: str | None = Field(
-        default=None,
-        description="Network subnet (CIDR notation)"
+        default=None, description="Network subnet (CIDR notation)"
     )
 
-    gateway: str | None = Field(
-        default=None,
-        description="Network gateway IP"
-    )
+    gateway: str | None = Field(default=None, description="Network gateway IP")
 
-    enable_ipv6: bool = Field(
-        default=False,
-        description="Enable IPv6"
-    )
+    enable_ipv6: bool = Field(default=False, description="Enable IPv6")
 
     internal: bool = Field(
-        default=True,
-        description="Internal network (no external routing)"
+        default=True, description="Internal network (no external routing)"
     )
 
     attachable: bool = Field(
-        default=True,
-        description="Allow manual container attachment"
+        default=True, description="Allow manual container attachment"
     )
 
     labels: dict[str, str] = Field(
         default_factory=lambda: {"paracle.managed": "true"},
-        description="Network labels"
+        description="Network labels",
     )
 
     options: dict[str, str] = Field(
-        default_factory=dict,
-        description="Driver-specific options"
+        default_factory=dict, description="Driver-specific options"
     )
 
     model_config = {

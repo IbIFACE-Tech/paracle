@@ -104,7 +104,9 @@ class MemoryManager:
                 )
                 self._embedding_service = EmbeddingService(config=emb_config)
             except ImportError:
-                logger.warning("paracle_vector not available, disabling semantic search")
+                logger.warning(
+                    "paracle_vector not available, disabling semantic search"
+                )
                 self._config.enable_semantic_search = False
 
         return self._embedding_service

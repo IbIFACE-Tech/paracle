@@ -171,7 +171,9 @@ class StateError(ParacleError):
         self.current_state = current_state
         self.target_state = target_state
         if current_state and target_state:
-            message = f"Invalid state transition {current_state} -> {target_state}: {message}"
+            message = (
+                f"Invalid state transition {current_state} -> {target_state}: {message}"
+            )
         super().__init__(message)
 
 

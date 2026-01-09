@@ -89,19 +89,29 @@ class Span:
             "traceID": self.trace_id,
             "spanID": self.span_id,
             "operationName": self.name,
-            "references": [
-                {"refType": "CHILD_OF", "traceID": self.trace_id,
-                    "spanID": self.parent_span_id}
-            ]
-            if self.parent_span_id
-            else [],
+            "references": (
+                [
+                    {
+                        "refType": "CHILD_OF",
+                        "traceID": self.trace_id,
+                        "spanID": self.parent_span_id,
+                    }
+                ]
+                if self.parent_span_id
+                else []
+            ),
             "startTime": int(self.start_time * 1_000_000),  # microseconds
             "duration": int(self.duration_ms * 1000),  # microseconds
-            "tags": [{"key": k, "type": "string", "value": str(v)} for k, v in self.attributes.items()],
+            "tags": [
+                {"key": k, "type": "string", "value": str(v)}
+                for k, v in self.attributes.items()
+            ],
             "logs": [
                 {
                     "timestamp": int(event["timestamp"] * 1_000_000),
-                    "fields": [{"key": k, "value": v} for k, v in event["attributes"].items()],
+                    "fields": [
+                        {"key": k, "value": v} for k, v in event["attributes"].items()
+                    ],
                 }
                 for event in self.events
             ],

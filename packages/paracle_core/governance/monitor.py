@@ -43,19 +43,19 @@ logger = logging.getLogger(__name__)
 class ViolationSeverity(Enum):
     """Severity levels for violations."""
 
-    LOW = "low"           # Non-critical, can wait
-    MEDIUM = "medium"     # Should be fixed soon
-    HIGH = "high"         # Should be fixed immediately
+    LOW = "low"  # Non-critical, can wait
+    MEDIUM = "medium"  # Should be fixed soon
+    HIGH = "high"  # Should be fixed immediately
     CRITICAL = "critical"  # Auto-repair immediately
 
 
 class RepairAction(Enum):
     """Types of repair actions."""
 
-    MOVE = "move"         # Move file to correct location
-    DELETE = "delete"     # Delete invalid file
-    RENAME = "rename"     # Rename file
-    SKIP = "skip"         # Skip repair (manual intervention needed)
+    MOVE = "move"  # Move file to correct location
+    DELETE = "delete"  # Delete invalid file
+    RENAME = "rename"  # Rename file
+    SKIP = "skip"  # Skip repair (manual intervention needed)
 
 
 @dataclass
@@ -264,11 +264,7 @@ class GovernanceMonitor:
         # Start file system watcher
         self.handler = GovernanceFileHandler(self)
         self.observer = Observer()
-        self.observer.schedule(
-            self.handler,
-            str(self.parac_root),
-            recursive=True
-        )
+        self.observer.schedule(self.handler, str(self.parac_root), recursive=True)
         self.observer.start()
 
         self.is_running = True
@@ -354,17 +350,16 @@ class GovernanceMonitor:
         self.total_violations += 1
 
         logger.warning(
-            f"Violation detected: {path_str} "
-            f"(severity: {severity.value})"
+            f"Violation detected: {path_str} " f"(severity: {severity.value})"
         )
 
         # Auto-repair if enabled
         if self.auto_repair and severity == ViolationSeverity.CRITICAL:
             # Use thread-based delay since watchdog runs in threads
             import threading
+
             repair_thread = threading.Timer(
-                self.repair_delay,
-                lambda: self._auto_repair_sync(violation)
+                self.repair_delay, lambda: self._auto_repair_sync(violation)
             )
             repair_thread.daemon = True
             repair_thread.start()
@@ -442,8 +437,7 @@ class GovernanceMonitor:
             self.repaired_violations.append(violation)
             self.total_repairs += 1
 
-            logger.info(
-                f"✅ Repaired: {violation.path} → {violation.suggested_path}")
+            logger.info(f"✅ Repaired: {violation.path} → {violation.suggested_path}")
             return True
 
         except Exception as e:
@@ -479,10 +473,7 @@ class GovernanceMonitor:
             if path.is_file():
                 self.check_file(path)
 
-        logger.info(
-            f"Scan complete. "
-            f"Found {len(self.violations)} violations"
-        )
+        logger.info(f"Scan complete. " f"Found {len(self.violations)} violations")
 
     def get_health(self) -> GovernanceHealth:
         """Get current governance health status.

@@ -225,7 +225,9 @@ class RovoDevExporter(BaseExporter):
         parts = []
 
         # Role/expertise header
-        display_name = skill.metadata.display_name or skill.name.replace("-", " ").title()
+        display_name = (
+            skill.metadata.display_name or skill.name.replace("-", " ").title()
+        )
         parts.append(f"You are an expert {display_name} assistant.")
         parts.append("")
 
@@ -264,6 +266,8 @@ class RovoDevExporter(BaseExporter):
         parts.append("## Paracle Integration")
         parts.append("")
         parts.append("This subagent follows Paracle governance rules.")
-        parts.append("After completing tasks, log actions to `.parac/memory/logs/agent_actions.log`.")
+        parts.append(
+            "After completing tasks, log actions to `.parac/memory/logs/agent_actions.log`."
+        )
 
         return "\n".join(parts)

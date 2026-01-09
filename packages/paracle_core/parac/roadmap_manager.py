@@ -314,7 +314,9 @@ class RoadmapManager:
         if name:
             roadmaps_to_validate = [name]
         else:
-            roadmaps_to_validate = ["primary"] + [r.name for r in self.config.additional]
+            roadmaps_to_validate = ["primary"] + [
+                r.name for r in self.config.additional
+            ]
 
         for roadmap_name in roadmaps_to_validate:
             result = self._validate_single_roadmap(roadmap_name)
@@ -506,9 +508,7 @@ class RoadmapManager:
 
         return None
 
-    def update_phase_status(
-        self, name: str, phase_id: str, new_status: str
-    ) -> bool:
+    def update_phase_status(self, name: str, phase_id: str, new_status: str) -> bool:
         """Update a phase's status in a roadmap.
 
         Args:
@@ -539,9 +539,7 @@ class RoadmapManager:
         except Exception:
             return False
 
-    def update_phase_progress(
-        self, name: str, phase_id: str, progress: float
-    ) -> bool:
+    def update_phase_progress(self, name: str, phase_id: str, progress: float) -> bool:
         """Update a phase's progress in a roadmap.
 
         Args:
@@ -645,17 +643,12 @@ phases:
 
             for phase in roadmap.phases:
                 # Search in id, name, and description
-                if (
-                    query_lower in phase.id.lower()
-                    or query_lower in phase.name.lower()
-                ):
+                if query_lower in phase.id.lower() or query_lower in phase.name.lower():
                     results.append((name, phase))
 
         return results
 
-    def get_all_phases_by_status(
-        self, status: str
-    ) -> list[tuple[str, RoadmapPhase]]:
+    def get_all_phases_by_status(self, status: str) -> list[tuple[str, RoadmapPhase]]:
         """Get all phases with a specific status across all roadmaps.
 
         Args:

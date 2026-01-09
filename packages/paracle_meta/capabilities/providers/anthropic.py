@@ -224,9 +224,11 @@ class AnthropicProvider(BaseProvider):
                     {
                         "type": "tool_result",
                         "tool_use_id": tr.tool_use_id,
-                        "content": tr.content
-                        if isinstance(tr.content, str)
-                        else str(tr.content),
+                        "content": (
+                            tr.content
+                            if isinstance(tr.content, str)
+                            else str(tr.content)
+                        ),
                         "is_error": tr.is_error,
                     }
                     for tr in msg.tool_results

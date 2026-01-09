@@ -85,10 +85,7 @@ class CommandInfo:
     @property
     def optional_options(self) -> list[ParameterInfo]:
         """Get optional (non-flag) options."""
-        return [
-            o for o in self.options
-            if not o.required and not o.is_flag
-        ]
+        return [o for o in self.options if not o.required and not o.is_flag]
 
     @property
     def flags(self) -> list[ParameterInfo]:

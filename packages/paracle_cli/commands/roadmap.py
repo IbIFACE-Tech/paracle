@@ -33,7 +33,13 @@ def get_roadmap_manager():
 
 
 @click.group(invoke_without_command=True)
-@click.option("--list", "-l", "list_flag", is_flag=True, help="List all roadmaps (shortcut for 'list')")
+@click.option(
+    "--list",
+    "-l",
+    "list_flag",
+    is_flag=True,
+    help="List all roadmaps (shortcut for 'list')",
+)
 @click.pass_context
 def roadmap(ctx: click.Context, list_flag: bool):
     """Manage project roadmaps.
@@ -189,8 +195,7 @@ def show_roadmap(name: str, as_json: bool):
 
         # Progress bar
         progress_filled = int(phase.progress / 100 * 10)
-        progress_bar = "[" + "=" * progress_filled + \
-            "-" * (10 - progress_filled) + "]"
+        progress_bar = "[" + "=" * progress_filled + "-" * (10 - progress_filled) + "]"
 
         phase_label = (
             f"[{status_style}]{phase.id}[/{status_style}]: {phase.name} "
@@ -202,15 +207,14 @@ def show_roadmap(name: str, as_json: bool):
         # Add deliverables if any
         if phase.deliverables:
             for d in phase.deliverables[:3]:  # Show max 3
-                d_name = d.get("name", str(d)) if isinstance(
-                    d, dict) else str(d)
-                d_status = d.get("status", "pending") if isinstance(
-                    d, dict) else "pending"
+                d_name = d.get("name", str(d)) if isinstance(d, dict) else str(d)
+                d_status = (
+                    d.get("status", "pending") if isinstance(d, dict) else "pending"
+                )
                 d_style = "green" if d_status == "completed" else "dim"
                 branch.add(f"[{d_style}]- {d_name}[/{d_style}]")
             if len(phase.deliverables) > 3:
-                branch.add(
-                    f"[dim]... and {len(phase.deliverables) - 3} more[/dim]")
+                branch.add(f"[dim]... and {len(phase.deliverables) - 3} more[/dim]")
 
     console.print(tree)
 
@@ -264,14 +268,16 @@ def add_roadmap(name: str, path: str, description: str, no_create: bool):
         console.print(
             "\n[yellow]Note:[/yellow] To persist this addition, update project.yaml:"
         )
-        console.print(f"""
+        console.print(
+            f"""
   file_management:
     roadmap:
       additional:
         - name: {name}
           path: {path}
           description: "{description or name}"
-""")
+"""
+        )
     else:
         console.print("[red]Error:[/red] Failed to add roadmap.")
         sys.exit(1)
@@ -427,8 +433,7 @@ def show_stats():
     # Overview
     console.print(f"\n[bold]Roadmaps:[/bold] {stats['total_roadmaps']}")
     console.print(f"[bold]Total Phases:[/bold] {stats['total_phases']}")
-    console.print(
-        f"[bold]Average Progress:[/bold] {stats['average_progress']:.1f}%")
+    console.print(f"[bold]Average Progress:[/bold] {stats['average_progress']:.1f}%")
 
     # Phases by status
     console.print("\n[bold]Phases by Status:[/bold]")
@@ -490,7 +495,8 @@ def manage_phase(action: str, roadmap_name: str):
         next_phase = manager.get_next_phase(roadmap_name)
         if next_phase:
             console.print(
-                f"[bold]Next phase:[/bold] {next_phase.id} - {next_phase.name}")
+                f"[bold]Next phase:[/bold] {next_phase.id} - {next_phase.name}"
+            )
         else:
             console.print("[dim]No pending phases.[/dim]")
         return
@@ -501,27 +507,23 @@ def manage_phase(action: str, roadmap_name: str):
 
     if action == "complete":
         if manager.update_phase_status(roadmap_name, current.id, "completed"):
-            console.print(
-                f"[green]OK[/green] Marked {current.id} as completed."
-            )
+            console.print(f"[green]OK[/green] Marked {current.id} as completed.")
 
             # Start next phase if available
             next_phase = manager.get_next_phase(roadmap_name)
             if next_phase:
                 if click.confirm(f"Start next phase ({next_phase.id})?"):
                     manager.update_phase_status(
-                        roadmap_name, next_phase.id, "in_progress")
-                    console.print(
-                        f"[green]OK[/green] Started {next_phase.id}.")
+                        roadmap_name, next_phase.id, "in_progress"
+                    )
+                    console.print(f"[green]OK[/green] Started {next_phase.id}.")
         else:
             console.print("[red]Error:[/red] Failed to update status.")
             sys.exit(1)
 
     elif action == "block":
         if manager.update_phase_status(roadmap_name, current.id, "blocked"):
-            console.print(
-                f"[yellow]OK[/yellow] Marked {current.id} as blocked."
-            )
+            console.print(f"[yellow]OK[/yellow] Marked {current.id} as blocked.")
         else:
             console.print("[red]Error:[/red] Failed to update status.")
             sys.exit(1)

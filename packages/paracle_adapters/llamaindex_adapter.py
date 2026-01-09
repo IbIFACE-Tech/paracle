@@ -196,10 +196,12 @@ class LlamaIndexAdapter(FrameworkAdapter):
             sources = []
             if hasattr(response, "source_nodes"):
                 for node in response.source_nodes:
-                    sources.append({
-                        "text": node.text[:200] if node.text else "",
-                        "score": node.score if hasattr(node, "score") else None,
-                    })
+                    sources.append(
+                        {
+                            "text": node.text[:200] if node.text else "",
+                            "score": node.score if hasattr(node, "score") else None,
+                        }
+                    )
 
             return {
                 "response": response_text,
@@ -465,15 +467,11 @@ class LlamaIndexAdapter(FrameworkAdapter):
         """Validate LlamaIndex adapter configuration."""
         if "llm" in config and config["llm"] is not None:
             if not isinstance(config["llm"], LLM):
-                raise ValueError(
-                    "llm must be an instance of llama_index LLM"
-                )
+                raise ValueError("llm must be an instance of llama_index LLM")
 
         if "index" in config:
             if not isinstance(config["index"], VectorStoreIndex):
-                raise ValueError(
-                    "index must be a VectorStoreIndex instance"
-                )
+                raise ValueError("index must be a VectorStoreIndex instance")
 
         return True
 

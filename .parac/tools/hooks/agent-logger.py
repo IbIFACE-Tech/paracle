@@ -106,9 +106,7 @@ class AgentLogger:
             timestamp = datetime.now()
 
         timestamp_str = timestamp.strftime("%Y-%m-%d %H:%M:%S")
-        log_entry = (
-            f"[{timestamp_str}] [{agent}] [DECISION] {decision} | {rationale} | {impact}\n"
-        )
+        log_entry = f"[{timestamp_str}] [{agent}] [DECISION] {decision} | {rationale} | {impact}\n"
 
         # Ajouter au log de décisions
         with open(self.decisions_log, "a", encoding="utf-8") as f:
@@ -164,8 +162,6 @@ if __name__ == "__main__":
         if not args.rationale or not args.impact:
             print("Error: --decision requires --rationale and --impact")
             exit(1)
-        logger.log_decision(
-            args.agent, args.description, args.rationale, args.impact
-        )
+        logger.log_decision(args.agent, args.description, args.rationale, args.impact)
     else:
         logger.log_action(args.agent, args.action, args.description)

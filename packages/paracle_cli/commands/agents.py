@@ -65,7 +65,13 @@ def use_api_or_fallback(api_func, fallback_func, *args, **kwargs):
 
 
 @click.group(invoke_without_command=True)
-@click.option("--list", "-l", "list_flag", is_flag=True, help="List all agents (shortcut for 'list')")
+@click.option(
+    "--list",
+    "-l",
+    "list_flag",
+    is_flag=True,
+    help="List all agents (shortcut for 'list')",
+)
 @click.pass_context
 def agents(ctx: click.Context, list_flag: bool) -> None:
     """Manage, discover, and run agents.
@@ -80,8 +86,7 @@ def agents(ctx: click.Context, list_flag: bool) -> None:
         paracle agents skills -l         - List all available skills
     """
     if list_flag:
-        ctx.invoke(list_agents, output_format="table",
-                   remote=False, remote_only=False)
+        ctx.invoke(list_agents, output_format="table", remote=False, remote_only=False)
     elif ctx.invoked_subcommand is None:
         click.echo(ctx.get_help())
 
@@ -97,20 +102,18 @@ def _list_via_api(client: APIClient, output_format: str) -> None:
     agents_list = result.get("agents", [])
 
     if not agents_list:
-        console.print(
-            "[yellow]No agents found in .parac/agents/specs/[/yellow]"
-        )
+        console.print("[yellow]No agents found in .parac/agents/specs/[/yellow]")
         return
 
     if output_format == "json":
         import json
+
         console.print(json.dumps(agents_list, indent=2))
 
     elif output_format == "yaml":
         import yaml
-        console.print(
-            yaml.dump(agents_list, default_flow_style=False, sort_keys=False)
-        )
+
+        console.print(yaml.dump(agents_list, default_flow_style=False, sort_keys=False))
 
     else:  # table
         table = Table(title=f"Agents ({len(agents_list)} found)")
@@ -160,23 +163,24 @@ def _list_direct(output_format: str) -> None:
 
     agents_list = []
     for agent in agents_data:
-        agents_list.append({
-            "id": agent.get("id", ""),
-            "name": agent.get("name", ""),
-            "role": agent.get("role", ""),
-            "description": agent.get("description", ""),
-            "capabilities": agent.get("responsibilities", [])[:5],
-            "tools": agent.get("tools", []),
-        })
+        agents_list.append(
+            {
+                "id": agent.get("id", ""),
+                "name": agent.get("name", ""),
+                "role": agent.get("role", ""),
+                "description": agent.get("description", ""),
+                "capabilities": agent.get("responsibilities", [])[:5],
+                "tools": agent.get("tools", []),
+            }
+        )
 
     if output_format == "json":
         import json
+
         console.print(json.dumps(agents_list, indent=2))
 
     elif output_format == "yaml":
-        console.print(
-            yaml.dump(agents_list, default_flow_style=False, sort_keys=False)
-        )
+        console.print(yaml.dump(agents_list, default_flow_style=False, sort_keys=False))
 
     else:  # table
         table = Table(title=f"Agents ({len(agents_list)} found)")
@@ -206,8 +210,7 @@ def _list_remote_agents(output_format: str) -> None:
         from paracle_a2a.registry import get_remote_registry
     except ImportError:
         console.print(
-            "[dim]Remote A2A agents not available "
-            "(install paracle[a2a])[/dim]"
+            "[dim]Remote A2A agents not available " "(install paracle[a2a])[/dim]"
         )
         return
 
@@ -215,12 +218,9 @@ def _list_remote_agents(output_format: str) -> None:
     remote_agents = registry.list_all()
 
     if not remote_agents:
+        console.print("[dim]No remote A2A agents defined in manifest[/dim]")
         console.print(
-            "[dim]No remote A2A agents defined in manifest[/dim]"
-        )
-        console.print(
-            "[dim]Add remote_agents section to "
-            ".parac/agents/manifest.yaml[/dim]"
+            "[dim]Add remote_agents section to " ".parac/agents/manifest.yaml[/dim]"
         )
         return
 
@@ -254,9 +254,7 @@ def _list_remote_agents(output_format: str) -> None:
             }
             for a in remote_agents
         ]
-        console.print(
-            yaml.dump(agents_data, default_flow_style=False, sort_keys=False)
-        )
+        console.print(yaml.dump(agents_data, default_flow_style=False, sort_keys=False))
 
     else:  # table
         table = Table(title=f"Remote A2A Agents ({len(remote_agents)} found)")
@@ -336,13 +334,13 @@ def _get_via_api(
 
     if output_format == "json":
         import json
+
         console.print(json.dumps(agent, indent=2))
 
     elif output_format == "yaml":
         import yaml
-        console.print(
-            yaml.dump(agent, default_flow_style=False, sort_keys=False)
-        )
+
+        console.print(yaml.dump(agent, default_flow_style=False, sort_keys=False))
 
     else:  # markdown
         console.print(f"# {agent.get('name', agent_id)}\n")
@@ -369,6 +367,7 @@ def _get_direct(agent_id: str, output_format: str, spec: bool) -> None:
         found = False
         for f in specs_dir.glob("*.yaml"):
             import yaml
+
             try:
                 content = yaml.safe_load(f.read_text(encoding="utf-8"))
                 if content and content.get("id") == agent_id:
@@ -407,12 +406,11 @@ def _get_direct(agent_id: str, output_format: str, spec: bool) -> None:
 
     if output_format == "json":
         import json
+
         console.print(json.dumps(agent, indent=2))
 
     elif output_format == "yaml":
-        console.print(
-            yaml.dump(agent, default_flow_style=False, sort_keys=False)
-        )
+        console.print(yaml.dump(agent, default_flow_style=False, sort_keys=False))
 
     else:  # markdown
         console.print(f"# {agent['name']}\n")
@@ -444,8 +442,7 @@ def get_agent(agent_id: str, output_format: str, spec: bool) -> None:
         paracle agents get coder --spec
         paracle agents get architect --format=json
     """
-    use_api_or_fallback(_get_via_api, _get_direct,
-                        agent_id, output_format, spec)
+    use_api_or_fallback(_get_via_api, _get_direct, agent_id, output_format, spec)
 
 
 # =============================================================================
@@ -464,12 +461,12 @@ def _export_via_api(
 
     if output_format == "json":
         import json
+
         content = json.dumps(agents_list, indent=2)
     else:  # yaml
         import yaml
-        content = yaml.dump(
-            agents_list, default_flow_style=False, sort_keys=False
-        )
+
+        content = yaml.dump(agents_list, default_flow_style=False, sort_keys=False)
 
     if output:
         Path(output).write_text(content, encoding="utf-8")
@@ -493,24 +490,25 @@ def _export_direct(output_format: str, output: str | None) -> None:
             try:
                 content = yaml.safe_load(spec_file.read_text(encoding="utf-8"))
                 if content:
-                    agents_list.append({
-                        "id": content.get("id", spec_file.stem),
-                        "name": content.get("name", spec_file.stem),
-                        "role": content.get("role", ""),
-                        "description": content.get("description", ""),
-                        "capabilities": content.get("capabilities", []),
-                        "spec_file": str(spec_file.relative_to(parac_root.parent)),
-                    })
+                    agents_list.append(
+                        {
+                            "id": content.get("id", spec_file.stem),
+                            "name": content.get("name", spec_file.stem),
+                            "role": content.get("role", ""),
+                            "description": content.get("description", ""),
+                            "capabilities": content.get("capabilities", []),
+                            "spec_file": str(spec_file.relative_to(parac_root.parent)),
+                        }
+                    )
             except Exception:
                 continue
 
     if output_format == "json":
         import json
+
         content = json.dumps(agents_list, indent=2)
     else:  # yaml
-        content = yaml.dump(
-            agents_list, default_flow_style=False, sort_keys=False
-        )
+        content = yaml.dump(agents_list, default_flow_style=False, sort_keys=False)
 
     if output:
         Path(output).write_text(content, encoding="utf-8")
@@ -577,8 +575,7 @@ def validate_agents(
     specs_dir = parac_root / "agents" / "specs"
 
     if not specs_dir.exists():
-        console.print(
-            f"[red]Error:[/red] Specs directory not found: {specs_dir}")
+        console.print(f"[red]Error:[/red] Specs directory not found: {specs_dir}")
         raise SystemExit(1)
 
     validator = AgentSpecValidator(strict=strict)
@@ -587,8 +584,7 @@ def validate_agents(
         # Validate single agent
         spec_file = specs_dir / f"{agent_id}.md"
         if not spec_file.exists():
-            console.print(
-                f"[red]Error:[/red] Agent spec not found: {spec_file}")
+            console.print(f"[red]Error:[/red] Agent spec not found: {spec_file}")
             raise SystemExit(1)
 
         result = validator.validate_file(spec_file)
@@ -630,8 +626,7 @@ def validate_agents(
                         f"{error.message}"
                     )
                     if error.suggestion:
-                        console.print(
-                            f"    [dim]Suggestion: {error.suggestion}[/dim]")
+                        console.print(f"    [dim]Suggestion: {error.suggestion}[/dim]")
 
         console.print()
         valid_count = sum(1 for r in results.values() if r.valid)
@@ -687,8 +682,7 @@ def format_agents(
     specs_dir = parac_root / "agents" / "specs"
 
     if not specs_dir.exists():
-        console.print(
-            f"[red]Error:[/red] Specs directory not found: {specs_dir}")
+        console.print(f"[red]Error:[/red] Specs directory not found: {specs_dir}")
         raise SystemExit(1)
 
     formatter = AgentSpecFormatter()
@@ -697,8 +691,7 @@ def format_agents(
         # Format single agent
         spec_file = specs_dir / f"{agent_id}.md"
         if not spec_file.exists():
-            console.print(
-                f"[red]Error:[/red] Agent spec not found: {spec_file}")
+            console.print(f"[red]Error:[/red] Agent spec not found: {spec_file}")
             raise SystemExit(1)
 
         _, result, modified = formatter.format_file(
@@ -731,9 +724,7 @@ def format_agents(
 
     console.print()
     if dry_run or check:
-        console.print(
-            f"Would modify {modified_count} of {len(results)} agent(s)"
-        )
+        console.print(f"Would modify {modified_count} of {len(results)} agent(s)")
         if check and modified_count > 0:
             raise SystemExit(1)
     else:
@@ -830,9 +821,7 @@ def create_agent(
 
     # Check if exists
     if spec_file.exists() and not force:
-        console.print(
-            f"[red]Error:[/red] Agent spec already exists: {spec_file}"
-        )
+        console.print(f"[red]Error:[/red] Agent spec already exists: {spec_file}")
         console.print("Use --force to overwrite")
         raise SystemExit(1)
 
@@ -848,9 +837,7 @@ def create_agent(
 
         if ai is None:
             console.print("[yellow]⚠ AI not available[/yellow]")
-            if not click.confirm(
-                "Create basic template instead?", default=True
-            ):
+            if not click.confirm("Create basic template instead?", default=True):
                 console.print("\n[cyan]To enable AI enhancement:[/cyan]")
                 console.print("  pip install paracle[meta]  # Recommended")
                 console.print("  pip install paracle[openai]  # Or external")
@@ -870,9 +857,7 @@ def create_agent(
 
             # Use AI-generated content
             content = result["yaml"]
-            console.print(
-                "[green]✓[/green] AI-enhanced agent spec generated"
-            )
+            console.print("[green]✓[/green] AI-enhanced agent spec generated")
 
     # Create from template (if not AI-enhanced)
     if not ai_enhance:
@@ -897,12 +882,8 @@ def create_agent(
     console.print("  3. Add responsibilities")
     console.print(f"  4. Run: paracle agents validate {agent_id}")
     console.print()
-    console.print(
-        "[dim]See .parac/agents/specs/SCHEMA.md for required sections[/dim]"
-    )
-    console.print(
-        "[dim]See .parac/agents/specs/TEMPLATE.md for examples[/dim]"
-    )
+    console.print("[dim]See .parac/agents/specs/SCHEMA.md for required sections[/dim]")
+    console.print("[dim]See .parac/agents/specs/TEMPLATE.md for examples[/dim]")
 
 
 # =============================================================================

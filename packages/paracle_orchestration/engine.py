@@ -159,10 +159,12 @@ class WorkflowOrchestrator:
             # Update existing context (from async init)
             context.workflow_id = workflow.id
             context.inputs = inputs
-            context.metadata.update({
-                "workflow_name": workflow.spec.name,
-                "total_steps": len(workflow.spec.steps),
-            })
+            context.metadata.update(
+                {
+                    "workflow_name": workflow.spec.name,
+                    "total_steps": len(workflow.spec.steps),
+                }
+            )
 
         try:
             # Start execution
@@ -383,11 +385,7 @@ class WorkflowOrchestrator:
             if not is_approved:
                 # Get the decided request to include rejection reason
                 decided = self.approval_manager.get_request(request.id)
-                reason = (
-                    decided.decision_reason
-                    if decided
-                    else "Rejected by approver"
-                )
+                reason = decided.decision_reason if decided else "Rejected by approver"
 
                 await self._emit_event(
                     "workflow.step.approval_rejected",
@@ -430,8 +428,7 @@ class WorkflowOrchestrator:
             if approval_config.auto_reject_on_timeout:
                 raise StepExecutionError(
                     step.name,
-                    Exception(
-                        f"Approval timed out after {e.timeout_seconds}s"),
+                    Exception(f"Approval timed out after {e.timeout_seconds}s"),
                 )
 
             # Re-raise the timeout error
@@ -508,9 +505,7 @@ class WorkflowOrchestrator:
 
         # Collect specified outputs
         for output_name, output_spec in workflow.spec.outputs.items():
-            output_value = self._resolve_output_spec(
-                output_spec, context.step_results
-            )
+            output_value = self._resolve_output_spec(output_spec, context.step_results)
             if output_value is not None:
                 context.outputs[output_name] = output_value
             else:
@@ -604,15 +599,14 @@ class WorkflowOrchestrator:
         if event_type == "workflow.started":
             event = workflow_started(context.workflow_id)
         elif event_type == "workflow.completed":
-            event = workflow_completed(
-                context.workflow_id, results=context.outputs
-            )
+            event = workflow_completed(context.workflow_id, results=context.outputs)
         elif event_type == "workflow.failed":
             error = context.errors[0] if context.errors else "Unknown error"
             event = workflow_failed(context.workflow_id, error=error)
         else:
             # For other event types, create a basic event with source
             from paracle_events.events import EventType
+
             try:
                 event_type_enum = EventType(event_type)
             except ValueError:

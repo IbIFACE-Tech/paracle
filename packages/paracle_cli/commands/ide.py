@@ -65,7 +65,13 @@ def use_api_or_fallback(api_func, fallback_func, *args, **kwargs):
 
 
 @click.group(invoke_without_command=True)
-@click.option("--list", "-l", "list_flag", is_flag=True, help="List supported IDEs (shortcut for 'list')")
+@click.option(
+    "--list",
+    "-l",
+    "list_flag",
+    is_flag=True,
+    help="List supported IDEs (shortcut for 'list')",
+)
 @click.pass_context
 def ide(ctx: click.Context, list_flag: bool) -> None:
     """IDE and AI assistant integration commands.
@@ -184,20 +190,17 @@ def _status_via_api(client: APIClient, as_json: bool) -> None:
         if project_path != "-":
             project_path = Path(project_path).name
 
-        table.add_row(ide_item["name"].title(),
-                      generated, copied, project_path)
+        table.add_row(ide_item["name"].title(), generated, copied, project_path)
 
     console.print(table)
 
     # Summary
     console.print()
-    console.print(
-        f"Generated: {result['generated_count']}/{len(result['ides'])}")
+    console.print(f"Generated: {result['generated_count']}/{len(result['ides'])}")
     console.print(f"Copied: {result['copied_count']}/{len(result['ides'])}")
 
     if result["generated_count"] == 0:
-        console.print(
-            "\n[dim]Run 'paracle ide init' to generate configs[/dim]")
+        console.print("\n[dim]Run 'paracle ide init' to generate configs[/dim]")
 
 
 def _status_direct(as_json: bool) -> None:
@@ -257,8 +260,7 @@ def _status_direct(as_json: bool) -> None:
     console.print(f"Copied: {copied_count}/{len(status['ides'])}")
 
     if generated_count == 0:
-        console.print(
-            "\n[dim]Run 'paracle ide init' to generate configs[/dim]")
+        console.print("\n[dim]Run 'paracle ide init' to generate configs[/dim]")
 
 
 @ide.command("status")
@@ -303,8 +305,7 @@ def _init_via_api(
         if item["generated"]:
             console.print(f"  [green]OK[/green] Generated: {item['ide']}")
             if item["copied"]:
-                console.print(
-                    f"    [blue]->[/blue] Copied to: {item['project_path']}")
+                console.print(f"    [blue]->[/blue] Copied to: {item['project_path']}")
         elif item.get("error"):
             console.print(f"  [red]FAIL[/red] {item['ide']}: {item['error']}")
 
@@ -323,8 +324,7 @@ def _init_via_api(
             f"[blue]->[/blue] Copied {result['copied_count']} config(s) to project root"
         )
     if result["failed_count"] > 0:
-        console.print(
-            f"[red]FAIL[/red] {result['failed_count']} config(s) failed")
+        console.print(f"[red]FAIL[/red] {result['failed_count']} config(s) failed")
 
 
 def _init_direct(
@@ -411,8 +411,7 @@ def _init_direct(
         manifest_path = generator.generate_manifest()
         console.print(f"\n  [dim]Manifest: {manifest_path}[/dim]")
     except Exception as e:
-        console.print(
-            f"\n  [yellow]Warning:[/yellow] Could not generate manifest: {e}")
+        console.print(f"\n  [yellow]Warning:[/yellow] Could not generate manifest: {e}")
 
     # Summary
     console.print()
@@ -426,8 +425,7 @@ def _init_direct(
             f"[blue]->[/blue] Copied {len(results['copied'])} config(s) to project root"
         )
     if results["failed"]:
-        console.print(
-            f"[red]FAIL[/red] {len(results['failed'])} config(s) failed")
+        console.print(f"[red]FAIL[/red] {len(results['failed'])} config(s) failed")
 
 
 @ide.command("init")
@@ -572,9 +570,7 @@ def _sync_direct(
     except Exception:
         pass
 
-    console.print(
-        f"\n[green]OK[/green] Synced {len(generated)} IDE configuration(s)"
-    )
+    console.print(f"\n[green]OK[/green] Synced {len(generated)} IDE configuration(s)")
 
     # Export skills to IDE platforms if requested
     if with_skills:
@@ -605,32 +601,28 @@ def _export_skills_to_platforms() -> None:
     try:
         skills = loader.load_all()
     except Exception as e:
-        console.print(
-            f"\n[yellow]Warning:[/yellow] Failed to load skills: {e}")
+        console.print(f"\n[yellow]Warning:[/yellow] Failed to load skills: {e}")
         return
 
     if not skills:
         console.print("\n[dim]No skills found to export.[/dim]")
         return
 
-    console.print(
-        f"\n[bold]Exporting {len(skills)} skill(s) to platforms...[/bold]\n")
+    console.print(f"\n[bold]Exporting {len(skills)} skill(s) to platforms...[/bold]\n")
 
     # Export to Agent Skills platforms (copilot, cursor, claude, codex)
     exporter = SkillExporter(skills)
     project_root = parac_root.parent
 
     try:
-        results = exporter.export_all(
-            project_root, AGENT_SKILLS_PLATFORMS, True)
+        results = exporter.export_all(project_root, AGENT_SKILLS_PLATFORMS, True)
 
         # Count successes per platform
         platform_counts: dict[str, int] = {}
         for result in results:
             for platform, export_result in result.results.items():
                 if export_result.success:
-                    platform_counts[platform] = platform_counts.get(
-                        platform, 0) + 1
+                    platform_counts[platform] = platform_counts.get(platform, 0) + 1
 
         for platform, count in platform_counts.items():
             platform_dirs = {
@@ -640,8 +632,7 @@ def _export_skills_to_platforms() -> None:
                 "codex": ".codex/skills/",
             }
             dest = platform_dirs.get(platform, f".{platform}/skills/")
-            console.print(
-                f"  [green]OK[/green] {platform}: {count} skill(s) -> {dest}")
+            console.print(f"  [green]OK[/green] {platform}: {count} skill(s) -> {dest}")
 
     except Exception as e:
         console.print(f"  [red]Error:[/red] Skills export failed: {e}")
@@ -653,7 +644,7 @@ def _export_skills_to_platforms() -> None:
 @click.option(
     "--with-skills/--no-skills",
     default=True,
-    help="Export skills to IDE platforms (default: yes)"
+    help="Export skills to IDE platforms (default: yes)",
 )
 @click.option(
     "--no-format",
@@ -704,10 +695,19 @@ def ide_sync(
 @click.option(
     "--target",
     required=True,
-    type=click.Choice([
-        "vscode", "claude", "cursor", "windsurf", "codex",
-        "zed", "warp", "gemini", "all"
-    ]),
+    type=click.Choice(
+        [
+            "vscode",
+            "claude",
+            "cursor",
+            "windsurf",
+            "codex",
+            "zed",
+            "warp",
+            "gemini",
+            "all",
+        ]
+    ),
     help="Target IDE for agent compilation",
 )
 @click.option(
@@ -887,8 +887,7 @@ def ide_setup(ide_name: str | None, setup_all: bool, force: bool) -> None:
         console.print(f"  {len(detected) + 1}. All")
         console.print(f"  {len(detected) + 2}. Cancel")
 
-        choice = click.prompt("Enter choice", type=int,
-                              default=len(detected) + 1)
+        choice = click.prompt("Enter choice", type=int, default=len(detected) + 1)
         if choice == len(detected) + 2:
             console.print("[dim]Cancelled.[/dim]")
             return
@@ -924,8 +923,7 @@ def ide_setup(ide_name: str | None, setup_all: bool, force: bool) -> None:
             # IDE-specific MCP setup hints
             mcp_ides = ["cursor", "claude", "windsurf", "zed", "vscode"]
             if ide in mcp_ides:
-                console.print(
-                    f"  [dim]MCP: Add paracle server to {ide} settings[/dim]")
+                console.print(f"  [dim]MCP: Add paracle server to {ide} settings[/dim]")
 
         except Exception as e:
             console.print(f"  [red]FAIL[/red] {ide}: {e}")
@@ -1000,8 +998,7 @@ def ide_instructions(ide_name: str) -> None:
     else:
         console.print("This IDE uses file-based configuration.\n")
         console.print("[bold]Steps:[/bold]")
-        console.print(
-            f"1. Run: paracle ide init --ide={ide_name.lower()} --copy")
+        console.print(f"1. Run: paracle ide init --ide={ide_name.lower()} --copy")
         console.print(f"2. Config copied to: {config.destination_dir}/")
 
         # MCP setup hint
@@ -1058,6 +1055,7 @@ def _mcp_status_direct(as_json: bool) -> None:
 
     if as_json:
         import json
+
         console.print(json.dumps(status, indent=2))
         return
 
@@ -1095,8 +1093,7 @@ def _mcp_status_direct(as_json: bool) -> None:
     console.print(f"Installed: {inst_count}/{len(status['configs'])}")
 
     if gen_count == 0:
-        console.print(
-            "\n[dim]Run 'paracle ide mcp --generate' to create configs[/dim]")
+        console.print("\n[dim]Run 'paracle ide mcp --generate' to create configs[/dim]")
 
 
 def _mcp_generate_direct(
@@ -1149,7 +1146,8 @@ def _mcp_generate_direct(
         if config.uses_home_dir and not include_home:
             results["skipped"].append(ide_name)
             console.print(
-                f"  [dim]SKIP[/dim] {config.display_name} (use --include-home)")
+                f"  [dim]SKIP[/dim] {config.display_name} (use --include-home)"
+            )
             continue
 
         try:
@@ -1184,13 +1182,10 @@ def _mcp_generate_direct(
             f"[dim]Skipped {len(results['skipped'])} home-directory config(s)[/dim]"
         )
     if results["failed"]:
-        console.print(
-            f"[red]FAIL[/red] {len(results['failed'])} config(s) failed")
+        console.print(f"[red]FAIL[/red] {len(results['failed'])} config(s) failed")
 
     # MCP server hint
-    console.print(
-        "\n[dim]Start MCP server: paracle mcp serve --stdio[/dim]"
-    )
+    console.print("\n[dim]Start MCP server: paracle mcp serve --stdio[/dim]")
 
 
 @ide.command("mcp")
@@ -1201,8 +1196,12 @@ def _mcp_generate_direct(
     help="IDE(s) to generate MCP config for. Use 'paracle ide mcp --list' to see all.",
 )
 @click.option("--list", "-l", "list_flag", is_flag=True, help="List MCP-supported IDEs")
-@click.option("--status", "-s", "status_flag", is_flag=True, help="Show MCP config status")
-@click.option("--generate", "-g", "generate_flag", is_flag=True, help="Generate MCP configs")
+@click.option(
+    "--status", "-s", "status_flag", is_flag=True, help="Show MCP config status"
+)
+@click.option(
+    "--generate", "-g", "generate_flag", is_flag=True, help="Generate MCP configs"
+)
 @click.option("--copy/--no-copy", default=True, help="Copy to IDE directories")
 @click.option("--force", is_flag=True, help="Overwrite existing files")
 @click.option(
@@ -1285,14 +1284,13 @@ def _skills_list_direct(output_format: str, verbose: bool) -> None:
         raise SystemExit(1)
 
     if not skill_list:
-        console.print(
-            "[yellow]No skills found in .parac/agents/skills/[/yellow]")
-        console.print(
-            "\nCreate a skill with: paracle ide skills create my-skill")
+        console.print("[yellow]No skills found in .parac/agents/skills/[/yellow]")
+        console.print("\nCreate a skill with: paracle ide skills create my-skill")
         return
 
     if output_format == "json":
         import json
+
         data = [
             {
                 "name": s.name,
@@ -1307,6 +1305,7 @@ def _skills_list_direct(output_format: str, verbose: bool) -> None:
 
     elif output_format == "yaml":
         import yaml
+
         data = [
             {
                 "name": s.name,
@@ -1329,8 +1328,11 @@ def _skills_list_direct(output_format: str, verbose: bool) -> None:
 
         for skill in sorted(skill_list, key=lambda s: s.name):
             if verbose:
-                desc = skill.description[:50] + "..." if len(
-                    skill.description) > 50 else skill.description
+                desc = (
+                    skill.description[:50] + "..."
+                    if len(skill.description) > 50
+                    else skill.description
+                )
                 table.add_row(
                     skill.name,
                     skill.metadata.category.value,
@@ -1409,10 +1411,12 @@ def _skills_status_direct() -> None:
 
     if skill_count == 0:
         console.print(
-            "\n[dim]No skills found. Create with: paracle ide skills create my-skill[/dim]")
+            "\n[dim]No skills found. Create with: paracle ide skills create my-skill[/dim]"
+        )
     else:
         console.print(
-            "\n[dim]Export with: paracle ide skills export --platform copilot[/dim]")
+            "\n[dim]Export with: paracle ide skills export --platform copilot[/dim]"
+        )
 
 
 def _skills_export_direct(
@@ -1443,7 +1447,8 @@ def _skills_export_direct(
     invalid = [p for p in platform_list if p not in SKILL_PLATFORMS]
     if invalid:
         console.print(
-            f"[yellow]Warning:[/yellow] Unknown platform(s): {', '.join(invalid)}")
+            f"[yellow]Warning:[/yellow] Unknown platform(s): {', '.join(invalid)}"
+        )
         platform_list = [p for p in platform_list if p in SKILL_PLATFORMS]
 
     if not platform_list:
@@ -1467,21 +1472,21 @@ def _skills_export_direct(
         all_skills = [s for s in all_skills if s.name in skill_name_set]
         not_found = skill_name_set - {s.name for s in all_skills}
         if not_found:
-            console.print(
-                f"[yellow]Skills not found:[/yellow] {', '.join(not_found)}")
+            console.print(f"[yellow]Skills not found:[/yellow] {', '.join(not_found)}")
 
     if not all_skills:
         console.print("[yellow]No skills to export.[/yellow]")
         return
 
     # Show export plan
-    console.print(Panel(
-        f"[bold]Exporting {len(all_skills)} skill(s) to {len(platform_list)} platform(s)[/bold]",
-        title="Skill Export",
-    ))
-
     console.print(
-        f"\n[bold]Skills:[/bold] {', '.join(s.name for s in all_skills)}")
+        Panel(
+            f"[bold]Exporting {len(all_skills)} skill(s) to {len(platform_list)} platform(s)[/bold]",
+            title="Skill Export",
+        )
+    )
+
+    console.print(f"\n[bold]Skills:[/bold] {', '.join(s.name for s in all_skills)}")
     console.print(f"[bold]Platforms:[/bold] {', '.join(platform_list)}")
     console.print(f"[bold]Output:[/bold] {project_root}")
 
@@ -1499,10 +1504,12 @@ def _skills_export_direct(
             for p in platform_list:
                 if p == "rovodev":
                     console.print(
-                        f"  {project_root}/{platform_dirs[p]}/{skill.name}.md")
+                        f"  {project_root}/{platform_dirs[p]}/{skill.name}.md"
+                    )
                 else:
                     console.print(
-                        f"  {project_root}/{platform_dirs[p]}/{skill.name}/SKILL.md")
+                        f"  {project_root}/{platform_dirs[p]}/{skill.name}/SKILL.md"
+                    )
         return
 
     # Export skills
@@ -1523,34 +1530,49 @@ def _skills_export_direct(
             for platform_name, export_result in result.results.items():
                 if export_result.success:
                     console.print(
-                        f"  [green]OK[/green] {platform_name}: {export_result.output_path}")
+                        f"  [green]OK[/green] {platform_name}: {export_result.output_path}"
+                    )
                 else:
                     console.print(
-                        f"  [red]FAIL[/red] {platform_name}: {', '.join(export_result.errors)}")
+                        f"  [red]FAIL[/red] {platform_name}: {', '.join(export_result.errors)}"
+                    )
                     error_count += 1
 
     console.print(
-        f"\n[bold]Summary:[/bold] {success_count} succeeded, {error_count} failed")
+        f"\n[bold]Summary:[/bold] {success_count} succeeded, {error_count} failed"
+    )
 
 
 @ide.command("skills")
 @click.option("--list", "-l", "list_flag", is_flag=True, help="List available skills")
-@click.option("--status", "-s", "status_flag", is_flag=True, help="Show export status per platform")
-@click.option("--export", "-e", "export_flag", is_flag=True, help="Export skills to platforms")
 @click.option(
-    "--platform", "-p",
+    "--status",
+    "-s",
+    "status_flag",
+    is_flag=True,
+    help="Show export status per platform",
+)
+@click.option(
+    "--export", "-e", "export_flag", is_flag=True, help="Export skills to platforms"
+)
+@click.option(
+    "--platform",
+    "-p",
     "platforms",
     multiple=True,
     type=click.Choice(SKILL_PLATFORMS + ["all"]),
     help="Target platform(s) for export",
 )
-@click.option("--skill", "skill_names", multiple=True, help="Specific skill(s) to export")
+@click.option(
+    "--skill", "skill_names", multiple=True, help="Specific skill(s) to export"
+)
 @click.option("--all", "export_all", is_flag=True, help="Export to all platforms")
 @click.option("--overwrite", is_flag=True, help="Overwrite existing files")
 @click.option("--dry-run", is_flag=True, help="Show what would be exported")
 @click.option("--verbose", "-v", is_flag=True, help="Show detailed information")
 @click.option(
-    "--format", "output_format",
+    "--format",
+    "output_format",
     type=click.Choice(["table", "json", "yaml"]),
     default="table",
     help="Output format for list",

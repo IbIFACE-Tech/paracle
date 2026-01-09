@@ -13,16 +13,18 @@ from pathlib import Path
 async def quick_test():
     """Run quick integration test."""
 
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("🚀 QUICK TEST: Code Review with GitHub Agent")
-    print("="*70 + "\n")
+    print("=" * 70 + "\n")
 
     # Check prerequisites
     print("📋 Checking prerequisites...")
 
     checks = {
         "GitHub Agent (reviewer)": Path(".github/agents/reviewer.agent.md").exists(),
-        "Workflow (code_review)": Path(".parac/workflows/definitions/code_review.yaml").exists(),
+        "Workflow (code_review)": Path(
+            ".parac/workflows/definitions/code_review.yaml"
+        ).exists(),
         "Test File": Path("packages/paracle_tools/reviewer_tools.py").exists(),
     }
 
@@ -58,9 +60,9 @@ async def quick_test():
         print("       ✅ Completed\n")
 
     # Show summary
-    print("="*70)
+    print("=" * 70)
     print("📊 TEST RESULTS")
-    print("="*70)
+    print("=" * 70)
     print("\n✅ Integration test passed!")
     print("\n📋 Summary:")
     print("   - GitHub agent loaded successfully")
@@ -71,7 +73,7 @@ async def quick_test():
     print("\n💡 Next: Run real execution with:")
     print("   uv run paracle workflow run code_review \\")
     print('     --inputs \'{"changed_files": ["test.py"]}\'')
-    print("\n" + "="*70 + "\n")
+    print("\n" + "=" * 70 + "\n")
 
     return True
 

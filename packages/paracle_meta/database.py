@@ -120,7 +120,9 @@ class MetaDatabaseConfig(BaseModel):
 
     # Connection pool settings
     pool_size: int = Field(default=5, ge=1, le=50)
-    pool_recycle: int = Field(default=3600, description="Connection recycle time in seconds")
+    pool_recycle: int = Field(
+        default=3600, description="Connection recycle time in seconds"
+    )
     echo: bool = Field(default=False, description="Echo SQL statements")
 
     # Vector/embedding settings
@@ -237,7 +239,9 @@ class GenerationRecord(Base):
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow, index=True)
 
     # Relationships
-    feedback = relationship("FeedbackRecord", back_populates="generation", cascade="all, delete-orphan")
+    feedback = relationship(
+        "FeedbackRecord", back_populates="generation", cascade="all, delete-orphan"
+    )
 
     __table_args__ = (
         Index("ix_meta_generations_type_created", "artifact_type", "created_at"),
@@ -250,7 +254,9 @@ class FeedbackRecord(Base):
     __tablename__ = "meta_feedback"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    generation_id = Column(String(64), ForeignKey("meta_generations.id"), nullable=False, index=True)
+    generation_id = Column(
+        String(64), ForeignKey("meta_generations.id"), nullable=False, index=True
+    )
     rating = Column(Integer, nullable=False)  # 1-5 stars
     comment = Column(Text, nullable=True)
     usage_count = Column(Integer, nullable=False, default=1)
@@ -277,7 +283,9 @@ class TemplateRecord(Base):
     source_generation_id = Column(String(64), nullable=True)
     extra_data = Column(JSONType, nullable=True, default=dict)  # renamed from metadata
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at = Column(
+        DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
 
     __table_args__ = (
         Index("ix_meta_templates_type_quality", "artifact_type", "quality_score"),
@@ -467,7 +475,9 @@ class MetaDatabase:
                 logger.info(
                     "MetaDatabase connected",
                     extra={
-                        "backend": "postgresql" if self.config.is_postgres else "sqlite",
+                        "backend": (
+                            "postgresql" if self.config.is_postgres else "sqlite"
+                        ),
                         "vectors": self._pgvector_enabled,
                     },
                 )

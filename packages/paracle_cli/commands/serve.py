@@ -121,7 +121,8 @@ def serve(
         # Development mode
         if reload:
             console.print(
-                "\n[yellow]⚠️  Development mode with auto-reload enabled[/yellow]")
+                "\n[yellow]⚠️  Development mode with auto-reload enabled[/yellow]"
+            )
             console.print("[yellow]   Not suitable for production![/yellow]\n")
             uvicorn_config["reload"] = True
             uvicorn_config["reload_dirs"] = ["packages"]
@@ -130,11 +131,11 @@ def serve(
         else:
             if workers > 1:
                 console.print(
-                    f"\n[green]✓[/green] Production mode with {workers} workers\n")
+                    f"\n[green]✓[/green] Production mode with {workers} workers\n"
+                )
                 uvicorn_config["workers"] = workers
             else:
-                console.print(
-                    "\n[green]✓[/green] Production mode (single worker)\n")
+                console.print("\n[green]✓[/green] Production mode (single worker)\n")
 
         # Start server
         console.print("[bold cyan]Starting Paracle API server...[/bold cyan]")
@@ -165,10 +166,8 @@ def _display_startup_banner(
 
     config_table.add_row("Host", host)
     config_table.add_row("Port", str(port))
-    config_table.add_row(
-        "Mode", "Development (reload)" if reload else "Production")
-    config_table.add_row("Workers", str(
-        workers) if not reload else "1 (reload mode)")
+    config_table.add_row("Mode", "Development (reload)" if reload else "Production")
+    config_table.add_row("Workers", str(workers) if not reload else "1 (reload mode)")
     config_table.add_row("Log Level", log_level.upper())
 
     panel = Panel(

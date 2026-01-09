@@ -185,9 +185,7 @@ class TestSSHTransport:
 
             # Mock tunnel creation
             mock_listener = Mock()
-            mock_connection.forward_local_port = AsyncMock(
-                return_value=mock_listener
-            )
+            mock_connection.forward_local_port = AsyncMock(return_value=mock_listener)
 
             await transport.connect()
 
@@ -281,9 +279,7 @@ class TestTunnelManager:
         manager = TunnelManager(remote_config)
 
         with patch.object(manager.transport, "connect", new_callable=AsyncMock):
-            with patch.object(
-                manager.transport, "disconnect", new_callable=AsyncMock
-            ):
+            with patch.object(manager.transport, "disconnect", new_callable=AsyncMock):
                 await manager.start()
                 await manager.stop()
 
@@ -312,9 +308,7 @@ class TestTunnelManager:
         manager = TunnelManager(remote_config)
 
         with patch.object(manager.transport, "connect", new_callable=AsyncMock):
-            with patch.object(
-                manager.transport, "disconnect", new_callable=AsyncMock
-            ):
+            with patch.object(manager.transport, "disconnect", new_callable=AsyncMock):
                 async with manager:
                     assert manager._running is True
 

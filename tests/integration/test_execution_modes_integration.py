@@ -66,14 +66,16 @@ class TestPlanModeIntegration:
                 planner = WorkflowPlanner()
                 plan = planner.plan(spec)
 
-                results.append({
-                    "workflow_name": workflow_name,
-                    "total_steps": plan.total_steps,
-                    "estimated_cost": plan.estimated_cost_usd,
-                    "estimated_time": plan.estimated_time_seconds,
-                    "groups": len(plan.parallel_groups),
-                    "suggestions": len(plan.optimization_suggestions),
-                })
+                results.append(
+                    {
+                        "workflow_name": workflow_name,
+                        "total_steps": plan.total_steps,
+                        "estimated_cost": plan.estimated_cost_usd,
+                        "estimated_time": plan.estimated_time_seconds,
+                        "groups": len(plan.parallel_groups),
+                        "suggestions": len(plan.optimization_suggestions),
+                    }
+                )
 
             except Exception as e:
                 print(f"⚠ Could not plan {workflow_name}: {e}")
@@ -82,10 +84,12 @@ class TestPlanModeIntegration:
 
         print(f"\n✓ Planned {len(results)} workflows:")
         for result in results:
-            print(f"  - {result['workflow_name']}: "
-                  f"{result['total_steps']} steps, "
-                  f"${result['estimated_cost']:.4f}, "
-                  f"{result['estimated_time']}s")
+            print(
+                f"  - {result['workflow_name']}: "
+                f"{result['total_steps']} steps, "
+                f"${result['estimated_cost']:.4f}, "
+                f"{result['estimated_time']}s"
+            )
 
 
 class TestDryRunModeIntegration:

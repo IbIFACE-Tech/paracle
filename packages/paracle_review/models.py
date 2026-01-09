@@ -60,45 +60,32 @@ class ArtifactReview(BaseModel):
     sandbox_id: str = Field(..., description="Source sandbox")
 
     status: ReviewStatus = Field(
-        default=ReviewStatus.PENDING,
-        description="Review status"
+        default=ReviewStatus.PENDING, description="Review status"
     )
 
     risk_level: str = Field(
-        default="medium",
-        description="Risk level (low, medium, high)"
+        default="medium", description="Risk level (low, medium, high)"
     )
 
     created_at: datetime = Field(
-        default_factory=datetime.utcnow,
-        description="Creation timestamp"
+        default_factory=datetime.utcnow, description="Creation timestamp"
     )
 
     updated_at: datetime = Field(
-        default_factory=datetime.utcnow,
-        description="Last update timestamp"
+        default_factory=datetime.utcnow, description="Last update timestamp"
     )
 
-    expires_at: datetime | None = Field(
-        None,
-        description="Expiration timestamp"
-    )
+    expires_at: datetime | None = Field(None, description="Expiration timestamp")
 
     artifact_content: dict[str, Any] = Field(
-        default_factory=dict,
-        description="Artifact content"
+        default_factory=dict, description="Artifact content"
     )
 
     decisions: list[ReviewDecision] = Field(
-        default_factory=list,
-        description="Review decisions"
+        default_factory=list, description="Review decisions"
     )
 
-    required_approvals: int = Field(
-        default=1,
-        ge=1,
-        description="Required approvals"
-    )
+    required_approvals: int = Field(default=1, ge=1, description="Required approvals")
 
     def approval_count(self) -> int:
         """Count approvals.

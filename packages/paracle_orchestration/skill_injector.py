@@ -94,7 +94,9 @@ class SkillInjector:
             if skill.references:
                 skill_section += f"### {skill.name}\n\n"
                 for ref_name, ref_content in skill.references.items():
-                    skill_section += f"**{ref_name}:**\n```\n{ref_content[:500]}...\n```\n\n"
+                    skill_section += (
+                        f"**{ref_name}:**\n```\n{ref_content[:500]}...\n```\n\n"
+                    )
 
         return base_prompt + skill_section
 

@@ -100,13 +100,9 @@ class WorkflowEngine:
             return context
 
         except Exception as e:
-            raise OrchestrationError(
-                f"Workflow execution failed: {e}"
-            ) from e
+            raise OrchestrationError(f"Workflow execution failed: {e}") from e
 
-    async def execute_async(
-        self, workflow: Workflow, inputs: dict[str, Any]
-    ) -> str:
+    async def execute_async(self, workflow: Workflow, inputs: dict[str, Any]) -> str:
         """Execute workflow asynchronously in background.
 
         Returns immediately with execution_id for tracking.
@@ -125,6 +121,7 @@ class WorkflowEngine:
 
         # Create initial context with pending status
         from datetime import datetime
+
         initial_context = ExecutionContext(
             execution_id=execution_id,
             workflow_id=workflow.id,
@@ -180,8 +177,7 @@ class WorkflowEngine:
         except Exception as e:
             # Log error and update context with failure status
             logger.error(
-                f"Background execution failed for {execution_id}: {e}",
-                exc_info=True
+                f"Background execution failed for {execution_id}: {e}", exc_info=True
             )
             try:
                 context = self.orchestrator.get_execution(execution_id)
@@ -193,7 +189,7 @@ class WorkflowEngine:
             except Exception as inner_e:
                 logger.error(
                     f"Failed to update execution status for {execution_id}: {inner_e}",
-                    exc_info=True
+                    exc_info=True,
                 )
 
     async def get_execution_status(self, execution_id: str) -> ExecutionStatus:
@@ -234,6 +230,7 @@ class WorkflowEngine:
         Returns:
             Status object with execution details
         """
+
         # Create a status object that mimics ExecutionStatus
         # but with additional API-friendly fields
         class Status:
@@ -272,8 +269,7 @@ class WorkflowEngine:
             async with self._history_lock:
                 context = self.execution_history.get(execution_id)
             if context is None:
-                raise WorkflowNotFoundError(
-                    f"Execution '{execution_id}' not found")
+                raise WorkflowNotFoundError(f"Execution '{execution_id}' not found")
 
         return cancelled
 
@@ -349,20 +345,11 @@ class WorkflowEngine:
             # Calculate duration
             duration = None
             if context.completed_at and context.started_at:
-                duration = (
-                    context.completed_at - context.started_at
-                ).total_seconds()
+                duration = (context.completed_at - context.started_at).total_seconds()
 
             # Count successful and failed steps
-            successful = [
-                s for s in context.step_results.values()
-                if s.get("success")
-            ]
-            failed = [
-                s
-                for s in context.step_results.values()
-                if not s.get("success")
-            ]
+            successful = [s for s in context.step_results.values() if s.get("success")]
+            failed = [s for s in context.step_results.values() if not s.get("success")]
 
             # Get unique agent IDs
             agent_ids = {
@@ -397,12 +384,8 @@ class WorkflowEngine:
                 steps=context.step_results,
             )
 
-            logger.info(
-                f"Saved workflow run {context.execution_id} to storage"
-            )
+            logger.info(f"Saved workflow run {context.execution_id} to storage")
 
         except Exception as e:
             # Don't fail the workflow if storage fails
-            logger.warning(
-                f"Failed to save run to storage: {e}", exc_info=True
-            )
+            logger.warning(f"Failed to save run to storage: {e}", exc_info=True)

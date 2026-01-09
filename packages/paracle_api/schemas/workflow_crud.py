@@ -23,44 +23,28 @@ class WorkflowResponse(BaseModel):
     """Response containing workflow details."""
 
     id: str = Field(
-        ...,
-        description="Workflow ID",
-        examples=["wf_01HQKZJ8XYQF2VWRGS7DTKHM3"]
+        ..., description="Workflow ID", examples=["wf_01HQKZJ8XYQF2VWRGS7DTKHM3"]
     )
     name: str = Field(
         ...,
         description="Workflow name",
-        examples=["data-processing", "agent-orchestration"]
+        examples=["data-processing", "agent-orchestration"],
     )
     description: str | None = Field(
         None,
         description="Workflow description",
-        examples=["Process CSV data and generate reports"]
+        examples=["Process CSV data and generate reports"],
     )
-    status: EntityStatus = Field(
-        ...,
-        description="Current status",
-        examples=["active"]
-    )
-    steps_count: int = Field(
-        ...,
-        description="Number of steps",
-        examples=[5]
-    )
+    status: EntityStatus = Field(..., description="Current status", examples=["active"])
+    steps_count: int = Field(..., description="Number of steps", examples=[5])
     progress: float = Field(
-        ...,
-        description="Completion progress (0-100)",
-        examples=[75.5]
+        ..., description="Completion progress (0-100)", examples=[75.5]
     )
     created_at: datetime = Field(
-        ...,
-        description="Creation timestamp",
-        examples=["2026-01-07T14:30:00Z"]
+        ..., description="Creation timestamp", examples=["2026-01-07T14:30:00Z"]
     )
     updated_at: datetime = Field(
-        ...,
-        description="Last update timestamp",
-        examples=["2026-01-07T15:45:00Z"]
+        ..., description="Last update timestamp", examples=["2026-01-07T15:45:00Z"]
     )
 
 
@@ -108,9 +92,7 @@ class WorkflowListRequest(BaseModel):
 class WorkflowListResponse(BaseModel):
     """Response containing list of workflows."""
 
-    workflows: list[WorkflowResponse] = Field(
-        ..., description="List of workflows"
-    )
+    workflows: list[WorkflowResponse] = Field(..., description="List of workflows")
     total: int = Field(..., description="Total count (before pagination)")
     limit: int = Field(..., description="Limit used")
     offset: int = Field(..., description="Offset used")
@@ -127,12 +109,12 @@ class WorkflowExecuteRequest(BaseModel):
     inputs: dict = Field(
         default_factory=dict,
         description="Input values for workflow",
-        examples=[{"source": "data.csv", "target": "output.json"}]
+        examples=[{"source": "data.csv", "target": "output.json"}],
     )
     config: dict = Field(
         default_factory=dict,
         description="Execution configuration",
-        examples=[{"timeout": 300, "retry_count": 3}]
+        examples=[{"timeout": 300, "retry_count": 3}],
     )
 
 

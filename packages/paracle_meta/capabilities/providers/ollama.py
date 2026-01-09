@@ -110,9 +110,7 @@ class OllamaProvider(BaseProvider):
                     models = [m["name"] for m in data.get("models", [])]
 
                     # Check if requested model is available
-                    if self._model and not any(
-                        self._model in m for m in models
-                    ):
+                    if self._model and not any(self._model in m for m in models):
                         self._set_error(
                             f"Model '{self._model}' not found. "
                             f"Available: {', '.join(models[:5])}"
@@ -237,9 +235,7 @@ class OllamaProvider(BaseProvider):
             if msg.role == "system":
                 continue
 
-            content = (
-                msg.content if isinstance(msg.content, str) else str(msg.content)
-            )
+            content = msg.content if isinstance(msg.content, str) else str(msg.content)
             messages.append({"role": msg.role, "content": content})
 
         params: dict[str, Any] = {

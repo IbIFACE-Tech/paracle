@@ -68,7 +68,9 @@ class SQLiteAgentRepository(Repository["Agent"]):
         """Convert domain entity to database model."""
         spec_dict = entity.spec.model_dump(mode="json") if entity.spec else {}
         # Store provider in metadata for reconstruction
-        metadata = dict(entity.spec.metadata) if entity.spec and entity.spec.metadata else {}
+        metadata = (
+            dict(entity.spec.metadata) if entity.spec and entity.spec.metadata else {}
+        )
         if entity.spec and entity.spec.provider:
             metadata["provider"] = entity.spec.provider
         # Extract status phase as string (AgentStatus has a phase field with EntityStatus)
@@ -169,7 +171,11 @@ class SQLiteAgentRepository(Repository["Agent"]):
             # Update fields
             spec_dict = entity.spec.model_dump(mode="json") if entity.spec else {}
             # Store provider in metadata for reconstruction
-            metadata = dict(entity.spec.metadata) if entity.spec and entity.spec.metadata else {}
+            metadata = (
+                dict(entity.spec.metadata)
+                if entity.spec and entity.spec.metadata
+                else {}
+            )
             if entity.spec and entity.spec.provider:
                 metadata["provider"] = entity.spec.provider
             # Extract status phase as string

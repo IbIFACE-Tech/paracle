@@ -24,7 +24,8 @@ def main():
         include_metadata=True,
     )
     print(
-        f"   [OK] Config: approval={config.require_approval}, conventional={config.conventional_commits}\n")
+        f"   [OK] Config: approval={config.require_approval}, conventional={config.conventional_commits}\n"
+    )
 
     # 2. Initialize manager
     print("2. Initializing AutoCommitManager...")
@@ -112,7 +113,9 @@ def main():
     print("paracle git config --enable --approval --conventional\n")
 
     print("# Create a commit")
-    print("paracle git commit 'Implement feature X' --type feat --scope api --agent coder\n")
+    print(
+        "paracle git commit 'Implement feature X' --type feat --scope api --agent coder\n"
+    )
 
     print("# Show commit history")
     print("paracle git log --limit 10\n")

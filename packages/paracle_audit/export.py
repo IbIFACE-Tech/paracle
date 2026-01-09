@@ -16,9 +16,7 @@ from .exceptions import AuditExportError
 from .storage import AuditStorage
 
 
-def _validate_export_path(
-    output_path: Path, base_path: Path | None = None
-) -> Path:
+def _validate_export_path(output_path: Path, base_path: Path | None = None) -> Path:
     """Validate export path to prevent path traversal attacks.
 
     Args:
@@ -330,8 +328,7 @@ class AuditExporter:
 
             # RFC 5424 format
             syslog_line = (
-                f"<{priority}>1 {timestamp} paracle audit {event.event_id} "
-                f"- {msg}"
+                f"<{priority}>1 {timestamp} paracle audit {event.event_id} " f"- {msg}"
             )
             f.write(syslog_line)
             f.write("\n")
@@ -341,10 +338,10 @@ class AuditExporter:
         severity_map = {
             AuditOutcome.SUCCESS: 6,  # Informational
             AuditOutcome.FAILURE: 3,  # Error
-            AuditOutcome.DENIED: 4,   # Warning
+            AuditOutcome.DENIED: 4,  # Warning
             AuditOutcome.PENDING: 6,  # Informational
             AuditOutcome.CANCELLED: 5,  # Notice
-            AuditOutcome.ERROR: 3,    # Error
+            AuditOutcome.ERROR: 3,  # Error
         }
         return severity_map.get(outcome, 6)
 
@@ -390,32 +387,40 @@ class AuditExporter:
 
             # Count by risk level
             if event.risk_level:
-                by_risk_level[event.risk_level] = by_risk_level.get(event.risk_level, 0) + 1
+                by_risk_level[event.risk_level] = (
+                    by_risk_level.get(event.risk_level, 0) + 1
+                )
 
             # Count by ISO control
             if event.iso_control:
-                by_iso_control[event.iso_control] = by_iso_control.get(event.iso_control, 0) + 1
+                by_iso_control[event.iso_control] = (
+                    by_iso_control.get(event.iso_control, 0) + 1
+                )
 
             # Track policy violations
             if event.event_type == AuditEventType.POLICY_VIOLATED:
-                policy_violations.append({
-                    "event_id": event.event_id,
-                    "timestamp": event.timestamp.isoformat(),
-                    "actor": event.actor,
-                    "action": event.action,
-                    "policy_id": event.policy_id,
-                })
+                policy_violations.append(
+                    {
+                        "event_id": event.event_id,
+                        "timestamp": event.timestamp.isoformat(),
+                        "actor": event.actor,
+                        "action": event.action,
+                        "policy_id": event.policy_id,
+                    }
+                )
 
             # Track high-risk actions
             if event.risk_score and event.risk_score >= 80:
-                high_risk_actions.append({
-                    "event_id": event.event_id,
-                    "timestamp": event.timestamp.isoformat(),
-                    "actor": event.actor,
-                    "action": event.action,
-                    "risk_score": event.risk_score,
-                    "outcome": event.outcome.value,
-                })
+                high_risk_actions.append(
+                    {
+                        "event_id": event.event_id,
+                        "timestamp": event.timestamp.isoformat(),
+                        "actor": event.actor,
+                        "action": event.action,
+                        "risk_score": event.risk_score,
+                        "outcome": event.outcome.value,
+                    }
+                )
 
         return {
             "report_time": datetime.utcnow().isoformat(),

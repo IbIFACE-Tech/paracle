@@ -17,7 +17,7 @@ def create_icon(size: int = 128):
         size: Icon size (width and height)
     """
     # Create white background
-    img = Image.new('RGB', (size, size), 'white')
+    img = Image.new("RGB", (size, size), "white")
     draw = ImageDraw.Draw(img)
 
     # Try to load existing logo
@@ -29,15 +29,14 @@ def create_icon(size: int = 128):
         logo = Image.open(logo_path)
 
         # Resize maintaining aspect ratio
-        logo.thumbnail((int(size * 0.8), int(size * 0.8)),
-                       Image.Resampling.LANCZOS)
+        logo.thumbnail((int(size * 0.8), int(size * 0.8)), Image.Resampling.LANCZOS)
 
         # Center the logo
         x = (size - logo.width) // 2
         y = (size - logo.height) // 2
 
         # Paste logo (handle transparency)
-        if logo.mode == 'RGBA':
+        if logo.mode == "RGBA":
             img.paste(logo, (x, y), logo)
         else:
             img.paste(logo, (x, y))
@@ -61,11 +60,11 @@ def create_icon(size: int = 128):
         y = (size - text_height) // 2
 
         # Draw black text
-        draw.text((x, y), text, fill='black', font=font)
+        draw.text((x, y), text, fill="black", font=font)
 
     # Save icon
     output_path = assets_dir / "paracle_icon.png"
-    img.save(output_path, 'PNG')
+    img.save(output_path, "PNG")
     print(f"âœ… Icon created: {output_path}")
     print(f"   Size: {size}x{size} pixels")
 
@@ -73,7 +72,7 @@ def create_icon(size: int = 128):
     if size == 128:
         img_small = img.resize((64, 64), Image.Resampling.LANCZOS)
         output_small = assets_dir / "paracle_icon_64.png"
-        img_small.save(output_small, 'PNG')
+        img_small.save(output_small, "PNG")
         print(f"âœ… Small icon created: {output_small}")
         print("   Size: 64x64 pixels")
 
@@ -86,4 +85,3 @@ if __name__ == "__main__":
         size = int(sys.argv[1])
 
     create_icon(size)
-

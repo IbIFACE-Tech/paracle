@@ -91,9 +91,7 @@ class StorageConfig(BaseModel):
     @property
     def is_sqlite(self) -> bool:
         """Check if using SQLite."""
-        return self.database_url is not None and self.database_url.startswith(
-            "sqlite:"
-        )
+        return self.database_url is not None and self.database_url.startswith("sqlite:")
 
     @property
     def is_postgresql(self) -> bool:

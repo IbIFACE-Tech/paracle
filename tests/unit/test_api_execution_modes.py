@@ -36,7 +36,7 @@ async def test_api_endpoints():
                             "depends_on": ["step1"],
                         },
                     ]
-                }
+                },
             }
 
             # Create workflow
@@ -58,19 +58,14 @@ async def test_api_endpoints():
                     plan = plan_response.json()
                     print("✓ Got execution plan:")
                     print(f"  - Total steps: {plan['total_steps']}")
-                    print(
-                        f"  - Estimated cost: ${plan['estimated_cost_usd']:.4f}")
-                    print(
-                        f"  - Estimated time: {plan['estimated_time_seconds']}s")
-                    print(
-                        f"  - Execution groups: {len(plan['execution_groups'])}")
+                    print(f"  - Estimated cost: ${plan['estimated_cost_usd']:.4f}")
+                    print(f"  - Estimated time: {plan['estimated_time_seconds']}s")
+                    print(f"  - Execution groups: {len(plan['execution_groups'])}")
                 else:
-                    print(
-                        f"✗ Plan endpoint failed: {plan_response.status_code}")
+                    print(f"✗ Plan endpoint failed: {plan_response.status_code}")
                     print(f"  {plan_response.text}")
             else:
-                print(
-                    f"✗ Failed to create workflow: {create_response.status_code}")
+                print(f"✗ Failed to create workflow: {create_response.status_code}")
 
     except Exception as e:
         print(f"✗ Error testing plan endpoint: {e}")

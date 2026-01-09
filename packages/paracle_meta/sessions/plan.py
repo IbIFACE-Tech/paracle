@@ -140,7 +140,9 @@ class PlanStep:
             "result": self.result,
             "error": self.error,
             "started_at": self.started_at.isoformat() if self.started_at else None,
-            "completed_at": self.completed_at.isoformat() if self.completed_at else None,
+            "completed_at": (
+                self.completed_at.isoformat() if self.completed_at else None
+            ),
         }
 
     @classmethod
@@ -200,8 +202,7 @@ class Plan:
     def is_complete(self) -> bool:
         """Whether plan is fully executed."""
         return all(
-            s.status in (StepStatus.COMPLETED, StepStatus.SKIPPED)
-            for s in self.steps
+            s.status in (StepStatus.COMPLETED, StepStatus.SKIPPED) for s in self.steps
         )
 
     def get_next_step(self) -> PlanStep | None:

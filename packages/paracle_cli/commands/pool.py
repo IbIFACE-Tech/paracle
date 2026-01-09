@@ -153,12 +153,9 @@ def config():
         config = http_stats.get("config", {})
 
         click.echo("\nHTTP Pool:")
-        click.echo(
-            f"  Max Connections: {config.get('max_connections', 'N/A')}")
+        click.echo(f"  Max Connections: {config.get('max_connections', 'N/A')}")
         click.echo(f"  Max Keepalive: {config.get('max_keepalive', 'N/A')}")
-        click.echo(
-            f"  Keepalive Expiry: {config.get('keepalive_expiry', 'N/A')}s"
-        )
+        click.echo(f"  Keepalive Expiry: {config.get('keepalive_expiry', 'N/A')}s")
         click.echo(f"  Timeout: {config.get('timeout', 'N/A')}s")
     except Exception as e:
         click.secho(f"\nHTTP Pool: Not configured ({e})", fg="yellow")
@@ -235,8 +232,7 @@ def benchmark(requests: int, concurrent: int):
         click.echo(f"  Concurrent: {concurrent}")
         click.echo(f"  Total Time: {duration:.2f}s")
         click.echo(f"  Requests/Second: {requests / duration:.0f}")
-        click.echo(
-            f"  Avg Time per Request: {duration * 1000 / requests:.1f}ms")
+        click.echo(f"  Avg Time per Request: {duration * 1000 / requests:.1f}ms")
 
         # Pool stats
         stats = http_pool.stats()

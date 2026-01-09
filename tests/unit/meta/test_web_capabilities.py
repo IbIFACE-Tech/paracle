@@ -210,7 +210,10 @@ class TestWebCapability:
         assert result["url"] == "https://example.com"
         assert result["status_code"] == 200
         # Title should be extracted
-        assert "Test Page" in result.get("title", "") or "content" in result.get("content", "").lower()
+        assert (
+            "Test Page" in result.get("title", "")
+            or "content" in result.get("content", "").lower()
+        )
 
 
 class TestWebCapabilityIntegration:

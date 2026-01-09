@@ -76,9 +76,7 @@ class SkillLoader:
                 If None, only project skills are loaded.
         """
         self.skills_dir = Path(skills_dir)
-        self.system_skills_dir = (
-            Path(system_skills_dir) if system_skills_dir else None
-        )
+        self.system_skills_dir = Path(system_skills_dir) if system_skills_dir else None
 
     @classmethod
     def with_system_skills(

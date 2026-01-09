@@ -6,6 +6,7 @@ from typing import Any
 
 try:
     import httpx
+
     HTTPX_AVAILABLE = True
 except ImportError:
     HTTPX_AVAILABLE = False
@@ -26,18 +27,16 @@ class HTTPPoolConfig:
     def from_env(cls) -> "HTTPPoolConfig":
         """Create config from environment variables."""
         import os
+
         return cls(
-            max_connections=int(
-                os.getenv("PARACLE_HTTP_MAX_CONNECTIONS", "100")),
+            max_connections=int(os.getenv("PARACLE_HTTP_MAX_CONNECTIONS", "100")),
             max_keepalive_connections=int(
                 os.getenv("PARACLE_HTTP_MAX_KEEPALIVE", "20")
             ),
-            keepalive_expiry=float(
-                os.getenv("PARACLE_HTTP_KEEPALIVE_EXPIRY", "30.0")),
+            keepalive_expiry=float(os.getenv("PARACLE_HTTP_KEEPALIVE_EXPIRY", "30.0")),
             timeout=float(os.getenv("PARACLE_HTTP_TIMEOUT", "30.0")),
             max_retries=int(os.getenv("PARACLE_HTTP_MAX_RETRIES", "3")),
-            verify_ssl=os.getenv("PARACLE_HTTP_VERIFY_SSL",
-                                 "true").lower() == "true",
+            verify_ssl=os.getenv("PARACLE_HTTP_VERIFY_SSL", "true").lower() == "true",
         )
 
 
@@ -52,8 +51,7 @@ class HTTPPool:
         """
         if not HTTPX_AVAILABLE:
             raise ImportError(
-                "httpx is required for HTTP pooling. "
-                "Install with: pip install httpx"
+                "httpx is required for HTTP pooling. " "Install with: pip install httpx"
             )
 
         self.config = config or HTTPPoolConfig()

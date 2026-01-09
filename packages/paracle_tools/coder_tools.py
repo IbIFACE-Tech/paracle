@@ -456,9 +456,9 @@ class TestingTool(BaseTool):
                 "action": "check_tests",
                 "file": str(target_path),
                 "test_file_exists": test_file.exists() or alt_test_file.exists(),
-                "test_file": str(test_file)
-                if test_file.exists()
-                else str(alt_test_file),
+                "test_file": (
+                    str(test_file) if test_file.exists() else str(alt_test_file)
+                ),
             }
 
         return {"error": "Path must be a file"}

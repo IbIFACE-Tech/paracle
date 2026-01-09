@@ -173,8 +173,7 @@ class TestParacRouter:
 
         # Verify changes were saved
         state_file = (
-            temp_parac_project / ".parac" / "memory" / "context"
-            / "current_state.yaml"
+            temp_parac_project / ".parac" / "memory" / "context" / "current_state.yaml"
         )
         with open(state_file, encoding="utf-8") as f:
             state = yaml.safe_load(f)
@@ -197,9 +196,7 @@ class TestParacRouter:
         assert len(data["changes"]) == 0
         assert "No changes" in data["message"]
 
-    def test_session_end_progress_validation(
-        self, temp_parac_project: Path
-    ) -> None:
+    def test_session_end_progress_validation(self, temp_parac_project: Path) -> None:
         """Test session end progress validation."""
         os.chdir(temp_parac_project)
 

@@ -28,16 +28,14 @@ async def main():
     # =========================================================================
     print("\n1. GET request - Fetch user data from API...")
 
-    result = await http_get.execute(
-        url="https://jsonplaceholder.typicode.com/users/1"
-    )
+    result = await http_get.execute(url="https://jsonplaceholder.typicode.com/users/1")
 
     if result.success:
         print(f"✓ Status: {result.output['status_code']}")
         print(f"  URL: {result.output['url']}")
 
-        if result.output['json']:
-            user = result.output['json']
+        if result.output["json"]:
+            user = result.output["json"]
             print(f"  User: {user['name']}")
             print(f"  Email: {user['email']}")
             print(f"  City: {user['address']['city']}")
@@ -52,13 +50,13 @@ async def main():
     result = await http_get.execute(
         url="https://jsonplaceholder.typicode.com/posts",
         params={"userId": 1, "_limit": 3},
-        headers={"Accept": "application/json"}
+        headers={"Accept": "application/json"},
     )
 
     if result.success:
         print(f"✓ Status: {result.output['status_code']}")
-        if result.output['json']:
-            posts = result.output['json']
+        if result.output["json"]:
+            posts = result.output["json"]
             print(f"  Found {len(posts)} posts")
             for post in posts:
                 print(f"    - {post['title'][:50]}...")
@@ -71,18 +69,17 @@ async def main():
     new_post = {
         "title": "My Paracle Example",
         "body": "This post was created using Paracle's built-in HTTP tools!",
-        "userId": 1
+        "userId": 1,
     }
 
     result = await http_post.execute(
-        url="https://jsonplaceholder.typicode.com/posts",
-        json_data=new_post
+        url="https://jsonplaceholder.typicode.com/posts", json_data=new_post
     )
 
     if result.success:
         print(f"✓ Status: {result.output['status_code']}")
-        if result.output['json']:
-            created = result.output['json']
+        if result.output["json"]:
+            created = result.output["json"]
             print(f"  Created post ID: {created.get('id')}")
             print(f"  Title: {created.get('title')}")
 
@@ -93,13 +90,13 @@ async def main():
 
     result = await http_post.execute(
         url="https://httpbin.org/post",
-        form_data={"field1": "value1", "field2": "value2"}
+        form_data={"field1": "value1", "field2": "value2"},
     )
 
     if result.success:
         print(f"✓ Status: {result.output['status_code']}")
-        if result.output['json']:
-            form_echo = result.output['json'].get('form', {})
+        if result.output["json"]:
+            form_echo = result.output["json"].get("form", {})
             print(f"  Form data echoed: {form_echo}")
 
     # =========================================================================
@@ -111,18 +108,17 @@ async def main():
         "id": 1,
         "title": "Updated Title",
         "body": "Updated content",
-        "userId": 1
+        "userId": 1,
     }
 
     result = await http_put.execute(
-        url="https://jsonplaceholder.typicode.com/posts/1",
-        json_data=updated_post
+        url="https://jsonplaceholder.typicode.com/posts/1", json_data=updated_post
     )
 
     if result.success:
         print(f"✓ Status: {result.output['status_code']}")
-        if result.output['json']:
-            updated = result.output['json']
+        if result.output["json"]:
+            updated = result.output["json"]
             print(f"  Updated title: {updated.get('title')}")
 
     # =========================================================================
@@ -148,9 +144,7 @@ async def main():
     # Create tool with 5-second timeout
     fast_http = HTTPGetTool(timeout=5.0)
 
-    result = await fast_http.execute(
-        url="https://jsonplaceholder.typicode.com/users/1"
-    )
+    result = await fast_http.execute(url="https://jsonplaceholder.typicode.com/users/1")
 
     if result.success:
         print(f"✓ Request completed within timeout")
@@ -162,7 +156,9 @@ async def main():
     print("\n8. Error handling examples...")
 
     # Invalid URL
-    result = await http_get.execute(url="https://invalid-domain-that-does-not-exist-12345.com")
+    result = await http_get.execute(
+        url="https://invalid-domain-that-does-not-exist-12345.com"
+    )
     print(f"Invalid domain: success={result.success}")
     if not result.success:
         print(f"  Error: {result.error[:100]}...")
@@ -181,11 +177,11 @@ async def main():
 
     result = await http_get.execute(
         url="https://api.github.com/repos/python/cpython",
-        headers={"Accept": "application/vnd.github.v3+json"}
+        headers={"Accept": "application/vnd.github.v3+json"},
     )
 
-    if result.success and result.output['json']:
-        repo = result.output['json']
+    if result.success and result.output["json"]:
+        repo = result.output["json"]
         print(f"✓ Repository: {repo['full_name']}")
         print(f"  Description: {repo['description']}")
         print(f"  Stars: {repo['stargazers_count']:,}")
@@ -204,12 +200,11 @@ async def main():
 
     # Execute tool through registry
     result = await registry.execute_tool(
-        "http_get",
-        url="https://jsonplaceholder.typicode.com/users/2"
+        "http_get", url="https://jsonplaceholder.typicode.com/users/2"
     )
 
-    if result.success and result.output['json']:
-        user = result.output['json']
+    if result.success and result.output["json"]:
+        user = result.output["json"]
         print(f"✓ Via registry - User: {user['name']}")
 
     print("\n" + "=" * 60)

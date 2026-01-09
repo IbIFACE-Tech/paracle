@@ -351,9 +351,7 @@ class TestCostTracker:
 
     def test_tracking_disabled(self, temp_db):
         """Test tracker with tracking disabled."""
-        config = CostConfig(
-            tracking=TrackingConfig(enabled=False)
-        )
+        config = CostConfig(tracking=TrackingConfig(enabled=False))
         tracker = CostTracker(config=config, db_path=temp_db)
 
         record = tracker.track_usage(

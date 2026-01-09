@@ -75,26 +75,30 @@ def show_welcome() -> None:
 
 def step_1_create_agent(progress: dict[str, Any]) -> bool:
     """Step 1: Create your first agent."""
-    console.print(Panel(
-        "[bold green]Step 1/6: Create Your First Agent[/bold green]\n\n"
-        "Let's create an AI agent with proper .parac/ governance integration.",
-        border_style="green"
-    ))
+    console.print(
+        Panel(
+            "[bold green]Step 1/6: Create Your First Agent[/bold green]\n\n"
+            "Let's create an AI agent with proper .parac/ governance integration.",
+            border_style="green",
+        )
+    )
     console.print()
 
     # Check if .parac exists
     parac_dir = Path.cwd() / ".parac"
     if not parac_dir.exists():
         console.print(
-            "[yellow]Warning: No .parac/ directory found. Let's initialize one![/yellow]")
+            "[yellow]Warning: No .parac/ directory found. Let's initialize one![/yellow]"
+        )
         if Confirm.ask("Initialize project with lite mode?", default=True):
             console.print("[dim]Running: paracle init --template lite[/dim]")
             import subprocess
+
             result = subprocess.run(
                 ["paracle", "init", "--template", "lite"],
                 cwd=Path.cwd(),
                 capture_output=True,
-                text=True
+                text=True,
             )
             if result.returncode != 0:
                 console.print(f"[red]Error: {result.stderr}[/red]")
@@ -103,21 +107,22 @@ def step_1_create_agent(progress: dict[str, Any]) -> bool:
 
     # Create agent
     agent_name = Prompt.ask(
-        "What would you like to name your agent?",
-        default="my-assistant"
+        "What would you like to name your agent?", default="my-assistant"
     )
 
     # Validate agent name format
     import re
+
     if not re.match(r"^[a-z][a-z0-9-]*$", agent_name):
         console.print(
-            "[yellow]Agent name should be lowercase with hyphens (e.g., my-assistant)[/yellow]")
+            "[yellow]Agent name should be lowercase with hyphens (e.g., my-assistant)[/yellow]"
+        )
         agent_name = agent_name.lower().replace(" ", "-").replace("_", "-")
         console.print(f"[dim]Using: {agent_name}[/dim]")
 
     description = Prompt.ask(
         "What will this agent do? (brief description)",
-        default="Help me with various tasks"
+        default="Help me with various tasks",
     )
 
     # Create agent spec directory
@@ -188,11 +193,12 @@ paracle agents run {agent_name} --task "Your task here"
     # Validate the created agent
     console.print("\n[cyan]Validating agent spec...[/cyan]")
     import subprocess
+
     result = subprocess.run(
         ["paracle", "agents", "validate", agent_name],
         cwd=Path.cwd(),
         capture_output=True,
-        text=True
+        text=True,
     )
     if result.returncode == 0:
         console.print("[green]Agent spec is valid![/green]")
@@ -201,13 +207,15 @@ paracle agents run {agent_name} --task "Your task here"
         console.print(f"[dim]{result.stdout}[/dim]")
 
     console.print("\n[cyan]Agent created with:[/cyan]")
-    console.print(Panel(
-        f"[bold]Name:[/bold] {agent_name}\n"
-        f"[bold]Role:[/bold] {description}\n"
-        f"[bold]Governance:[/bold] .parac/ integration included\n"
-        f"[bold]Location:[/bold] .parac/agents/specs/{agent_name}.md",
-        title="Agent Configuration"
-    ))
+    console.print(
+        Panel(
+            f"[bold]Name:[/bold] {agent_name}\n"
+            f"[bold]Role:[/bold] {description}\n"
+            f"[bold]Governance:[/bold] .parac/ integration included\n"
+            f"[bold]Location:[/bold] .parac/agents/specs/{agent_name}.md",
+            title="Agent Configuration",
+        )
+    )
 
     console.print("\n[cyan]Agent management commands:[/cyan]")
     console.print(f"  paracle agents validate {agent_name}  # Validate spec")
@@ -222,7 +230,8 @@ paracle agents run {agent_name} --task "Your task here"
     console.print()
     if not Confirm.ask("Ready for the next step?", default=True):
         console.print(
-            "[yellow]Progress saved. Run 'paracle tutorial resume' to continue.[/yellow]")
+            "[yellow]Progress saved. Run 'paracle tutorial resume' to continue.[/yellow]"
+        )
         return False
 
     return True
@@ -230,11 +239,13 @@ paracle agents run {agent_name} --task "Your task here"
 
 def step_2_add_tools(progress: dict[str, Any]) -> bool:
     """Step 2: Add tools to agent."""
-    console.print(Panel(
-        "[bold green]Step 2/6: Add Tools to Your Agent[/bold green]\n\n"
-        "Tools give your agent capabilities like reading files, making HTTP requests, or running shell commands.",
-        border_style="green"
-    ))
+    console.print(
+        Panel(
+            "[bold green]Step 2/6: Add Tools to Your Agent[/bold green]\n\n"
+            "Tools give your agent capabilities like reading files, making HTTP requests, or running shell commands.",
+            border_style="green",
+        )
+    )
     console.print()
 
     # Show available tools
@@ -244,8 +255,11 @@ def step_2_add_tools(progress: dict[str, Any]) -> bool:
     table.add_column("Use Case", style="dim")
 
     tools_info = [
-        ("filesystem", "Read/write files and directories",
-         "File operations, data processing"),
+        (
+            "filesystem",
+            "Read/write files and directories",
+            "File operations, data processing",
+        ),
         ("http", "Make HTTP requests", "API calls, web scraping"),
         ("shell", "Execute shell commands", "System operations, git commands"),
         ("python", "Execute Python code", "Data analysis, calculations"),
@@ -260,10 +274,7 @@ def step_2_add_tools(progress: dict[str, Any]) -> bool:
 
     # Let user select tools
     console.print("[cyan]Select tools to add (comma-separated):[/cyan]")
-    selected = Prompt.ask(
-        "Tools",
-        default="filesystem,http"
-    )
+    selected = Prompt.ask("Tools", default="filesystem,http")
 
     tools = [t.strip() for t in selected.split(",")]
 
@@ -271,13 +282,13 @@ def step_2_add_tools(progress: dict[str, Any]) -> bool:
     parac_dir = Path.cwd() / ".parac"
     agents_dir = parac_dir / "agents" / "specs"
     agent_files = [
-        f for f in agents_dir.glob("*.md")
+        f
+        for f in agents_dir.glob("*.md")
         if f.stem.upper() not in ("SCHEMA", "TEMPLATE")
     ]
 
     if not agent_files:
-        console.print(
-            "[red]No agent found. Please complete step 1 first.[/red]")
+        console.print("[red]No agent found. Please complete step 1 first.[/red]")
         return False
 
     agent_file = agent_files[0]  # Use first agent
@@ -291,17 +302,17 @@ def step_2_add_tools(progress: dict[str, Any]) -> bool:
     if "## Tools & Capabilities" in content:
         # Replace existing section
         import re
+
         content = re.sub(
             r"## Tools & Capabilities\n\n.*?(?=\n## |\Z)",
             f"## Tools & Capabilities\n\n{tools_list}\n\n",
             content,
-            flags=re.DOTALL
+            flags=re.DOTALL,
         )
     elif "## Usage" in content:
         # Insert before Usage
         content = content.replace(
-            "## Usage",
-            f"## Tools & Capabilities\n\n{tools_list}\n\n## Usage"
+            "## Usage", f"## Tools & Capabilities\n\n{tools_list}\n\n## Usage"
         )
     else:
         # Append
@@ -309,8 +320,7 @@ def step_2_add_tools(progress: dict[str, Any]) -> bool:
 
     agent_file.write_text(content)
 
-    console.print(
-        f"\n[green]Added {len(tools)} tools to your agent![/green]")
+    console.print(f"\n[green]Added {len(tools)} tools to your agent![/green]")
     console.print(f"\n[cyan]Tools added:[/cyan] {', '.join(tools)}")
 
     # Explain permissions
@@ -327,7 +337,8 @@ def step_2_add_tools(progress: dict[str, Any]) -> bool:
     console.print()
     if not Confirm.ask("Ready for the next step?", default=True):
         console.print(
-            "[yellow]Progress saved. Run 'paracle tutorial resume' to continue.[/yellow]")
+            "[yellow]Progress saved. Run 'paracle tutorial resume' to continue.[/yellow]"
+        )
         return False
 
     return True
@@ -335,11 +346,13 @@ def step_2_add_tools(progress: dict[str, Any]) -> bool:
 
 def step_3_add_skills(progress: dict[str, Any]) -> bool:
     """Step 3: Add skills for specialized capabilities."""
-    console.print(Panel(
-        "[bold green]Step 3/6: Add Skills to Your Agent[/bold green]\n\n"
-        "Skills are reusable knowledge modules that give your agent specialized expertise.",
-        border_style="green"
-    ))
+    console.print(
+        Panel(
+            "[bold green]Step 3/6: Add Skills to Your Agent[/bold green]\n\n"
+            "Skills are reusable knowledge modules that give your agent specialized expertise.",
+            border_style="green",
+        )
+    )
     console.print()
 
     # Show available skills
@@ -350,7 +363,8 @@ def step_3_add_skills(progress: dict[str, Any]) -> bool:
 
     if not skills_dir.exists():
         console.print(
-            "[yellow]⚠️  No skills directory found. Let's check built-in skills.[/yellow]\n")
+            "[yellow]⚠️  No skills directory found. Let's check built-in skills.[/yellow]\n"
+        )
 
         # Show example skills
         table = Table(title="Example Built-in Skills")
@@ -373,8 +387,7 @@ def step_3_add_skills(progress: dict[str, Any]) -> bool:
 
         if Confirm.ask("Would you like to create a custom skill?", default=True):
             skill_name = Prompt.ask("Skill name", default="custom-skill")
-            skill_desc = Prompt.ask(
-                "Skill description", default="Custom expertise")
+            skill_desc = Prompt.ask("Skill description", default="Custom expertise")
 
             # Create skills directory
             skills_dir.mkdir(parents=True, exist_ok=True)
@@ -427,7 +440,8 @@ paracle agents run my-agent --skill {skill_name}
             # Assign skill to agent (skip SCHEMA.md and TEMPLATE.md)
             agents_dir = parac_dir / "agents" / "specs"
             agent_files = [
-                f for f in agents_dir.glob("*.md")
+                f
+                for f in agents_dir.glob("*.md")
                 if f.stem.upper() not in ("SCHEMA", "TEMPLATE")
             ]
 
@@ -439,17 +453,18 @@ paracle agents run my-agent --skill {skill_name}
                 if "## Skills" in content:
                     # Add skill to existing section
                     import re
+
                     content = re.sub(
                         r"(## Skills\n\n)(.*?)(?=\n## |\Z)",
                         rf"\1\2- {skill_name}\n",
                         content,
-                        flags=re.DOTALL
+                        flags=re.DOTALL,
                     )
                 elif "## Responsibilities" in content:
                     # Insert before Responsibilities
                     content = content.replace(
                         "## Responsibilities",
-                        f"## Skills\n\n- {skill_name}\n\n## Responsibilities"
+                        f"## Skills\n\n- {skill_name}\n\n## Responsibilities",
                     )
                 else:
                     content += f"\n\n## Skills\n\n- {skill_name}\n"
@@ -460,16 +475,17 @@ paracle agents run my-agent --skill {skill_name}
         # List existing skills
         existing_skills = [d.name for d in skills_dir.iterdir() if d.is_dir()]
         if existing_skills:
-            console.print(
-                f"[green]Found {len(existing_skills)} skills:[/green]")
+            console.print(f"[green]Found {len(existing_skills)} skills:[/green]")
             for skill in existing_skills:
                 console.print(f"  • {skill}")
         else:
             console.print(
-                "[yellow]No skills found. Create one using the prompts above.[/yellow]")
+                "[yellow]No skills found. Create one using the prompts above.[/yellow]"
+            )
 
     console.print(
-        "\n[cyan]💡 Tip:[/cyan] Skills can be shared across agents and provide specialized knowledge!")
+        "\n[cyan]💡 Tip:[/cyan] Skills can be shared across agents and provide specialized knowledge!"
+    )
 
     # Update progress
     progress["checkpoints"]["step_3"] = "completed"
@@ -479,7 +495,8 @@ paracle agents run my-agent --skill {skill_name}
     console.print()
     if not Confirm.ask("Ready for the next step?", default=True):
         console.print(
-            "[yellow]💾 Progress saved. Run 'paracle tutorial resume' to continue.[/yellow]")
+            "[yellow]💾 Progress saved. Run 'paracle tutorial resume' to continue.[/yellow]"
+        )
         return False
 
     return True
@@ -487,25 +504,28 @@ paracle agents run my-agent --skill {skill_name}
 
 def step_4_create_template(progress: dict[str, Any]) -> bool:
     """Step 4: Create project templates."""
-    console.print(Panel(
-        "[bold green]📍 Step 4/6: Create Project Templates[/bold green]\n\n"
-        "Templates are reusable project configurations that you can share with your team.",
-        border_style="green"
-    ))
+    console.print(
+        Panel(
+            "[bold green]📍 Step 4/6: Create Project Templates[/bold green]\n\n"
+            "Templates are reusable project configurations that you can share with your team.",
+            border_style="green",
+        )
+    )
     console.print()
 
     console.print("[cyan]Template types:[/cyan]")
+    console.print("  • [bold]lite[/bold]: Minimal setup (5 files) - Quick prototyping")
     console.print(
-        "  • [bold]lite[/bold]: Minimal setup (5 files) - Quick prototyping")
-    console.print(
-        "  • [bold]standard[/bold]: Full setup (30+ files) - Production ready")
+        "  • [bold]standard[/bold]: Full setup (30+ files) - Production ready"
+    )
     console.print("  • [bold]custom[/bold]: Your own template")
     console.print()
 
     if Confirm.ask("Would you like to create a custom template?", default=False):
         template_name = Prompt.ask("Template name", default="my-template")
         template_desc = Prompt.ask(
-            "Template description", default="Custom project template")
+            "Template description", default="Custom project template"
+        )
 
         parac_dir = Path.cwd() / ".parac"
         templates_dir = parac_dir / "templates"
@@ -561,14 +581,14 @@ Edit `template.yaml` to customize the template structure.
         readme.write_text(readme_content)
 
         console.print(f"\n[green]✅ Created template at {template_dir}[/green]")
-        console.print(
-            f"\n[cyan]Usage:[/cyan] paracle init --template {template_name}")
+        console.print(f"\n[cyan]Usage:[/cyan] paracle init --template {template_name}")
     else:
         console.print("\n[dim]You can create templates later using:[/dim]")
         console.print("[dim]  paracle init --template custom[/dim]")
 
     console.print(
-        "\n[cyan]💡 Tip:[/cyan] Templates are great for standardizing projects across your team!")
+        "\n[cyan]💡 Tip:[/cyan] Templates are great for standardizing projects across your team!"
+    )
 
     # Update progress
     progress["checkpoints"]["step_4"] = "completed"
@@ -578,7 +598,8 @@ Edit `template.yaml` to customize the template structure.
     console.print()
     if not Confirm.ask("Ready for the next step?", default=True):
         console.print(
-            "[yellow]💾 Progress saved. Run 'paracle tutorial resume' to continue.[/yellow]")
+            "[yellow]💾 Progress saved. Run 'paracle tutorial resume' to continue.[/yellow]"
+        )
         return False
 
     return True
@@ -586,24 +607,26 @@ Edit `template.yaml` to customize the template structure.
 
 def step_5_test_agent(progress: dict[str, Any]) -> bool:
     """Step 5: Test agent locally."""
-    console.print(Panel(
-        "[bold green]📍 Step 5/6: Test Your Agent Locally[/bold green]\n\n"
-        "Let's test your agent with a simple task.",
-        border_style="green"
-    ))
+    console.print(
+        Panel(
+            "[bold green]📍 Step 5/6: Test Your Agent Locally[/bold green]\n\n"
+            "Let's test your agent with a simple task.",
+            border_style="green",
+        )
+    )
     console.print()
 
     # Find agent (skip SCHEMA.md and TEMPLATE.md)
     parac_dir = Path.cwd() / ".parac"
     agents_dir = parac_dir / "agents" / "specs"
     agent_files = [
-        f for f in agents_dir.glob("*.md")
+        f
+        for f in agents_dir.glob("*.md")
         if f.stem.upper() not in ("SCHEMA", "TEMPLATE")
     ]
 
     if not agent_files:
-        console.print(
-            "[red]No agent found. Please complete step 1 first.[/red]")
+        console.print("[red]No agent found. Please complete step 1 first.[/red]")
         return False
 
     agent_file = agent_files[0]
@@ -616,7 +639,8 @@ def step_5_test_agent(progress: dict[str, Any]) -> bool:
     env_file = Path.cwd() / ".env"
     if not env_file.exists():
         console.print(
-            "[yellow]⚠️  No .env file found. You'll need an API key to test the agent.[/yellow]")
+            "[yellow]⚠️  No .env file found. You'll need an API key to test the agent.[/yellow]"
+        )
         console.print("\n[cyan]Supported providers:[/cyan]")
         console.print("  • OpenAI (OPENAI_API_KEY)")
         console.print("  • Anthropic (ANTHROPIC_API_KEY)")
@@ -625,9 +649,7 @@ def step_5_test_agent(progress: dict[str, Any]) -> bool:
 
         if Confirm.ask("Would you like to configure an API key now?", default=True):
             provider = Prompt.ask(
-                "Provider",
-                choices=["openai", "anthropic", "google"],
-                default="openai"
+                "Provider", choices=["openai", "anthropic", "google"], default="openai"
             )
 
             key_name = f"{provider.upper()}_API_KEY"
@@ -635,8 +657,7 @@ def step_5_test_agent(progress: dict[str, Any]) -> bool:
 
             env_file.write_text(f"{key_name}={api_key}\n")
             console.print("[green]✅ Saved API key to .env[/green]")
-            console.print(
-                "[yellow]⚠️  Make sure .env is in .gitignore![/yellow]")
+            console.print("[yellow]⚠️  Make sure .env is in .gitignore![/yellow]")
         else:
             console.print("[dim]You can add API keys later to .env file[/dim]")
             console.print("[dim]Skipping agent test for now.[/dim]")
@@ -649,33 +670,32 @@ def step_5_test_agent(progress: dict[str, Any]) -> bool:
             console.print()
             if not Confirm.ask("Ready for the next step?", default=True):
                 console.print(
-                    "[yellow]💾 Progress saved. Run 'paracle tutorial resume' to continue.[/yellow]")
+                    "[yellow]💾 Progress saved. Run 'paracle tutorial resume' to continue.[/yellow]"
+                )
                 return False
             return True
 
     # Generate test prompt
     test_prompt = Prompt.ask(
-        "What task would you like to test?",
-        default="Explain what you can do"
+        "What task would you like to test?", default="Explain what you can do"
     )
 
     console.print(
-        f"\n[dim]Running: paracle agents run {agent_name} --task \"{test_prompt}\"[/dim]")
-    console.print(
-        "[dim]This is a dry run - showing what would happen...[/dim]\n")
+        f'\n[dim]Running: paracle agents run {agent_name} --task "{test_prompt}"[/dim]'
+    )
+    console.print("[dim]This is a dry run - showing what would happen...[/dim]\n")
 
     # Simulate execution
     console.print("[cyan]🤖 Agent Execution Plan:[/cyan]")
     console.print(f"  1. Load agent: {agent_name}")
     console.print("  2. Initialize LLM provider")
-    console.print(f"  3. Send prompt: \"{test_prompt}\"")
+    console.print(f'  3. Send prompt: "{test_prompt}"')
     console.print("  4. Process response")
     console.print("  5. Return result")
 
     console.print("\n[green]✅ Agent test plan validated![/green]")
     console.print("\n[cyan]💡 To actually run the agent:[/cyan]")
-    console.print(
-        f"[dim]  paracle agents run {agent_name} --task \"your task\"[/dim]")
+    console.print(f'[dim]  paracle agents run {agent_name} --task "your task"[/dim]')
 
     # Update progress
     progress["checkpoints"]["step_5"] = "completed"
@@ -685,7 +705,8 @@ def step_5_test_agent(progress: dict[str, Any]) -> bool:
     console.print()
     if not Confirm.ask("Ready for the final step?", default=True):
         console.print(
-            "[yellow]💾 Progress saved. Run 'paracle tutorial resume' to continue.[/yellow]")
+            "[yellow]💾 Progress saved. Run 'paracle tutorial resume' to continue.[/yellow]"
+        )
         return False
 
     return True
@@ -693,17 +714,18 @@ def step_5_test_agent(progress: dict[str, Any]) -> bool:
 
 def step_6_workflow(progress: dict[str, Any]) -> bool:
     """Step 6: Create and run workflow."""
-    console.print(Panel(
-        "[bold green]📍 Step 6/6: Create Your First Workflow[/bold green]\n\n"
-        "Workflows orchestrate multiple agents to accomplish complex tasks.",
-        border_style="green"
-    ))
+    console.print(
+        Panel(
+            "[bold green]📍 Step 6/6: Create Your First Workflow[/bold green]\n\n"
+            "Workflows orchestrate multiple agents to accomplish complex tasks.",
+            border_style="green",
+        )
+    )
     console.print()
 
     # Create workflow
     workflow_name = Prompt.ask("Workflow name", default="my-workflow")
-    workflow_desc = Prompt.ask(
-        "Workflow description", default="My first workflow")
+    workflow_desc = Prompt.ask("Workflow description", default="My first workflow")
 
     parac_dir = Path.cwd() / ".parac"
     workflows_dir = parac_dir / "workflows"
@@ -714,7 +736,8 @@ def step_6_workflow(progress: dict[str, Any]) -> bool:
     # Find agent (skip SCHEMA.md and TEMPLATE.md)
     agents_dir = parac_dir / "agents" / "specs"
     agent_files = [
-        f for f in agents_dir.glob("*.md")
+        f
+        for f in agents_dir.glob("*.md")
         if f.stem.upper() not in ("SCHEMA", "TEMPLATE")
     ]
     agent_name = agent_files[0].stem if agent_files else "my-agent"
@@ -740,16 +763,19 @@ outputs:
 
     # Show workflow
     console.print("\n[cyan]Workflow structure:[/cyan]")
-    console.print(Panel(
-        f"[bold]name:[/bold] {workflow_name}\n"
-        f"[bold]agent:[/bold] {agent_name}\n"
-        f"[bold]steps:[/bold] 1 step",
-        title="Workflow Configuration"
-    ))
+    console.print(
+        Panel(
+            f"[bold]name:[/bold] {workflow_name}\n"
+            f"[bold]agent:[/bold] {agent_name}\n"
+            f"[bold]steps:[/bold] 1 step",
+            title="Workflow Configuration",
+        )
+    )
 
     console.print("\n[cyan]💡 To run this workflow:[/cyan]")
     console.print(
-        f"[dim]  paracle workflow run {workflow_name} --input task=\"your task\"[/dim]")
+        f'[dim]  paracle workflow run {workflow_name} --input task="your task"[/dim]'
+    )
 
     # Update progress
     progress["checkpoints"]["step_6"] = "completed"
@@ -774,7 +800,7 @@ outputs:
         "  📦 Browse templates: (Phase 7 deliverable)\n\n"
         "[dim]Run 'paracle --help' to see all available commands[/dim]",
         title="🎉 Congratulations!",
-        border_style="green"
+        border_style="green",
     )
     console.print(completion)
 
@@ -807,7 +833,8 @@ def start(step: int | None) -> None:
         start_step = step
     elif progress["last_step"] > 0:
         console.print(
-            f"[yellow]You have progress saved at step {progress['last_step']}[/yellow]")
+            f"[yellow]You have progress saved at step {progress['last_step']}[/yellow]"
+        )
         if Confirm.ask("Resume from where you left off?", default=True):
             start_step = progress["last_step"] + 1
         else:
@@ -820,7 +847,8 @@ def start(step: int | None) -> None:
         show_welcome()
         if not Confirm.ask("Ready to start?", default=True):
             console.print(
-                "[yellow]Run 'paracle tutorial start' when you're ready![/yellow]")
+                "[yellow]Run 'paracle tutorial start' when you're ready![/yellow]"
+            )
             return
         console.print()
 
@@ -850,8 +878,7 @@ def resume() -> None:
     progress = load_progress()
 
     if progress["last_step"] == 0:
-        console.print(
-            "[yellow]No progress found. Starting from beginning...[/yellow]")
+        console.print("[yellow]No progress found. Starting from beginning...[/yellow]")
         console.print("[dim]Run: paracle tutorial start[/dim]")
         return
 
@@ -860,11 +887,11 @@ def resume() -> None:
         console.print("[dim]Run 'paracle tutorial start' to start over[/dim]")
         return
 
-    console.print(
-        f"[cyan]Resuming from step {progress['last_step'] + 1}...[/cyan]\n")
+    console.print(f"[cyan]Resuming from step {progress['last_step'] + 1}...[/cyan]\n")
 
     # Import click context to call start with step
     from click.testing import CliRunner
+
     runner = CliRunner()
     runner.invoke(start, ["--step", str(progress["last_step"] + 1)])
 
@@ -906,7 +933,8 @@ def status() -> None:
         console.print("[cyan]Run 'paracle tutorial start' to begin![/cyan]")
     elif progress["last_step"] < 6:
         console.print(
-            f"[cyan]Run 'paracle tutorial resume' to continue from step {progress['last_step'] + 1}[/cyan]")
+            f"[cyan]Run 'paracle tutorial resume' to continue from step {progress['last_step'] + 1}[/cyan]"
+        )
     else:
         console.print("[green]Tutorial completed! Great job![/green]")
 
@@ -914,10 +942,7 @@ def status() -> None:
 @tutorial.command()
 def reset() -> None:
     """Reset tutorial progress."""
-    if Confirm.ask(
-        "Are you sure you want to reset tutorial progress?",
-        default=False
-    ):
+    if Confirm.ask("Are you sure you want to reset tutorial progress?", default=False):
         get_progress_file().unlink(missing_ok=True)
         console.print("[green]Tutorial progress reset[/green]")
         console.print("[dim]Run 'paracle tutorial start' to begin again[/dim]")
@@ -934,6 +959,7 @@ def _get_cli_introspector():
     """Get CLI introspector with root command."""
     from paracle_cli.main import cli as root_cli
     from paracle_cli.tutorial.introspector import CLIIntrospector
+
     return CLIIntrospector(root_cli)
 
 
@@ -943,18 +969,11 @@ def _get_cli_introspector():
     "--interactive",
     "-i",
     is_flag=True,
-    help="Run in interactive mode with parameter collection"
+    help="Run in interactive mode with parameter collection",
 )
+@click.option("--quick", "-q", is_flag=True, help="Show quick reference guide only")
 @click.option(
-    "--quick",
-    "-q",
-    is_flag=True,
-    help="Show quick reference guide only"
-)
-@click.option(
-    "--dry-run",
-    is_flag=True,
-    help="Don't execute commands, just show what would run"
+    "--dry-run", is_flag=True, help="Don't execute commands, just show what would run"
 )
 def learn_command(
     command_path: str | None,
@@ -992,8 +1011,7 @@ def learn_command(
         # Try to find partial matches
         matches = introspector.find_command(command_path)
         if matches:
-            console.print(
-                f"[yellow]Command '{command_path}' not found.[/yellow]")
+            console.print(f"[yellow]Command '{command_path}' not found.[/yellow]")
             console.print("\n[cyan]Did you mean:[/cyan]")
             for match in matches[:5]:
                 console.print(f"  • paracle tutorial learn {match.path}")
@@ -1001,7 +1019,8 @@ def learn_command(
         else:
             console.print(f"[red]Command '{command_path}' not found.[/red]")
             console.print(
-                "\n[dim]Run 'paracle tutorial learn' to see all commands[/dim]")
+                "\n[dim]Run 'paracle tutorial learn' to see all commands[/dim]"
+            )
             return
 
     # Generate tutorial
@@ -1022,11 +1041,13 @@ def learn_command(
 
 def _show_available_commands(introspector) -> None:
     """Show all available commands for tutorial."""
-    console.print(Panel(
-        "[bold cyan]Available Commands for Tutorial[/bold cyan]\n\n"
-        "Use `paracle tutorial learn <command>` to learn any command.",
-        border_style="cyan"
-    ))
+    console.print(
+        Panel(
+            "[bold cyan]Available Commands for Tutorial[/bold cyan]\n\n"
+            "Use `paracle tutorial learn <command>` to learn any command.",
+            border_style="cyan",
+        )
+    )
     console.print()
 
     # Get command tree
@@ -1052,8 +1073,7 @@ def _show_available_commands(introspector) -> None:
     # Show usage examples
     console.print("[bold]Usage examples:[/bold]")
     console.print("  paracle tutorial learn agents       # Learn agents group")
-    console.print(
-        "  paracle tutorial learn agents/run   # Learn specific command")
+    console.print("  paracle tutorial learn agents/run   # Learn specific command")
     console.print("  paracle tutorial learn workflow -i  # Interactive mode")
     console.print("  paracle tutorial learn config -q    # Quick reference")
 
@@ -1062,10 +1082,12 @@ def _show_tutorial_content(command, tutorial_content, generator) -> None:
     """Show tutorial content in rich format."""
 
     # Title panel
-    console.print(Panel(
-        f"[bold green]Tutorial: {tutorial_content.title}[/bold green]",
-        border_style="green"
-    ))
+    console.print(
+        Panel(
+            f"[bold green]Tutorial: {tutorial_content.title}[/bold green]",
+            border_style="green",
+        )
+    )
     console.print()
 
     # Overview
@@ -1112,10 +1134,13 @@ def _show_tutorial_content(command, tutorial_content, generator) -> None:
 
     # Footer with more options
     console.print()
-    console.print("[dim]For interactive tutorial: paracle tutorial learn " +
-                  f"{command.path} -i[/dim]")
-    console.print("[dim]For quick reference: paracle tutorial learn " +
-                  f"{command.path} -q[/dim]")
+    console.print(
+        "[dim]For interactive tutorial: paracle tutorial learn "
+        + f"{command.path} -i[/dim]"
+    )
+    console.print(
+        "[dim]For quick reference: paracle tutorial learn " + f"{command.path} -q[/dim]"
+    )
 
 
 @tutorial.command("list")
@@ -1124,14 +1149,9 @@ def _show_tutorial_content(command, tutorial_content, generator) -> None:
     "-a",
     "show_all",
     is_flag=True,
-    help="Show all commands including hidden ones"
+    help="Show all commands including hidden ones",
 )
-@click.option(
-    "--tree",
-    "-t",
-    is_flag=True,
-    help="Show commands as a tree structure"
-)
+@click.option("--tree", "-t", is_flag=True, help="Show commands as a tree structure")
 def list_commands(show_all: bool, tree: bool) -> None:
     """List all available CLI commands.
 
@@ -1168,17 +1188,14 @@ def _show_command_list(commands: dict, show_all: bool) -> None:
         if cmd.hidden:
             desc = f"[dim](hidden) {desc}[/dim]"
 
-        table.add_row(
-            f"paracle {path.replace('/', ' ')}",
-            cmd_type,
-            desc
-        )
+        table.add_row(f"paracle {path.replace('/', ' ')}", cmd_type, desc)
 
     console.print(table)
     console.print()
     console.print(f"[dim]Total: {len(commands)} commands[/dim]")
     console.print(
-        "[dim]Use 'paracle tutorial learn <command>' to learn any command[/dim]")
+        "[dim]Use 'paracle tutorial learn <command>' to learn any command[/dim]"
+    )
 
 
 def _show_command_tree(introspector, show_all: bool) -> None:
@@ -1209,7 +1226,8 @@ def _show_command_tree(introspector, show_all: bool) -> None:
     console.print(tree)
     console.print()
     console.print(
-        "[dim]Use 'paracle tutorial learn <command>' to learn any command[/dim]")
+        "[dim]Use 'paracle tutorial learn <command>' to learn any command[/dim]"
+    )
 
 
 @tutorial.command("search")
@@ -1228,11 +1246,11 @@ def search_commands(query: str) -> None:
     if not matches:
         console.print(f"[yellow]No commands found matching '{query}'[/yellow]")
         console.print(
-            "\n[dim]Try a different search term or use 'paracle tutorial list'[/dim]")
+            "\n[dim]Try a different search term or use 'paracle tutorial list'[/dim]"
+        )
         return
 
-    console.print(
-        f"[cyan]Found {len(matches)} command(s) matching '{query}':[/cyan]")
+    console.print(f"[cyan]Found {len(matches)} command(s) matching '{query}':[/cyan]")
     console.print()
 
     table = Table()
@@ -1241,10 +1259,7 @@ def search_commands(query: str) -> None:
 
     for cmd in matches[:15]:  # Limit to 15 results
         desc = cmd.short_help or cmd.help_text.split("\n")[0][:60]
-        table.add_row(
-            f"paracle {cmd.path.replace('/', ' ')}",
-            desc
-        )
+        table.add_row(f"paracle {cmd.path.replace('/', ' ')}", desc)
 
     console.print(table)
 
@@ -1252,4 +1267,5 @@ def search_commands(query: str) -> None:
         console.print(f"\n[dim]... and {len(matches) - 15} more[/dim]")
 
     console.print(
-        "\n[dim]Use 'paracle tutorial learn <command>' to learn a command[/dim]")
+        "\n[dim]Use 'paracle tutorial learn <command>' to learn a command[/dim]"
+    )

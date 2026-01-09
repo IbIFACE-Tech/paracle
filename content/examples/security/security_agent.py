@@ -77,7 +77,7 @@ def main() -> None:
             "source": ".parac/agents/specs/security.md",
             "owasp_version": "2023",
             "compliance": ["owasp-top-10", "cwe-top-25"],
-        }
+        },
     )
 
     repo.register_spec(security_agent)
@@ -86,8 +86,7 @@ def main() -> None:
 
     print("\n✅ Security Agent Created")
     print(f"   Name: {security_agent.name}")
-    print(
-        f"   Temperature: {security_agent.temperature} (strict for security)")
+    print(f"   Temperature: {security_agent.temperature} (strict for security)")
     print(f"   Tools: {len(effective.tools)} security tools")
     print(f"   Skills: {len(effective.skills)} skills")
     print(f"   OWASP Version: {effective.metadata['owasp_version']}")
@@ -151,7 +150,7 @@ def main() -> None:
         metadata={
             "language": "python",
             "focus": "python_vulnerabilities",
-        }
+        },
     )
 
     repo.register_spec(python_security)
@@ -160,8 +159,7 @@ def main() -> None:
 
     print("\n✅ Python Security Specialist Created")
     print(f"   Parent: {python_security.parent}")
-    print(
-        f"   Tools: {len(python_sec_effective.tools)} (inherited + specialized)")
+    print(f"   Tools: {len(python_sec_effective.tools)} (inherited + specialized)")
     print(f"   Skills: {len(python_sec_effective.skills)}")
     print("   Focus: Python-specific vulnerabilities")
 
@@ -188,7 +186,7 @@ def main() -> None:
         metadata={
             "focus": "api_security",
             "standards": ["rest", "graphql", "grpc"],
-        }
+        },
     )
 
     repo.register_spec(api_security)
@@ -229,7 +227,7 @@ def main() -> None:
             "Average": "2.3 days",
             "Last CRITICAL": "4 hours",
             "Last HIGH": "1.5 days",
-        }
+        },
     }
 
     print("\n📊 Security Metrics:")
@@ -251,12 +249,22 @@ def main() -> None:
         {"agent": "security", "subtask": "Dependency scan", "status": "✅ Pass"},
         {"agent": "security", "subtask": "Static analysis", "status": "✅ Pass"},
         {"agent": "security", "subtask": "Secret detection", "status": "✅ Pass"},
-        {"agent": "python-security-specialist",
-            "task": "Python-specific review", "status": "▶️ Running"},
-        {"agent": "api-security-specialist",
-            "task": "API security test", "status": "⏳ Pending"},
+        {
+            "agent": "python-security-specialist",
+            "task": "Python-specific review",
+            "status": "▶️ Running",
+        },
+        {
+            "agent": "api-security-specialist",
+            "task": "API security test",
+            "status": "⏳ Pending",
+        },
         {"agent": "reviewer", "task": "General code review", "status": "⏳ Pending"},
-        {"agent": "tester", "task": "Security regression tests", "status": "⏳ Pending"},
+        {
+            "agent": "tester",
+            "task": "Security regression tests",
+            "status": "⏳ Pending",
+        },
     ]
 
     print("\n🔄 Workflow Steps:")
@@ -302,7 +310,8 @@ def main() -> None:
     pending = sum(1 for s, _ in checklist if s == "⏳")
 
     print(
-        f"\n   Status: {passed}/{total} passed, {warnings} warnings, {pending} pending")
+        f"\n   Status: {passed}/{total} passed, {warnings} warnings, {pending} pending"
+    )
 
     # =============================================================================
     # Summary
@@ -313,10 +322,8 @@ def main() -> None:
 
     print("\n✅ Created Agents:")
     print(f"   1. security (base) - {len(effective.tools)} tools")
-    print(
-        f"   2. python-security-specialist - {len(python_sec_effective.tools)} tools")
-    print(
-        f"   3. api-security-specialist - {len(api_sec_effective.tools)} tools")
+    print(f"   2. python-security-specialist - {len(python_sec_effective.tools)} tools")
+    print(f"   3. api-security-specialist - {len(api_sec_effective.tools)} tools")
 
     print("\n🛡️ Security Coverage:")
     print("   - Dependency vulnerabilities: ✅ Scanned")

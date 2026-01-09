@@ -27,8 +27,16 @@ console = Console()
 
 
 @click.group(invoke_without_command=True)
-@click.option("--list", "-l", "list_skills_flag", is_flag=True, help="List all available skills (shortcut for 'list')")
-@click.option("--verbose", "-v", is_flag=True, help="Show detailed information (with -l)")
+@click.option(
+    "--list",
+    "-l",
+    "list_skills_flag",
+    is_flag=True,
+    help="List all available skills (shortcut for 'list')",
+)
+@click.option(
+    "--verbose", "-v", is_flag=True, help="Show detailed information (with -l)"
+)
 @click.pass_context
 def skills(ctx: click.Context, list_skills_flag: bool, verbose: bool) -> None:
     """Manage agent skills (write once, export anywhere).
@@ -64,10 +72,11 @@ def skills(ctx: click.Context, list_skills_flag: bool, verbose: bool) -> None:
 
 @skills.command("list")
 @click.option(
-    "--format", "output_format",
+    "--format",
+    "output_format",
     type=click.Choice(["table", "json", "yaml"]),
     default="table",
-    help="Output format"
+    help="Output format",
 )
 @click.option("--verbose", "-v", is_flag=True, help="Show detailed information")
 def list_skills(output_format: str, verbose: bool) -> None:
@@ -95,13 +104,13 @@ def list_skills(output_format: str, verbose: bool) -> None:
 
     if not skill_list:
         console.print("[yellow]No project skills found.[/yellow]")
-        console.print(
-            "\nCreate a skill: paracle agents skills create my-skill")
+        console.print("\nCreate a skill: paracle agents skills create my-skill")
         console.print("System skills: paracle meta skills list")
         return
 
     if output_format == "json":
         import json
+
         data = [
             {
                 "name": s.name,
@@ -116,6 +125,7 @@ def list_skills(output_format: str, verbose: bool) -> None:
 
     elif output_format == "yaml":
         import yaml
+
         data = [
             {
                 "name": s.name,
@@ -156,15 +166,18 @@ def list_skills(output_format: str, verbose: bool) -> None:
 
 @skills.command("export")
 @click.option(
-    "--platform", "-p",
+    "--platform",
+    "-p",
     type=click.Choice(["copilot", "cursor", "claude", "codex", "mcp", "all"]),
     multiple=True,
-    help="Target platform(s)"
+    help="Target platform(s)",
 )
 @click.option("--all", "export_all", is_flag=True, help="Export to all platforms")
 @click.option("--skill", "-s", multiple=True, help="Specific skill(s) to export")
 @click.option("--overwrite", is_flag=True, help="Overwrite existing files")
-@click.option("--output", "-o", type=click.Path(), help="Output directory (default: project root)")
+@click.option(
+    "--output", "-o", type=click.Path(), help="Output directory (default: project root)"
+)
 @click.option("--dry-run", is_flag=True, help="Show what would be exported")
 @click.pass_context
 def export_skills(
@@ -235,21 +248,21 @@ def export_skills(
         all_skills = [s for s in all_skills if s.name in skill_names]
         not_found = skill_names - {s.name for s in all_skills}
         if not_found:
-            console.print(
-                f"[yellow]Skills not found:[/yellow] {', '.join(not_found)}")
+            console.print(f"[yellow]Skills not found:[/yellow] {', '.join(not_found)}")
 
     if not all_skills:
         console.print("[yellow]No skills to export.[/yellow]")
         return
 
     # Show export plan
-    console.print(Panel(
-        f"[bold]Exporting {len(all_skills)} skill(s) to {len(platforms)} platform(s)[/bold]",
-        title="Skill Export",
-    ))
-
     console.print(
-        f"\n[bold]Skills:[/bold] {', '.join(s.name for s in all_skills)}")
+        Panel(
+            f"[bold]Exporting {len(all_skills)} skill(s) to {len(platforms)} platform(s)[/bold]",
+            title="Skill Export",
+        )
+    )
+
+    console.print(f"\n[bold]Skills:[/bold] {', '.join(s.name for s in all_skills)}")
     console.print(f"[bold]Platforms:[/bold] {', '.join(platforms)}")
     console.print(f"[bold]Output:[/bold] {output_dir}")
 
@@ -259,8 +272,7 @@ def export_skills(
         for skill in all_skills:
             for p in platforms:
                 if p == "mcp":
-                    console.print(
-                        f"  {output_dir}/.parac/tools/mcp/{skill.name}.json")
+                    console.print(f"  {output_dir}/.parac/tools/mcp/{skill.name}.json")
                 else:
                     platform_dirs = {
                         "copilot": ".github/skills",
@@ -269,7 +281,8 @@ def export_skills(
                         "codex": ".codex/skills",
                     }
                     console.print(
-                        f"  {output_dir}/{platform_dirs[p]}/{skill.name}/SKILL.md")
+                        f"  {output_dir}/{platform_dirs[p]}/{skill.name}/SKILL.md"
+                    )
         return
 
     # Export skills
@@ -290,14 +303,17 @@ def export_skills(
             for platform_name, export_result in result.results.items():
                 if export_result.success:
                     console.print(
-                        f"  [green]OK[/green] {platform_name}: {export_result.output_path}")
+                        f"  [green]OK[/green] {platform_name}: {export_result.output_path}"
+                    )
                 else:
                     console.print(
-                        f"  [red]FAIL[/red] {platform_name}: {', '.join(export_result.errors)}")
+                        f"  [red]FAIL[/red] {platform_name}: {', '.join(export_result.errors)}"
+                    )
                     error_count += 1
 
     console.print(
-        f"\n[bold]Summary:[/bold] {success_count} succeeded, {error_count} failed")
+        f"\n[bold]Summary:[/bold] {success_count} succeeded, {error_count} failed"
+    )
 
 
 @skills.command("validate")
@@ -330,8 +346,7 @@ def validate_skill(skill_name: str | None, validate_all: bool) -> None:
         console.print("[yellow]No skills found to validate.[/yellow]")
         return
 
-    console.print(
-        f"\n[bold]Validating {len(skill_names)} skill(s)...[/bold]\n")
+    console.print(f"\n[bold]Validating {len(skill_names)} skill(s)...[/bold]\n")
 
     valid_count = 0
     invalid_count = 0
@@ -350,11 +365,11 @@ def validate_skill(skill_name: str | None, validate_all: bool) -> None:
 
             # Show warnings
             if len(skill.description) < 20:
-                console.print(
-                    "  [yellow]Warning:[/yellow] Description is very short")
+                console.print("  [yellow]Warning:[/yellow] Description is very short")
             if not skill.instructions:
                 console.print(
-                    "  [yellow]Warning:[/yellow] No instructions in SKILL.md body")
+                    "  [yellow]Warning:[/yellow] No instructions in SKILL.md body"
+                )
 
             valid_count += 1
 
@@ -363,21 +378,36 @@ def validate_skill(skill_name: str | None, validate_all: bool) -> None:
             invalid_count += 1
 
     console.print(
-        f"\n[bold]Summary:[/bold] {valid_count} valid, {invalid_count} invalid")
+        f"\n[bold]Summary:[/bold] {valid_count} valid, {invalid_count} invalid"
+    )
 
 
 @skills.command("create")
 @click.argument("skill_name")
-@click.option("--category", "-c",
-              type=click.Choice(["creation", "analysis", "automation",
-                                "integration", "quality", "devops", "security"]),
-              default="automation",
-              help="Skill category")
-@click.option("--level", "-l",
-              type=click.Choice(
-                  ["basic", "intermediate", "advanced", "expert"]),
-              default="intermediate",
-              help="Skill complexity level")
+@click.option(
+    "--category",
+    "-c",
+    type=click.Choice(
+        [
+            "creation",
+            "analysis",
+            "automation",
+            "integration",
+            "quality",
+            "devops",
+            "security",
+        ]
+    ),
+    default="automation",
+    help="Skill category",
+)
+@click.option(
+    "--level",
+    "-l",
+    type=click.Choice(["basic", "intermediate", "advanced", "expert"]),
+    default="intermediate",
+    help="Skill complexity level",
+)
 @click.option("--with-scripts", is_flag=True, help="Include scripts/ directory")
 @click.option("--with-references", is_flag=True, help="Include references/ directory")
 @click.option("--with-assets", is_flag=True, help="Include assets/ directory")
@@ -440,7 +470,8 @@ def create_skill(
     # Validate skill name
     if not re.match(r"^[a-z][a-z0-9-]*[a-z0-9]$|^[a-z]$", skill_name):
         console.print(
-            "[red]Error:[/red] Skill name must be lowercase with hyphens only")
+            "[red]Error:[/red] Skill name must be lowercase with hyphens only"
+        )
         console.print("Example: code-review, my-skill, automation-tool")
         raise SystemExit(1)
 
@@ -455,9 +486,7 @@ def create_skill(
     ai_generated_content = None
     if ai_enhance:
         if not description:
-            console.print(
-                "[red]Error:[/red] --description required with --ai-enhance"
-            )
+            console.print("[red]Error:[/red] --description required with --ai-enhance")
             raise SystemExit(1)
 
         import asyncio
@@ -472,9 +501,7 @@ def create_skill(
 
         if ai is None:
             console.print("[yellow]⚠ AI not available[/yellow]")
-            if not click.confirm(
-                "Create basic template instead?", default=True
-            ):
+            if not click.confirm("Create basic template instead?", default=True):
                 console.print("\n[cyan]To enable AI enhancement:[/cyan]")
                 console.print("  pip install paracle[meta]  # Recommended")
                 console.print("  pip install paracle[openai]  # Or external")
@@ -482,8 +509,7 @@ def create_skill(
             ai_enhance = False  # Fall back to basic template
         else:
             console.print(f"[dim]Using AI provider: {ai.name}[/dim]")
-            console.print(
-                f"[dim]Generating enhanced skill: {description}[/dim]\n")
+            console.print(f"[dim]Generating enhanced skill: {description}[/dim]\n")
 
             with console.status("[bold cyan]Generating skill spec..."):
                 result = asyncio.run(
@@ -495,9 +521,7 @@ def create_skill(
                 )
 
             ai_generated_content = result.get("markdown", "")
-            console.print(
-                "[green]✓[/green] AI-enhanced skill spec generated"
-            )
+            console.print("[green]✓[/green] AI-enhanced skill spec generated")
 
     # Create skill directory
     skill_dir.mkdir(parents=True)
@@ -591,8 +615,7 @@ Use this skill when:
     console.print("\n[bold]Next steps:[/bold]")
     console.print(f"  1. Edit {skill_dir / 'SKILL.md'}")
     console.print(f"  2. paracle agents skills validate {skill_name}")
-    console.print(
-        f"  3. paracle agents skills export -p copilot -s {skill_name}")
+    console.print(f"  3. paracle agents skills export -p copilot -s {skill_name}")
 
 
 @skills.command("show")
@@ -631,10 +654,12 @@ def show_skill(skill_name: str, raw: bool) -> None:
         raise SystemExit(1)
 
     # Display skill info
-    console.print(Panel(
-        f"[bold cyan]{skill.metadata.display_name or skill.name}[/bold cyan]",
-        title="Project Skill",
-    ))
+    console.print(
+        Panel(
+            f"[bold cyan]{skill.metadata.display_name or skill.name}[/bold cyan]",
+            title="Project Skill",
+        )
+    )
 
     console.print(f"\n[bold]Name:[/bold] {skill.name}")
     console.print(f"[bold]Description:[/bold] {skill.description}")

@@ -17,8 +17,8 @@ from uuid import uuid4
 from paracle_core.governance.types import GovernanceAgentType
 
 # Context variables for tracking current state
-_current_agent: contextvars.ContextVar[GovernanceAgentType | None] = contextvars.ContextVar(
-    "governance_agent", default=None
+_current_agent: contextvars.ContextVar[GovernanceAgentType | None] = (
+    contextvars.ContextVar("governance_agent", default=None)
 )
 _current_session: contextvars.ContextVar[str | None] = contextvars.ContextVar(
     "governance_session", default=None

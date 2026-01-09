@@ -31,9 +31,7 @@ class IDEStatusItem(BaseModel):
     generated_path: str | None = Field(
         default=None, description="Path to generated file"
     )
-    project_path: str | None = Field(
-        default=None, description="Path to project file"
-    )
+    project_path: str | None = Field(default=None, description="Path to project file")
 
 
 class IDEStatusResponse(BaseModel):
@@ -41,7 +39,9 @@ class IDEStatusResponse(BaseModel):
 
     parac_root: str = Field(description="Path to .parac/ directory")
     project_root: str = Field(description="Path to project root")
-    ide_output_dir: str = Field(description="Path to .parac/integrations/ide/ directory")
+    ide_output_dir: str = Field(
+        description="Path to .parac/integrations/ide/ directory"
+    )
     ides: list[IDEStatusItem] = Field(description="Status for each IDE")
     generated_count: int = Field(description="Number of generated configs")
     copied_count: int = Field(description="Number of copied configs")
@@ -73,27 +73,19 @@ class IDEInitResultItem(BaseModel):
     generated_path: str | None = Field(
         default=None, description="Path to generated file"
     )
-    project_path: str | None = Field(
-        default=None, description="Path to project file"
-    )
-    error: str | None = Field(
-        default=None, description="Error message if failed"
-    )
+    project_path: str | None = Field(default=None, description="Path to project file")
+    error: str | None = Field(default=None, description="Error message if failed")
 
 
 class IDEInitResponse(BaseModel):
     """Response from IDE initialization."""
 
     success: bool = Field(description="Whether all operations succeeded")
-    results: list[IDEInitResultItem] = Field(
-        description="Results for each IDE"
-    )
+    results: list[IDEInitResultItem] = Field(description="Results for each IDE")
     generated_count: int = Field(description="Number successfully generated")
     copied_count: int = Field(description="Number successfully copied")
     failed_count: int = Field(description="Number of failures")
-    manifest_path: str | None = Field(
-        default=None, description="Path to manifest file"
-    )
+    manifest_path: str | None = Field(default=None, description="Path to manifest file")
 
 
 class IDESyncRequest(BaseModel):

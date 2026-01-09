@@ -110,8 +110,7 @@ class TestWorkflowExecution:
         async def mock_execute(workflow, inputs):
             return mock_result
 
-        workflow_execution._engine.execute = AsyncMock(
-            side_effect=mock_execute)
+        workflow_execution._engine.execute = AsyncMock(side_effect=mock_execute)
 
         response = client.post(
             "/api/workflows/execute",
@@ -326,15 +325,12 @@ class TestWorkflowExecution:
         async def mock_get_status(exec_id):
             return mock_status
 
-        workflow_execution._engine.cancel_execution = AsyncMock(
-            side_effect=mock_cancel
-        )
+        workflow_execution._engine.cancel_execution = AsyncMock(side_effect=mock_cancel)
         workflow_execution._engine.get_execution_status = AsyncMock(
             side_effect=mock_get_status
         )
 
-        response = client.post(
-            f"/api/workflows/executions/{execution_id}/cancel")
+        response = client.post(f"/api/workflows/executions/{execution_id}/cancel")
 
         assert response.status_code == 200
         data = response.json()
@@ -359,15 +355,12 @@ class TestWorkflowExecution:
         async def mock_get_status(exec_id):
             return mock_status
 
-        workflow_execution._engine.cancel_execution = AsyncMock(
-            side_effect=mock_cancel
-        )
+        workflow_execution._engine.cancel_execution = AsyncMock(side_effect=mock_cancel)
         workflow_execution._engine.get_execution_status = AsyncMock(
             side_effect=mock_get_status
         )
 
-        response = client.post(
-            f"/api/workflows/executions/{execution_id}/cancel")
+        response = client.post(f"/api/workflows/executions/{execution_id}/cancel")
 
         assert response.status_code == 200
         data = response.json()
@@ -381,12 +374,9 @@ class TestWorkflowExecution:
         async def mock_cancel(exec_id):
             raise WorkflowNotFoundError(f"Execution {exec_id} not found")
 
-        workflow_execution._engine.cancel_execution = AsyncMock(
-            side_effect=mock_cancel
-        )
+        workflow_execution._engine.cancel_execution = AsyncMock(side_effect=mock_cancel)
 
-        response = client.post(
-            "/api/workflows/executions/non-existent-exec/cancel")
+        response = client.post("/api/workflows/executions/non-existent-exec/cancel")
 
         assert response.status_code == 404
 
@@ -422,8 +412,7 @@ class TestWorkflowExecution:
             side_effect=mock_list_executions
         )
 
-        response = client.get(
-            f"/api/workflows/{sample_workflow.id}/executions")
+        response = client.get(f"/api/workflows/{sample_workflow.id}/executions")
 
         assert response.status_code == 200
         data = response.json()
@@ -508,8 +497,7 @@ class TestWorkflowExecution:
 
     def test_list_executions_workflow_not_found(self, client: TestClient) -> None:
         """Test listing executions for non-existent workflow."""
-        response = client.get(
-            "/api/workflows/non-existent-workflow/executions")
+        response = client.get("/api/workflows/non-existent-workflow/executions")
 
         assert response.status_code == 404
         assert "not found" in response.json()["detail"].lower()

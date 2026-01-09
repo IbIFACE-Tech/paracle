@@ -120,9 +120,7 @@ class TestAgentGenerator:
         )
 
         # Mock practices
-        practices = [
-            {"title": "Clear Role", "recommendation": "Define specific role"}
-        ]
+        practices = [{"title": "Clear Role", "recommendation": "Define specific role"}]
 
         result = await generator.generate(
             request=request,

@@ -326,10 +326,12 @@ class TestAutoCommitManager:
         test_file = temp_repo / "metadata_test.txt"
         test_file.write_text("content")
 
-        changes = [GitChange(
-            file_path="metadata_test.txt",
-            change_type="added",
-        )]
+        changes = [
+            GitChange(
+                file_path="metadata_test.txt",
+                change_type="added",
+            )
+        ]
 
         manager.commit_agent_changes(
             agent_name="test_agent",
@@ -347,7 +349,11 @@ class TestAutoCommitManager:
         )
 
         # Should have agent info or file count
-        assert "Agent:" in result.stdout or "Files:" in result.stdout or "test_agent" in result.stdout
+        assert (
+            "Agent:" in result.stdout
+            or "Files:" in result.stdout
+            or "test_agent" in result.stdout
+        )
 
 
 class TestGitChange:

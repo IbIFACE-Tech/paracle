@@ -27,11 +27,7 @@ def run_command(cmd: list[str], cwd: Path = PROJECT_ROOT) -> tuple[bool, str]:
     """Run a shell command and return success status and output."""
     try:
         result = subprocess.run(
-            cmd,
-            cwd=cwd,
-            capture_output=True,
-            text=True,
-            timeout=30
+            cmd, cwd=cwd, capture_output=True, text=True, timeout=30
         )
         return result.returncode == 0, result.stdout.strip()
     except subprocess.TimeoutExpired:
@@ -75,7 +71,8 @@ def get_test_coverage() -> str:
             # Parse coverage from HTML (simplified)
             if "%" in content:
                 import re
-                match = re.search(r'(\d+)%', content)
+
+                match = re.search(r"(\d+)%", content)
                 if match:
                     return f"{match.group(1)}%"
         except Exception:
@@ -107,10 +104,14 @@ def update_state(state: dict) -> dict:
     tests_dir = PROJECT_ROOT / "tests"
 
     if packages_dir.exists():
-        state.setdefault("metrics", {})["python_files"] = count_files("*.py", packages_dir)
+        state.setdefault("metrics", {})["python_files"] = count_files(
+            "*.py", packages_dir
+        )
 
     if tests_dir.exists():
-        state.setdefault("metrics", {})["test_files"] = count_files("test_*.py", tests_dir)
+        state.setdefault("metrics", {})["test_files"] = count_files(
+            "test_*.py", tests_dir
+        )
 
     # Try to get coverage
     coverage = get_test_coverage()
@@ -162,7 +163,9 @@ def main():
     print("💾 Writing updated state...")
     try:
         with open(STATE_FILE, "w", encoding="utf-8") as f:
-            yaml.dump(state, f, default_flow_style=False, allow_unicode=True, sort_keys=False)
+            yaml.dump(
+                state, f, default_flow_style=False, allow_unicode=True, sort_keys=False
+            )
         print("  ✅ State file updated")
     except Exception as e:
         print(f"  ❌ Error writing state: {e}")

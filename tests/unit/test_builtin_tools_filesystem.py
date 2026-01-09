@@ -152,8 +152,7 @@ class TestWriteFileTool:
 
         # Act - allowed path
         result_allowed = await tool.execute(
-            path=str(allowed_dir / "test.txt"),
-            content="allowed"
+            path=str(allowed_dir / "test.txt"), content="allowed"
         )
 
         # Assert - allowed works
@@ -161,8 +160,7 @@ class TestWriteFileTool:
 
         # Act - forbidden path
         result_forbidden = await tool.execute(
-            path=str(forbidden_dir / "test.txt"),
-            content="forbidden"
+            path=str(forbidden_dir / "test.txt"), content="forbidden"
         )
 
         # Assert - forbidden fails

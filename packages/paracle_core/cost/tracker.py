@@ -208,9 +208,7 @@ class CostTracker:
             input_rate, output_rate = pricing
         else:
             # Default fallback pricing
-            logger.warning(
-                f"No pricing found for {provider}/{model}, using defaults"
-            )
+            logger.warning(f"No pricing found for {provider}/{model}, using defaults")
             input_rate = 1.0  # $1 per million tokens
             output_rate = 2.0  # $2 per million tokens
 
@@ -414,8 +412,7 @@ class CostTracker:
 
         # Create alert if needed
         if status != BudgetStatus.OK:
-            self._create_alert(budget_type, limit, current,
-                               usage_percent, status)
+            self._create_alert(budget_type, limit, current, usage_percent, status)
 
         # Block if exceeded and blocking enabled
         if status == BudgetStatus.EXCEEDED and block_on_exceed:
@@ -434,8 +431,7 @@ class CostTracker:
         Respects minimum interval between alerts of same type.
         """
         # Check if we should suppress this alert
-        min_interval = timedelta(
-            minutes=self.config.alerts.min_interval_minutes)
+        min_interval = timedelta(minutes=self.config.alerts.min_interval_minutes)
         last_alert_time = self._last_alerts.get(budget_type)
 
         if last_alert_time and (_utcnow() - last_alert_time) < min_interval:
@@ -560,7 +556,9 @@ class CostTracker:
 
         return self._query_usage(start, end)
 
-    def get_monthly_usage(self, year: int | None = None, month: int | None = None) -> CostUsage:
+    def get_monthly_usage(
+        self, year: int | None = None, month: int | None = None
+    ) -> CostUsage:
         """Get usage for a specific month.
 
         Args:
@@ -728,11 +726,9 @@ class CostTracker:
 
         # Get breakdowns
         if self.config.tracking.persist_to_db and self._db_path.exists():
-            report.by_provider = self._get_usage_by_field(
-                "provider", start, end)
+            report.by_provider = self._get_usage_by_field("provider", start, end)
             report.by_model = self._get_usage_by_field("model", start, end)
-            report.by_workflow = self._get_usage_by_field(
-                "workflow_id", start, end)
+            report.by_workflow = self._get_usage_by_field("workflow_id", start, end)
             report.by_agent = self._get_usage_by_field("agent_id", start, end)
 
             # Get top consumers
@@ -743,8 +739,7 @@ class CostTracker:
             )[:10]
 
             report.top_workflows = sorted(
-                [(k, v.total_cost)
-                 for k, v in report.by_workflow.items() if k],
+                [(k, v.total_cost) for k, v in report.by_workflow.items() if k],
                 key=lambda x: x[1],
                 reverse=True,
             )[:10]

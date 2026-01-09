@@ -99,7 +99,12 @@ async def login_for_access_token(
     )
 
 
-@router.post("/register", response_model=UserResponse, status_code=201, operation_id="registerUser")
+@router.post(
+    "/register",
+    response_model=UserResponse,
+    status_code=201,
+    operation_id="registerUser",
+)
 async def register_user(
     request: UserCreateRequest,
     config: Annotated[SecurityConfig, Depends(get_security_config)],

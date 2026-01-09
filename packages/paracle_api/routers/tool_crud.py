@@ -58,7 +58,7 @@ def _tool_to_response(tool: Tool) -> ToolResponse:
     response_model=ToolResponse,
     status_code=201,
     operation_id="createTool",
-    summary="Register a new tool"
+    summary="Register a new tool",
 )
 async def create_tool(request: ToolCreateRequest) -> ToolResponse:
     """Register a new tool.
@@ -94,7 +94,7 @@ async def create_tool(request: ToolCreateRequest) -> ToolResponse:
     "",
     response_model=ToolListResponse,
     operation_id="listTools",
-    summary="List tools with filters"
+    summary="List tools with filters",
 )
 async def list_tools(
     enabled: bool | None = Query(None, description="Filter by enabled status"),
@@ -132,7 +132,7 @@ async def list_tools(
     total = len(tools)
 
     # Apply pagination
-    tools = tools[offset:offset + limit]
+    tools = tools[offset : offset + limit]
 
     return ToolListResponse(
         tools=[_tool_to_response(t) for t in tools],
@@ -146,7 +146,7 @@ async def list_tools(
     "/{tool_id}",
     response_model=ToolResponse,
     operation_id="getToolById",
-    summary="Get tool details by ID"
+    summary="Get tool details by ID",
 )
 async def get_tool(tool_id: str) -> ToolResponse:
     """Get tool details by ID.
@@ -171,9 +171,7 @@ async def get_tool(tool_id: str) -> ToolResponse:
 
 
 @router.put("/{tool_id}", response_model=ToolResponse)
-async def update_tool(
-    tool_id: str, request: ToolUpdateRequest
-) -> ToolResponse:
+async def update_tool(tool_id: str, request: ToolUpdateRequest) -> ToolResponse:
     """Update a tool's configuration.
 
     Only updates provided fields. Null values are ignored.

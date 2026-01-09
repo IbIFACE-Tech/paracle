@@ -25,21 +25,23 @@ from rich.text import Text
 from rich.theme import Theme
 
 # Custom theme for chat - modern, clean aesthetic
-_chat_theme = Theme({
-    "user": "bold cyan",
-    "user.prompt": "cyan",
-    "assistant": "bold green",
-    "assistant.text": "white",
-    "system": "bold yellow",
-    "cost": "dim italic",
-    "command": "bold magenta",
-    "info": "dim",
-    "success": "green",
-    "warning": "yellow",
-    "error": "red bold",
-    "highlight": "bold white",
-    "border": "bright_black",
-})
+_chat_theme = Theme(
+    {
+        "user": "bold cyan",
+        "user.prompt": "cyan",
+        "assistant": "bold green",
+        "assistant.text": "white",
+        "system": "bold yellow",
+        "cost": "dim italic",
+        "command": "bold magenta",
+        "info": "dim",
+        "success": "green",
+        "warning": "yellow",
+        "error": "red bold",
+        "highlight": "bold white",
+        "border": "bright_black",
+    }
+)
 
 console = Console(theme=_chat_theme)
 
@@ -65,6 +67,7 @@ def _format_tokens(count: int) -> str:
 def _get_thinking_message() -> str:
     """Get a random thinking message."""
     import random
+
     return random.choice(_THINKING_MESSAGES)
 
 
@@ -142,10 +145,12 @@ def meta_info() -> None:
     platform = detect_platform()
     paths = get_system_paths()
 
-    console.print(Panel(
-        "[bold]Paracle Meta AI Engine[/bold]",
-        title="paracle meta info",
-    ))
+    console.print(
+        Panel(
+            "[bold]Paracle Meta AI Engine[/bold]",
+            title="paracle meta info",
+        )
+    )
 
     console.print(f"\n[bold]Version:[/bold] {meta_version}")
     console.print(f"[bold]Platform:[/bold] {platform}")
@@ -158,13 +163,13 @@ def meta_info() -> None:
     # Check skills directory
     if paths.skills_dir.exists():
         skill_count = sum(
-            1 for d in paths.skills_dir.iterdir()
+            1
+            for d in paths.skills_dir.iterdir()
             if d.is_dir() and (d / "SKILL.md").exists()
         )
         console.print(f"\n[bold]System Skills:[/bold] {skill_count} installed")
     else:
-        console.print(
-            "\n[bold]System Skills:[/bold] [yellow]Not initialized[/yellow]")
+        console.print("\n[bold]System Skills:[/bold] [yellow]Not initialized[/yellow]")
         console.print("  Run: paracle meta skills init")
 
     # Check providers
@@ -224,8 +229,7 @@ def meta_health(json_output: bool, quick: bool) -> None:
 
             db = MetaDatabase(config.database)
     except Exception as e:
-        console.print(
-            f"[yellow]Warning:[/yellow] Could not connect to database: {e}")
+        console.print(f"[yellow]Warning:[/yellow] Could not connect to database: {e}")
 
     # Run health check
     checker = HealthChecker(config, db)
@@ -236,12 +240,13 @@ def meta_health(json_output: bool, quick: bool) -> None:
             if json_output:
                 console.print(f'{{"status": "{status.value}"}}')
             else:
-                emoji = {"healthy": "[OK]", "degraded": "[!]",
-                         "unhealthy": "[X]"}[status.value]
-                color = {"healthy": "green", "degraded": "yellow",
-                         "unhealthy": "red"}[status.value]
-                console.print(
-                    f"[{color}]{emoji} {status.value.upper()}[/{color}]")
+                emoji = {"healthy": "[OK]", "degraded": "[!]", "unhealthy": "[X]"}[
+                    status.value
+                ]
+                color = {"healthy": "green", "degraded": "yellow", "unhealthy": "red"}[
+                    status.value
+                ]
+                console.print(f"[{color}]{emoji} {status.value.upper()}[/{color}]")
             raise SystemExit(0 if status == HealthStatus.HEALTHY else 1)
 
         result = asyncio.run(checker.full_check())
@@ -286,6 +291,7 @@ def _check_ollama() -> bool:
     """Check if Ollama is running."""
     try:
         import httpx
+
         response = httpx.get("http://localhost:11434/api/tags", timeout=1.0)
         return response.status_code == 200
     except Exception:
@@ -303,6 +309,7 @@ _chat_costs: dict[str, dict] = {}
 def _get_sessions_dir() -> Path:
     """Get sessions directory for persistence."""
     from paracle_core.paths import get_system_paths
+
     paths = get_system_paths()
     sessions_dir = paths.base_dir / "sessions"
     sessions_dir.mkdir(parents=True, exist_ok=True)
@@ -312,6 +319,7 @@ def _get_sessions_dir() -> Path:
 def _load_session(session_id: str) -> tuple[list[dict[str, str]], dict]:
     """Load session from disk."""
     import json
+
     sessions_dir = _get_sessions_dir()
     session_file = sessions_dir / f"{session_id}.json"
 
@@ -329,16 +337,21 @@ def _save_session(
 ) -> None:
     """Save session to disk."""
     import json
+
     sessions_dir = _get_sessions_dir()
     session_file = sessions_dir / f"{session_id}.json"
 
     with open(session_file, "w", encoding="utf-8") as f:
-        json.dump({
-            "session_id": session_id,
-            "messages": messages,
-            "metadata": metadata,
-            "updated_at": datetime.now().isoformat(),
-        }, f, indent=2)
+        json.dump(
+            {
+                "session_id": session_id,
+                "messages": messages,
+                "metadata": metadata,
+                "updated_at": datetime.now().isoformat(),
+            },
+            f,
+            indent=2,
+        )
 
 
 def _estimate_cost(
@@ -379,15 +392,25 @@ def _estimate_cost(
 
 
 @meta.command("chat")
-@click.option("--provider", "-p", default="anthropic",
-              help="AI provider (anthropic, openai, deepseek, ollama)")
+@click.option(
+    "--provider",
+    "-p",
+    default="anthropic",
+    help="AI provider (anthropic, openai, deepseek, ollama)",
+)
 @click.option("--model", "-m", help="Model to use (provider-specific)")
 @click.option("--system", "-s", help="System prompt for the conversation")
 @click.option("--session", help="Session ID to continue a previous chat")
-@click.option("--stream/--no-stream", default=True,
-              help="Enable streaming output (default: enabled)")
-@click.option("--costs/--no-costs", default=True,
-              help="Track and display costs (default: enabled)")
+@click.option(
+    "--stream/--no-stream",
+    default=True,
+    help="Enable streaming output (default: enabled)",
+)
+@click.option(
+    "--costs/--no-costs",
+    default=True,
+    help="Track and display costs (default: enabled)",
+)
 def meta_chat(
     provider: str,
     model: str | None,
@@ -445,6 +468,7 @@ def meta_chat(
     # DeepSeek uses OpenAI-compatible API
     if provider.lower() == "deepseek":
         import os
+
         if not os.getenv("DEEPSEEK_API_KEY"):
             console.print("[red]Error:[/red] DeepSeek not configured")
             console.print("Set DEEPSEEK_API_KEY environment variable")
@@ -455,8 +479,7 @@ def meta_chat(
             console.print("Start Ollama with: ollama serve")
         else:
             env_var = f"{provider.upper()}_API_KEY"
-            console.print(
-                f"[red]Error:[/red] {provider_name} not configured")
+            console.print(f"[red]Error:[/red] {provider_name} not configured")
             console.print(f"Set {env_var} environment variable")
         raise SystemExit(1)
 
@@ -489,7 +512,8 @@ def meta_chat(
             messages = loaded_messages
             session_metadata.update(loaded_metadata)
             console.print(
-                f"[green]✓ Resumed session[/green] [dim]({len(messages)} messages)[/dim]")
+                f"[green]✓ Resumed session[/green] [dim]({len(messages)} messages)[/dim]"
+            )
 
     # Initialize cost tracking
     _chat_costs[session_id] = {
@@ -501,25 +525,37 @@ def meta_chat(
     # Welcome banner - elegant, modern design
     console.print()
     console.print(
-        "[bold bright_cyan]  ╭──────────────────────────────────────────────────────────────╮[/bold bright_cyan]")
+        "[bold bright_cyan]  ╭──────────────────────────────────────────────────────────────╮[/bold bright_cyan]"
+    )
     console.print(
-        "[bold bright_cyan]  │[/bold bright_cyan]                                                              [bold bright_cyan]│[/bold bright_cyan]")
-    console.print("[bold bright_cyan]  │[/bold bright_cyan]   [bold white]◆ Paracle Chat[/bold white]                                             [bold bright_cyan]│[/bold bright_cyan]")
+        "[bold bright_cyan]  │[/bold bright_cyan]                                                              [bold bright_cyan]│[/bold bright_cyan]"
+    )
     console.print(
-        "[bold bright_cyan]  │[/bold bright_cyan]                                                              [bold bright_cyan]│[/bold bright_cyan]")
+        "[bold bright_cyan]  │[/bold bright_cyan]   [bold white]◆ Paracle Chat[/bold white]                                             [bold bright_cyan]│[/bold bright_cyan]"
+    )
     console.print(
-        f"[bold bright_cyan]  │[/bold bright_cyan]   [dim]Provider[/dim]  [bold]{provider_name}[/bold]                                        [bold bright_cyan]│[/bold bright_cyan]")
+        "[bold bright_cyan]  │[/bold bright_cyan]                                                              [bold bright_cyan]│[/bold bright_cyan]"
+    )
     console.print(
-        f"[bold bright_cyan]  │[/bold bright_cyan]   [dim]Model[/dim]     [bold]{model[:30]}[/bold]{'...' if len(model) > 30 else ''}                    [bold bright_cyan]│[/bold bright_cyan]")
+        f"[bold bright_cyan]  │[/bold bright_cyan]   [dim]Provider[/dim]  [bold]{provider_name}[/bold]                                        [bold bright_cyan]│[/bold bright_cyan]"
+    )
     console.print(
-        f"[bold bright_cyan]  │[/bold bright_cyan]   [dim]Session[/dim]   [bold]{session_id}[/bold]                                       [bold bright_cyan]│[/bold bright_cyan]")
+        f"[bold bright_cyan]  │[/bold bright_cyan]   [dim]Model[/dim]     [bold]{model[:30]}[/bold]{'...' if len(model) > 30 else ''}                    [bold bright_cyan]│[/bold bright_cyan]"
+    )
     console.print(
-        "[bold bright_cyan]  │[/bold bright_cyan]                                                              [bold bright_cyan]│[/bold bright_cyan]")
+        f"[bold bright_cyan]  │[/bold bright_cyan]   [dim]Session[/dim]   [bold]{session_id}[/bold]                                       [bold bright_cyan]│[/bold bright_cyan]"
+    )
     console.print(
-        "[bold bright_cyan]  ╰──────────────────────────────────────────────────────────────╯[/bold bright_cyan]")
+        "[bold bright_cyan]  │[/bold bright_cyan]                                                              [bold bright_cyan]│[/bold bright_cyan]"
+    )
+    console.print(
+        "[bold bright_cyan]  ╰──────────────────────────────────────────────────────────────╯[/bold bright_cyan]"
+    )
     console.print()
     console.print("  [dim]💬 Type your message to start chatting[/dim]")
-    console.print("  [dim]📋 Commands:[/dim] [magenta]/help[/magenta] [dim]•[/dim] [magenta]/cost[/magenta] [dim]•[/dim] [magenta]/save[/magenta] [dim]•[/dim] [magenta]/exit[/magenta]")
+    console.print(
+        "  [dim]📋 Commands:[/dim] [magenta]/help[/magenta] [dim]•[/dim] [magenta]/cost[/magenta] [dim]•[/dim] [magenta]/save[/magenta] [dim]•[/dim] [magenta]/exit[/magenta]"
+    )
     console.print()
 
     # Default system prompt
@@ -533,16 +569,18 @@ def meta_chat(
         """Get streaming chat completion."""
         if provider.lower() == "anthropic":
             return await _anthropic_stream(
-                messages, user_message, model, default_system, session_id, costs)
+                messages, user_message, model, default_system, session_id, costs
+            )
         elif provider.lower() == "openai":
             return await _openai_stream(
-                messages, user_message, model, default_system, session_id, costs)
+                messages, user_message, model, default_system, session_id, costs
+            )
         elif provider.lower() == "deepseek":
             return await _deepseek_stream(
-                messages, user_message, model, default_system, session_id, costs)
+                messages, user_message, model, default_system, session_id, costs
+            )
         elif provider.lower() == "ollama":
-            return await _ollama_stream(
-                messages, user_message, model, default_system)
+            return await _ollama_stream(messages, user_message, model, default_system)
         else:
             return f"[Provider {provider} not yet implemented]"
 
@@ -551,16 +589,16 @@ def meta_chat(
         try:
             if provider.lower() == "anthropic":
                 return await _anthropic_chat(
-                    messages, user_message, model, default_system)
+                    messages, user_message, model, default_system
+                )
             elif provider.lower() == "openai":
-                return await _openai_chat(
-                    messages, user_message, model, default_system)
+                return await _openai_chat(messages, user_message, model, default_system)
             elif provider.lower() == "deepseek":
                 return await _deepseek_chat(
-                    messages, user_message, model, default_system)
+                    messages, user_message, model, default_system
+                )
             elif provider.lower() == "ollama":
-                return await _ollama_chat(
-                    messages, user_message, model, default_system)
+                return await _ollama_chat(messages, user_message, model, default_system)
             else:
                 return f"[Provider {provider} not yet implemented]"
         except Exception as e:
@@ -573,7 +611,8 @@ def meta_chat(
             # Show turn indicator for ongoing conversations
             if turn_count > 0:
                 console.print(
-                    "[dim]  ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─[/dim]")
+                    "[dim]  ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─[/dim]"
+                )
                 console.print()
 
             user_input = console.input("  [bold cyan]❯[/bold cyan] ").strip()
@@ -591,11 +630,16 @@ def meta_chat(
                     # Auto-save session on exit
                     console.print()
                     if messages:
-                        session_metadata["total_cost"] = _chat_costs[session_id]["total_cost"]
-                        session_metadata["total_tokens"] = _chat_costs[session_id]["total_tokens"]
+                        session_metadata["total_cost"] = _chat_costs[session_id][
+                            "total_cost"
+                        ]
+                        session_metadata["total_tokens"] = _chat_costs[session_id][
+                            "total_tokens"
+                        ]
                         _save_session(session_id, messages, session_metadata)
                         console.print(
-                            f"  [green]✓[/green] [dim]Session saved:[/dim] [cyan]{session_id}[/cyan]")
+                            f"  [green]✓[/green] [dim]Session saved:[/dim] [cyan]{session_id}[/cyan]"
+                        )
                     console.print()
                     console.print("  [dim]👋 Goodbye! See you next time.[/dim]")
                     console.print()
@@ -604,40 +648,50 @@ def meta_chat(
                 elif cmd == "/clear":
                     messages.clear()
                     turn_count = 0
-                    _chat_costs[session_id] = {"total_cost": 0.0, "total_tokens": {
-                        "input": 0, "output": 0}, "calls": 0}
+                    _chat_costs[session_id] = {
+                        "total_cost": 0.0,
+                        "total_tokens": {"input": 0, "output": 0},
+                        "calls": 0,
+                    }
                     console.print()
                     console.print(
-                        "  [green]✓[/green] [dim]Conversation cleared. Start fresh![/dim]")
+                        "  [green]✓[/green] [dim]Conversation cleared. Start fresh![/dim]"
+                    )
                     console.print()
                     continue
 
                 elif cmd == "/save":
                     if not cmd_arg:
                         # Save to session file
-                        session_metadata["total_cost"] = _chat_costs[session_id]["total_cost"]
-                        session_metadata["total_tokens"] = _chat_costs[session_id]["total_tokens"]
+                        session_metadata["total_cost"] = _chat_costs[session_id][
+                            "total_cost"
+                        ]
+                        session_metadata["total_tokens"] = _chat_costs[session_id][
+                            "total_tokens"
+                        ]
                         _save_session(session_id, messages, session_metadata)
                         console.print()
                         console.print(
-                            f"  [green]✓[/green] [dim]Session saved:[/dim] [cyan]{session_id}[/cyan]")
+                            f"  [green]✓[/green] [dim]Session saved:[/dim] [cyan]{session_id}[/cyan]"
+                        )
                         console.print()
                     else:
                         # Save to custom file
                         _save_conversation(messages, cmd_arg, session_id)
                         console.print()
                         console.print(
-                            f"  [green]✓[/green] [dim]Exported to:[/dim] [cyan]{cmd_arg}[/cyan]")
+                            f"  [green]✓[/green] [dim]Exported to:[/dim] [cyan]{cmd_arg}[/cyan]"
+                        )
                         console.print()
                     continue
 
                 elif cmd == "/load":
                     if not cmd_arg:
                         console.print()
+                        console.print("  [yellow]Usage:[/yellow] /load <session_id>")
                         console.print(
-                            "  [yellow]Usage:[/yellow] /load <session_id>")
-                        console.print(
-                            "  [dim]Use /sessions to see available sessions[/dim]")
+                            "  [dim]Use /sessions to see available sessions[/dim]"
+                        )
                         console.print()
                         continue
                     loaded_messages, loaded_metadata = _load_session(cmd_arg)
@@ -648,14 +702,17 @@ def meta_chat(
                         turn_count = len(messages) // 2
                         console.print()
                         console.print(
-                            f"  [green]✓[/green] [dim]Loaded[/dim] [cyan]{len(messages)}[/cyan] [dim]messages from[/dim] [cyan]{cmd_arg}[/cyan]")
+                            f"  [green]✓[/green] [dim]Loaded[/dim] [cyan]{len(messages)}[/cyan] [dim]messages from[/dim] [cyan]{cmd_arg}[/cyan]"
+                        )
                         console.print()
                     else:
                         console.print()
                         console.print(
-                            f"  [red]✗[/red] [dim]Session not found:[/dim] [yellow]{cmd_arg}[/yellow]")
+                            f"  [red]✗[/red] [dim]Session not found:[/dim] [yellow]{cmd_arg}[/yellow]"
+                        )
                         console.print(
-                            "  [dim]Use /sessions to see available sessions[/dim]")
+                            "  [dim]Use /sessions to see available sessions[/dim]"
+                        )
                         console.print()
                     continue
 
@@ -664,86 +721,107 @@ def meta_chat(
                     session_files = list(sessions_dir.glob("*.json"))
                     if session_files:
                         console.print()
+                        console.print("  [bold white]📁 Saved Sessions[/bold white]")
                         console.print(
-                            "  [bold white]📁 Saved Sessions[/bold white]")
-                        console.print(
-                            "  [dim]────────────────────────────────────────[/dim]")
+                            "  [dim]────────────────────────────────────────[/dim]"
+                        )
                         console.print()
-                        for sf in sorted(session_files, key=lambda x: x.stat().st_mtime, reverse=True)[:10]:
+                        for sf in sorted(
+                            session_files, key=lambda x: x.stat().st_mtime, reverse=True
+                        )[:10]:
                             mtime = datetime.fromtimestamp(sf.stat().st_mtime)
                             console.print(
-                                f"    [bold cyan]{sf.stem}[/bold cyan]  [dim]{mtime.strftime('%Y-%m-%d %H:%M')}[/dim]")
+                                f"    [bold cyan]{sf.stem}[/bold cyan]  [dim]{mtime.strftime('%Y-%m-%d %H:%M')}[/dim]"
+                            )
                         console.print()
                         console.print(
-                            "  [dim]Use[/dim] [magenta]/load <session_id>[/magenta] [dim]to restore a session[/dim]")
+                            "  [dim]Use[/dim] [magenta]/load <session_id>[/magenta] [dim]to restore a session[/dim]"
+                        )
                         console.print()
                     else:
                         console.print()
                         console.print(
-                            "  [dim]No saved sessions yet. Your sessions will appear here.[/dim]")
+                            "  [dim]No saved sessions yet. Your sessions will appear here.[/dim]"
+                        )
                         console.print()
                     continue
 
                 elif cmd == "/cost":
                     cost_data = _chat_costs.get(session_id, {})
                     total_cost = cost_data.get("total_cost", 0.0)
-                    tokens = cost_data.get(
-                        "total_tokens", {"input": 0, "output": 0})
+                    tokens = cost_data.get("total_tokens", {"input": 0, "output": 0})
                     calls = cost_data.get("calls", 0)
                     console.print()
                     console.print("  [bold white]💰 Session Cost[/bold white]")
                     console.print(
-                        "  [dim]────────────────────────────────────────[/dim]")
+                        "  [dim]────────────────────────────────────────[/dim]"
+                    )
                     console.print()
                     console.print(
-                        f"    [dim]Total Cost[/dim]     [bold green]${total_cost:.4f}[/bold green]")
+                        f"    [dim]Total Cost[/dim]     [bold green]${total_cost:.4f}[/bold green]"
+                    )
                     console.print(
-                        f"    [dim]Input Tokens[/dim]   {_format_tokens(tokens['input'])}")
+                        f"    [dim]Input Tokens[/dim]   {_format_tokens(tokens['input'])}"
+                    )
                     console.print(
-                        f"    [dim]Output Tokens[/dim]  {_format_tokens(tokens['output'])}")
+                        f"    [dim]Output Tokens[/dim]  {_format_tokens(tokens['output'])}"
+                    )
                     console.print(f"    [dim]API Requests[/dim]   {calls}")
                     console.print()
                     continue
 
                 elif cmd == "/help":
                     console.print()
+                    console.print("  [bold white]📖 Available Commands[/bold white]")
                     console.print(
-                        "  [bold white]📖 Available Commands[/bold white]")
-                    console.print(
-                        "  [dim]────────────────────────────────────────[/dim]")
+                        "  [dim]────────────────────────────────────────[/dim]"
+                    )
                     console.print()
                     console.print(
-                        "  [bold magenta]/exit[/bold magenta]          [dim]Exit chat (auto-saves session)[/dim]")
+                        "  [bold magenta]/exit[/bold magenta]          [dim]Exit chat (auto-saves session)[/dim]"
+                    )
                     console.print(
-                        "  [bold magenta]/clear[/bold magenta]         [dim]Clear conversation history[/dim]")
+                        "  [bold magenta]/clear[/bold magenta]         [dim]Clear conversation history[/dim]"
+                    )
                     console.print(
-                        "  [bold magenta]/save[/bold magenta] [dim][file][/dim]   [dim]Save session to file[/dim]")
+                        "  [bold magenta]/save[/bold magenta] [dim][file][/dim]   [dim]Save session to file[/dim]"
+                    )
                     console.print(
-                        "  [bold magenta]/load[/bold magenta] [dim]<id>[/dim]     [dim]Load a previous session[/dim]")
+                        "  [bold magenta]/load[/bold magenta] [dim]<id>[/dim]     [dim]Load a previous session[/dim]"
+                    )
                     console.print(
-                        "  [bold magenta]/sessions[/bold magenta]      [dim]List all saved sessions[/dim]")
+                        "  [bold magenta]/sessions[/bold magenta]      [dim]List all saved sessions[/dim]"
+                    )
                     console.print(
-                        "  [bold magenta]/cost[/bold magenta]          [dim]Show session cost summary[/dim]")
+                        "  [bold magenta]/cost[/bold magenta]          [dim]Show session cost summary[/dim]"
+                    )
                     console.print(
-                        "  [bold magenta]/help[/bold magenta]          [dim]Show this help message[/dim]")
+                        "  [bold magenta]/help[/bold magenta]          [dim]Show this help message[/dim]"
+                    )
                     console.print()
                     console.print(
-                        "  [dim]Tip: Just type your message and press Enter to chat![/dim]")
+                        "  [dim]Tip: Just type your message and press Enter to chat![/dim]"
+                    )
                     console.print()
                     continue
 
                 else:
                     console.print()
                     console.print(
-                        f"  [yellow]⚠[/yellow] [dim]Unknown command:[/dim] [yellow]{cmd}[/yellow]")
-                    console.print(
-                        "  [dim]Type /help for available commands[/dim]")
+                        f"  [yellow]⚠[/yellow] [dim]Unknown command:[/dim] [yellow]{cmd}[/yellow]"
+                    )
+                    console.print("  [dim]Type /help for available commands[/dim]")
                     console.print()
                     continue
 
             # Get AI response
             console.print()
-            if stream and provider.lower() in ("anthropic", "openai", "deepseek", "ollama"):
+            if stream and provider.lower() in (
+                "anthropic",
+                "openai",
+                "deepseek",
+                "ollama",
+            ):
                 # Streaming mode - show thinking briefly then stream
                 console.print("  [bold green]◆[/bold green] ", end="")
                 response = asyncio.run(chat_stream(user_input))
@@ -776,10 +854,9 @@ def meta_chat(
             if costs and provider.lower() in ("anthropic", "openai", "deepseek"):
                 cost_data = _chat_costs.get(session_id, {})
                 total_cost = cost_data.get("total_cost", 0)
-                tokens = cost_data.get(
-                    "total_tokens", {"input": 0, "output": 0})
-                in_tokens = _format_tokens(tokens['input'])
-                out_tokens = _format_tokens(tokens['output'])
+                tokens = cost_data.get("total_tokens", {"input": 0, "output": 0})
+                in_tokens = _format_tokens(tokens["input"])
+                out_tokens = _format_tokens(tokens["output"])
                 console.print()
                 console.print(
                     f"  [dim]💰 ${total_cost:.4f}  •  ↑{in_tokens}  ↓{out_tokens}[/dim]"
@@ -793,7 +870,9 @@ def meta_chat(
             # Auto-save on EOF
             if messages:
                 session_metadata["total_cost"] = _chat_costs[session_id]["total_cost"]
-                session_metadata["total_tokens"] = _chat_costs[session_id]["total_tokens"]
+                session_metadata["total_tokens"] = _chat_costs[session_id][
+                    "total_tokens"
+                ]
                 _save_session(session_id, messages, session_metadata)
             console.print("\n[dim]Goodbye![/dim]")
             break
@@ -816,10 +895,7 @@ async def _anthropic_chat(
     client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
 
     # Build messages for API
-    api_messages = [
-        {"role": m["role"], "content": m["content"]}
-        for m in messages
-    ]
+    api_messages = [{"role": m["role"], "content": m["content"]} for m in messages]
     api_messages.append({"role": "user", "content": user_message})
 
     response = client.messages.create(
@@ -850,10 +926,9 @@ async def _openai_chat(
 
     # Build messages for API
     api_messages = [{"role": "system", "content": system_prompt}]
-    api_messages.extend([
-        {"role": m["role"], "content": m["content"]}
-        for m in messages
-    ])
+    api_messages.extend(
+        [{"role": m["role"], "content": m["content"]} for m in messages]
+    )
     api_messages.append({"role": "user", "content": user_message})
 
     response = client.chat.completions.create(
@@ -876,10 +951,9 @@ async def _ollama_chat(
 
     # Build messages for API
     api_messages = [{"role": "system", "content": system_prompt}]
-    api_messages.extend([
-        {"role": m["role"], "content": m["content"]}
-        for m in messages
-    ])
+    api_messages.extend(
+        [{"role": m["role"], "content": m["content"]} for m in messages]
+    )
     api_messages.append({"role": "user", "content": user_message})
 
     async with httpx.AsyncClient(timeout=120.0) as client:
@@ -920,10 +994,9 @@ async def _deepseek_chat(
 
     # Build messages for API
     api_messages = [{"role": "system", "content": system_prompt}]
-    api_messages.extend([
-        {"role": m["role"], "content": m["content"]}
-        for m in messages
-    ])
+    api_messages.extend(
+        [{"role": m["role"], "content": m["content"]} for m in messages]
+    )
     api_messages.append({"role": "user", "content": user_message})
 
     response = client.chat.completions.create(
@@ -959,10 +1032,7 @@ async def _anthropic_stream(
     client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
 
     # Build messages for API
-    api_messages = [
-        {"role": m["role"], "content": m["content"]}
-        for m in messages
-    ]
+    api_messages = [{"role": m["role"], "content": m["content"]} for m in messages]
     api_messages.append({"role": "user", "content": user_message})
 
     full_response = ""
@@ -1016,10 +1086,9 @@ async def _openai_stream(
 
     # Build messages for API
     api_messages = [{"role": "system", "content": system_prompt}]
-    api_messages.extend([
-        {"role": m["role"], "content": m["content"]}
-        for m in messages
-    ])
+    api_messages.extend(
+        [{"role": m["role"], "content": m["content"]} for m in messages]
+    )
     api_messages.append({"role": "user", "content": user_message})
 
     full_response = ""
@@ -1077,10 +1146,9 @@ async def _deepseek_stream(
 
     # Build messages for API
     api_messages = [{"role": "system", "content": system_prompt}]
-    api_messages.extend([
-        {"role": m["role"], "content": m["content"]}
-        for m in messages
-    ])
+    api_messages.extend(
+        [{"role": m["role"], "content": m["content"]} for m in messages]
+    )
     api_messages.append({"role": "user", "content": user_message})
 
     full_response = ""
@@ -1107,7 +1175,8 @@ async def _deepseek_stream(
     # Track costs
     if track_costs and session_id in _chat_costs:
         cost = _estimate_cost(
-            "deepseek", model, estimated_input_tokens, estimated_output_tokens)
+            "deepseek", model, estimated_input_tokens, estimated_output_tokens
+        )
         _chat_costs[session_id]["total_cost"] += cost
         _chat_costs[session_id]["total_tokens"]["input"] += estimated_input_tokens
         _chat_costs[session_id]["total_tokens"]["output"] += estimated_output_tokens
@@ -1129,10 +1198,9 @@ async def _ollama_stream(
 
     # Build messages for API
     api_messages = [{"role": "system", "content": system_prompt}]
-    api_messages.extend([
-        {"role": m["role"], "content": m["content"]}
-        for m in messages
-    ])
+    api_messages.extend(
+        [{"role": m["role"], "content": m["content"]} for m in messages]
+    )
     api_messages.append({"role": "user", "content": user_message})
 
     full_response = ""
@@ -1188,13 +1256,23 @@ def _save_conversation(
 
 @meta.command("plan")
 @click.argument("goal", required=False)
-@click.option("--provider", "-p", default="anthropic",
-              help="AI provider (anthropic, openai, ollama)")
+@click.option(
+    "--provider",
+    "-p",
+    default="anthropic",
+    help="AI provider (anthropic, openai, ollama)",
+)
 @click.option("--model", "-m", help="Model to use (provider-specific)")
-@click.option("--execute", "-e", is_flag=True,
-              help="Auto-execute the plan after creation")
-@click.option("--interactive", "-i", is_flag=True, default=True,
-              help="Interactive mode with step approval (default)")
+@click.option(
+    "--execute", "-e", is_flag=True, help="Auto-execute the plan after creation"
+)
+@click.option(
+    "--interactive",
+    "-i",
+    is_flag=True,
+    default=True,
+    help="Interactive mode with step approval (default)",
+)
 def meta_plan(
     goal: str | None,
     provider: str,
@@ -1235,8 +1313,7 @@ def meta_plan(
             console.print("Start Ollama with: ollama serve")
         else:
             env_var = f"{provider.upper()}_API_KEY"
-            console.print(
-                f"[red]Error:[/red] {provider_name} not configured")
+            console.print(f"[red]Error:[/red] {provider_name} not configured")
             console.print(f"Set {env_var} environment variable")
         raise SystemExit(1)
 
@@ -1248,16 +1325,17 @@ def meta_plan(
     }
     model = model or default_models.get(provider.lower(), "gpt-4o")
 
-    console.print(Panel(
-        "[bold]Paracle Meta Plan Mode[/bold]\n"
-        f"Provider: {provider_name} | Model: {model}",
-        title="paracle meta plan",
-    ))
+    console.print(
+        Panel(
+            "[bold]Paracle Meta Plan Mode[/bold]\n"
+            f"Provider: {provider_name} | Model: {model}",
+            title="paracle meta plan",
+        )
+    )
 
     # Get goal if not provided
     if not goal:
-        console.print(
-            "\n[dim]Enter your goal (what you want to achieve):[/dim]")
+        console.print("\n[dim]Enter your goal (what you want to achieve):[/dim]")
         goal = console.input("[bold cyan]Goal>[/bold cyan] ").strip()
         if not goal:
             console.print("[red]No goal provided. Exiting.[/red]")
@@ -1336,15 +1414,21 @@ Output plans in JSON format:
     return {
         "goal": goal,
         "summary": response[:200],
-        "steps": [{"id": "step_1", "description": response, "action": response, "complexity": "medium"}],
+        "steps": [
+            {
+                "id": "step_1",
+                "description": response,
+                "action": response,
+                "complexity": "medium",
+            }
+        ],
         "success_criteria": "Review the output",
     }
 
 
 def _display_plan(plan: dict) -> None:
     """Display a plan in formatted output."""
-    console.print(
-        f"\n[bold green]Plan:[/bold green] {plan.get('goal', 'Unknown')}")
+    console.print(f"\n[bold green]Plan:[/bold green] {plan.get('goal', 'Unknown')}")
     console.print(f"[dim]{plan.get('summary', '')}[/dim]\n")
 
     steps = plan.get("steps", [])
@@ -1373,8 +1457,7 @@ def _display_plan(plan: dict) -> None:
     console.print(table)
 
     if plan.get("success_criteria"):
-        console.print(
-            f"\n[bold]Success Criteria:[/bold] {plan['success_criteria']}")
+        console.print(f"\n[bold]Success Criteria:[/bold] {plan['success_criteria']}")
 
 
 def _plan_interactive_loop(plan: dict, provider: str, model: str) -> None:
@@ -1382,7 +1465,8 @@ def _plan_interactive_loop(plan: dict, provider: str, model: str) -> None:
     import asyncio
 
     console.print(
-        "\n[dim]Commands: /execute, /step <n>, /show, /save <file>, /help, /exit[/dim]\n")
+        "\n[dim]Commands: /execute, /step <n>, /show, /save <file>, /help, /exit[/dim]\n"
+    )
 
     while True:
         try:
@@ -1405,8 +1489,7 @@ def _plan_interactive_loop(plan: dict, provider: str, model: str) -> None:
 
                 elif cmd == "/execute":
                     console.print("\n[bold]Executing plan...[/bold]\n")
-                    asyncio.run(_execute_plan_interactive(
-                        plan, provider, model))
+                    asyncio.run(_execute_plan_interactive(plan, provider, model))
 
                 elif cmd == "/step":
                     if not cmd_arg:
@@ -1417,14 +1500,15 @@ def _plan_interactive_loop(plan: dict, provider: str, model: str) -> None:
                         steps = plan.get("steps", [])
                         if 0 <= step_num < len(steps):
                             console.print(
-                                f"\n[bold]Executing step {step_num + 1}...[/bold]\n")
-                            asyncio.run(_execute_step(
-                                steps[step_num], provider, model))
+                                f"\n[bold]Executing step {step_num + 1}...[/bold]\n"
+                            )
+                            asyncio.run(_execute_step(steps[step_num], provider, model))
                             steps[step_num]["status"] = "completed"
                             _display_plan(plan)
                         else:
                             console.print(
-                                f"[red]Invalid step number. Range: 1-{len(steps)}[/red]")
+                                f"[red]Invalid step number. Range: 1-{len(steps)}[/red]"
+                            )
                     except ValueError:
                         console.print("[red]Invalid step number.[/red]")
 
@@ -1449,12 +1533,13 @@ def _plan_interactive_loop(plan: dict, provider: str, model: str) -> None:
 
             else:
                 # Treat as new goal - create new plan
-                console.print(
-                    f"\n[bold]Creating new plan for:[/bold] {user_input}\n")
-                with console.status("[bold cyan]Planning...[/bold cyan]", spinner="dots"):
+                console.print(f"\n[bold]Creating new plan for:[/bold] {user_input}\n")
+                with console.status(
+                    "[bold cyan]Planning...[/bold cyan]", spinner="dots"
+                ):
                     import asyncio
-                    new_plan = asyncio.run(
-                        _create_plan(user_input, provider, model))
+
+                    new_plan = asyncio.run(_create_plan(user_input, provider, model))
                 if new_plan:
                     plan.clear()
                     plan.update(new_plan)
@@ -1475,7 +1560,8 @@ async def _execute_plan_interactive(plan: dict, provider: str, model: str) -> No
 
     for i, step in enumerate(steps, 1):
         console.print(
-            f"\n[bold]Step {i}/{len(steps)}:[/bold] {step.get('description', '')}")
+            f"\n[bold]Step {i}/{len(steps)}:[/bold] {step.get('description', '')}"
+        )
         step["status"] = "in_progress"
 
         with console.status("[bold cyan]Executing...[/bold cyan]", spinner="dots"):
@@ -1484,8 +1570,11 @@ async def _execute_plan_interactive(plan: dict, provider: str, model: str) -> No
         step["status"] = "completed"
         step["result"] = result
 
-        console.print(f"[green]Result:[/green] {result[:500]}..." if len(
-            result) > 500 else f"[green]Result:[/green] {result}")
+        console.print(
+            f"[green]Result:[/green] {result[:500]}..."
+            if len(result) > 500
+            else f"[green]Result:[/green] {result}"
+        )
 
     console.print("\n[bold green]Plan execution complete![/bold green]")
     _display_plan(plan)
@@ -1495,7 +1584,9 @@ async def _execute_step(step: dict, provider: str, model: str) -> str:
     """Execute a single step."""
     system_prompt = "You are executing a task step. Provide a concise result or output."
     messages: list[dict[str, str]] = []
-    user_message = f"Execute this step:\n\n{step.get('action', step.get('description', ''))}"
+    user_message = (
+        f"Execute this step:\n\n{step.get('action', step.get('description', ''))}"
+    )
 
     if provider.lower() == "anthropic":
         return await _anthropic_chat(messages, user_message, model, system_prompt)
@@ -1525,8 +1616,7 @@ def _save_plan(plan: dict, filename: str) -> None:
             if step.get("result"):
                 f.write(f"   Result: {step['result']}\n")
         f.write(f"\n## Success Criteria\n{plan.get('success_criteria', '')}\n")
-        f.write(
-            f"\n---\n\n```json\n{json_module.dumps(plan, indent=2)}\n```\n")
+        f.write(f"\n---\n\n```json\n{json_module.dumps(plan, indent=2)}\n```\n")
 
 
 # =============================================================================
@@ -1565,8 +1655,7 @@ def skills_init() -> None:
     paths = get_system_paths()
 
     if paths.skills_dir.exists():
-        console.print(
-            "[yellow]System skills directory already exists:[/yellow]")
+        console.print("[yellow]System skills directory already exists:[/yellow]")
         console.print(f"  {paths.skills_dir}")
         return
 
@@ -1601,8 +1690,7 @@ def skills_list(verbose: bool) -> None:
     if not skill_list:
         console.print("[yellow]No system skills found.[/yellow]")
         console.print(f"\nDirectory: {system_dir}")
-        console.print(
-            "\nInstall bundled skills: paracle meta skills install-bundled")
+        console.print("\nInstall bundled skills: paracle meta skills install-bundled")
         return
 
     table = Table(title=f"System Meta Skills ({len(skill_list)} found)")
@@ -1613,8 +1701,7 @@ def skills_list(verbose: bool) -> None:
         table.add_column("Description")
 
     for skill in sorted(skill_list, key=lambda s: s.name):
-        row = [skill.name, skill.metadata.category.value,
-               skill.metadata.level.value]
+        row = [skill.name, skill.metadata.category.value, skill.metadata.level.value]
         if verbose:
             desc = (
                 skill.description[:40] + "..."
@@ -1644,8 +1731,7 @@ def skills_show(skill_name: str, raw: bool) -> None:
     skill_path = system_dir / skill_name / "SKILL.md"
 
     if not skill_path.exists():
-        console.print(
-            f"[red]Error:[/red] System skill '{skill_name}' not found")
+        console.print(f"[red]Error:[/red] System skill '{skill_name}' not found")
         console.print(f"\nSearched: {skill_path}")
         console.print("\nList available: paracle meta skills list")
         raise SystemExit(1)
@@ -1663,10 +1749,12 @@ def skills_show(skill_name: str, raw: bool) -> None:
         raise SystemExit(1)
 
     # Display skill info
-    console.print(Panel(
-        f"[bold cyan]{skill.metadata.display_name or skill.name}[/bold cyan]",
-        title="System Skill",
-    ))
+    console.print(
+        Panel(
+            f"[bold cyan]{skill.metadata.display_name or skill.name}[/bold cyan]",
+            title="System Skill",
+        )
+    )
 
     console.print(f"\n[bold]Name:[/bold] {skill.name}")
     console.print(f"[bold]Description:[/bold] {skill.description}")
@@ -1713,13 +1801,11 @@ def skills_install_bundled(force: bool) -> None:
     try:
         bundled_skills_path = files("paracle_meta") / "skills"
         if not bundled_skills_path.is_dir():
-            console.print(
-                "[red]Error:[/red] Bundled skills not found in paracle_meta")
+            console.print("[red]Error:[/red] Bundled skills not found in paracle_meta")
             console.print("This may indicate an incomplete installation.")
             raise SystemExit(1)
     except Exception as e:
-        console.print(
-            f"[red]Error:[/red] Could not locate bundled skills: {e}")
+        console.print(f"[red]Error:[/red] Could not locate bundled skills: {e}")
         raise SystemExit(1)
 
     # Find and install each bundled skill
@@ -1748,14 +1834,12 @@ def skills_install_bundled(force: bool) -> None:
 
     # Report results
     if installed:
-        console.print(
-            f"\n[green]OK[/green] Installed {len(installed)} meta skill(s):")
+        console.print(f"\n[green]OK[/green] Installed {len(installed)} meta skill(s):")
         for name in installed:
             console.print(f"  + {name}")
 
     if skipped:
-        console.print(
-            f"\n[yellow]Skipped[/yellow] {len(skipped)} existing skill(s):")
+        console.print(f"\n[yellow]Skipped[/yellow] {len(skipped)} existing skill(s):")
         for name in skipped:
             console.print(f"  - {name} (use -f to overwrite)")
 
@@ -1781,8 +1865,7 @@ def skills_remove(skill_name: str, force: bool) -> None:
     skill_dir = system_dir / skill_name
 
     if not skill_dir.exists():
-        console.print(
-            f"[red]Error:[/red] System skill '{skill_name}' not found")
+        console.print(f"[red]Error:[/red] System skill '{skill_name}' not found")
         raise SystemExit(1)
 
     if not force:
@@ -1844,13 +1927,11 @@ def generate_agent(name: str, desc: str, provider: str) -> None:
     console.print("[yellow]⚠ DEPRECATED:[/yellow] This command is deprecated")
     console.print()
     console.print("[cyan]Please use instead:[/cyan]")
-    console.print(
-        f"  paracle agents create {name.lower().replace(' ', '-')} \\")
-    console.print(f"    --role \"{desc}\" \\")
+    console.print(f"  paracle agents create {name.lower().replace(' ', '-')} \\")
+    console.print(f'    --role "{desc}" \\')
     console.print(f"    --ai-enhance --ai-provider {provider}")
     console.print()
-    console.print(
-        "[dim]This command will be removed in a future version.[/dim]")
+    console.print("[dim]This command will be removed in a future version.[/dim]")
     console.print()
 
     if not click.confirm("Continue with deprecated command?", default=False):
@@ -1860,9 +1941,9 @@ def generate_agent(name: str, desc: str, provider: str) -> None:
     console.print(f"Description: {desc}")
     console.print(f"Provider: {provider}")
     console.print(
-        "\n[dim]Note: Full generation requires AI provider configuration.[/dim]")
-    console.print(
-        "Set ANTHROPIC_API_KEY or OPENAI_API_KEY environment variable.")
+        "\n[dim]Note: Full generation requires AI provider configuration.[/dim]"
+    )
+    console.print("Set ANTHROPIC_API_KEY or OPENAI_API_KEY environment variable.")
 
 
 @meta_generate.command("workflow")
@@ -1892,13 +1973,11 @@ def generate_workflow(name: str, desc: str, provider: str) -> None:
     console.print("[yellow]⚠ DEPRECATED:[/yellow] This command is deprecated")
     console.print()
     console.print("[cyan]Please use instead:[/cyan]")
-    console.print(
-        f"  paracle workflow create {name.lower().replace(' ', '-')} \\")
-    console.print(f"    --description \"{desc}\" \\")
+    console.print(f"  paracle workflow create {name.lower().replace(' ', '-')} \\")
+    console.print(f'    --description "{desc}" \\')
     console.print(f"    --ai-enhance --ai-provider {provider}")
     console.print()
-    console.print(
-        "[dim]This command will be removed in a future version.[/dim]")
+    console.print("[dim]This command will be removed in a future version.[/dim]")
     console.print()
 
     if not click.confirm("Continue with deprecated command?", default=False):
@@ -1908,7 +1987,8 @@ def generate_workflow(name: str, desc: str, provider: str) -> None:
     console.print(f"Description: {desc}")
     console.print(f"Provider: {provider}")
     console.print(
-        "\n[dim]Note: Full generation requires AI provider configuration.[/dim]")
+        "\n[dim]Note: Full generation requires AI provider configuration.[/dim]"
+    )
 
 
 # =============================================================================
@@ -1936,10 +2016,12 @@ def learn_stats() -> None:
 
     Displays generation quality, feedback counts, and trends.
     """
-    console.print(Panel(
-        "[bold]Learning Statistics[/bold]",
-        title="paracle meta learn stats",
-    ))
+    console.print(
+        Panel(
+            "[bold]Learning Statistics[/bold]",
+            title="paracle meta learn stats",
+        )
+    )
 
     console.print("\n[dim]Learning system not yet configured.[/dim]")
     console.print("Statistics will appear here after generating artifacts.")
@@ -1964,5 +2046,4 @@ def learn_feedback(artifact_id: str, rating: int, comment: str | None) -> None:
     console.print(f"  Rating: {'⭐' * rating}")
     if comment:
         console.print(f"  Comment: {comment}")
-    console.print(
-        "\n[dim]Feedback recorded (learning system placeholder).[/dim]")
+    console.print("\n[dim]Feedback recorded (learning system placeholder).[/dim]")

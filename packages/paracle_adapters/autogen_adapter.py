@@ -124,8 +124,7 @@ class AutoGenAdapter(FrameworkAdapter):
 
             # Build system message
             system_message = (
-                agent_spec.system_prompt or
-                f"You are {name}, a helpful AI assistant."
+                agent_spec.system_prompt or f"You are {name}, a helpful AI assistant."
             )
 
             # Get functions for this agent
@@ -221,7 +220,7 @@ class AutoGenAdapter(FrameworkAdapter):
                 ),
                 code_execution_config=self.config.get(
                     "code_execution_config",
-                    {"work_dir": "workspace", "use_docker": False}
+                    {"work_dir": "workspace", "use_docker": False},
                 ),
             )
         else:
@@ -376,16 +375,14 @@ class AutoGenAdapter(FrameworkAdapter):
                         provider="openai",
                         system_prompt=step.inputs.get(
                             "system_prompt",
-                            f"You are {agent_name}, responsible for {step.name}"
+                            f"You are {agent_name}, responsible for {step.name}",
                         ),
                     )
                     agent_result = await self.create_agent(agent_spec)
                     agents.append(agent_result["agent"])
 
             if AUTOGEN_VERSION == "0.4+":
-                workflow = await self._create_workflow_v04(
-                    agents, workflow_spec
-                )
+                workflow = await self._create_workflow_v04(agents, workflow_spec)
             else:
                 workflow = self._create_workflow_legacy(agents, workflow_spec)
 
@@ -571,9 +568,7 @@ class AutoGenAdapter(FrameworkAdapter):
         if "human_input_mode" in config:
             valid_modes = ["NEVER", "ALWAYS", "TERMINATE"]
             if config["human_input_mode"] not in valid_modes:
-                raise ValueError(
-                    f"human_input_mode must be one of: {valid_modes}"
-                )
+                raise ValueError(f"human_input_mode must be one of: {valid_modes}")
 
         return True
 
@@ -589,9 +584,11 @@ class AutoGenAdapter(FrameworkAdapter):
             try:
                 if AUTOGEN_VERSION == "0.4+":
                     import autogen_agentchat
+
                     info["package_version"] = autogen_agentchat.__version__
                 else:
                     import autogen
+
                     info["package_version"] = autogen.__version__
             except (ImportError, AttributeError):
                 pass

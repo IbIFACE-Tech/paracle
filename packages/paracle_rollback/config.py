@@ -4,8 +4,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-RollbackTrigger = Literal["on_error",
-                          "on_timeout", "on_limit_exceeded", "manual"]
+RollbackTrigger = Literal["on_error", "on_timeout", "on_limit_exceeded", "manual"]
 
 
 class RollbackPolicy(BaseModel):
@@ -20,28 +19,19 @@ class RollbackPolicy(BaseModel):
         snapshot_retention_hours: How long to keep snapshots
     """
 
-    enabled: bool = Field(
-        default=True,
-        description="Enable automatic rollback"
-    )
+    enabled: bool = Field(default=True, description="Enable automatic rollback")
 
     triggers: list[RollbackTrigger] = Field(
         default=["on_error", "on_timeout", "on_limit_exceeded"],
-        description="Events that trigger rollback"
+        description="Events that trigger rollback",
     )
 
     max_snapshots: int = Field(
-        default=5,
-        ge=1,
-        le=20,
-        description="Maximum snapshots per sandbox"
+        default=5, ge=1, le=20, description="Maximum snapshots per sandbox"
     )
 
     snapshot_retention_hours: int = Field(
-        default=24,
-        ge=1,
-        le=168,  # 1 week
-        description="Snapshot retention period"
+        default=24, ge=1, le=168, description="Snapshot retention period"  # 1 week
     )
 
     model_config = {
@@ -69,23 +59,19 @@ class RollbackConfig(BaseModel):
     """
 
     policy: RollbackPolicy = Field(
-        default_factory=RollbackPolicy,
-        description="Rollback policy"
+        default_factory=RollbackPolicy, description="Rollback policy"
     )
 
     snapshot_compression: bool = Field(
-        default=True,
-        description="Compress snapshots to save space"
+        default=True, description="Compress snapshots to save space"
     )
 
     verify_after_restore: bool = Field(
-        default=True,
-        description="Verify filesystem after restore"
+        default=True, description="Verify filesystem after restore"
     )
 
     backup_before_rollback: bool = Field(
-        default=False,
-        description="Create backup before rolling back"
+        default=False, description="Create backup before rolling back"
     )
 
     model_config = {

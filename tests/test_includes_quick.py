@@ -45,7 +45,8 @@ file_management:
         print("✓ Config loaded successfully")
         print(f"  logs.base_path: {config.logs.base_path}")
         print(
-            f"  logs.global.max_line_length: {config.logs.global_config.max_line_length}")
+            f"  logs.global.max_line_length: {config.logs.global_config.max_line_length}"
+        )
 
         assert (
             config.logs.base_path == "custom/logs"

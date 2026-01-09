@@ -34,8 +34,7 @@ async def run_releasemanager_commit(message: str) -> None:
     status_result = await executor.execute_tool("git_status", cwd=".")
 
     if not status_result.success:
-        console.print(
-            f"[red]❌ Status check failed: {status_result.error}[/red]")
+        console.print(f"[red]❌ Status check failed: {status_result.error}[/red]")
         return
 
     output = status_result.output
@@ -85,8 +84,7 @@ async def main():
     if len(sys.argv) < 2:
         console.print("[red]❌ Error: Commit message required[/red]")
         console.print("\nUsage:")
-        console.print(
-            '  python scripts/releasemanager_commit.py "commit message"')
+        console.print('  python scripts/releasemanager_commit.py "commit message"')
         sys.exit(1)
 
     message = sys.argv[1]

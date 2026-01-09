@@ -105,7 +105,7 @@ async def create_workflow(
     "",
     response_model=WorkflowListResponse,
     operation_id="listWorkflows",
-    summary="List all workflows"
+    summary="List all workflows",
 )
 async def list_workflows(
     status: str | None = Query(None, description="Filter by status"),
@@ -133,10 +133,7 @@ async def list_workflows(
     if loader is not None:
         try:
             # List from catalog
-            workflows_meta = loader.list_workflows(
-                status=status,
-                category=category
-            )
+            workflows_meta = loader.list_workflows(status=status, category=category)
 
             # Load specs and convert to response format
             workflow_responses = []
@@ -162,7 +159,7 @@ async def list_workflows(
             total = len(workflow_responses)
 
             # Apply pagination
-            workflow_responses = workflow_responses[offset:offset + limit]
+            workflow_responses = workflow_responses[offset : offset + limit]
 
             return WorkflowListResponse(
                 workflows=workflow_responses,
@@ -192,7 +189,7 @@ async def list_workflows(
     total = len(workflows)
 
     # Apply pagination
-    workflows = workflows[offset:offset + limit]
+    workflows = workflows[offset : offset + limit]
 
     return WorkflowListResponse(
         workflows=[_workflow_to_response(w) for w in workflows],
@@ -227,9 +224,12 @@ async def get_workflow(workflow_id: str) -> WorkflowResponse:
             # Get metadata from catalog
             catalog = loader.load_catalog()
             meta = next(
-                (w for w in catalog.get("workflows", [])
-                 if w.get("name") == workflow_id),
-                {}
+                (
+                    w
+                    for w in catalog.get("workflows", [])
+                    if w.get("name") == workflow_id
+                ),
+                {},
             )
 
             return WorkflowResponse(
@@ -261,7 +261,7 @@ async def get_workflow(workflow_id: str) -> WorkflowResponse:
     "/{workflow_id}",
     response_model=WorkflowResponse,
     operation_id="updateWorkflow",
-    summary="Update workflow"
+    summary="Update workflow",
 )
 async def update_workflow(
     workflow_id: str, request: WorkflowUpdateRequest
@@ -322,7 +322,7 @@ async def update_workflow(
     "/{workflow_id}",
     response_model=WorkflowDeleteResponse,
     operation_id="deleteWorkflow",
-    summary="Delete workflow"
+    summary="Delete workflow",
 )
 async def delete_workflow(workflow_id: str) -> WorkflowDeleteResponse:
     """Delete a workflow.

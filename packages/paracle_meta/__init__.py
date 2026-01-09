@@ -207,6 +207,7 @@ try:
         check_health,
         format_health_report,
     )
+
     _HAS_DATABASE = True
 except ImportError:
     # SQLAlchemy not installed - database features unavailable
@@ -247,6 +248,7 @@ try:
         OpenAIEmbeddings,
         get_embedding_provider,
     )
+
     _HAS_EMBEDDINGS = True
 except ImportError:
     _HAS_EMBEDDINGS = False
@@ -273,30 +275,24 @@ __all__ = [
     "MetaAgent",
     "GenerationRequest",
     "GenerationResult",
-
     # Learning
     "LearningEngine",
     "FeedbackCollector",
-
     # Providers
     "ProviderOrchestrator",
     "ProviderSelector",
-
     # Generators
     "AgentGenerator",
     "WorkflowGenerator",
     "SkillGenerator",
     "PolicyGenerator",
-
     # Optimization
     "CostOptimizer",
     "QualityScorer",
-
     # Templates & Knowledge
     "TemplateLibrary",
     "TemplateEvolution",
     "BestPracticesDatabase",
-
     # Capabilities
     "BaseCapability",
     "CapabilityConfig",
@@ -326,7 +322,6 @@ __all__ = [
     "MemoryItem",
     "ShellCapability",
     "ShellConfig",
-
     # Provider abstraction (v1.4.0)
     "CapabilityProvider",
     "LLMMessage",
@@ -348,13 +343,11 @@ __all__ = [
     "MockProvider",
     "OllamaProvider",
     "OpenAIProvider",
-
     # Registry (v1.4.0)
     "CapabilityFacade",
     "CapabilityRegistry",
     "CapabilityStatus",
     "RegistryConfig",
-
     # Sessions (v1.4.0)
     "ChatConfig",
     "ChatSession",
@@ -371,7 +364,6 @@ __all__ = [
     "Session",
     "SessionConfig",
     "SessionMessage",
-
     # Database and repositories (v1.5.0)
     "MetaDatabase",
     "MetaDatabaseConfig",
@@ -391,7 +383,6 @@ __all__ = [
     "MemoryRepository",
     "TemplateRepository",
     "TemplateSpec",
-
     # Embeddings (v1.5.0)
     "CachedEmbeddingProvider",
     "EmbeddingCache",
@@ -401,19 +392,16 @@ __all__ = [
     "OllamaEmbeddings",
     "OpenAIEmbeddings",
     "get_embedding_provider",
-
     # Configuration (v1.5.0)
     "MetaEngineConfig",
     "load_config",
     "validate_config",
-
     # Health checks (v1.5.0)
     "HealthCheck",
     "HealthChecker",
     "HealthStatus",
     "check_health",
     "format_health_report",
-
     # Feature flags
     "_HAS_DATABASE",
     "_HAS_EMBEDDINGS",

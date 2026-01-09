@@ -30,14 +30,14 @@ class DatabasePoolConfig:
     def from_env(cls) -> "DatabasePoolConfig":
         """Create config from environment variables."""
         import os
+
         return cls(
             pool_size=int(os.getenv("PARACLE_DB_POOL_SIZE", "5")),
             max_overflow=int(os.getenv("PARACLE_DB_MAX_OVERFLOW", "10")),
             pool_timeout=float(os.getenv("PARACLE_DB_POOL_TIMEOUT", "30.0")),
             pool_recycle=int(os.getenv("PARACLE_DB_POOL_RECYCLE", "3600")),
             echo=os.getenv("PARACLE_DB_ECHO", "false").lower() == "true",
-            pool_pre_ping=os.getenv(
-                "PARACLE_DB_PRE_PING", "true").lower() == "true",
+            pool_pre_ping=os.getenv("PARACLE_DB_PRE_PING", "true").lower() == "true",
         )
 
 
@@ -147,9 +147,7 @@ class DatabasePool:
             "queries": self._query_count,
             "errors": self._error_count,
             "error_rate": (
-                self._error_count / self._query_count
-                if self._query_count > 0
-                else 0.0
+                self._error_count / self._query_count if self._query_count > 0 else 0.0
             ),
             "pool_status": pool_status,
             "config": {
@@ -197,12 +195,8 @@ def get_db_pool(
         if database_url is None:
             import os
 
-            database_url = os.getenv(
-                "PARACLE_DATABASE_URL", "sqlite:///./paracle.db"
-            )
+            database_url = os.getenv("PARACLE_DATABASE_URL", "sqlite:///./paracle.db")
 
-        _db_pool = DatabasePool(
-            database_url, config or DatabasePoolConfig.from_env()
-        )
+        _db_pool = DatabasePool(database_url, config or DatabasePoolConfig.from_env())
 
     return _db_pool

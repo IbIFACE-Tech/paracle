@@ -117,6 +117,7 @@ async def main():
 
     # First call (cache miss)
     import time
+
     start = time.time()
     result1 = get_workflow_definition("workflow1")
     miss_time = time.time() - start
@@ -159,8 +160,7 @@ async def main():
     print(f"   Found {len(bottlenecks)} bottlenecks")
 
     for report in bottlenecks:
-        print(
-            f"   - {report.name}: {report.avg_time:.3f}s avg ({report.severity})")
+        print(f"   - {report.name}: {report.avg_time:.3f}s avg ({report.severity})")
     print()
 
     # Generate full report

@@ -1,4 +1,5 @@
 """Quick script to check costs.db status."""
+
 import sqlite3
 from pathlib import Path
 
@@ -26,20 +27,20 @@ print(f"\n📝 Total cost records: {count}")
 
 if count > 0:
     # Show sample records
-    cursor.execute("""
+    cursor.execute(
+        """
         SELECT timestamp, provider, model, total_tokens, total_cost
         FROM cost_records
         ORDER BY timestamp DESC
         LIMIT 5
-    """)
+    """
+    )
     print("\n🔍 Recent records:")
     for row in cursor.fetchall():
-        print(
-            f"   {row[0]} | {row[1]} | {row[2]} | {row[3]} tokens | ${row[4]:.4f}")
+        print(f"   {row[0]} | {row[1]} | {row[2]} | {row[3]} tokens | ${row[4]:.4f}")
 
     # Show totals
-    cursor.execute(
-        "SELECT SUM(total_cost), SUM(total_tokens) FROM cost_records")
+    cursor.execute("SELECT SUM(total_cost), SUM(total_tokens) FROM cost_records")
     total_cost, total_tokens = cursor.fetchone()
     print("\n💰 Totals:")
     print(f"   Cost: ${total_cost:.4f}")

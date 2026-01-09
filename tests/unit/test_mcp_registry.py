@@ -28,7 +28,9 @@ class MockMCPClient:
 
     async def call_tool(self, tool_name, arguments):
         # Return mock result
-        return self._call_results.get(tool_name, {"result": f"Mock result for {tool_name}"})
+        return self._call_results.get(
+            tool_name, {"result": f"Mock result for {tool_name}"}
+        )
 
 
 class TestMCPToolRegistry:
@@ -142,10 +144,7 @@ class TestMCPToolRegistry:
         client = MockMCPClient()
         await registry.discover_from_server("test_server", client)
 
-        result = await registry.call_tool(
-            "test_server.search",
-            {"query": "python"}
-        )
+        result = await registry.call_tool("test_server.search", {"query": "python"})
 
         assert result is not None
 

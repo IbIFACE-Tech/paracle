@@ -78,6 +78,7 @@ def _status_via_api(client: APIClient, as_json: bool) -> None:
 
     if as_json:
         import json
+
         console.print(json.dumps(result, indent=2))
         return
 
@@ -100,10 +101,12 @@ def _status_via_api(client: APIClient, as_json: bool) -> None:
     console.print(f"\n[bold]Phase:[/bold] {phase['id']} - {phase['name']}")
     console.print(
         f"[bold]Status:[/bold] "
-        f"[{progress_color}]{phase['status']}[/{progress_color}]")
+        f"[{progress_color}]{phase['status']}[/{progress_color}]"
+    )
     console.print(
         f"[bold]Progress:[/bold] "
-        f"[{progress_color}]{phase['progress']}[/{progress_color}]")
+        f"[{progress_color}]{phase['progress']}[/{progress_color}]"
+    )
 
     # Git info
     console.print(f"\n[bold]Branch:[/bold] {git['branch']}")
@@ -133,6 +136,7 @@ def _status_direct(as_json: bool) -> None:
         import json
 
         from paracle_core.parac.sync import ParacSynchronizer
+
         synchronizer = ParacSynchronizer(parac_root)
         console.print(json.dumps(synchronizer.get_summary(), indent=2))
         return
@@ -157,11 +161,12 @@ def _status_direct(as_json: bool) -> None:
     progress_color = "green" if phase.status == "completed" else "yellow"
     console.print(f"\n[bold]Phase:[/bold] {phase.id} - {phase.name}")
     console.print(
-        f"[bold]Status:[/bold] "
-        f"[{progress_color}]{phase.status}[/{progress_color}]")
+        f"[bold]Status:[/bold] " f"[{progress_color}]{phase.status}[/{progress_color}]"
+    )
     console.print(
         f"[bold]Progress:[/bold] "
-        f"[{progress_color}]{phase.progress}[/{progress_color}]")
+        f"[{progress_color}]{phase.progress}[/{progress_color}]"
+    )
 
     # Focus areas
     if phase.focus_areas:
@@ -312,30 +317,17 @@ def _sync_direct(
 @click.option("--git/--no-git", default=True, help="Sync git information")
 @click.option("--metrics/--no-metrics", default=True, help="Sync file metrics")
 @click.option(
-    "--manifest/--no-manifest",
-    default=True,
-    help="Regenerate agent manifest"
+    "--manifest/--no-manifest", default=True, help="Regenerate agent manifest"
 )
-@click.option(
-    "--roadmap/--no-roadmap",
-    default=True,
-    help="Check roadmap alignment"
-)
-@click.option(
-    "--auto-fix",
-    is_flag=True,
-    help="Automatically fix safe mismatches"
-)
+@click.option("--roadmap/--no-roadmap", default=True, help="Check roadmap alignment")
+@click.option("--auto-fix", is_flag=True, help="Automatically fix safe mismatches")
 def sync(
-    git: bool,
-    metrics: bool,
-    manifest: bool,
-    roadmap: bool,
-    auto_fix: bool
+    git: bool, metrics: bool, manifest: bool, roadmap: bool, auto_fix: bool
 ) -> None:
     """Synchronize .parac/ state with project reality and roadmap."""
-    use_api_or_fallback(_sync_via_api, _sync_direct, git,
-                        metrics, manifest, roadmap, auto_fix)
+    use_api_or_fallback(
+        _sync_via_api, _sync_direct, git, metrics, manifest, roadmap, auto_fix
+    )
 
 
 # =============================================================================
@@ -439,11 +431,7 @@ def _validate_direct(_fix: bool) -> None:
 
 
 @click.command()
-@click.option(
-    "--fix",
-    is_flag=True,
-    help="Attempt to fix issues (not implemented)"
-)
+@click.option("--fix", is_flag=True, help="Attempt to fix issues (not implemented)")
 def validate(fix: bool) -> None:
     """Validate .parac/ workspace consistency."""
     use_api_or_fallback(_validate_via_api, _validate_direct, fix)
@@ -467,8 +455,7 @@ def _session_start_via_api(client: APIClient) -> None:
     phase = result["phase"]
 
     console.print()
-    console.print(
-        Panel("[bold green]SESSION START[/bold green]", expand=False))
+    console.print(Panel("[bold green]SESSION START[/bold green]", expand=False))
     console.print()
     console.print("1. Reading .parac/memory/context/current_state.yaml")
     console.print("2. Checking .parac/roadmap/roadmap.yaml")
@@ -478,13 +465,12 @@ def _session_start_via_api(client: APIClient) -> None:
     console.print(f"[bold]Progress:[/bold] {phase['progress']}")
 
     if result.get("focus_areas"):
-        console.print(
-            f"[bold]Focus:[/bold] {', '.join(result['focus_areas'][:3])}")
+        console.print(f"[bold]Focus:[/bold] {', '.join(result['focus_areas'][:3])}")
 
     if result["blockers"] > 0:
         console.print(
-            f"\n[yellow]Warning: {result['blockers']} "
-            f"blocker(s) active[/yellow]")
+            f"\n[yellow]Warning: {result['blockers']} " f"blocker(s) active[/yellow]"
+        )
 
     console.print()
     console.print(f"[green]{result['message']}[/green]")
@@ -503,8 +489,7 @@ def _session_start_direct() -> None:
     phase = state.current_phase
 
     console.print()
-    console.print(
-        Panel("[bold green]SESSION START[/bold green]", expand=False))
+    console.print(Panel("[bold green]SESSION START[/bold green]", expand=False))
     console.print()
     console.print("1. Reading .parac/memory/context/current_state.yaml")
     console.print("2. Checking .parac/roadmap/roadmap.yaml")
@@ -514,13 +499,12 @@ def _session_start_direct() -> None:
     console.print(f"[bold]Progress:[/bold] {phase.progress}")
 
     if phase.focus_areas:
-        console.print(
-            f"[bold]Focus:[/bold] {', '.join(phase.focus_areas[:3])}")
+        console.print(f"[bold]Focus:[/bold] {', '.join(phase.focus_areas[:3])}")
 
     if state.blockers:
         console.print(
-            f"\n[yellow]Warning: {len(state.blockers)} "
-            f"blocker(s) active[/yellow]")
+            f"\n[yellow]Warning: {len(state.blockers)} " f"blocker(s) active[/yellow]"
+        )
 
     console.print()
     console.print("[green]Source of truth verified. Proceeding.[/green]")
@@ -554,10 +538,7 @@ def _session_end_via_api(
     # Display proposed changes
     console.print()
     console.print(
-        Panel(
-            "[bold cyan]SESSION END - Proposed Updates[/bold cyan]",
-            expand=False
-        )
+        Panel("[bold cyan]SESSION END - Proposed Updates[/bold cyan]", expand=False)
     )
     console.print()
 
@@ -602,8 +583,7 @@ def _session_end_direct(
     if progress is not None:
         old_progress = state.current_phase.progress
         state.update_progress(progress)
-        changes.append(
-            f"progress: {old_progress} -> {state.current_phase.progress}")
+        changes.append(f"progress: {old_progress} -> {state.current_phase.progress}")
 
     # Mark items completed
     for item in complete:
@@ -618,10 +598,7 @@ def _session_end_direct(
     # Display proposed changes
     console.print()
     console.print(
-        Panel(
-            "[bold cyan]SESSION END - Proposed Updates[/bold cyan]",
-            expand=False
-        )
+        Panel("[bold cyan]SESSION END - Proposed Updates[/bold cyan]", expand=False)
     )
     console.print()
 
@@ -632,10 +609,7 @@ def _session_end_direct(
     else:
         console.print("[dim]No changes specified.[/dim]")
         console.print(
-
-            "[dim]Use --progress, --complete, or --start to "
-            "specify changes.[/dim]"
-
+            "[dim]Use --progress, --complete, or --start to " "specify changes.[/dim]"
         )
 
     console.print()
@@ -660,10 +634,7 @@ def _session_end_direct(
 @click.option("--progress", type=int, help="Update progress (0-100)")
 @click.option("--complete", multiple=True, help="Mark item(s) as completed")
 @click.option(
-    "--start",
-    "in_progress",
-    multiple=True,
-    help="Mark item(s) as in-progress"
+    "--start", "in_progress", multiple=True, help="Mark item(s) as in-progress"
 )
 @click.option("--dry-run", is_flag=True, help="Show changes without applying")
 def session_end(
@@ -730,9 +701,7 @@ def _load_template_from_directory(
 
     # Fallback if template doesn't exist yet
     if not template_dir.exists():
-        console.print(
-            f"[yellow]Template directory not found:[/yellow] {template_dir}"
-        )
+        console.print(f"[yellow]Template directory not found:[/yellow] {template_dir}")
         console.print("[dim]Falling back to programmatic creation...[/dim]")
         return False
 
@@ -748,10 +717,8 @@ def _load_template_from_directory(
                     try:
                         content = filepath.read_text(encoding="utf-8")
                         # Simple substitutions
-                        content = content.replace(
-                            "{{PROJECT_NAME}}", project_name)
-                        content = content.replace(
-                            "{{DATE}}", date.today().isoformat())
+                        content = content.replace("{{PROJECT_NAME}}", project_name)
+                        content = content.replace("{{DATE}}", date.today().isoformat())
                         content = content.replace("my-project", project_name)
                         filepath.write_text(content, encoding="utf-8")
                     except Exception:  # noqa: BLE001
@@ -772,9 +739,7 @@ def _interactive_init() -> tuple[str, str | None, str | None]:
     Returns:
         tuple[str, str | None, str | None]: (template, project_name, provider)
     """
-    console.print(
-        "\n[bold cyan]Paracle Workspace Initialization[/bold cyan]\n"
-    )
+    console.print("\n[bold cyan]Paracle Workspace Initialization[/bold cyan]\n")
 
     # Template selection
     console.print("[bold]Select a template:[/bold]")
@@ -785,23 +750,15 @@ def _interactive_init() -> tuple[str, str | None, str | None]:
     template_choice = click.prompt(
         "\nTemplate",
         type=click.Choice(["1", "2", "3"], case_sensitive=False),
-        default="2"
+        default="2",
     )
 
-    template_map = {
-        "1": "lite",
-        "2": "standard",
-        "3": "advanced"
-    }
+    template_map = {"1": "lite", "2": "standard", "3": "advanced"}
     template = template_map[template_choice]
 
     # Project name
     console.print()
-    project_name = click.prompt(
-        "[bold]Project name[/bold]",
-        type=str,
-        default=None
-    )
+    project_name = click.prompt("[bold]Project name[/bold]", type=str, default=None)
 
     # LLM Provider
     console.print()
@@ -815,7 +772,7 @@ def _interactive_init() -> tuple[str, str | None, str | None]:
     provider_choice = click.prompt(
         "\nProvider",
         type=click.Choice(["1", "2", "3", "4", "5"], case_sensitive=False),
-        default="1"
+        default="1",
     )
 
     provider_map = {
@@ -823,7 +780,7 @@ def _interactive_init() -> tuple[str, str | None, str | None]:
         "2": "anthropic",
         "3": "google",
         "4": "groq",
-        "5": "ollama"
+        "5": "ollama",
     }
     provider = provider_map[provider_choice]
 
@@ -846,10 +803,7 @@ def _install_git_hooks(target: Path, parac_dir: Path, verbose: bool) -> None:
     if not git_dir.exists():
         if verbose:
             console.print(
-
-                "[dim]No git repository found, skipping hook "
-                "installation[/dim]"
-
+                "[dim]No git repository found, skipping hook " "installation[/dim]"
             )
         return
 
@@ -864,10 +818,7 @@ def _install_git_hooks(target: Path, parac_dir: Path, verbose: bool) -> None:
     if not source_hook.exists():
         if verbose:
             console.print(
-
-                f"[yellow]Warning:[/yellow] Hook source not found at "
-                f"{source_hook}"
-
+                f"[yellow]Warning:[/yellow] Hook source not found at " f"{source_hook}"
             )
         return
 
@@ -876,29 +827,26 @@ def _install_git_hooks(target: Path, parac_dir: Path, verbose: bool) -> None:
         shutil.copy2(source_hook, target_hook)
 
         # Make executable (Unix/Mac)
-        if hasattr(os, 'chmod'):
+        if hasattr(os, "chmod"):
             current_perms = stat.S_IMODE(os.lstat(target_hook).st_mode)
-            os.chmod(target_hook, current_perms |
-                     stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+            os.chmod(
+                target_hook, current_perms | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
+            )
 
         if verbose:
-            console.print(
-                f"[green]✓[/green] Installed pre-commit hook: {target_hook}")
+            console.print(f"[green]✓[/green] Installed pre-commit hook: {target_hook}")
         else:
             console.print("[dim]+ Git pre-commit hook installed[/dim]")
 
     except Exception as e:  # noqa: BLE001
-        console.print(
-            f"[yellow]Warning:[/yellow] Could not install git hook: {e}")
+        console.print(f"[yellow]Warning:[/yellow] Could not install git hook: {e}")
         if verbose:
             console.print("[dim]You can manually install it later with:[/dim]")
             console.print(f"[dim]  cp {source_hook} {target_hook}[/dim]")
             console.print(f"[dim]  chmod +x {target_hook}[/dim]")
 
 
-def _create_lite_workspace(
-    parac_dir: Path, _target: Path, project_name: str
-) -> None:
+def _create_lite_workspace(parac_dir: Path, _target: Path, project_name: str) -> None:
     """Create lite .parac/ workspace with complete structure.
 
     Lite mode creates all essential folders and files for Paracle to function:
@@ -974,15 +922,10 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Initial project setup with Paracle lite mode
 """
-    (parac_dir / "changelog.md").write_text(
-        changelog_content, encoding="utf-8"
-    )
+    (parac_dir / "changelog.md").write_text(changelog_content, encoding="utf-8")
 
     console.print(
-
-        "  [dim]Created[/dim] root files "
-        "(.gitignore, project.yaml, changelog.md)"
-
+        "  [dim]Created[/dim] root files " "(.gitignore, project.yaml, changelog.md)"
     )
 
     # =========================================================================
@@ -1101,9 +1044,7 @@ Assign skills to agents in their spec files:
 created: '{date.today().isoformat()}'
 entries: []
 """
-    (parac_dir / "memory" / "index.yaml").write_text(
-        memory_index, encoding="utf-8"
-    )
+    (parac_dir / "memory" / "index.yaml").write_text(memory_index, encoding="utf-8")
 
     # memory/context/current_state.yaml
     state_content = f"""# Project State (Lite Mode)
@@ -1271,9 +1212,7 @@ parameters:
     required: true
 ```
 """
-    (parac_dir / "tools" / "README.md").write_text(
-        tools_readme, encoding="utf-8"
-    )
+    (parac_dir / "tools" / "README.md").write_text(tools_readme, encoding="utf-8")
 
     # tools/registry.yaml
     (parac_dir / "tools" / "registry.yaml").write_text(
@@ -1281,9 +1220,7 @@ parameters:
     )
 
     # tools/custom/.gitkeep
-    (parac_dir / "tools" / "custom" / ".gitkeep").write_text(
-        "", encoding="utf-8"
-    )
+    (parac_dir / "tools" / "custom" / ".gitkeep").write_text("", encoding="utf-8")
 
     console.print("  [dim]Created[/dim] tools/* files")
 
@@ -1325,9 +1262,7 @@ supported_ides:
     )
 
 
-def _create_minimal_workspace(
-    parac_dir: Path, target: Path, project_name: str
-) -> None:
+def _create_minimal_workspace(parac_dir: Path, target: Path, project_name: str) -> None:
     """Create minimal .parac/ workspace structure."""
     from datetime import date
 
@@ -1464,13 +1399,10 @@ This directory is the single source of truth for the project.
 """
     governance_file = parac_dir / "GOVERNANCE.md"
     governance_file.write_text(governance_content, encoding="utf-8")
-    console.print(
-        f"  [dim]Created[/dim] {governance_file.relative_to(target)}")
+    console.print(f"  [dim]Created[/dim] {governance_file.relative_to(target)}")
 
 
-def _create_full_workspace(
-    parac_dir: Path, _target: Path, project_name: str
-) -> None:
+def _create_full_workspace(parac_dir: Path, _target: Path, project_name: str) -> None:
     """Create complete .parac/ workspace with all files and templates."""
     from datetime import date
 
@@ -1663,23 +1595,20 @@ Define project-specific terms here.
             f"# Agent Actions Log - {project_name}\n"
             "# Format: [TIMESTAMP] [AGENT] [ACTION] Description\n\n"
         ),
-        encoding="utf-8"
+        encoding="utf-8",
     )
     (parac_dir / "memory" / "logs" / "decisions.log").write_text(
         (
             f"# Decisions Log - {project_name}\n"
             "# Format: [TIMESTAMP] [DECISION] Description\n\n"
         ),
-        encoding="utf-8"
+        encoding="utf-8",
     )
 
     # memory/index.yaml
     (parac_dir / "memory" / "index.yaml").write_text(
-        (
-            f"# Memory Index\ncreated: '{date.today().isoformat()}'\n"
-            "entries: []\n"
-        ),
-        encoding="utf-8"
+        (f"# Memory Index\ncreated: '{date.today().isoformat()}'\n" "entries: []\n"),
+        encoding="utf-8",
     )
 
     console.print("  [dim]Created[/dim] memory/* files")
@@ -1745,9 +1674,7 @@ Copy `ADR-TEMPLATE.md` to create new ADRs.
 
 - [ADR-001](ADR-001.md): Use Paracle for project governance
 """
-    (parac_dir / "roadmap" / "adr" / "index.md").write_text(
-        adr_index, encoding="utf-8"
-    )
+    (parac_dir / "roadmap" / "adr" / "index.md").write_text(adr_index, encoding="utf-8")
 
     adr_template = """# ADR-XXX: [Title]
 
@@ -1811,9 +1738,7 @@ Use Paracle's .parac/ workspace as the single source of truth for:
 ### Neutral
 - All team members need to follow .parac/ conventions
 """
-    (parac_dir / "roadmap" / "adr" / "ADR-001.md").write_text(
-        adr_001, encoding="utf-8"
-    )
+    (parac_dir / "roadmap" / "adr" / "ADR-001.md").write_text(adr_001, encoding="utf-8")
 
     console.print("  [dim]Created[/dim] roadmap/* files")
 
@@ -1929,9 +1854,7 @@ to project standards.
 - Use docstrings for functions
 - Keep comments up to date
 """
-    (parac_dir / "policies" / "CODE_STYLE.md").write_text(
-        code_style, encoding="utf-8"
-    )
+    (parac_dir / "policies" / "CODE_STYLE.md").write_text(code_style, encoding="utf-8")
 
     # TESTING.md
     testing_policy = """# Testing Policy
@@ -1955,9 +1878,7 @@ pytest tests/
 pytest --cov=src tests/
 ```
 """
-    (parac_dir / "policies" / "TESTING.md").write_text(
-        testing_policy, encoding="utf-8"
-    )
+    (parac_dir / "policies" / "TESTING.md").write_text(testing_policy, encoding="utf-8")
 
     # SECURITY.md
     security_policy = """# Security Policy
@@ -2012,9 +1933,7 @@ parameters:
     required: true
 ```
 """
-    (parac_dir / "tools" / "README.md").write_text(
-        tools_readme, encoding="utf-8"
-    )
+    (parac_dir / "tools" / "README.md").write_text(tools_readme, encoding="utf-8")
 
     # tools/registry.yaml
     (parac_dir / "tools" / "registry.yaml").write_text(
@@ -2199,9 +2118,7 @@ paracle validate    # Check consistency
 paracle ide sync    # Generate IDE configs
 ```
 """
-    (parac_dir / "GOVERNANCE.md").write_text(
-        governance_content, encoding="utf-8"
-    )
+    (parac_dir / "GOVERNANCE.md").write_text(governance_content, encoding="utf-8")
     console.print("  [dim]Created[/dim] GOVERNANCE.md")
 
 
@@ -2210,30 +2127,28 @@ paracle ide sync    # Generate IDE configs
 @click.option("--name", help="Project name (defaults to directory name)")
 @click.option("--force", is_flag=True, help="Overwrite existing .parac/")
 @click.option(
-    "--template", "-t",
+    "--template",
+    "-t",
     type=click.Choice(["lite", "standard", "advanced"], case_sensitive=False),
-    help=(
-        "Project template: lite (minimal), standard (balanced), "
-        "advanced (full)"
-    )
+    help=("Project template: lite (minimal), standard (balanced), " "advanced (full)"),
 )
 @click.option(
-    "-i", "--interactive",
+    "-i",
+    "--interactive",
     is_flag=True,
-    help="Interactive mode with prompts for template, name, and provider"
+    help="Interactive mode with prompts for template, name, and provider",
 )
 @click.option(
-    "-v", "--verbose",
+    "-v", "--verbose", is_flag=True, help="Verbose output with detailed information"
+)
+@click.option(
+    "--all",
+    "full_init",
     is_flag=True,
-    help="Verbose output with detailed information"
+    help="[DEPRECATED] Use --template advanced instead",
 )
 @click.option(
-    "--all", "full_init", is_flag=True,
-    help="[DEPRECATED] Use --template advanced instead"
-)
-@click.option(
-    "--lite", "lite_init", is_flag=True,
-    help="[DEPRECATED] Use --template lite instead"
+    "--lite", "lite_init", is_flag=True, help="[DEPRECATED] Use --template lite instead"
 )
 def init(
     path: str,
@@ -2344,18 +2259,12 @@ def init(
     # Handle backward compatibility
     if lite_init:
         console.print(
-
-            "[yellow]Note:[/yellow] --lite is deprecated, "
-            "use --template lite"
-
+            "[yellow]Note:[/yellow] --lite is deprecated, " "use --template lite"
         )
         template = "lite"
     elif full_init:
         console.print(
-
-            "[yellow]Note:[/yellow] --all is deprecated, "
-            "use --template advanced"
-
+            "[yellow]Note:[/yellow] --all is deprecated, " "use --template advanced"
         )
         template = "advanced"
     elif template is None:
@@ -2363,8 +2272,7 @@ def init(
 
     # Validate mutually exclusive options
     if lite_init and full_init:
-        console.print(
-            "[red]Error:[/red] --all and --lite are mutually exclusive")
+        console.print("[red]Error:[/red] --all and --lite are mutually exclusive")
         raise SystemExit(1)
 
     target = Path(path).resolve()
@@ -2380,8 +2288,7 @@ def init(
     parac_dir = target / ".parac"
 
     if parac_dir.exists() and not force:
-        console.print(
-            f"[red]Error:[/red] .parac/ already exists at {target}")
+        console.print(f"[red]Error:[/red] .parac/ already exists at {target}")
         console.print("Use --force to overwrite.")
         raise SystemExit(1)
 
@@ -2436,39 +2343,32 @@ def init(
     }
 
     info = template_info[template]
-    console.print(
-        f"\n[bold cyan]{info['name']}:[/bold cyan] {info['tagline']}"
-    )
+    console.print(f"\n[bold cyan]{info['name']}:[/bold cyan] {info['tagline']}")
     console.print(f"[dim]Project:[/dim] {project_name}\n")
 
     if verbose:
         console.print("[bold]Template Details:[/bold]")
-        for feature in info['features']:
+        for feature in info["features"]:
             console.print(f"  • {feature}")
         console.print()
 
     # Try loading from template directory first
     if verbose:
         console.print(
-            f"[dim]Loading template from content/templates/{template}..."
-            "[/dim]"
+            f"[dim]Loading template from content/templates/{template}..." "[/dim]"
         )
 
-    template_loaded = _load_template_from_directory(
-        template, parac_dir, project_name)
+    template_loaded = _load_template_from_directory(template, parac_dir, project_name)
 
     if not template_loaded:
         # Fallback to programmatic creation
         if verbose:
             console.print(
-
                 "[yellow]Template files not found, generating "
                 "programmatically...[/yellow]\n"
-
             )
         else:
-            console.print(
-                "[dim]Using programmatic template generation...[/dim]\n")
+            console.print("[dim]Using programmatic template generation...[/dim]\n")
 
         if template == "lite":
             _create_lite_workspace(parac_dir, target, project_name)
@@ -2483,40 +2383,30 @@ def init(
     # Success message
     console.print(f"\n[green]+ {info['name']} initialized[/green] at {target}")
     console.print("\n[bold]Features:[/bold]")
-    for feature in info['features']:
+    for feature in info["features"]:
         console.print(f"  + {feature}")
 
     console.print("\n[bold]Next steps:[/bold]")
     if template == "lite":
         console.print("  1. Edit [cyan].parac/agents/specs/myagent.md[/cyan]")
-        console.print(
-            "  2. [cyan]paracle agents list[/cyan] - View your agent")
-        console.print(
-            "  3. [cyan]paracle agents run myagent --task 'hello'[/cyan]")
-        console.print(
-            "  4. [cyan]paracle ide sync[/cyan] - Generate IDE configs")
+        console.print("  2. [cyan]paracle agents list[/cyan] - View your agent")
+        console.print("  3. [cyan]paracle agents run myagent --task 'hello'[/cyan]")
+        console.print("  4. [cyan]paracle ide sync[/cyan] - Generate IDE configs")
     elif template == "standard":
         console.print("  1. [cyan]paracle status[/cyan] - View project state")
-        console.print(
-            "  2. [cyan]paracle agents list[/cyan] - View available agents")
+        console.print("  2. [cyan]paracle agents list[/cyan] - View available agents")
         console.print("  3. [cyan]paracle sync[/cyan] - Sync workspace")
-        console.print(
-            "  4. [cyan]paracle ide sync[/cyan] - Generate IDE configs")
+        console.print("  4. [cyan]paracle ide sync[/cyan] - Generate IDE configs")
     else:  # advanced
         console.print("  1. [cyan]paracle status[/cyan] - View project state")
-        console.print(
-            "  2. [cyan]paracle agents list[/cyan] - View all 8 agents")
-        console.print(
-            "  3. [cyan]docker compose up -d[/cyan] - Start services")
-        console.print(
-            "  4. [cyan]paracle workflows list[/cyan] - Explore workflows")
+        console.print("  2. [cyan]paracle agents list[/cyan] - View all 8 agents")
+        console.print("  3. [cyan]docker compose up -d[/cyan] - Start services")
+        console.print("  4. [cyan]paracle workflows list[/cyan] - Explore workflows")
 
-    if info['upgrade']:
-        console.print(
-            f"\n[dim]Upgrade later:[/dim] [cyan]{info['upgrade']}[/cyan]")
+    if info["upgrade"]:
+        console.print(f"\n[dim]Upgrade later:[/dim] [cyan]{info['upgrade']}[/cyan]")
 
-    console.print(
-        f"\n[dim]Docs: Docs:[/dim] https://paracle.dev/templates/{template}")
+    console.print(f"\n[dim]Docs: Docs:[/dim] https://paracle.dev/templates/{template}")
     console.print("[dim]Help: Help:[/dim] [cyan]paracle --help[/cyan]\n")
 
 

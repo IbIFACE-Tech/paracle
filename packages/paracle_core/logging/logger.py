@@ -152,7 +152,9 @@ class ParacleLogger(logging.Logger):
             **kwargs,
         }
 
-        self.log(level, f"{method} {path} {status_code} ({duration_ms:.2f}ms)", extra=extra)
+        self.log(
+            level, f"{method} {path} {status_code} ({duration_ms:.2f}ms)", extra=extra
+        )
 
     def log_agent_action(
         self,

@@ -14,8 +14,7 @@ from pydantic import BaseModel, Field
 class BudgetConfig(BaseModel):
     """Budget limit configuration."""
 
-    enabled: bool = Field(
-        default=False, description="Enable budget enforcement")
+    enabled: bool = Field(default=False, description="Enable budget enforcement")
 
     # Budget limits in USD
     daily_limit: float | None = Field(
@@ -51,13 +50,11 @@ class AlertConfig(BaseModel):
     enabled: bool = Field(default=True, description="Enable cost alerts")
 
     # Alert channels
-    log_alerts: bool = Field(
-        default=True, description="Log alerts to console/file")
+    log_alerts: bool = Field(default=True, description="Log alerts to console/file")
     webhook_url: str | None = Field(
         default=None, description="Webhook URL for alert notifications"
     )
-    email: str | None = Field(
-        default=None, description="Email for alert notifications")
+    email: str | None = Field(default=None, description="Email for alert notifications")
 
     # Alert frequency
     min_interval_minutes: int = Field(
@@ -131,8 +128,7 @@ class CostConfig(BaseModel):
 
     # Cost display settings
     currency: str = Field(default="USD", description="Currency for display")
-    decimal_places: int = Field(
-        default=4, ge=0, le=8, description="Decimal places")
+    decimal_places: int = Field(default=4, ge=0, le=8, description="Decimal places")
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "CostConfig":
@@ -219,14 +215,12 @@ class CostConfig(BaseModel):
         # Budget config
         daily_limit = os.getenv("PARACLE_COST_DAILY_LIMIT")
         if daily_limit:
-            config_data.setdefault("budget", {})[
-                "daily_limit"] = float(daily_limit)
+            config_data.setdefault("budget", {})["daily_limit"] = float(daily_limit)
             config_data.setdefault("budget", {})["enabled"] = True
 
         monthly_limit = os.getenv("PARACLE_COST_MONTHLY_LIMIT")
         if monthly_limit:
-            config_data.setdefault("budget", {})[
-                "monthly_limit"] = float(monthly_limit)
+            config_data.setdefault("budget", {})["monthly_limit"] = float(monthly_limit)
             config_data.setdefault("budget", {})["enabled"] = True
 
         workflow_limit = os.getenv("PARACLE_COST_WORKFLOW_LIMIT")
