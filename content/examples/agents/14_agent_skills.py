@@ -100,8 +100,7 @@ async def main() -> None:
             load_skills=True,
         )
 
-        print(
-            f"   - {mode.upper()}: {result['metadata']['skills_loaded']} skills")
+        print(f"   - {mode.upper()}: {result['metadata']['skills_loaded']} skills")
 
     # 7. Disable skills
     print("\n7. Executing without skills...")
@@ -115,8 +114,7 @@ async def main() -> None:
         inputs={"task": "No skills mode"},
     )
 
-    print(
-        f"   Skills loaded: {result['metadata']['skills_loaded']} (disabled)")
+    print(f"   Skills loaded: {result['metadata']['skills_loaded']} (disabled)")
 
     print("\n" + "=" * 60)
     print("✅ Skill system demo completed!")

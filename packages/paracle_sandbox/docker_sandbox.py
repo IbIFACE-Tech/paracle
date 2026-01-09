@@ -129,9 +129,7 @@ class DockerSandbox:
             SandboxTimeoutError: If execution times out
         """
         if not self.container:
-            raise SandboxExecutionError(
-                "Sandbox not started", self.sandbox_id
-            )
+            raise SandboxExecutionError("Sandbox not started", self.sandbox_id)
 
         timeout = timeout or self.config.timeout_seconds
 
@@ -171,10 +169,12 @@ class DockerSandbox:
 
             # Decode output
             stdout_bytes, stderr_bytes = exec_result.output or (b"", b"")
-            stdout = stdout_bytes.decode(
-                "utf-8", errors="replace") if stdout_bytes else ""
-            stderr = stderr_bytes.decode(
-                "utf-8", errors="replace") if stderr_bytes else ""
+            stdout = (
+                stdout_bytes.decode("utf-8", errors="replace") if stdout_bytes else ""
+            )
+            stderr = (
+                stderr_bytes.decode("utf-8", errors="replace") if stderr_bytes else ""
+            )
 
             result = {
                 "exit_code": exec_result.exit_code,
@@ -207,9 +207,7 @@ class DockerSandbox:
             SandboxExecutionError: If stats retrieval fails
         """
         if not self.container:
-            raise SandboxExecutionError(
-                "Sandbox not started", self.sandbox_id
-            )
+            raise SandboxExecutionError("Sandbox not started", self.sandbox_id)
 
         try:
             self.container.reload()
@@ -241,8 +239,12 @@ class DockerSandbox:
                 "memory_mb": mem_usage / (1024 * 1024),
                 "memory_percent": mem_percent,
                 "memory_limit_mb": mem_limit / (1024 * 1024),
-                "network_rx_bytes": stats.get("networks", {}).get("eth0", {}).get("rx_bytes", 0),
-                "network_tx_bytes": stats.get("networks", {}).get("eth0", {}).get("tx_bytes", 0),
+                "network_rx_bytes": stats.get("networks", {})
+                .get("eth0", {})
+                .get("rx_bytes", 0),
+                "network_tx_bytes": stats.get("networks", {})
+                .get("eth0", {})
+                .get("tx_bytes", 0),
             }
 
         except Exception as e:

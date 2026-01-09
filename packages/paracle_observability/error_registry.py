@@ -206,9 +206,11 @@ class ErrorRegistry:
             component=component,
             severity=severity or self._determine_severity(error),
             context=context or {},
-            stack_trace="".join(traceback.format_tb(error.__traceback__))
-            if include_traceback and error.__traceback__
-            else None,
+            stack_trace=(
+                "".join(traceback.format_tb(error.__traceback__))
+                if include_traceback and error.__traceback__
+                else None
+            ),
         )
 
         # Store record
@@ -231,8 +233,7 @@ class ErrorRegistry:
         """Detect error patterns (high frequency, cascading errors)."""
         # Pattern: High frequency errors (> 10 in last minute)
         one_minute_ago = time.time() - 60
-        recent_errors = [
-            e for e in self.errors if e.timestamp >= one_minute_ago]
+        recent_errors = [e for e in self.errors if e.timestamp >= one_minute_ago]
 
         error_type_counts = defaultdict(int)
         for error in recent_errors:
@@ -394,7 +395,9 @@ class ErrorRegistry:
             "error_rate_per_minute": error_rate,
             "recent_errors_1h": len(recent_errors),
             "top_error_types": [{"type": t, "count": c} for t, c in top_errors],
-            "top_components": [{"component": c, "count": cnt} for c, cnt in top_components],
+            "top_components": [
+                {"component": c, "count": cnt} for c, cnt in top_components
+            ],
             "severity_breakdown": dict(severity_counts),
             "patterns_detected": len(self.error_patterns),
         }

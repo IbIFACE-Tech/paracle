@@ -21,7 +21,7 @@ collect_ignore = [__file__]
 pytest.skip(
     "Test API mismatch: tests use TaskBoard/TaskManager/TaskStorage "
     "but implementation uses Board/BoardRepository",
-    allow_module_level=True
+    allow_module_level=True,
 )
 
 
@@ -75,8 +75,7 @@ class TestTaskBoard:
 
     def test_custom_board_name(self):
         """Test creating board with custom name."""
-        board = TaskBoard(
-            name="sprint-1", columns=["Backlog", "Active", "Done"])
+        board = TaskBoard(name="sprint-1", columns=["Backlog", "Active", "Done"])
         assert board.name == "sprint-1"
         assert len(board.columns) == 3
         assert "Backlog" in board.columns
@@ -161,8 +160,7 @@ class TestTaskBoard:
         todo_tasks = task_board.get_tasks_by_status(TaskStatus.TODO)
         assert len(todo_tasks) == 2
 
-        in_progress_tasks = task_board.get_tasks_by_status(
-            TaskStatus.IN_PROGRESS)
+        in_progress_tasks = task_board.get_tasks_by_status(TaskStatus.IN_PROGRESS)
         assert len(in_progress_tasks) == 1
 
     def test_get_tasks_by_priority(self, task_board):
@@ -180,12 +178,11 @@ class TestTaskBoard:
 
     def test_get_statistics(self, task_board):
         """Test getting board statistics."""
+        task_board.add_task(Task(id="t1", title="Task 1", status=TaskStatus.TODO))
         task_board.add_task(
-            Task(id="t1", title="Task 1", status=TaskStatus.TODO))
-        task_board.add_task(Task(id="t2", title="Task 2",
-                            status=TaskStatus.IN_PROGRESS))
-        task_board.add_task(
-            Task(id="t3", title="Task 3", status=TaskStatus.DONE))
+            Task(id="t2", title="Task 2", status=TaskStatus.IN_PROGRESS)
+        )
+        task_board.add_task(Task(id="t3", title="Task 3", status=TaskStatus.DONE))
 
         stats = task_board.get_statistics()
 
@@ -278,10 +275,8 @@ class TestTaskManager:
 
     def test_archive_completed(self, task_manager):
         """Test archiving completed tasks."""
-        task1 = task_manager.create_task(
-            title="Task 1", status=TaskStatus.DONE)
-        task2 = task_manager.create_task(
-            title="Task 2", status=TaskStatus.TODO)
+        task1 = task_manager.create_task(title="Task 1", status=TaskStatus.DONE)
+        task2 = task_manager.create_task(title="Task 2", status=TaskStatus.TODO)
 
         archived_count = task_manager.archive_completed()
 

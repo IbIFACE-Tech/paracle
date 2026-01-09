@@ -47,6 +47,7 @@ from paracle_profiling.profiler import (
 # Optional middleware - only available if starlette is installed
 try:
     from paracle_profiling.middleware import ProfilerMiddleware
+
     __all__ = [
         # Middleware
         "ProfilerMiddleware",

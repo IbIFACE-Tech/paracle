@@ -356,15 +356,11 @@ class RetryManager:
             Statistics dictionary with counts and rates
         """
         total_contexts = len(self._retry_contexts)
-        succeeded = sum(
-            1 for ctx in self._retry_contexts.values() if ctx.succeeded)
+        succeeded = sum(1 for ctx in self._retry_contexts.values() if ctx.succeeded)
         failed = total_contexts - succeeded
 
-        total_attempts = sum(
-            len(ctx.attempts) for ctx in self._retry_contexts.values()
-        )
-        total_retries = sum(
-            ctx.total_retries for ctx in self._retry_contexts.values())
+        total_attempts = sum(len(ctx.attempts) for ctx in self._retry_contexts.values())
+        total_retries = sum(ctx.total_retries for ctx in self._retry_contexts.values())
 
         return {
             "total_contexts": total_contexts,

@@ -4,10 +4,8 @@ import uuid
 
 import pytest
 from fastapi.testclient import TestClient
-
 from paracle_api.main import app
 from paracle_api.routers import agent_crud
-from paracle_domain.models import AgentSpec
 
 
 class TestAgentCRUD:
@@ -52,9 +50,7 @@ class TestAgentCRUD:
         assert data["model"] == "gpt-4"
         assert data["status"] == "pending"
 
-    def test_create_agent_requires_spec_or_spec_name(
-        self, client: TestClient
-    ) -> None:
+    def test_create_agent_requires_spec_or_spec_name(self, client: TestClient) -> None:
         """Test POST /api/agents requires either spec or spec_name."""
         response = client.post("/api/agents", json={})
 
@@ -87,9 +83,7 @@ class TestAgentCRUD:
         assert response.status_code == 404
         assert "not found" in response.json()["detail"].lower()
 
-    def test_list_agents(
-        self, client: TestClient, sample_spec: dict
-    ) -> None:
+    def test_list_agents(self, client: TestClient, sample_spec: dict) -> None:
         """Test GET /api/agents."""
         # Create some agents first
         for i in range(3):
@@ -140,9 +134,7 @@ class TestAgentCRUD:
         assert data["offset"] == 0
         assert len(data["agents"]) <= 2
 
-    def test_get_agent(
-        self, client: TestClient, sample_spec: dict
-    ) -> None:
+    def test_get_agent(self, client: TestClient, sample_spec: dict) -> None:
         """Test GET /api/agents/{agent_id}."""
         # Create an agent
         create_response = client.post("/api/agents", json={"spec": sample_spec})
@@ -163,9 +155,7 @@ class TestAgentCRUD:
         assert response.status_code == 404
         assert "not found" in response.json()["detail"].lower()
 
-    def test_update_agent(
-        self, client: TestClient, sample_spec: dict
-    ) -> None:
+    def test_update_agent(self, client: TestClient, sample_spec: dict) -> None:
         """Test PUT /api/agents/{agent_id}."""
         # Create an agent
         create_response = client.post("/api/agents", json={"spec": sample_spec})
@@ -191,9 +181,7 @@ class TestAgentCRUD:
 
         assert response.status_code == 404
 
-    def test_delete_agent(
-        self, client: TestClient, sample_spec: dict
-    ) -> None:
+    def test_delete_agent(self, client: TestClient, sample_spec: dict) -> None:
         """Test DELETE /api/agents/{agent_id}."""
         # Create an agent
         create_response = client.post("/api/agents", json={"spec": sample_spec})
@@ -217,9 +205,7 @@ class TestAgentCRUD:
 
         assert response.status_code == 404
 
-    def test_update_agent_status(
-        self, client: TestClient, sample_spec: dict
-    ) -> None:
+    def test_update_agent_status(self, client: TestClient, sample_spec: dict) -> None:
         """Test PUT /api/agents/{agent_id}/status."""
         # Create an agent
         create_response = client.post("/api/agents", json={"spec": sample_spec})
@@ -230,9 +216,7 @@ class TestAgentCRUD:
             "phase": "active",
             "message": "Agent is now active",
         }
-        response = client.put(
-            f"/api/agents/{agent_id}/status", json=status_data
-        )
+        response = client.put(f"/api/agents/{agent_id}/status", json=status_data)
 
         assert response.status_code == 200
         data = response.json()
@@ -263,9 +247,7 @@ class TestSpecManagement:
             "model": "gpt-4",
         }
 
-    def test_register_spec(
-        self, client: TestClient, sample_spec: dict
-    ) -> None:
+    def test_register_spec(self, client: TestClient, sample_spec: dict) -> None:
         """Test POST /api/specs."""
         response = client.post("/api/specs", json={"spec": sample_spec})
 
@@ -304,9 +286,7 @@ class TestSpecManagement:
 
         assert response.status_code == 201
 
-    def test_list_specs(
-        self, client: TestClient, sample_spec: dict
-    ) -> None:
+    def test_list_specs(self, client: TestClient, sample_spec: dict) -> None:
         """Test GET /api/specs."""
         # Register some specs
         for i in range(3):
@@ -321,9 +301,7 @@ class TestSpecManagement:
         assert "specs" in data
         assert data["total"] >= 3
 
-    def test_get_spec(
-        self, client: TestClient, sample_spec: dict
-    ) -> None:
+    def test_get_spec(self, client: TestClient, sample_spec: dict) -> None:
         """Test GET /api/specs/{name}."""
         # Register a spec
         client.post("/api/specs", json={"spec": sample_spec})
@@ -341,9 +319,7 @@ class TestSpecManagement:
 
         assert response.status_code == 404
 
-    def test_delete_spec(
-        self, client: TestClient, sample_spec: dict
-    ) -> None:
+    def test_delete_spec(self, client: TestClient, sample_spec: dict) -> None:
         """Test DELETE /api/specs/{name}."""
         # Register a spec
         client.post("/api/specs", json={"spec": sample_spec})

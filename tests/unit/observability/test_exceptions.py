@@ -1,6 +1,5 @@
 """Tests for paracle_observability exceptions."""
 
-
 from paracle_observability.exceptions import (
     AlertChannelError,
     AlertingError,
@@ -66,8 +65,7 @@ class TestTracingError:
 
     def test_tracing_error_with_span(self):
         """Test tracing error with span name."""
-        error = TracingError("Span creation failed",
-                             span_name="workflow_execute")
+        error = TracingError("Span creation failed", span_name="workflow_execute")
         assert "workflow_execute" in str(error)
         assert error.span_name == "workflow_execute"
 
@@ -90,8 +88,7 @@ class TestAlertingError:
 
     def test_alerting_error_with_alert_name(self):
         """Test alerting error with alert name."""
-        error = AlertingError("Evaluation failed",
-                              alert_name="high_error_rate")
+        error = AlertingError("Evaluation failed", alert_name="high_error_rate")
         assert "high_error_rate" in str(error)
         assert error.alert_name == "high_error_rate"
 
@@ -194,8 +191,7 @@ class TestAlertChannelError:
     def test_channel_error_with_original(self):
         """Test alert channel error with original exception."""
         original = ConnectionError("Network timeout")
-        error = AlertChannelError(
-            "email", "SMTP failed", original_error=original)
+        error = AlertChannelError("email", "SMTP failed", original_error=original)
         assert error.original_error is original
         assert error.__cause__ is original
         assert isinstance(error.__cause__, ConnectionError)
@@ -298,10 +294,8 @@ class TestExceptionHierarchy:
         """Test exception chaining works correctly."""
         original = ValueError("Original")
 
-        channel_error = AlertChannelError(
-            "slack", "Failed", original_error=original)
+        channel_error = AlertChannelError("slack", "Failed", original_error=original)
         assert channel_error.__cause__ is original
 
-        exporter_error = ExporterError(
-            "Prometheus", "Failed", original_error=original)
+        exporter_error = ExporterError("Prometheus", "Failed", original_error=original)
         assert exporter_error.__cause__ is original

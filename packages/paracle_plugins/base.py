@@ -57,28 +57,23 @@ class PluginMetadata(BaseModel):
 
     plugin_type: PluginType = Field(..., description="Type of plugin")
     capabilities: list[PluginCapability] = Field(
-        default_factory=list,
-        description="Capabilities provided by this plugin"
+        default_factory=list, description="Capabilities provided by this plugin"
     )
 
     dependencies: list[str] = Field(
-        default_factory=list,
-        description="Python package dependencies (pip install)"
+        default_factory=list, description="Python package dependencies (pip install)"
     )
 
     paracle_version: str = Field(
-        default=">=1.0.0",
-        description="Compatible Paracle version"
+        default=">=1.0.0", description="Compatible Paracle version"
     )
 
     config_schema: dict[str, Any] = Field(
-        default_factory=dict,
-        description="JSON schema for plugin configuration"
+        default_factory=dict, description="JSON schema for plugin configuration"
     )
 
     tags: list[str] = Field(
-        default_factory=list,
-        description="Tags for plugin discovery"
+        default_factory=list, description="Tags for plugin discovery"
     )
 
 
@@ -176,5 +171,5 @@ class BasePlugin(ABC):
             "plugin": self.metadata.name,
             "version": self.metadata.version,
             "status": "healthy",
-            "capabilities": [c.value for c in self.metadata.capabilities]
+            "capabilities": [c.value for c in self.metadata.capabilities],
         }

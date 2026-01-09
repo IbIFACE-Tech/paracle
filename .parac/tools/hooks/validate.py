@@ -7,8 +7,8 @@ Run this before commits to ensure governance integrity.
 """
 
 import sys
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 
 try:
     import yaml
@@ -49,7 +49,7 @@ REQUIRED_AGENT_SPECS = [
 def validate_yaml_file(filepath: Path) -> tuple[bool, str]:
     """Validate YAML syntax."""
     try:
-        with open(filepath, "r", encoding="utf-8") as f:
+        with open(filepath, encoding="utf-8") as f:
             yaml.safe_load(f)
         return True, "OK"
     except yaml.YAMLError as e:
@@ -95,9 +95,9 @@ def validate_roadmap_consistency() -> list[str]:
     state_path = PARAC_ROOT / "memory" / "context" / "current_state.yaml"
 
     try:
-        with open(roadmap_path, "r", encoding="utf-8") as f:
+        with open(roadmap_path, encoding="utf-8") as f:
             roadmap = yaml.safe_load(f)
-        with open(state_path, "r", encoding="utf-8") as f:
+        with open(state_path, encoding="utf-8") as f:
             state = yaml.safe_load(f)
 
         # Check phase consistency
@@ -132,7 +132,7 @@ def validate_open_questions() -> list[str]:
     questions_path = PARAC_ROOT / "memory" / "context" / "open_questions.md"
 
     try:
-        with open(questions_path, "r", encoding="utf-8") as f:
+        with open(questions_path, encoding="utf-8") as f:
             content = f.read()
 
         # Check for questions without owners
@@ -155,7 +155,7 @@ def validate_metrics() -> list[str]:
     roadmap_path = PARAC_ROOT / "roadmap" / "roadmap.yaml"
 
     try:
-        with open(roadmap_path, "r", encoding="utf-8") as f:
+        with open(roadmap_path, encoding="utf-8") as f:
             roadmap = yaml.safe_load(f)
 
         metrics = roadmap.get("metrics", {})

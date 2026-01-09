@@ -157,9 +157,9 @@ def show_agent_capabilities(agent_id: str):
 
 def main():
     """Run agent skills examples."""
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("PARACLE AGENT SKILLS SYSTEM DEMO")
-    print("="*60)
+    print("=" * 60)
 
     # Example 1: List all available skills
     print("\n1️⃣  DISCOVERING AVAILABLE SKILLS")
@@ -194,8 +194,7 @@ def main():
     print("-" * 60)
     for agent_id in agents:
         skills = get_agent_skills(agent_id)
-        print(
-            f"{agent_id:12s} → {len(skills)} skills: {', '.join(skills[:3])}...")
+        print(f"{agent_id:12s} → {len(skills)} skills: {', '.join(skills[:3])}...")
 
     # Example 6: Find agents with a specific skill
     print("\n\n6️⃣  FINDING AGENTS WITH SPECIFIC SKILLS")
@@ -209,9 +208,9 @@ def main():
         if target_skill in skills:
             print(f"  ✅ {agent_id}")
 
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("✨ Agent Skills System Demo Complete!")
-    print("="*60)
+    print("=" * 60)
     print("\nNext steps:")
     print("• Read .parac/agents/SKILL_ASSIGNMENTS.md for full mapping")
     print("• Explore .parac/agents/skills/ to see all skill details")

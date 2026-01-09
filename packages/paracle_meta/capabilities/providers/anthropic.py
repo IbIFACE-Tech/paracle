@@ -21,7 +21,8 @@ from __future__ import annotations
 
 import os
 import time
-from typing import TYPE_CHECKING, Any, AsyncIterator
+from collections.abc import AsyncIterator
+from typing import TYPE_CHECKING, Any
 
 from paracle_meta.capabilities.provider_protocol import (
     BaseProvider,
@@ -31,7 +32,6 @@ from paracle_meta.capabilities.provider_protocol import (
     ProviderAPIError,
     ProviderAuthenticationError,
     ProviderRateLimitError,
-    ProviderStatus,
     ProviderUnavailableError,
     StreamChunk,
     ToolCallRequest,
@@ -224,9 +224,11 @@ class AnthropicProvider(BaseProvider):
                     {
                         "type": "tool_result",
                         "tool_use_id": tr.tool_use_id,
-                        "content": tr.content
-                        if isinstance(tr.content, str)
-                        else str(tr.content),
+                        "content": (
+                            tr.content
+                            if isinstance(tr.content, str)
+                            else str(tr.content)
+                        ),
                         "is_error": tr.is_error,
                     }
                     for tr in msg.tool_results

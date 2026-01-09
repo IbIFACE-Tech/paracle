@@ -4,7 +4,7 @@ on:
   pull_request:
     paths:
       - ".parac/**"
-      - ".cursorrules"
+      - ".claude/**"
       - ".github/copilot-instructions.md"
       - ".parac/integrations/ide/**"
   push:
@@ -13,8 +13,11 @@ on:
       - develop
     paths:
       - ".parac/**"
-      - ".cursorrules"
+      - ".claude/**"
       - ".github/copilot-instructions.md"
+
+permissions:
+  contents: read
 
 jobs:
   validate-governance:
@@ -28,9 +31,10 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
+          python-version: "3.12"
 
-      - name: Install uv\n        uses: astral-sh/setup-uv@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
 
       - name: Install dependencies
         run: uv sync
@@ -46,9 +50,9 @@ jobs:
 
       - name: Check YAML Syntax
         run: |
-          for file in $(find .parac -name "*.yaml" -o -name "*.yml"); do
+          find .parac -name "*.yaml" -o -name "*.yml" | while read -r file; do
             echo "Validating $file"
-            python -c "import yaml; yaml.safe_load(open('$file'))"
+            python -c "import yaml; yaml.safe_load(open('$file', encoding='utf-8'))"
           done
 
       - name: Verify ADR Numbering
@@ -56,7 +60,7 @@ jobs:
         continue-on-error: true # Don't fail if script doesn't exist yet
 
   validate-structure:
-    name: Validate .parac/ Structure
+    name: Validate .parac Structure
     runs-on: ubuntu-latest
 
     steps:
@@ -152,7 +156,8 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Install uv\n        uses: astral-sh/setup-uv@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
 
       - name: Install dependencies
         run: uv sync
@@ -160,5 +165,3 @@ jobs:
       - name: Run governance tests
         run: uv run pytest tests/governance/ -v
         continue-on-error: true # Don't fail if tests don't exist yet
-
-

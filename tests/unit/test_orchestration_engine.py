@@ -2,27 +2,17 @@
 
 import asyncio
 from typing import Any
-from unittest.mock import AsyncMock
 
 import pytest
-
-from paracle_domain.models import (
-    ApprovalConfig,
-    ApprovalPriority,
-    Workflow,
-    WorkflowSpec,
-    WorkflowStep,
-    generate_id,
-)
+from paracle_domain.models import Workflow, WorkflowSpec, WorkflowStep
 from paracle_events import EventBus
 from paracle_orchestration.approval import ApprovalManager
-from paracle_orchestration.context import ExecutionContext, ExecutionStatus
+from paracle_orchestration.context import ExecutionStatus
 from paracle_orchestration.engine import WorkflowOrchestrator
 from paracle_orchestration.exceptions import (
     CircularDependencyError,
     ExecutionTimeoutError,
     InvalidWorkflowError,
-    StepExecutionError,
 )
 
 
@@ -44,7 +34,11 @@ async def mock_step_executor():
     async def executor(step: WorkflowStep, inputs: dict[str, Any]) -> Any:
         """Mock executor that returns inputs with step name."""
         await asyncio.sleep(0.01)  # Simulate work
-        return {"step": step.name, "output": f"result from {step.name}", "inputs": inputs}
+        return {
+            "step": step.name,
+            "output": f"result from {step.name}",
+            "inputs": inputs,
+        }
 
     return executor
 
@@ -157,7 +151,9 @@ class TestSimpleWorkflowExecution:
         assert context.duration_seconds > 0
 
     @pytest.mark.asyncio
-    async def test_execute_stores_workflow_metadata(self, orchestrator, simple_workflow):
+    async def test_execute_stores_workflow_metadata(
+        self, orchestrator, simple_workflow
+    ):
         # Arrange
         inputs = {"query": "test"}
 
@@ -282,9 +278,7 @@ class TestStepInputResolution:
 
         orchestrator = WorkflowOrchestrator(event_bus, capturing_executor)
 
-        spec = WorkflowSpec(
-            name="workflow-inputs", steps=[make_step("step1")]
-        )
+        spec = WorkflowSpec(name="workflow-inputs", steps=[make_step("step1")])
         workflow = Workflow(spec=spec)
         workflow_inputs = {"workflow_param": "workflow_value"}
 
@@ -390,9 +384,7 @@ class TestTimeoutHandling:
 
         orchestrator = WorkflowOrchestrator(event_bus, slow_executor)
 
-        spec = WorkflowSpec(
-            name="slow-workflow", steps=[make_step("step1")]
-        )
+        spec = WorkflowSpec(name="slow-workflow", steps=[make_step("step1")])
         workflow = Workflow(spec=spec)
 
         # Act & Assert
@@ -408,9 +400,7 @@ class TestTimeoutHandling:
 
         orchestrator = WorkflowOrchestrator(event_bus, slow_executor)
 
-        spec = WorkflowSpec(
-            name="slow-workflow", steps=[make_step("step1")]
-        )
+        spec = WorkflowSpec(name="slow-workflow", steps=[make_step("step1")])
         workflow = Workflow(spec=spec)
 
         # Act
@@ -447,7 +437,9 @@ class TestEventEmission:
 
         # Assert
         await asyncio.sleep(0.1)  # Allow events to propagate
-        started_events = [e for e in emitted_events if e.event_type == "workflow.started"]
+        started_events = [
+            e for e in emitted_events if e.event_type == "workflow.started"
+        ]
         assert len(started_events) == 1
 
     @pytest.mark.asyncio
@@ -471,7 +463,9 @@ class TestEventEmission:
 
         # Assert
         await asyncio.sleep(0.1)  # Allow events to propagate
-        completed_events = [e for e in emitted_events if e.event_type == "workflow.completed"]
+        completed_events = [
+            e for e in emitted_events if e.event_type == "workflow.completed"
+        ]
         assert len(completed_events) == 1
 
 
@@ -515,9 +509,7 @@ class TestActiveExecutionManagement:
 
         orchestrator = WorkflowOrchestrator(event_bus, long_executor)
 
-        spec = WorkflowSpec(
-            name="long-workflow", steps=[make_step("step1")]
-        )
+        spec = WorkflowSpec(name="long-workflow", steps=[make_step("step1")])
         workflow = Workflow(spec=spec)
 
         # Act
@@ -554,6 +546,7 @@ class TestApprovalIntegration:
     @pytest.fixture
     def orchestrator_with_approvals(self, event_bus, approval_manager):
         """Create an orchestrator with approval manager."""
+
         async def mock_executor(step, inputs):
             return {"output": f"result from {step.name}", "inputs": inputs}
 
@@ -629,6 +622,7 @@ class TestApprovalIntegration:
         self, orchestrator_with_approvals, approval_manager, approval_workflow
     ):
         """Test that approved step allows workflow to complete."""
+
         # Arrange & Act
         async def execute_and_approve():
             task = asyncio.create_task(
@@ -660,6 +654,7 @@ class TestApprovalIntegration:
         self, orchestrator_with_approvals, approval_manager, approval_workflow
     ):
         """Test that rejected approval fails the workflow."""
+
         # Arrange & Act
         async def execute_and_reject():
             task = asyncio.create_task(

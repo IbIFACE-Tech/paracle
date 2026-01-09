@@ -60,14 +60,10 @@ class BranchManager:
         if not (self.repo_path / ".git").exists():
             raise ValueError(f"{repo_path} is not a git repository")
 
-    def _run_git(
-        self, *args: str, check: bool = True
-    ) -> subprocess.CompletedProcess:
+    def _run_git(self, *args: str, check: bool = True) -> subprocess.CompletedProcess:
         """Run git command in repository."""
         cmd = ["git", "-C", str(self.repo_path)] + list(args)
-        return subprocess.run(
-            cmd, capture_output=True, text=True, check=check
-        )
+        return subprocess.run(cmd, capture_output=True, text=True, check=check)
 
     def create_execution_branch(
         self, execution_id: str, base_branch: str = "main"
@@ -97,8 +93,7 @@ class BranchManager:
             self._run_git("checkout", "-b", branch_name)
 
             logger.info(
-                f"Created execution branch '{branch_name}' "
-                f"from '{base_branch}'"
+                f"Created execution branch '{branch_name}' " f"from '{base_branch}'"
             )
 
             return BranchInfo(
@@ -109,9 +104,7 @@ class BranchManager:
                 status="active",
             )
         except subprocess.CalledProcessError as e:
-            raise RuntimeError(
-                f"Failed to create branch '{branch_name}': {e.stderr}"
-            )
+            raise RuntimeError(f"Failed to create branch '{branch_name}': {e.stderr}")
 
     def merge_execution_branch(
         self, branch_name: str, target_branch: str = "main"
@@ -137,22 +130,21 @@ class BranchManager:
             self._run_git("pull", "--ff-only")
 
             # Merge execution branch
-            self._run_git("merge", "--no-ff", branch_name, "-m",
-                          f"Merge execution branch {branch_name}")
-
-            logger.info(
-                f"Merged branch '{branch_name}' into '{target_branch}'"
+            self._run_git(
+                "merge",
+                "--no-ff",
+                branch_name,
+                "-m",
+                f"Merge execution branch {branch_name}",
             )
+
+            logger.info(f"Merged branch '{branch_name}' into '{target_branch}'")
 
             return True
         except subprocess.CalledProcessError as e:
-            raise RuntimeError(
-                f"Failed to merge branch '{branch_name}': {e.stderr}"
-            )
+            raise RuntimeError(f"Failed to merge branch '{branch_name}': {e.stderr}")
 
-    def delete_execution_branch(
-        self, branch_name: str, force: bool = False
-    ) -> bool:
+    def delete_execution_branch(self, branch_name: str, force: bool = False) -> bool:
         """
         Delete an execution branch.
 
@@ -170,8 +162,7 @@ class BranchManager:
             logger.info(f"Deleted branch '{branch_name}'")
             return True
         except subprocess.CalledProcessError as e:
-            logger.error(
-                f"Failed to delete branch '{branch_name}': {e.stderr}")
+            logger.error(f"Failed to delete branch '{branch_name}': {e.stderr}")
             return False
 
     def list_execution_branches(self) -> list[BranchInfo]:
@@ -199,9 +190,7 @@ class BranchManager:
 
                     # Get commit count
                     try:
-                        count_result = self._run_git(
-                            "rev-list", "--count", name
-                        )
+                        count_result = self._run_git("rev-list", "--count", name)
                         commit_count = int(count_result.stdout.strip())
                     except (subprocess.CalledProcessError, ValueError):
                         commit_count = 0
@@ -247,9 +236,7 @@ class BranchManager:
                 if self.delete_execution_branch(branch_name):
                     count += 1
 
-            logger.info(
-                f"Cleaned up {count} merged execution branches"
-            )
+            logger.info(f"Cleaned up {count} merged execution branches")
             return count
         except subprocess.CalledProcessError as e:
             logger.error(f"Failed to cleanup branches: {e.stderr}")

@@ -10,10 +10,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from paracle_domain.inheritance import (
-    InheritanceResult,
-    resolve_inheritance,
-)
+from paracle_domain.inheritance import InheritanceResult, resolve_inheritance
 from paracle_domain.models import Agent, AgentSpec
 
 if TYPE_CHECKING:

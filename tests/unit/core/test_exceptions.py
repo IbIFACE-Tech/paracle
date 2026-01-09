@@ -1,6 +1,5 @@
 """Tests for paracle_core exceptions."""
 
-
 from paracle_core.exceptions import (
     ConfigurationError,
     DependencyError,

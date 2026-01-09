@@ -23,12 +23,8 @@ class ExecutionConfig(BaseModel):
     auto_merge: bool = Field(
         default=False, description="Auto-merge after successful execution"
     )
-    auto_cleanup: bool = Field(
-        default=True, description="Auto-cleanup merged branches"
-    )
-    base_branch: str = Field(
-        default="main", description="Base branch for executions"
-    )
+    auto_cleanup: bool = Field(default=True, description="Auto-cleanup merged branches")
+    base_branch: str = Field(default="main", description="Base branch for executions")
 
 
 class ExecutionManager:
@@ -62,11 +58,7 @@ class ExecutionManager:
         >>> # Branch is auto-merged and cleaned up
     """
 
-    def __init__(
-        self,
-        repo_path: Path,
-        config: ExecutionConfig | None = None
-    ):
+    def __init__(self, repo_path: Path, config: ExecutionConfig | None = None):
         """
         Initialize execution manager.
 
@@ -79,9 +71,7 @@ class ExecutionManager:
         self.branch_manager = BranchManager(repo_path)
         self._active_executions: dict[str, BranchInfo] = {}
 
-    def start_execution(
-        self, execution_id: str
-    ) -> dict[str, Any]:
+    def start_execution(self, execution_id: str) -> dict[str, Any]:
         """
         Start a new git-backed execution.
 
@@ -92,37 +82,29 @@ class ExecutionManager:
             Execution context with branch info
         """
         if not self.config.enable_branching:
-            return {
-                "execution_id": execution_id,
-                "branching_enabled": False
-            }
+            return {"execution_id": execution_id, "branching_enabled": False}
 
         # Create execution branch
         branch_info = self.branch_manager.create_execution_branch(
-            execution_id=execution_id,
-            base_branch=self.config.base_branch
+            execution_id=execution_id, base_branch=self.config.base_branch
         )
 
         # Track active execution
         self._active_executions[execution_id] = branch_info
 
         logger.info(
-            f"Started execution '{execution_id}' "
-            f"on branch '{branch_info.name}'"
+            f"Started execution '{execution_id}' " f"on branch '{branch_info.name}'"
         )
 
         return {
             "execution_id": execution_id,
             "branch_name": branch_info.name,
             "base_branch": branch_info.base_branch,
-            "branching_enabled": True
+            "branching_enabled": True,
         }
 
     def commit_changes(
-        self,
-        execution_id: str,
-        message: str,
-        files: list | None = None
+        self, execution_id: str, message: str, files: list | None = None
     ) -> bool:
         """
         Commit changes during execution.
@@ -140,9 +122,7 @@ class ExecutionManager:
 
         branch_info = self._active_executions.get(execution_id)
         if not branch_info:
-            logger.warning(
-                f"No active execution found for '{execution_id}'"
-            )
+            logger.warning(f"No active execution found for '{execution_id}'")
             return False
 
         try:
@@ -154,31 +134,21 @@ class ExecutionManager:
                 self.branch_manager._run_git("add", "-A")
 
             # Check if there are changes to commit
-            status = self.branch_manager._run_git(
-                "status", "--porcelain", check=False
-            )
+            status = self.branch_manager._run_git("status", "--porcelain", check=False)
             if not status.stdout.strip():
                 logger.debug("No changes to commit")
                 return True
 
             # Commit
-            self.branch_manager._run_git(
-                "commit", "-m", f"[{execution_id}] {message}"
-            )
+            self.branch_manager._run_git("commit", "-m", f"[{execution_id}] {message}")
 
-            logger.info(
-                f"Committed changes for execution '{execution_id}'"
-            )
+            logger.info(f"Committed changes for execution '{execution_id}'")
             return True
         except Exception as e:
-            logger.error(
-                f"Failed to commit changes for '{execution_id}': {e}"
-            )
+            logger.error(f"Failed to commit changes for '{execution_id}': {e}")
             return False
 
-    def complete_execution(
-        self, execution_id: str, success: bool
-    ) -> bool:
+    def complete_execution(self, execution_id: str, success: bool) -> bool:
         """
         Complete an execution and handle branch lifecycle.
 
@@ -191,17 +161,14 @@ class ExecutionManager:
         """
         branch_info = self._active_executions.get(execution_id)
         if not branch_info:
-            logger.warning(
-                f"No active execution found for '{execution_id}'"
-            )
+            logger.warning(f"No active execution found for '{execution_id}'")
             return False
 
         try:
             if success and self.config.auto_merge:
                 # Merge back to base branch
                 self.branch_manager.merge_execution_branch(
-                    branch_name=branch_info.name,
-                    target_branch=branch_info.base_branch
+                    branch_name=branch_info.name, target_branch=branch_info.base_branch
                 )
 
                 # Delete merged branch if auto-cleanup enabled
@@ -212,22 +179,16 @@ class ExecutionManager:
             else:
                 # Keep branch for manual review
                 logger.info(
-                    f"Execution branch '{branch_info.name}' kept "
-                    f"for manual review"
+                    f"Execution branch '{branch_info.name}' kept " f"for manual review"
                 )
 
             # Remove from active executions
             del self._active_executions[execution_id]
 
-            logger.info(
-                f"Completed execution '{execution_id}' "
-                f"(success={success})"
-            )
+            logger.info(f"Completed execution '{execution_id}' " f"(success={success})")
             return True
         except Exception as e:
-            logger.error(
-                f"Error completing execution '{execution_id}': {e}"
-            )
+            logger.error(f"Error completing execution '{execution_id}': {e}")
             return False
 
     def list_active_executions(self) -> dict[str, BranchInfo]:

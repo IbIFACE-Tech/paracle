@@ -20,9 +20,9 @@ Usage:
 from __future__ import annotations
 
 import asyncio
-from paracle_core.compat import UTC, datetime, timedelta
 from typing import TYPE_CHECKING, Any
 
+from paracle_core.compat import UTC, datetime, timedelta
 from paracle_domain.models import (
     ApprovalConfig,
     ApprovalPriority,
@@ -453,9 +453,8 @@ class ApprovalManager:
         Returns:
             ApprovalRequest or None if not found.
         """
-        return (
-            self._pending_approvals.get(approval_id)
-            or self._decided_approvals.get(approval_id)
+        return self._pending_approvals.get(approval_id) or self._decided_approvals.get(
+            approval_id
         )
 
     def list_pending(
@@ -561,9 +560,7 @@ class ApprovalManager:
 
         return request
 
-    def _check_authorization(
-        self, request: ApprovalRequest, approver: str
-    ) -> None:
+    def _check_authorization(self, request: ApprovalRequest, approver: str) -> None:
         """Check if approver is authorized."""
         # If no approvers specified, anyone can approve
         if not request.config.approvers:
@@ -605,9 +602,7 @@ class ApprovalManager:
             "approval.expired": EventType.WORKFLOW_FAILED,
         }
 
-        mapped_type = type_mapping.get(
-            event_type, EventType.WORKFLOW_STEP_STARTED
-        )
+        mapped_type = type_mapping.get(event_type, EventType.WORKFLOW_STEP_STARTED)
 
         event = Event(
             type=mapped_type,

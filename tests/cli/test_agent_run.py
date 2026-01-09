@@ -38,7 +38,7 @@ def run_command(cmd: list[str], description: str) -> bool:
 def main() -> int:
     """Run all agent run tests."""
     print("\n🧪 PARACLE AGENT RUN - TEST SUITE")
-    print("="*60)
+    print("=" * 60)
 
     tests = [
         # 1. Help and validation
@@ -49,8 +49,12 @@ def main() -> int:
         # 2. Dry run validation
         (
             [
-                "paracle", "agent", "run", "reviewer",
-                "--task", "Review code quality",
+                "paracle",
+                "agent",
+                "run",
+                "reviewer",
+                "--task",
+                "Review code quality",
                 "--dry-run",
             ],
             "Dry run - validate without executing",
@@ -58,9 +62,14 @@ def main() -> int:
         # 3. Safe mode (would need mocking for full test)
         (
             [
-                "paracle", "agent", "run", "coder",
-                "--task", "Analyze code structure",
-                "--mode", "safe",
+                "paracle",
+                "agent",
+                "run",
+                "coder",
+                "--task",
+                "Analyze code structure",
+                "--mode",
+                "safe",
                 "--dry-run",
             ],
             "Safe mode dry run",
@@ -68,9 +77,14 @@ def main() -> int:
         # 4. YOLO mode dry run
         (
             [
-                "paracle", "agent", "run", "coder",
-                "--task", "Format code",
-                "--mode", "yolo",
+                "paracle",
+                "agent",
+                "run",
+                "coder",
+                "--task",
+                "Format code",
+                "--mode",
+                "yolo",
                 "--dry-run",
             ],
             "YOLO mode dry run",
@@ -78,9 +92,14 @@ def main() -> int:
         # 5. Sandbox mode dry run
         (
             [
-                "paracle", "agent", "run", "tester",
-                "--task", "Run tests",
-                "--mode", "sandbox",
+                "paracle",
+                "agent",
+                "run",
+                "tester",
+                "--task",
+                "Run tests",
+                "--mode",
+                "sandbox",
                 "--dry-run",
             ],
             "Sandbox mode dry run",
@@ -88,9 +107,14 @@ def main() -> int:
         # 6. Review mode dry run
         (
             [
-                "paracle", "agent", "run", "architect",
-                "--task", "Design system",
-                "--mode", "review",
+                "paracle",
+                "agent",
+                "run",
+                "architect",
+                "--task",
+                "Design system",
+                "--mode",
+                "review",
                 "--dry-run",
             ],
             "Review mode dry run",
@@ -98,10 +122,16 @@ def main() -> int:
         # 7. With inputs
         (
             [
-                "paracle", "agent", "run", "coder",
-                "--task", "Implement feature",
-                "--input", "feature=auth",
-                "--input", "priority=high",
+                "paracle",
+                "agent",
+                "run",
+                "coder",
+                "--task",
+                "Implement feature",
+                "--input",
+                "feature=auth",
+                "--input",
+                "priority=high",
                 "--dry-run",
             ],
             "With input parameters",
@@ -109,11 +139,18 @@ def main() -> int:
         # 8. With model and provider
         (
             [
-                "paracle", "agent", "run", "reviewer",
-                "--task", "Review code",
-                "--model", "gpt-4-turbo",
-                "--provider", "openai",
-                "--temperature", "0.3",
+                "paracle",
+                "agent",
+                "run",
+                "reviewer",
+                "--task",
+                "Review code",
+                "--model",
+                "gpt-4-turbo",
+                "--provider",
+                "openai",
+                "--temperature",
+                "0.3",
                 "--dry-run",
             ],
             "With custom model and provider",
@@ -121,9 +158,14 @@ def main() -> int:
         # 9. With cost limit
         (
             [
-                "paracle", "agent", "run", "documenter",
-                "--task", "Generate docs",
-                "--cost-limit", "2.50",
+                "paracle",
+                "agent",
+                "run",
+                "documenter",
+                "--task",
+                "Generate docs",
+                "--cost-limit",
+                "2.50",
                 "--dry-run",
             ],
             "With cost limit",
@@ -131,9 +173,14 @@ def main() -> int:
         # 10. With timeout
         (
             [
-                "paracle", "agent", "run", "coder",
-                "--task", "Large refactor",
-                "--timeout", "600",
+                "paracle",
+                "agent",
+                "run",
+                "coder",
+                "--task",
+                "Large refactor",
+                "--timeout",
+                "600",
                 "--dry-run",
             ],
             "With custom timeout",
@@ -141,8 +188,12 @@ def main() -> int:
         # 11. Verbose mode
         (
             [
-                "paracle", "agent", "run", "reviewer",
-                "--task", "Code review",
+                "paracle",
+                "agent",
+                "run",
+                "reviewer",
+                "--task",
+                "Code review",
                 "--verbose",
                 "--dry-run",
             ],
@@ -151,8 +202,12 @@ def main() -> int:
         # 12. Invalid agent (should fail gracefully)
         (
             [
-                "paracle", "agent", "run", "nonexistent",
-                "--task", "Test",
+                "paracle",
+                "agent",
+                "run",
+                "nonexistent",
+                "--task",
+                "Test",
                 "--dry-run",
             ],
             "Invalid agent (should handle gracefully)",

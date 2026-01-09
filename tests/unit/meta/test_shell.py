@@ -1,13 +1,9 @@
 """Unit tests for paracle_meta.capabilities.shell module."""
 
 import platform
-import pytest
 
-from paracle_meta.capabilities.shell import (
-    ShellCapability,
-    ShellConfig,
-    ProcessInfo,
-)
+import pytest
+from paracle_meta.capabilities.shell import ProcessInfo, ShellCapability, ShellConfig
 
 
 class TestShellConfig:
@@ -311,7 +307,10 @@ class TestShellSecurity:
         # Non-allowed command
         result = await secure_capability.run("whoami")
         assert result.success is False
-        assert "not in allowed" in result.error.lower() or "allowed" in result.error.lower()
+        assert (
+            "not in allowed" in result.error.lower()
+            or "allowed" in result.error.lower()
+        )
 
         await secure_capability.shutdown()
 

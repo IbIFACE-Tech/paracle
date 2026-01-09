@@ -1,6 +1,5 @@
 """Tests for paracle_runs exceptions."""
 
-
 from paracle_runs.exceptions import (
     InvalidRunMetadataError,
     ReplayError,
@@ -95,16 +94,14 @@ class TestRunSaveError:
     def test_save_error_with_cause(self):
         """Test save error with original exception."""
         original = OSError("Permission denied")
-        error = RunSaveError("run_123", "Failed to write",
-                             original_error=original)
+        error = RunSaveError("run_123", "Failed to write", original_error=original)
         assert error.original_error is original
         assert error.__cause__ is original
 
     def test_save_error_exception_chaining(self):
         """Test proper exception chaining."""
         original = ValueError("Invalid data")
-        error = RunSaveError("run_456", "Validation failed",
-                             original_error=original)
+        error = RunSaveError("run_456", "Validation failed", original_error=original)
         assert isinstance(error.__cause__, ValueError)
         assert error.__cause__.args[0] == "Invalid data"
 
@@ -124,8 +121,7 @@ class TestRunLoadError:
     def test_load_error_with_original(self):
         """Test load error with original exception."""
         original = FileNotFoundError("metadata.yaml")
-        error = RunLoadError("run_789", "Missing file",
-                             original_error=original)
+        error = RunLoadError("run_789", "Missing file", original_error=original)
         assert error.__cause__ is original
 
     def test_load_error_yaml_corruption(self):

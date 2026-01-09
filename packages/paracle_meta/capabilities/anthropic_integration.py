@@ -30,9 +30,10 @@ Example:
 import asyncio
 import os
 import time
+from collections.abc import AsyncIterator
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, AsyncIterator
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -105,40 +106,28 @@ class AnthropicConfig(CapabilityConfig):
     """Configuration for Anthropic integration."""
 
     api_key: str | None = Field(
-        default=None,
-        description="Anthropic API key (or use ANTHROPIC_API_KEY env var)"
+        default=None, description="Anthropic API key (or use ANTHROPIC_API_KEY env var)"
     )
     model: str = Field(
-        default=ClaudeModel.SONNET.value,
-        description="Default Claude model to use"
+        default=ClaudeModel.SONNET.value, description="Default Claude model to use"
     )
     max_tokens: int = Field(
-        default=4096,
-        ge=1,
-        le=200000,
-        description="Maximum tokens in response"
+        default=4096, ge=1, le=200000, description="Maximum tokens in response"
     )
     temperature: float = Field(
-        default=0.7,
-        ge=0.0,
-        le=1.0,
-        description="Sampling temperature"
+        default=0.7, ge=0.0, le=1.0, description="Sampling temperature"
     )
     system_prompt: str | None = Field(
-        default=None,
-        description="System prompt for all requests"
+        default=None, description="System prompt for all requests"
     )
     enable_tool_use: bool = Field(
-        default=True,
-        description="Enable tool use capabilities"
+        default=True, description="Enable tool use capabilities"
     )
     enable_streaming: bool = Field(
-        default=True,
-        description="Enable streaming responses"
+        default=True, description="Enable streaming responses"
     )
     retry_on_overload: bool = Field(
-        default=True,
-        description="Retry on API overload errors"
+        default=True, description="Retry on API overload errors"
     )
 
 
@@ -160,17 +149,23 @@ class ConversationContext(BaseModel):
         """Add an assistant message."""
         self.messages.append(Message(role="assistant", content=content))
 
-    def add_tool_result(self, tool_use_id: str, result: str, is_error: bool = False) -> None:
+    def add_tool_result(
+        self, tool_use_id: str, result: str, is_error: bool = False
+    ) -> None:
         """Add a tool result message."""
-        self.messages.append(Message(
-            role="user",
-            content=[{
-                "type": "tool_result",
-                "tool_use_id": tool_use_id,
-                "content": result,
-                "is_error": is_error,
-            }]
-        ))
+        self.messages.append(
+            Message(
+                role="user",
+                content=[
+                    {
+                        "type": "tool_result",
+                        "tool_use_id": tool_use_id,
+                        "content": result,
+                        "is_error": is_error,
+                    }
+                ],
+            )
+        )
 
 
 class AnthropicCapability(BaseCapability):
@@ -356,8 +351,12 @@ Focus on code quality, security, performance, and maintainability."""
         response = await self._async_client.messages.create(
             model=model or self.config.model,
             max_tokens=max_tokens or self.config.max_tokens,
-            temperature=temperature if temperature is not None else self.config.temperature,
-            system=system or self.config.system_prompt or "You are a helpful assistant.",
+            temperature=(
+                temperature if temperature is not None else self.config.temperature
+            ),
+            system=system
+            or self.config.system_prompt
+            or "You are a helpful assistant.",
             messages=[{"role": "user", "content": prompt}],
         )
 
@@ -393,7 +392,9 @@ Focus on code quality, security, performance, and maintainability."""
         response = await self._async_client.messages.create(
             model=self.config.model,
             max_tokens=self.config.max_tokens,
-            system=system or self.config.system_prompt or "You are a helpful assistant with access to tools.",
+            system=system
+            or self.config.system_prompt
+            or "You are a helpful assistant with access to tools.",
             messages=[{"role": "user", "content": prompt}],
             tools=anthropic_tools,
             tool_choice=tool_choice,
@@ -405,11 +406,13 @@ Focus on code quality, security, performance, and maintainability."""
 
         for block in response.content:
             if block.type == "tool_use":
-                tool_calls.append({
-                    "id": block.id,
-                    "name": block.name,
-                    "input": block.input,
-                })
+                tool_calls.append(
+                    {
+                        "id": block.id,
+                        "name": block.name,
+                        "input": block.input,
+                    }
+                )
             elif block.type == "text":
                 text_content += block.text
 
@@ -476,7 +479,9 @@ Focus on code quality, security, performance, and maintainability."""
             "refactoring": "Suggest refactoring improvements and design pattern opportunities.",
         }
 
-        analysis_instruction = analysis_prompts.get(analysis_type, analysis_prompts["general"])
+        analysis_instruction = analysis_prompts.get(
+            analysis_type, analysis_prompts["general"]
+        )
 
         prompt = f"""{analysis_instruction}
 
@@ -573,17 +578,21 @@ Provide your analysis in a structured format with:
         for block in response.content:
             if hasattr(block, "type"):
                 if block.type == "tool_use":
-                    tool_calls.append({
-                        "id": block.id,
-                        "name": block.name,
-                        "input": block.input,
-                    })
+                    tool_calls.append(
+                        {
+                            "id": block.id,
+                            "name": block.name,
+                            "input": block.input,
+                        }
+                    )
                 elif block.type == "text":
                     text_content += block.text
 
         # Add assistant message to context
         context.add_assistant_message(response.content)
-        context.total_tokens += response.usage.input_tokens + response.usage.output_tokens
+        context.total_tokens += (
+            response.usage.input_tokens + response.usage.output_tokens
+        )
 
         return {
             "conversation_id": conversation_id,
@@ -637,9 +646,10 @@ Return a JSON array of subtasks with this structure:
 
         try:
             import json
+
             # Find JSON in response
             if "[" in content:
-                json_str = content[content.find("["):content.rfind("]") + 1]
+                json_str = content[content.find("[") : content.rfind("]") + 1]
                 subtasks = json.loads(json_str)
         except (json.JSONDecodeError, ValueError):
             # Return raw content if JSON parsing fails
@@ -672,7 +682,9 @@ Return a JSON array of subtasks with this structure:
         async with self._async_client.messages.stream(
             model=self.config.model,
             max_tokens=self.config.max_tokens,
-            system=system or self.config.system_prompt or "You are a helpful assistant.",
+            system=system
+            or self.config.system_prompt
+            or "You are a helpful assistant.",
             messages=[{"role": "user", "content": prompt}],
         ) as stream:
             async for text in stream.text_stream:
@@ -769,15 +781,14 @@ Return a JSON array of subtasks with this structure:
     ) -> dict[str, Any]:
         """Mock tool completion when SDK unavailable."""
         return {
-            "content": f"[Mock tool response - Anthropic SDK not available]",
+            "content": "[Mock tool response - Anthropic SDK not available]",
             "tool_calls": [],
             "model": "mock",
             "usage": {"input_tokens": 0, "output_tokens": 0},
             "stop_reason": "mock",
             "mock": True,
             "tools_provided": [
-                t.get("name") if isinstance(t, dict) else t.name
-                for t in tools
+                t.get("name") if isinstance(t, dict) else t.name for t in tools
             ],
         }
 
@@ -839,7 +850,10 @@ Return a JSON array of subtasks with this structure:
                     "type": "object",
                     "properties": {
                         "path": {"type": "string", "description": "File path"},
-                        "content": {"type": "string", "description": "Content to write"},
+                        "content": {
+                            "type": "string",
+                            "description": "Content to write",
+                        },
                     },
                     "required": ["path", "content"],
                 },
@@ -850,7 +864,10 @@ Return a JSON array of subtasks with this structure:
                 parameters={
                     "type": "object",
                     "properties": {
-                        "code": {"type": "string", "description": "Python code to execute"},
+                        "code": {
+                            "type": "string",
+                            "description": "Python code to execute",
+                        },
                     },
                     "required": ["code"],
                 },
@@ -862,7 +879,11 @@ Return a JSON array of subtasks with this structure:
                     "type": "object",
                     "properties": {
                         "query": {"type": "string", "description": "Search query"},
-                        "num_results": {"type": "integer", "description": "Number of results", "default": 5},
+                        "num_results": {
+                            "type": "integer",
+                            "description": "Number of results",
+                            "default": 5,
+                        },
                     },
                     "required": ["query"],
                 },
@@ -874,7 +895,11 @@ Return a JSON array of subtasks with this structure:
                     "type": "object",
                     "properties": {
                         "path": {"type": "string", "description": "Directory path"},
-                        "pattern": {"type": "string", "description": "Glob pattern", "default": "*"},
+                        "pattern": {
+                            "type": "string",
+                            "description": "Glob pattern",
+                            "default": "*",
+                        },
                     },
                     "required": ["path"],
                 },

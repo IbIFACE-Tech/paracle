@@ -113,17 +113,17 @@ integrations:
     enabled: true
     # api_key: set via OPENAI_API_KEY environment variable
     # organization: your-org-id
-  
+
   # Anthropic Configuration
   anthropic:
     enabled: false
     # api_key: set via ANTHROPIC_API_KEY environment variable
-  
+
   # Google AI Configuration
   google:
     enabled: false
     # api_key: set via GOOGLE_API_KEY environment variable
-  
+
   # Custom integrations
   # custom_service:
   #   enabled: false

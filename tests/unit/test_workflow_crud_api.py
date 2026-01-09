@@ -4,7 +4,6 @@ import uuid
 
 import pytest
 from fastapi.testclient import TestClient
-
 from paracle_api.main import app
 from paracle_api.routers import workflow_crud
 
@@ -48,9 +47,7 @@ class TestWorkflowCRUD:
         self, client: TestClient, sample_workflow_spec: dict
     ) -> None:
         """Test POST /api/workflows."""
-        response = client.post(
-            "/api/workflows", json={"spec": sample_workflow_spec}
-        )
+        response = client.post("/api/workflows", json={"spec": sample_workflow_spec})
 
         assert response.status_code == 201
         data = response.json()
@@ -76,9 +73,7 @@ class TestWorkflowCRUD:
         assert "workflows" in data
         assert data["total"] >= 3
 
-    def test_get_workflow(
-        self, client: TestClient, sample_workflow_spec: dict
-    ) -> None:
+    def test_get_workflow(self, client: TestClient, sample_workflow_spec: dict) -> None:
         """Test GET /api/workflows/{workflow_id}."""
         # Create a workflow
         create_response = client.post(
@@ -114,9 +109,7 @@ class TestWorkflowCRUD:
         update_data = {
             "description": "Updated workflow description",
         }
-        response = client.put(
-            f"/api/workflows/{workflow_id}", json=update_data
-        )
+        response = client.put(f"/api/workflows/{workflow_id}", json=update_data)
 
         assert response.status_code == 200
 

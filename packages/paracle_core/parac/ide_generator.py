@@ -362,9 +362,10 @@ class IDEConfigGenerator:
                 warnings = []
                 modified_count = 0
 
-                for agent_id, (validation_result, was_modified) in (
-                    format_results.items()
-                ):
+                for agent_id, (
+                    validation_result,
+                    was_modified,
+                ) in format_results.items():
                     if was_modified:
                         modified_count += 1
 
@@ -405,7 +406,9 @@ class IDEConfigGenerator:
 
         self._workspace_prepared = True
 
-    def generate(self, ide: str, skip_format: bool = False, strict: bool = False) -> str:
+    def generate(
+        self, ide: str, skip_format: bool = False, strict: bool = False
+    ) -> str:
         """Generate IDE configuration content.
 
         Args:
@@ -431,9 +434,7 @@ class IDEConfigGenerator:
         self._prepare_workspace(skip_format=skip_format, strict=strict)
 
         # Build context
-        builder = ContextBuilder(
-            self.parac_root, max_size=config.max_context_size
-        )
+        builder = ContextBuilder(self.parac_root, max_size=config.max_context_size)
         context = builder.build(ide=config.name)
 
         # Add IDE-specific context
@@ -596,8 +597,7 @@ class IDEConfigGenerator:
         self.ide_output_dir.mkdir(parents=True, exist_ok=True)
 
         with open(manifest_path, "w", encoding="utf-8") as f:
-            yaml.dump(manifest, f, default_flow_style=False,
-                      allow_unicode=True)
+            yaml.dump(manifest, f, default_flow_style=False, allow_unicode=True)
 
         return manifest_path
 
@@ -616,9 +616,7 @@ class IDEConfigGenerator:
 
         for ide, config in self.SUPPORTED_IDES.items():
             ide_file = self.ide_output_dir / config.file_name
-            project_file = (
-                self.project_root / config.destination_dir / config.file_name
-            )
+            project_file = self.project_root / config.destination_dir / config.file_name
 
             status["ides"][ide] = {
                 "generated": ide_file.exists(),
@@ -723,8 +721,7 @@ class IDEConfigGenerator:
             return []
 
         exporter = SkillExporter(skills)
-        results = exporter.export_to_platform(
-            platform, self.project_root, overwrite)
+        results = exporter.export_to_platform(platform, self.project_root, overwrite)
 
         return [r.skill_name for r in results if r.success]
 

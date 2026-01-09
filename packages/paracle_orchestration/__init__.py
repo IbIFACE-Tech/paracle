@@ -10,7 +10,7 @@ This package provides:
 - Workflow loading from YAML definitions
 """
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 from paracle_orchestration.agent_executor import AgentExecutor
 from paracle_orchestration.approval import (
@@ -37,11 +37,7 @@ from paracle_orchestration.exceptions import (
     OrchestrationError,
     StepExecutionError,
 )
-from paracle_orchestration.planner import (
-    ExecutionGroup,
-    ExecutionPlan,
-    WorkflowPlanner,
-)
+from paracle_orchestration.planner import ExecutionGroup, ExecutionPlan, WorkflowPlanner
 from paracle_orchestration.retry import (
     AGGRESSIVE_RETRY_POLICY,
     CONSERVATIVE_RETRY_POLICY,

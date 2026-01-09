@@ -14,8 +14,6 @@ from typing import Any
 from paracle_core.logging import get_logger
 from pydantic import BaseModel, Field
 
-from paracle_meta.exceptions import CostLimitExceededError
-
 logger = get_logger(__name__)
 
 
@@ -252,7 +250,10 @@ class CostOptimizer:
         """
         if not self.enabled:
             return CostReport(
-                period=period, total_cost=0, generation_count=0, avg_cost_per_generation=0
+                period=period,
+                total_cost=0,
+                generation_count=0,
+                avg_cost_per_generation=0,
             )
 
         conn = sqlite3.connect(self.db_path)
@@ -381,7 +382,8 @@ class CostOptimizer:
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
 
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS costs (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 generation_id TEXT NOT NULL,
@@ -392,17 +394,22 @@ class CostOptimizer:
                 cost_usd REAL NOT NULL,
                 timestamp TEXT NOT NULL
             )
-        """)
+        """
+        )
 
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE INDEX IF NOT EXISTS idx_costs_timestamp
             ON costs(timestamp)
-        """)
+        """
+        )
 
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE INDEX IF NOT EXISTS idx_costs_provider
             ON costs(provider)
-        """)
+        """
+        )
 
         conn.commit()
         conn.close()
@@ -554,9 +561,7 @@ class QualityScorer:
         score += min(matches * 0.5, 3.0)
 
         # Check for concrete examples/values
-        if any(
-            char in content for char in ['"', "'", ":"]
-        ):  # Likely has values
+        if any(char in content for char in ['"', "'", ":"]):  # Likely has values
             score += 2.0
 
         return min(10.0, score)

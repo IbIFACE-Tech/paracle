@@ -1,6 +1,5 @@
 """Tests for paracle_tools exceptions."""
 
-
 from paracle_tools.exceptions import (
     ToolConfigurationError,
     ToolError,

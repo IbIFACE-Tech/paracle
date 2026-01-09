@@ -9,11 +9,7 @@ from typing import Any
 import yaml
 from paracle_core.parac.state import find_parac_root
 
-from paracle_runs.models import (
-    AgentRunMetadata,
-    RunQuery,
-    WorkflowRunMetadata,
-)
+from paracle_runs.models import AgentRunMetadata, RunQuery, WorkflowRunMetadata
 
 
 class RunStorage:
@@ -65,8 +61,7 @@ class RunStorage:
         # Save metadata as YAML
         metadata_path = run_dir / "metadata.yaml"
         with open(metadata_path, "w", encoding="utf-8") as f:
-            yaml.safe_dump(metadata.model_dump(
-                mode="json"), f, sort_keys=False)
+            yaml.safe_dump(metadata.model_dump(mode="json"), f, sort_keys=False)
 
         # Save input as JSON
         input_path = run_dir / "input.json"
@@ -131,8 +126,7 @@ class RunStorage:
         # Save metadata as YAML
         metadata_path = run_dir / "metadata.yaml"
         with open(metadata_path, "w", encoding="utf-8") as f:
-            yaml.safe_dump(metadata.model_dump(
-                mode="json"), f, sort_keys=False)
+            yaml.safe_dump(metadata.model_dump(mode="json"), f, sort_keys=False)
 
         # Save inputs as JSON
         inputs_path = run_dir / "inputs.json"

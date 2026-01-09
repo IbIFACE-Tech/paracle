@@ -4,7 +4,6 @@ Tests for PeerToPeerPattern, BroadcastPattern, and CoordinatorPattern.
 """
 
 import pytest
-
 from paracle_agent_comm.models import (
     AgentGroup,
     CommunicationPattern,

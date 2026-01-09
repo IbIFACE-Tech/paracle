@@ -66,6 +66,7 @@ def report(period: str, as_json: bool, provider: str | None, model: str | None):
 
     if as_json:
         import json
+
         console.print(json.dumps(report_data.to_dict(), indent=2))
         return
 
@@ -160,7 +161,9 @@ def report(period: str, as_json: bool, provider: str | None, model: str | None):
         "exceeded": "red bold",
     }.get(status.value, "white")
 
-    console.print(f"Budget Status: [{status_color}]{status.value.upper()}[/{status_color}]")
+    console.print(
+        f"Budget Status: [{status_color}]{status.value.upper()}[/{status_color}]"
+    )
 
     if report_data.budget_alerts:
         console.print()
@@ -324,14 +327,21 @@ def pricing(fmt: str):
 
     if fmt == "yaml":
         import yaml
+
         console.print(yaml.dump({"default_pricing": config.default_pricing}))
         return
 
     console.print()
-    console.print(Panel.fit("[bold]Model Pricing[/bold] (per million tokens)", border_style="blue"))
+    console.print(
+        Panel.fit(
+            "[bold]Model Pricing[/bold] (per million tokens)", border_style="blue"
+        )
+    )
 
     for provider, models in sorted(config.default_pricing.items()):
-        table = Table(title=provider.upper(), show_header=True, header_style="bold cyan")
+        table = Table(
+            title=provider.upper(), show_header=True, header_style="bold cyan"
+        )
         table.add_column("Model")
         table.add_column("Input $/M", justify="right")
         table.add_column("Output $/M", justify="right")
@@ -352,7 +362,9 @@ def pricing(fmt: str):
     "--provider", required=True, help="Provider name (e.g., openai, anthropic)"
 )
 @click.option("--model", required=True, help="Model name")
-@click.option("--prompt-tokens", type=int, required=True, help="Estimated prompt tokens")
+@click.option(
+    "--prompt-tokens", type=int, required=True, help="Estimated prompt tokens"
+)
 @click.option(
     "--completion-tokens", type=int, required=True, help="Estimated completion tokens"
 )

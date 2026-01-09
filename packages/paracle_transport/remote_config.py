@@ -95,8 +95,7 @@ class RemotesConfig(BaseModel):
     remotes: dict[str, RemoteConfig] = Field(
         default_factory=dict, description="Remote profiles"
     )
-    default: str | None = Field(
-        default=None, description="Default remote name")
+    default: str | None = Field(default=None, description="Default remote name")
 
     def get_remote(self, name: str) -> RemoteConfig:
         """Get remote configuration by name.

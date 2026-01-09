@@ -6,16 +6,11 @@ Phase 8 - Performance & Scale: Multi-Level Caching
 import time
 
 import pytest
-
 from paracle_profiling import (
     CacheEntry,
     CacheLayer,
     CacheManager,
     MultiLevelCache,
-    cache_llm,
-    cache_query,
-    cache_response,
-    cached,
     get_cache,
     get_multi_level_cache,
 )

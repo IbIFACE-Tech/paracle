@@ -4,18 +4,10 @@ Tests for GroupCollaborationEngine and related components.
 """
 
 from typing import Any
-from unittest.mock import AsyncMock, MagicMock
 
 import pytest
-
-from paracle_agent_comm.engine import (
-    AgentInterface,
-    AgentRegistryInterface,
-    EventBusInterface,
-    GroupCollaborationEngine,
-)
+from paracle_agent_comm.engine import GroupCollaborationEngine
 from paracle_agent_comm.exceptions import (
-    AgentNotInGroupError,
     CoordinatorRequiredError,
     MaxMessagesExceededError,
     SessionTimeoutError,
@@ -467,6 +459,7 @@ class TestGroupCollaborationEngineErrors:
         mock_registry: MockAgentRegistry,
     ):
         """Test error when session times out."""
+
         # Create agent that takes time
         async def slow_response(session, context):
             import asyncio

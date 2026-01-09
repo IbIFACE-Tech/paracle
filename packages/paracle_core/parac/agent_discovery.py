@@ -9,6 +9,7 @@ from typing import Any
 
 try:
     from paracle_profiling import cached, profile
+
     PROFILING_AVAILABLE = True
 except ImportError:
     # Profiling not available - use no-op decorators
@@ -17,11 +18,13 @@ except ImportError:
     def cached(*args, **kwargs):
         def decorator(func):
             return func
+
         return decorator
 
     def profile(*args, **kwargs):
         def decorator(func):
             return func
+
         return decorator
 
 
@@ -100,8 +103,9 @@ class AgentMetadata:
             id=agent_id,
             name=name or agent_id.title(),
             role=role or "Agent",
-            spec_file=str(spec_path.relative_to(
-                spec_path.parents[2])),  # Relative to .parac/
+            spec_file=str(
+                spec_path.relative_to(spec_path.parents[2])
+            ),  # Relative to .parac/
             capabilities=capabilities[:5],  # Limit to 5 main capabilities
             description=description,
         )
@@ -150,8 +154,7 @@ class AgentDiscovery:
             FileNotFoundError: If agents directory doesn't exist
         """
         if not self.agents_dir.exists():
-            raise FileNotFoundError(
-                f"Agents directory not found: {self.agents_dir}")
+            raise FileNotFoundError(f"Agents directory not found: {self.agents_dir}")
 
         # Load manifest for tools/skills enrichment
         manifest_data = self._load_manifest()
@@ -187,6 +190,7 @@ class AgentDiscovery:
 
         try:
             import yaml
+
             content = self.manifest_file.read_text(encoding="utf-8")
             self._manifest_cache = yaml.safe_load(content) or {}
         except Exception as e:
@@ -196,9 +200,7 @@ class AgentDiscovery:
         return self._manifest_cache
 
     def _enrich_from_manifest(
-        self,
-        agent: AgentMetadata,
-        manifest_data: dict[str, Any]
+        self, agent: AgentMetadata, manifest_data: dict[str, Any]
     ) -> None:
         """Enrich agent metadata with tools and skills from manifest.
 
@@ -213,17 +215,13 @@ class AgentDiscovery:
                 # Extract tools (strip comments)
                 tools = manifest_agent.get("tools", [])
                 agent.tools = [
-                    t.split("#")[0].strip()
-                    for t in tools
-                    if t.split("#")[0].strip()
+                    t.split("#")[0].strip() for t in tools if t.split("#")[0].strip()
                 ]
 
                 # Extract skills (strip comments)
                 skills = manifest_agent.get("skills", [])
                 agent.skills = [
-                    s.split("#")[0].strip()
-                    for s in skills
-                    if s.split("#")[0].strip()
+                    s.split("#")[0].strip() for s in skills if s.split("#")[0].strip()
                 ]
                 break
 

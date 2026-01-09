@@ -30,7 +30,7 @@ async def main():
             driver="bridge",
             subnet="172.28.0.0/16",
             gateway="172.28.0.1",
-            internal=True,      # No external access
+            internal=True,  # No external access
             attachable=True,
         )
 
@@ -43,10 +43,10 @@ async def main():
         # 2. Create network policy
         print("\n2. Defining network policy...")
         policy = NetworkPolicy(
-            allow_internet=False,           # Block internet
-            allow_intra_network=True,       # Allow network-internal
-            allowed_ports=[80, 443],        # Only HTTP/HTTPS
-            blocked_ips=["10.0.0.0/8"],    # Block private range
+            allow_internet=False,  # Block internet
+            allow_intra_network=True,  # Allow network-internal
+            allowed_ports=[80, 443],  # Only HTTP/HTTPS
+            blocked_ips=["10.0.0.0/8"],  # Block private range
         )
         print("   ✓ Policy defined")
         print(f"     - Internet: {policy.allow_internet}")
@@ -82,10 +82,9 @@ async def main():
 
         # 6. Execute network test
         print("\n6. Testing network connectivity...")
-        result = await sandbox.execute([
-            "python3", "-c",
-            "import socket; print('Network test: Can resolve DNS')"
-        ])
+        result = await sandbox.execute(
+            ["python3", "-c", "import socket; print('Network test: Can resolve DNS')"]
+        )
         print(f"   Exit code: {result['exit_code']}")
         print(f"   Output: {result['stdout'].strip()}")
 

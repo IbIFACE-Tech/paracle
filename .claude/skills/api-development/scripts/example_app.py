@@ -24,6 +24,7 @@ app = FastAPI(
 
 class AgentCreate(BaseModel):
     """Request model for creating an agent."""
+
     name: str = Field(..., min_length=1, max_length=100)
     model: str = Field(default="gpt-4")
     temperature: float = Field(default=0.7, ge=0.0, le=2.0)
@@ -31,10 +32,12 @@ class AgentCreate(BaseModel):
 
 class AgentResponse(BaseModel):
     """Response model for agent."""
+
     id: str
     name: str
     model: str
     temperature: float
+
 
 # Dependency injection example
 
@@ -43,6 +46,7 @@ async def get_current_user():
     """Dependency for authentication."""
     # In production, validate JWT token here
     return {"id": "user123", "name": "Test User"}
+
 
 # Endpoints
 
@@ -103,6 +107,8 @@ async def get_agent(
         temperature=0.7,
     )
 
+
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)

@@ -1,0 +1,52 @@
+# Set default behavior to automatically normalize line endings
+* text=auto
+
+# Python files
+*.py text eol=lf
+*.pyi text eol=lf
+*.pyx text eol=lf
+
+# Shell scripts
+*.sh text eol=lf
+*.bash text eol=lf
+
+# Config files
+*.yaml text eol=lf
+*.yml text eol=lf
+*.toml text eol=lf
+*.json text eol=lf
+*.ini text eol=lf
+*.cfg text eol=lf
+
+# Documentation
+*.md text eol=lf
+*.rst text eol=lf
+*.txt text eol=lf
+
+# Web files
+*.html text eol=lf
+*.css text eol=lf
+*.js text eol=lf
+
+# GitHub Actions
+.github/**/* text eol=lf
+
+# Explicitly declare binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.whl binary
+*.tar.gz binary
+*.zip binary
+
+# Git files
+.gitignore text eol=lf
+.gitattributes text eol=lf
+
+# IDE rules files (various line endings may be used)
+.cursorrules text eol=lf
+.clinerules text eol=lf
+.windsurfrules text eol=lf

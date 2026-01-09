@@ -50,15 +50,10 @@ from paracle_knowledge.chunkers import (
     TextChunker,
 )
 from paracle_knowledge.ingestion import DocumentIngestor, IngestResult
-from paracle_knowledge.rag import (
-    RAGConfig,
-    RAGContext,
-    RAGEngine,
-    RAGResponse,
-)
+from paracle_knowledge.rag import RAGConfig, RAGContext, RAGEngine, RAGResponse
 from paracle_knowledge.reranker import CrossEncoderReranker, Reranker
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 __all__ = [
     # Base types

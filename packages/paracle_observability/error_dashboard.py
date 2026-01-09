@@ -108,8 +108,7 @@ class ErrorDashboard:
             "type": "bar_chart",
             "title": f"Top {limit} Errors",
             "data": [
-                {"label": item["type"], "value": item["count"]}
-                for item in top_errors
+                {"label": item["type"], "value": item["count"]} for item in top_errors
             ],
         }
 
@@ -203,9 +202,7 @@ class ErrorDashboard:
                     "pattern_type": p["pattern_type"],
                     "description": self._format_pattern_description(p),
                     "severity": self._pattern_severity(p),
-                    "detected_at": datetime.fromtimestamp(
-                        p["detected_at"]
-                    ).isoformat(),
+                    "detected_at": datetime.fromtimestamp(p["detected_at"]).isoformat(),
                 }
                 for p in patterns
             ],
@@ -437,7 +434,8 @@ class ErrorDashboard:
         for factor in factors:
             if factor["factor"] == "high_error_rate":
                 recommendations.append(
-                    "Reduce error rate by fixing high-frequency issues")
+                    "Reduce error rate by fixing high-frequency issues"
+                )
             elif factor["factor"] == "critical_errors":
                 recommendations.append("Address critical errors immediately")
             elif factor["factor"] == "error_patterns":

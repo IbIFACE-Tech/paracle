@@ -15,9 +15,9 @@ from pathlib import Path
 async def test_real_workflow_execution():
     """Test real workflow execution."""
 
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("🚀 REAL WORKFLOW EXECUTION TEST")
-    print("="*70 + "\n")
+    print("=" * 70 + "\n")
 
     # Set API key check
     api_key = os.getenv("OPENAI_API_KEY")
@@ -36,6 +36,7 @@ async def test_real_workflow_execution():
         return False
 
     import yaml
+
     with open(workflow_path) as f:
         workflow = yaml.safe_load(f)
 
@@ -55,10 +56,9 @@ async def test_real_workflow_execution():
         runner = CliRunner()
 
         # Run workflow
-        result = runner.invoke(cli, [
-            'workflow', 'run', 'hello_world',
-            '--dry-run'  # Dry run first
-        ])
+        result = runner.invoke(
+            cli, ["workflow", "run", "hello_world", "--dry-run"]  # Dry run first
+        )
 
         print("📤 CLI Output:")
         print(result.output)
@@ -91,6 +91,7 @@ async def test_manual_orchestration():
         # Load workflow
         workflow_path = Path(".parac/workflows/templates/hello_world.yaml")
         import yaml
+
         with open(workflow_path) as f:
             workflow_data = yaml.safe_load(f)
 
@@ -108,11 +109,7 @@ async def test_manual_orchestration():
         # Execute (dry run)
         print("\n🔄 Executing workflow (dry-run)...\n")
 
-        result = await orchestrator.execute(
-            workflow_spec,
-            inputs={},
-            dry_run=True
-        )
+        result = await orchestrator.execute(workflow_spec, inputs={}, dry_run=True)
 
         print("✅ Execution completed!")
         print(f"   Status: {result.get('status', 'unknown')}")
@@ -123,6 +120,7 @@ async def test_manual_orchestration():
     except Exception as e:
         print(f"❌ Manual orchestration failed: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -130,9 +128,9 @@ async def test_manual_orchestration():
 async def show_available_workflows():
     """Show all available workflows."""
 
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("📚 AVAILABLE WORKFLOWS")
-    print("="*70 + "\n")
+    print("=" * 70 + "\n")
 
     catalog_path = Path(".parac/workflows/catalog.yaml")
 
@@ -141,6 +139,7 @@ async def show_available_workflows():
         return
 
     import yaml
+
     with open(catalog_path) as f:
         catalog = yaml.safe_load(f)
 
@@ -159,7 +158,7 @@ async def show_available_workflows():
     ]
 
     for name, desc in test_workflows:
-        wf = next((w for w in workflows if w['name'] == name), None)
+        wf = next((w for w in workflows if w["name"] == name), None)
         if wf:
             status_emoji = "✅" if wf.get("status") == "active" else "⚠️"
             print(f"   {status_emoji} {name}")
@@ -180,9 +179,9 @@ async def main():
     success = await test_real_workflow_execution()
 
     # Summary
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("📊 TEST SUMMARY")
-    print("="*70)
+    print("=" * 70)
 
     if success:
         print("\n✅ Workflow execution test PASSED")
@@ -197,7 +196,7 @@ async def main():
         print("   2. Verify agents in .github/agents/")
         print("   3. Install dependencies: uv sync")
 
-    print("\n" + "="*70 + "\n")
+    print("\n" + "=" * 70 + "\n")
 
     return success
 
@@ -212,5 +211,6 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n❌ Failed: {e}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)

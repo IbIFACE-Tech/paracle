@@ -1,7 +1,6 @@
 """Tests for built-in shell tools."""
 
 import pytest
-
 from paracle_tools.builtin.shell import RunCommandTool
 
 
@@ -77,11 +76,12 @@ class TestRunCommandTool:
     async def test_command_timeout(self):
         # Arrange
         import sys
+
         tool = RunCommandTool(allowed_commands=["python", "sleep"], timeout=0.1)
 
         # Act - Command that sleeps longer than timeout
         if sys.platform == "win32":
-            cmd = "python -c \"import time; time.sleep(5)\""
+            cmd = 'python -c "import time; time.sleep(5)"'
         else:
             cmd = "sleep 5"
         result = await tool.execute(command=cmd)
@@ -121,7 +121,7 @@ class TestRunCommandTool:
         tool = RunCommandTool(allowed_commands=["python"])
 
         # Act - Python command that exits with error code
-        result = await tool.execute(command="python -c \"import sys; sys.exit(1)\"")
+        result = await tool.execute(command='python -c "import sys; sys.exit(1)"')
 
         # Assert
         assert result.success is True  # Tool executes successfully

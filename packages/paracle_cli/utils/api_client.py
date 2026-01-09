@@ -14,7 +14,9 @@ DEFAULT_TIMEOUT = 5.0  # seconds
 class APIClient:
     """HTTP client for Paracle API."""
 
-    def __init__(self, base_url: str = DEFAULT_API_URL, timeout: float = DEFAULT_TIMEOUT):
+    def __init__(
+        self, base_url: str = DEFAULT_API_URL, timeout: float = DEFAULT_TIMEOUT
+    ):
         """Initialize API client.
 
         Args:
@@ -24,7 +26,9 @@ class APIClient:
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
 
-    def post(self, endpoint: str, json: dict[str, Any] | None = None) -> dict[str, Any] | None:
+    def post(
+        self, endpoint: str, json: dict[str, Any] | None = None
+    ) -> dict[str, Any] | None:
         """POST request to API.
 
         Args:
@@ -45,7 +49,9 @@ class APIClient:
         except (httpx.HTTPError, httpx.ConnectError, httpx.TimeoutException):
             return None
 
-    def get(self, endpoint: str, params: dict[str, Any] | None = None) -> dict[str, Any] | None:
+    def get(
+        self, endpoint: str, params: dict[str, Any] | None = None
+    ) -> dict[str, Any] | None:
         """GET request to API.
 
         Args:

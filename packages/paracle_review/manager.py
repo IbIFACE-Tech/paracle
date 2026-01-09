@@ -72,8 +72,7 @@ class ReviewManager:
 
         # Detect risk level if not provided
         if not risk_level:
-            risk_level = self._assess_risk(
-                artifact_type, artifact_content or {})
+            risk_level = self._assess_risk(artifact_type, artifact_content or {})
 
         # Calculate expiration
         expires_at = None
@@ -107,10 +106,7 @@ class ReviewManager:
             await self._notify_review_created(review)
 
         # Auto-approve if policy allows
-        if (
-            self.config.policy.auto_approve_low_risk
-            and risk_level == "low"
-        ):
+        if self.config.policy.auto_approve_low_risk and risk_level == "low":
             await self.approve(review_id, reviewer="system")
             logger.info(f"Auto-approved low-risk review {review_id}")
 
@@ -135,8 +131,7 @@ class ReviewManager:
         """
         review = self.reviews.get(review_id)
         if not review:
-            raise ReviewNotFoundError(
-                f"Review not found: {review_id}", review_id)
+            raise ReviewNotFoundError(f"Review not found: {review_id}", review_id)
 
         # Check if already decided
         if review.status != ReviewStatus.PENDING:
@@ -194,8 +189,7 @@ class ReviewManager:
         """
         review = self.reviews.get(review_id)
         if not review:
-            raise ReviewNotFoundError(
-                f"Review not found: {review_id}", review_id)
+            raise ReviewNotFoundError(f"Review not found: {review_id}", review_id)
 
         if review.status != ReviewStatus.PENDING:
             raise ReviewAlreadyDecidedError(
@@ -226,8 +220,7 @@ class ReviewManager:
         """
         review = self.reviews.get(review_id)
         if not review:
-            raise ReviewNotFoundError(
-                f"Review not found: {review_id}", review_id)
+            raise ReviewNotFoundError(f"Review not found: {review_id}", review_id)
 
         review.status = ReviewStatus.CANCELLED
         review.updated_at = datetime.utcnow()
@@ -248,8 +241,7 @@ class ReviewManager:
         """
         review = self.reviews.get(review_id)
         if not review:
-            raise ReviewNotFoundError(
-                f"Review not found: {review_id}", review_id)
+            raise ReviewNotFoundError(f"Review not found: {review_id}", review_id)
 
         # Check and update if expired
         if review.status == ReviewStatus.PENDING and review.is_expired():
@@ -291,8 +283,7 @@ class ReviewManager:
         Returns:
             Number of pending reviews
         """
-        reviews = self.list_reviews(
-            status=ReviewStatus.PENDING, sandbox_id=sandbox_id)
+        reviews = self.list_reviews(status=ReviewStatus.PENDING, sandbox_id=sandbox_id)
         return len(reviews)
 
     async def _should_review(
@@ -381,8 +372,8 @@ class ReviewManager:
 
         for review_id, review in list(self.reviews.items()):
             if (
-                review.status in [ReviewStatus.APPROVED,
-                                  ReviewStatus.REJECTED, ReviewStatus.TIMEOUT]
+                review.status
+                in [ReviewStatus.APPROVED, ReviewStatus.REJECTED, ReviewStatus.TIMEOUT]
                 and review.updated_at < cutoff
             ):
                 self.reviews.pop(review_id)

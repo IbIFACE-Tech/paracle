@@ -85,9 +85,7 @@ def _group_tools_by_category(schemas: list) -> dict[str, list]:
     return groups
 
 
-def _print_tools_table(
-    title: str, tools: list, style: str = "cyan"
-) -> None:
+def _print_tools_table(title: str, tools: list, style: str = "cyan") -> None:
     """Print a formatted table of tools.
 
     Args:
@@ -115,7 +113,13 @@ def _print_tools_table(
 
 
 @click.group(invoke_without_command=True)
-@click.option("--list", "-l", "list_flag", is_flag=True, help="List MCP tools (shortcut for 'list')")
+@click.option(
+    "--list",
+    "-l",
+    "list_flag",
+    is_flag=True,
+    help="List MCP tools (shortcut for 'list')",
+)
 @click.pass_context
 def mcp(ctx: click.Context, list_flag: bool) -> None:
     """MCP server commands.
@@ -171,9 +175,7 @@ def mcp(ctx: click.Context, list_flag: bool) -> None:
     default="none",
     help="Authentication method for WebSocket (default: none)",
 )
-def mcp_serve(
-    stdio: bool, websocket: bool, host: str, port: int, auth: str
-) -> None:
+def mcp_serve(stdio: bool, websocket: bool, host: str, port: int, auth: str) -> None:
     """Start MCP server exposing Paracle tools.
 
     The MCP server exposes all Paracle tools to IDEs and AI assistants:
@@ -225,8 +227,7 @@ def mcp_serve(
 
     # Validate flags
     if stdio and websocket:
-        console.print(
-            "[red]Error:[/red] Cannot use both --stdio and --websocket")
+        console.print("[red]Error:[/red] Cannot use both --stdio and --websocket")
         raise SystemExit(1)
 
     if stdio:
@@ -272,27 +273,19 @@ def _serve_websocket(server, host: str, port: int, auth: str) -> None:
     console.print("\n[dim]Press Ctrl+C to stop.[/dim]\n")
 
     if auth == "jwt":
-        console.print(
-            "[yellow]Note:[/yellow] JWT authentication requires valid token"
-        )
-        console.print(
-            "[dim]Generate token with: paracle auth generate-token[/dim]\n"
-        )
+        console.print("[yellow]Note:[/yellow] JWT authentication requires valid token")
+        console.print("[dim]Generate token with: paracle auth generate-token[/dim]\n")
 
     try:
         server.serve_websocket(host=host, port=port, auth=auth)
     except KeyboardInterrupt:
         console.print("\n[dim]MCP server stopped.[/dim]")
     except ImportError:
-        console.print(
-            "[red]Error:[/red] WebSocket transport requires websockets."
-        )
+        console.print("[red]Error:[/red] WebSocket transport requires websockets.")
         console.print("Install with: pip install websockets")
         raise SystemExit(1)
     except AttributeError:
-        console.print(
-            "[red]Error:[/red] WebSocket server not implemented yet."
-        )
+        console.print("[red]Error:[/red] WebSocket server not implemented yet.")
         console.print("This feature will be available in v1.3.0.")
         raise SystemExit(1)
 
@@ -330,6 +323,7 @@ def mcp_list(as_json: bool, category: str) -> None:
 
     if as_json:
         import json
+
         console.print(json.dumps(schemas, indent=2))
         return
 
@@ -462,6 +456,4 @@ def _show_all_ide_configs(configs: dict) -> None:
         console.print(cfg["config"])
         console.print()
 
-    console.print(
-        "[dim]After configuring, restart your IDE to enable MCP tools.[/dim]"
-    )
+    console.print("[dim]After configuring, restart your IDE to enable MCP tools.[/dim]")

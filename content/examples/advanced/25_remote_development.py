@@ -172,7 +172,9 @@ if __name__ == "__main__":
 
         print("\n" + "=" * 50)
         print("\nTo run remote examples:")
-        print("  python 25_remote_development.py user@your-server.com /path/to/workspace")
+        print(
+            "  python 25_remote_development.py user@your-server.com /path/to/workspace"
+        )
         print("\nOr use CLI:")
         print("  paracle remote add production user@prod.com /opt/paracle")
         print("  paracle remote test production")

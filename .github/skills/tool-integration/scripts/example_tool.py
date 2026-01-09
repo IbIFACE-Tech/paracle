@@ -11,14 +11,15 @@ from pydantic import BaseModel, Field
 
 class ToolInput(BaseModel):
     """Input schema for the tool."""
+
     query: str = Field(..., description="The search query")
     limit: int = Field(default=10, ge=1, le=100, description="Max results")
-    filters: dict[str, str] | None = Field(
-        default=None, description="Optional filters")
+    filters: dict[str, str] | None = Field(default=None, description="Optional filters")
 
 
 class ToolResult(BaseModel):
     """Result schema for the tool."""
+
     success: bool
     output: str
     metadata: dict[str, Any] | None = None

@@ -7,14 +7,8 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
-
-from paracle_connection_pool import (
-    HTTPPool,
-    PoolMonitor,
-    PoolStats,
-    get_pool_monitor,
-)
-from paracle_connection_pool.db_pool import DatabasePoolConfig, SQLALCHEMY_AVAILABLE
+from paracle_connection_pool import HTTPPool, PoolMonitor, PoolStats, get_pool_monitor
+from paracle_connection_pool.db_pool import SQLALCHEMY_AVAILABLE, DatabasePoolConfig
 from paracle_connection_pool.http_pool import HTTPPoolConfig
 
 # Conditional import for DatabasePool
@@ -90,9 +84,7 @@ class TestHTTPPool:
     def test_init_without_httpx(self):
         """Test initialization fails without httpx."""
         with patch.dict("sys.modules", {"httpx": None}):
-            with patch(
-                "paracle_connection_pool.http_pool.HTTPX_AVAILABLE", False
-            ):
+            with patch("paracle_connection_pool.http_pool.HTTPX_AVAILABLE", False):
                 with pytest.raises(ImportError):
                     HTTPPool()
 

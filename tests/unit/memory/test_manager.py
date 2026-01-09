@@ -1,11 +1,9 @@
 """Tests for MemoryManager."""
 
 import pytest
-
 from paracle_memory.config import MemoryBackend, MemoryConfig
 from paracle_memory.manager import MemoryManager, create_memory_manager
 from paracle_memory.models import MemoryType
-from paracle_memory.store import InMemoryStore
 
 
 class TestMemoryManager:

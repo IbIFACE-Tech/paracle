@@ -78,12 +78,7 @@ class MSAFAdapter(FrameworkAdapter):
         >>> agent = await adapter.create_agent(agent_spec)
     """
 
-    def __init__(
-        self,
-        client: Any = None,
-        project_client: Any = None,
-        **config: Any
-    ):
+    def __init__(self, client: Any = None, project_client: Any = None, **config: Any):
         """
         Initialize MSAF adapter.
 
@@ -253,9 +248,9 @@ class MSAFAdapter(FrameworkAdapter):
 
         # Get input message
         user_input = (
-            input_data.get("input") or
-            input_data.get("prompt") or
-            input_data.get("message", "")
+            input_data.get("input")
+            or input_data.get("prompt")
+            or input_data.get("message", "")
         )
 
         # Run agent
@@ -281,9 +276,9 @@ class MSAFAdapter(FrameworkAdapter):
 
         # Get message content
         message_content = (
-            input_data.get("input") or
-            input_data.get("prompt") or
-            input_data.get("message", "")
+            input_data.get("input")
+            or input_data.get("prompt")
+            or input_data.get("message", "")
         )
 
         # Create message in thread
@@ -392,30 +387,37 @@ class MSAFAdapter(FrameworkAdapter):
                     tools.append({"type": "file_search"})
                 else:
                     # Custom function tool (simplified)
-                    tools.append({
-                        "type": "function",
-                        "function": {
-                            "name": tool_spec,
-                            "description": f"Tool: {tool_spec}",
-                            "parameters": {
-                                "type": "object",
-                                "properties": {},
+                    tools.append(
+                        {
+                            "type": "function",
+                            "function": {
+                                "name": tool_spec,
+                                "description": f"Tool: {tool_spec}",
+                                "parameters": {
+                                    "type": "object",
+                                    "properties": {},
+                                },
                             },
-                        },
-                    })
+                        }
+                    )
             elif isinstance(tool_spec, dict):
                 # Detailed tool spec
-                tools.append({
-                    "type": "function",
-                    "function": {
-                        "name": tool_spec.get("name", "unknown"),
-                        "description": tool_spec.get("description", ""),
-                        "parameters": tool_spec.get("parameters", {
-                            "type": "object",
-                            "properties": {},
-                        }),
-                    },
-                })
+                tools.append(
+                    {
+                        "type": "function",
+                        "function": {
+                            "name": tool_spec.get("name", "unknown"),
+                            "description": tool_spec.get("description", ""),
+                            "parameters": tool_spec.get(
+                                "parameters",
+                                {
+                                    "type": "object",
+                                    "properties": {},
+                                },
+                            ),
+                        },
+                    }
+                )
 
         return tools
 
@@ -430,17 +432,21 @@ class MSAFAdapter(FrameworkAdapter):
         features = ["agents", "tools", "async"]
 
         if self._use_new_sdk:
-            features.extend([
-                "graph_workflows",
-                "opentelemetry",
-                "middleware",
-            ])
+            features.extend(
+                [
+                    "graph_workflows",
+                    "opentelemetry",
+                    "middleware",
+                ]
+            )
         else:
-            features.extend([
-                "threads",
-                "file_search",
-                "code_interpreter",
-            ])
+            features.extend(
+                [
+                    "threads",
+                    "file_search",
+                    "code_interpreter",
+                ]
+            )
 
         return features
 
@@ -459,7 +465,9 @@ class MSAFAdapter(FrameworkAdapter):
         """
         # Check for at least one client
         has_client = "client" in config and config["client"] is not None
-        has_project = "project_client" in config and config["project_client"] is not None
+        has_project = (
+            "project_client" in config and config["project_client"] is not None
+        )
 
         if not has_client and not has_project:
             raise ValueError(
@@ -480,6 +488,7 @@ class MSAFAdapter(FrameworkAdapter):
         if MSAF_VERSION == "agent-framework":
             try:
                 import agent_framework
+
                 info["package_version"] = getattr(
                     agent_framework, "__version__", "unknown"
                 )
@@ -488,6 +497,7 @@ class MSAFAdapter(FrameworkAdapter):
         elif MSAF_VERSION == "azure-ai-projects":
             try:
                 import azure.ai.projects
+
                 info["package_version"] = getattr(
                     azure.ai.projects, "__version__", "unknown"
                 )

@@ -26,7 +26,6 @@ Example:
 
 import asyncio
 import fnmatch
-import os
 import shutil
 import time
 from datetime import datetime, timezone
@@ -46,39 +45,27 @@ class FileSystemConfig(CapabilityConfig):
     """Configuration for FileSystem capability."""
 
     base_path: str | None = Field(
-        default=None,
-        description="Base path for all operations (defaults to cwd)"
+        default=None, description="Base path for all operations (defaults to cwd)"
     )
     allow_absolute_paths: bool = Field(
         default=False,
-        description="Allow operations on absolute paths outside base_path"
+        description="Allow operations on absolute paths outside base_path",
     )
     create_backups: bool = Field(
-        default=True,
-        description="Create backup before modifying files"
+        default=True, description="Create backup before modifying files"
     )
-    backup_suffix: str = Field(
-        default=".bak",
-        description="Suffix for backup files"
-    )
+    backup_suffix: str = Field(default=".bak", description="Suffix for backup files")
     max_file_size_mb: float = Field(
-        default=10.0,
-        ge=0.1,
-        le=100.0,
-        description="Maximum file size to read in MB"
+        default=10.0, ge=0.1, le=100.0, description="Maximum file size to read in MB"
     )
     allowed_extensions: list[str] | None = Field(
-        default=None,
-        description="Allowed file extensions (None = all)"
+        default=None, description="Allowed file extensions (None = all)"
     )
     blocked_paths: list[str] = Field(
         default_factory=lambda: [".git", "__pycache__", "node_modules", ".env"],
-        description="Blocked path patterns"
+        description="Blocked path patterns",
     )
-    enable_git: bool = Field(
-        default=True,
-        description="Enable git operations"
-    )
+    enable_git: bool = Field(default=True, description="Enable git operations")
 
 
 class FileSystemCapability(BaseCapability):
@@ -294,7 +281,9 @@ class FileSystemCapability(BaseCapability):
         # Check file size
         size_mb = resolved.stat().st_size / (1024 * 1024)
         if size_mb > self.config.max_file_size_mb:
-            raise ValueError(f"File too large: {size_mb:.2f} MB (max: {self.config.max_file_size_mb} MB)")
+            raise ValueError(
+                f"File too large: {size_mb:.2f} MB (max: {self.config.max_file_size_mb} MB)"
+            )
 
         # Read content
         content = resolved.read_text(encoding="utf-8")
@@ -453,7 +442,9 @@ class FileSystemCapability(BaseCapability):
             "path": str(path),
             "type": "directory" if path.is_dir() else "file",
             "size_bytes": stat.st_size if path.is_file() else 0,
-            "modified": datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc).isoformat(),
+            "modified": datetime.fromtimestamp(
+                stat.st_mtime, tz=timezone.utc
+            ).isoformat(),
         }
 
     async def _glob_files(
@@ -467,12 +458,14 @@ class FileSystemCapability(BaseCapability):
         matches = []
         for match in resolved.glob(pattern):
             if match.is_file():
-                matches.append({
-                    "path": str(match),
-                    "name": match.name,
-                    "relative": str(match.relative_to(resolved)),
-                    "size_bytes": match.stat().st_size,
-                })
+                matches.append(
+                    {
+                        "path": str(match),
+                        "name": match.name,
+                        "relative": str(match.relative_to(resolved)),
+                        "size_bytes": match.stat().st_size,
+                    }
+                )
 
         return {
             "pattern": pattern,
@@ -496,9 +489,15 @@ class FileSystemCapability(BaseCapability):
             "type": "directory" if resolved.is_dir() else "file",
             "size_bytes": stat.st_size,
             "extension": resolved.suffix,
-            "created": datetime.fromtimestamp(stat.st_ctime, tz=timezone.utc).isoformat(),
-            "modified": datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc).isoformat(),
-            "accessed": datetime.fromtimestamp(stat.st_atime, tz=timezone.utc).isoformat(),
+            "created": datetime.fromtimestamp(
+                stat.st_ctime, tz=timezone.utc
+            ).isoformat(),
+            "modified": datetime.fromtimestamp(
+                stat.st_mtime, tz=timezone.utc
+            ).isoformat(),
+            "accessed": datetime.fromtimestamp(
+                stat.st_atime, tz=timezone.utc
+            ).isoformat(),
             "permissions": oct(stat.st_mode)[-3:],
         }
 
@@ -578,11 +577,13 @@ class FileSystemCapability(BaseCapability):
                 content = file_path.read_text(encoding="utf-8")
                 for i, line in enumerate(content.split("\n"), 1):
                     if regex.search(line):
-                        matches.append({
-                            "file": str(file_path),
-                            "line_number": i,
-                            "line": line.strip()[:200],
-                        })
+                        matches.append(
+                            {
+                                "file": str(file_path),
+                                "line_number": i,
+                                "line": line.strip()[:200],
+                            }
+                        )
             except (UnicodeDecodeError, PermissionError):
                 continue
 
@@ -602,7 +603,9 @@ class FileSystemCapability(BaseCapability):
 
         try:
             proc = await asyncio.create_subprocess_exec(
-                "git", "status", "--porcelain",
+                "git",
+                "status",
+                "--porcelain",
                 cwd=str(self._base_path),
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
@@ -635,7 +638,9 @@ class FileSystemCapability(BaseCapability):
 
             # Get branch
             branch_proc = await asyncio.create_subprocess_exec(
-                "git", "branch", "--show-current",
+                "git",
+                "branch",
+                "--show-current",
                 cwd=str(self._base_path),
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,

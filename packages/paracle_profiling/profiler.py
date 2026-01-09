@@ -83,8 +83,7 @@ class Profiler:
             return {}
 
         durations = [e.duration for e in entries]
-        memory_deltas = [
-            e.memory_delta for e in entries if e.memory_delta is not None]
+        memory_deltas = [e.memory_delta for e in entries if e.memory_delta is not None]
 
         return {
             "name": name,
@@ -94,9 +93,19 @@ class Profiler:
             "min_time": min(durations),
             "max_time": max(durations),
             "p50_time": sorted(durations)[len(durations) // 2],
-            "p95_time": sorted(durations)[int(len(durations) * 0.95)] if len(durations) > 1 else durations[0],
-            "p99_time": sorted(durations)[int(len(durations) * 0.99)] if len(durations) > 1 else durations[0],
-            "memory_avg": sum(memory_deltas) / len(memory_deltas) if memory_deltas else None,
+            "p95_time": (
+                sorted(durations)[int(len(durations) * 0.95)]
+                if len(durations) > 1
+                else durations[0]
+            ),
+            "p99_time": (
+                sorted(durations)[int(len(durations) * 0.99)]
+                if len(durations) > 1
+                else durations[0]
+            ),
+            "memory_avg": (
+                sum(memory_deltas) / len(memory_deltas) if memory_deltas else None
+            ),
             "memory_max": max(memory_deltas) if memory_deltas else None,
         }
 
@@ -113,6 +122,7 @@ def profile(name: str | None = None, track_memory: bool = False) -> Callable:
         def my_function():
             ...
     """
+
     def decorator(func: Callable) -> Callable:
         # Use simple function name by default for easier querying
         profile_name = name or func.__name__
@@ -127,6 +137,7 @@ def profile(name: str | None = None, track_memory: bool = False) -> Callable:
             if track_memory:
                 try:
                     import psutil
+
                     process = psutil.Process()
                     memory_start = process.memory_info().rss
                 except ImportError:
@@ -144,6 +155,7 @@ def profile(name: str | None = None, track_memory: bool = False) -> Callable:
                 if track_memory and memory_start is not None:
                     try:
                         import psutil
+
                         process = psutil.Process()
                         memory_end = process.memory_info().rss
                     except ImportError:
@@ -156,17 +168,18 @@ def profile(name: str | None = None, track_memory: bool = False) -> Callable:
                     duration=duration,
                     memory_start=memory_start,
                     memory_end=memory_end,
-                    metadata={"args_count": len(
-                        args), "kwargs_count": len(kwargs)},
+                    metadata={"args_count": len(args), "kwargs_count": len(kwargs)},
                 )
                 Profiler.record(entry)
 
                 # Log slow operations
                 if duration > 1.0:  # > 1 second
                     logger.warning(
-                        f"Slow operation: {profile_name} took {duration:.2f}s")
+                        f"Slow operation: {profile_name} took {duration:.2f}s"
+                    )
 
         return wrapper
+
     return decorator
 
 
@@ -182,6 +195,7 @@ def profile_async(name: str | None = None, track_memory: bool = False) -> Callab
         async def my_async_function():
             ...
     """
+
     def decorator(func: Callable) -> Callable:
         # Use simple function name by default for easier querying
         profile_name = name or func.__name__
@@ -196,6 +210,7 @@ def profile_async(name: str | None = None, track_memory: bool = False) -> Callab
             if track_memory:
                 try:
                     import psutil
+
                     process = psutil.Process()
                     memory_start = process.memory_info().rss
                 except ImportError:
@@ -213,6 +228,7 @@ def profile_async(name: str | None = None, track_memory: bool = False) -> Callab
                 if track_memory and memory_start is not None:
                     try:
                         import psutil
+
                         process = psutil.Process()
                         memory_end = process.memory_info().rss
                     except ImportError:
@@ -225,17 +241,18 @@ def profile_async(name: str | None = None, track_memory: bool = False) -> Callab
                     duration=duration,
                     memory_start=memory_start,
                     memory_end=memory_end,
-                    metadata={"args_count": len(
-                        args), "kwargs_count": len(kwargs)},
+                    metadata={"args_count": len(args), "kwargs_count": len(kwargs)},
                 )
                 Profiler.record(entry)
 
                 # Log slow operations
                 if duration > 1.0:  # > 1 second
                     logger.warning(
-                        f"Slow async operation: {profile_name} took {duration:.2f}s")
+                        f"Slow async operation: {profile_name} took {duration:.2f}s"
+                    )
 
         return wrapper
+
     return decorator
 
 

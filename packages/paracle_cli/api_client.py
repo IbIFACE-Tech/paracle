@@ -476,10 +476,7 @@ class APIClient:
             ExecutionCancelResponse as dict
         """
         with httpx.Client(timeout=self.timeout) as client:
-            url = (
-                f"{self.base_url}/api/workflows/"
-                f"executions/{execution_id}/cancel"
-            )
+            url = f"{self.base_url}/api/workflows/" f"executions/{execution_id}/cancel"
             response = client.post(
                 url,
                 headers=self._get_headers(),
@@ -1342,9 +1339,7 @@ class APIClient:
             )
             return self._handle_response(response)
 
-    def alerts_silence(
-        self, fingerprint: str, duration: int = 3600
-    ) -> dict[str, Any]:
+    def alerts_silence(self, fingerprint: str, duration: int = 3600) -> dict[str, Any]:
         """Silence an alert.
 
         Args:
@@ -1399,6 +1394,7 @@ def use_api_or_fallback(api_func, fallback_func, *args, **kwargs):
         Result from either function
     """
     from rich.console import Console
+
     console = Console()
 
     client = get_client()

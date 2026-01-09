@@ -125,13 +125,9 @@ class LogConfig(BaseModel):
 
         json_fmt = os.getenv("PARACLE_LOG_JSON", "false").lower() == "true"
         log_file = os.getenv("PARACLE_LOG_FILE")
-        audit_enabled = (
-            os.getenv("PARACLE_LOG_AUDIT", "true").lower() == "true"
-        )
+        audit_enabled = os.getenv("PARACLE_LOG_AUDIT", "true").lower() == "true"
         audit_file = os.getenv("PARACLE_LOG_AUDIT_FILE")
-        use_platform = (
-            os.getenv("PARACLE_USE_PLATFORM_PATHS", "true").lower() == "true"
-        )
+        use_platform = os.getenv("PARACLE_USE_PLATFORM_PATHS", "true").lower() == "true"
 
         # Use platform-specific paths if enabled and no explicit path
         if use_platform and log_file is None:
@@ -235,10 +231,7 @@ def configure_logging(
 
 def _apply_config(config: LogConfig) -> None:
     """Apply configuration to Python logging system."""
-    from paracle_core.logging.handlers import (
-        ParacleFileHandler,
-        ParacleStreamHandler,
-    )
+    from paracle_core.logging.handlers import ParacleFileHandler, ParacleStreamHandler
     from paracle_core.logging.structured import JsonFormatter, StructuredFormatter
 
     # Get root logger for paracle

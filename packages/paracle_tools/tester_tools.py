@@ -367,8 +367,7 @@ class TestExecutionTool(BaseTool):
             tree = ET.parse(xml_path)
             root = tree.getroot()
 
-            testsuite = root if root.tag == "testsuite" else root.find(
-                "testsuite")
+            testsuite = root if root.tag == "testsuite" else root.find("testsuite")
             if testsuite is None:
                 return {"error": "Invalid JUnit XML format"}
 
@@ -477,9 +476,11 @@ class CoverageAnalysisTool(BaseTool):
                         coverage_pct = parts[-1].rstrip("%")
                         return {
                             "total_coverage": float(coverage_pct),
-                            "status": "good"
-                            if float(coverage_pct) >= 80
-                            else "needs_improvement",
+                            "status": (
+                                "good"
+                                if float(coverage_pct) >= 80
+                                else "needs_improvement"
+                            ),
                         }
                     except ValueError:
                         pass

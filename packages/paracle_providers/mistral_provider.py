@@ -108,8 +108,7 @@ class MistralProvider(LLMProvider):
 
         except httpx.HTTPStatusError as e:
             raise LLMProviderError(
-                f"Mistral API error: {e.response.status_code} - "
-                f"{e.response.text}"
+                f"Mistral API error: {e.response.status_code} - " f"{e.response.text}"
             ) from e
         except Exception as e:
             raise LLMProviderError(f"Mistral provider error: {e}") from e

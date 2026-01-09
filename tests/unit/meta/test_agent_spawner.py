@@ -1,7 +1,6 @@
 """Unit tests for paracle_meta.capabilities.agent_spawner module."""
 
 import pytest
-
 from paracle_meta.capabilities.agent_spawner import (
     AgentPool,
     AgentSpawner,
@@ -24,7 +23,10 @@ class TestSpawnConfig:
         assert config.scale_up_threshold == 0.8
         assert config.scale_down_threshold == 0.2
         assert config.min_agents == 0
-        assert "claude" in config.default_model.lower() or "anthropic" in config.default_model.lower()
+        assert (
+            "claude" in config.default_model.lower()
+            or "anthropic" in config.default_model.lower()
+        )
 
     def test_custom_values(self):
         """Test custom configuration values."""

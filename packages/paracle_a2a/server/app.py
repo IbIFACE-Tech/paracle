@@ -251,9 +251,7 @@ def create_a2a_app(
             return await handle_tasks_cancel(params)
         elif method == "tasks/sendSubscribe":
             # Would return SSE stream - handled separately
-            raise MethodNotFoundError(
-                "Use GET /stream/{task_id} for streaming"
-            )
+            raise MethodNotFoundError("Use GET /stream/{task_id} for streaming")
         else:
             raise MethodNotFoundError(f"Unknown method: {method}")
 
@@ -289,9 +287,8 @@ def create_a2a_app(
         messages = await task_manager.get_task_messages(task.id)
         # Fire and forget execution
         import asyncio
-        asyncio.create_task(
-            executor.execute_task(agent_id, task, messages)
-        )
+
+        asyncio.create_task(executor.execute_task(agent_id, task, messages))
 
         return task_to_response(task)
 
@@ -350,7 +347,9 @@ def create_a2a_app(
         return task.model_dump(
             by_alias=True,
             exclude_none=True,
-            exclude={"history"} if not config.enable_state_transition_history else set(),
+            exclude=(
+                {"history"} if not config.enable_state_transition_history else set()
+            ),
         )
 
     # SSE Streaming endpoint

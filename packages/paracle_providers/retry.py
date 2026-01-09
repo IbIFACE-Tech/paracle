@@ -67,7 +67,7 @@ class RetryConfig:
             Delay in seconds
         """
         # Exponential backoff: base_delay * (exponential_base ^ attempt)
-        delay = self.base_delay * (self.exponential_base ** attempt)
+        delay = self.base_delay * (self.exponential_base**attempt)
 
         # Cap at max_delay
         delay = min(delay, self.max_delay)
@@ -145,9 +145,7 @@ async def retry_with_backoff(
 
             # Check if exception is retryable
             if not config.is_retryable(exc):
-                logger.error(
-                    f"{operation_name} failed with non-retryable error: {exc}"
-                )
+                logger.error(f"{operation_name} failed with non-retryable error: {exc}")
                 raise
 
             # Calculate delay, respecting retry_after for rate limits

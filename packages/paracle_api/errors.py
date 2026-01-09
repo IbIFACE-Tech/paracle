@@ -290,8 +290,11 @@ def _serialize_validation_error(error: dict[str, Any]) -> dict[str, Any]:
         if key == "ctx" and isinstance(value, dict):
             # Serialize context values to strings
             result[key] = {
-                k: str(v) if not isinstance(v, str | int | float | bool | type(None))
-                else v
+                k: (
+                    str(v)
+                    if not isinstance(v, str | int | float | bool | type(None))
+                    else v
+                )
                 for k, v in value.items()
             }
         elif isinstance(value, str | int | float | bool | type(None) | list | tuple):
@@ -327,9 +330,7 @@ def not_found_error_to_problem(
     resource_id: str,
 ) -> ProblemDetails:
     """Create ProblemDetails for resource not found errors."""
-    detail = (
-        f"The requested {resource_type.lower()} '{resource_id}' was not found"
-    )
+    detail = f"The requested {resource_type.lower()} '{resource_id}' was not found"
     extensions = {
         "resource_type": resource_type,
         "resource_id": resource_id,
@@ -351,9 +352,7 @@ def internal_error_to_problem(
 ) -> ProblemDetails:
     """Create ProblemDetails for unhandled internal errors."""
     detail = None if is_production else str(exc)
-    extensions = (
-        None if is_production else {"exception_type": type(exc).__name__}
-    )
+    extensions = None if is_production else {"exception_type": type(exc).__name__}
 
     return create_problem_details(
         request=request,

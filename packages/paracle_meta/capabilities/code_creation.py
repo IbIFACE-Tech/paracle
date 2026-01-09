@@ -33,7 +33,6 @@ Example:
 """
 
 import time
-from pathlib import Path
 from typing import Any
 
 from pydantic import Field
@@ -47,50 +46,36 @@ from paracle_meta.capabilities.base import (
     CapabilityConfig,
     CapabilityResult,
 )
-from paracle_meta.capabilities.filesystem import (
-    FileSystemCapability,
-    FileSystemConfig,
-)
+from paracle_meta.capabilities.filesystem import FileSystemCapability, FileSystemConfig
 
 
 class CodeCreationConfig(CapabilityConfig):
     """Configuration for Code Creation capability."""
 
     output_path: str | None = Field(
-        default=None,
-        description="Default output path for generated code"
+        default=None, description="Default output path for generated code"
     )
     default_language: str = Field(
-        default="python",
-        description="Default programming language"
+        default="python", description="Default programming language"
     )
     include_docstrings: bool = Field(
-        default=True,
-        description="Include docstrings in generated code"
+        default=True, description="Include docstrings in generated code"
     )
     include_type_hints: bool = Field(
-        default=True,
-        description="Include type hints (for Python)"
+        default=True, description="Include type hints (for Python)"
     )
-    test_framework: str = Field(
-        default="pytest",
-        description="Default test framework"
-    )
+    test_framework: str = Field(default="pytest", description="Default test framework")
     style_guide: str = Field(
-        default="google",
-        description="Code style guide (google, numpy, sphinx)"
+        default="google", description="Code style guide (google, numpy, sphinx)"
     )
     auto_save: bool = Field(
-        default=False,
-        description="Automatically save generated code to files"
+        default=False, description="Automatically save generated code to files"
     )
     anthropic_config: AnthropicConfig | None = Field(
-        default=None,
-        description="Anthropic configuration"
+        default=None, description="Anthropic configuration"
     )
     filesystem_config: FileSystemConfig | None = Field(
-        default=None,
-        description="FileSystem configuration"
+        default=None, description="FileSystem configuration"
     )
 
 
@@ -287,7 +272,9 @@ Generate ONLY the refactored Python code, no explanations."""
             elif action == "create_tests":
                 result = await self._create_tests(
                     code=kwargs.get("code", ""),
-                    test_framework=kwargs.get("test_framework", self.config.test_framework),
+                    test_framework=kwargs.get(
+                        "test_framework", self.config.test_framework
+                    ),
                     save_path=kwargs.get("save_path"),
                 )
             elif action == "refactor":
@@ -407,7 +394,7 @@ Generate ONLY the refactored Python code, no explanations."""
         """Create a complete Python module."""
         additional = ""
         if components:
-            additional = f"Include these components:\n- " + "\n- ".join(components)
+            additional = "Include these components:\n- " + "\n- ".join(components)
 
         prompt = self.MODULE_PROMPT.format(
             name=name,
@@ -585,9 +572,9 @@ Generate ONLY the Python code including necessary imports."""
         if fields:
             for field in fields:
                 fields_str += f"- {field.get('name')}: {field.get('type', 'str')} "
-                if field.get('description'):
+                if field.get("description"):
                     fields_str += f"- {field['description']} "
-                if field.get('default'):
+                if field.get("default"):
                     fields_str += f"(default: {field['default']})"
                 fields_str += "\n"
 

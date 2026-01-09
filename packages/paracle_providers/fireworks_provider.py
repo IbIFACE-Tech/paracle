@@ -87,9 +87,7 @@ class FireworksProvider(LLMProvider):
             payload["top_p"] = config.top_p
 
         try:
-            response = await self.client.post(
-                "/chat/completions", json=payload
-            )
+            response = await self.client.post("/chat/completions", json=payload)
             response.raise_for_status()
             data = response.json()
 
@@ -113,13 +111,10 @@ class FireworksProvider(LLMProvider):
 
         except httpx.HTTPStatusError as e:
             raise LLMProviderError(
-                f"Fireworks API error: {e.response.status_code} - "
-                f"{e.response.text}"
+                f"Fireworks API error: {e.response.status_code} - " f"{e.response.text}"
             ) from e
         except Exception as e:
-            raise LLMProviderError(
-                f"Fireworks provider error: {e}"
-            ) from e
+            raise LLMProviderError(f"Fireworks provider error: {e}") from e
 
     async def stream_completion(
         self,
@@ -171,9 +166,7 @@ class FireworksProvider(LLMProvider):
                 f"Fireworks streaming error: {e.response.status_code}"
             ) from e
         except Exception as e:
-            raise LLMProviderError(
-                f"Fireworks streaming error: {e}"
-            ) from e
+            raise LLMProviderError(f"Fireworks streaming error: {e}") from e
 
     async def __aenter__(self):
         """Async context manager entry."""

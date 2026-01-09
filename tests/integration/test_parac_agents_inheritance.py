@@ -51,7 +51,7 @@ def base_reviewer_spec(repo):
         metadata={
             "role": "code_review",
             "source": ".parac/agents/specs/reviewer.md",
-        }
+        },
     )
     repo.register_spec(spec)
     return spec
@@ -60,6 +60,7 @@ def base_reviewer_spec(repo):
 # =============================================================================
 # Test: Basic Inheritance from .parac/ Agent
 # =============================================================================
+
 
 def test_security_reviewer_inherits_from_base(repo, factory, base_reviewer_spec):
     """Security reviewer should inherit base reviewer's tools and skills."""
@@ -72,10 +73,9 @@ def test_security_reviewer_inherits_from_base(repo, factory, base_reviewer_spec)
         model="gpt-4",
         temperature=0.2,
         system_prompt="Security expert reviewing code for vulnerabilities.",
-        tools=["vulnerability_scanner",
-               "dependency_checker", "secret_detector"],
+        tools=["vulnerability_scanner", "dependency_checker", "secret_detector"],
         skills=["owasp-top-10", "penetration-testing", "threat-modeling"],
-        metadata={"focus": "security", "owasp_version": "2023"}
+        metadata={"focus": "security", "owasp_version": "2023"},
     )
 
     repo.register_spec(security_spec)
@@ -110,7 +110,10 @@ def test_security_reviewer_inherits_from_base(repo, factory, base_reviewer_spec)
 # Test: Multi-Level Inheritance (Grandchild)
 # =============================================================================
 
-def test_python_security_reviewer_two_level_inheritance(repo, factory, base_reviewer_spec):
+
+def test_python_security_reviewer_two_level_inheritance(
+    repo, factory, base_reviewer_spec
+):
     """Python security reviewer should inherit through 2 levels."""
     # Create parent (security reviewer)
     security_spec = AgentSpec(
@@ -122,7 +125,7 @@ def test_python_security_reviewer_two_level_inheritance(repo, factory, base_revi
         temperature=0.2,
         tools=["vulnerability_scanner", "dependency_checker"],
         skills=["owasp-top-10", "penetration-testing"],
-        metadata={"focus": "security"}
+        metadata={"focus": "security"},
     )
     repo.register_spec(security_spec)
 
@@ -136,7 +139,7 @@ def test_python_security_reviewer_two_level_inheritance(repo, factory, base_revi
         temperature=0.15,
         tools=["bandit", "safety"],
         skills=["python-security", "pickle-safety"],
-        metadata={"language": "python"}
+        metadata={"language": "python"},
     )
     repo.register_spec(python_security_spec)
 
@@ -168,6 +171,7 @@ def test_python_security_reviewer_two_level_inheritance(repo, factory, base_revi
 # =============================================================================
 # Test: Sibling Agents (Different Specializations)
 # =============================================================================
+
 
 def test_performance_reviewer_sibling_specialization(repo, factory, base_reviewer_spec):
     """Performance reviewer should be independent sibling of security reviewer."""
@@ -226,6 +230,7 @@ def test_performance_reviewer_sibling_specialization(repo, factory, base_reviewe
 # Test: Property Override Through Inheritance
 # =============================================================================
 
+
 def test_temperature_override_cascade(repo, factory, base_reviewer_spec):
     """Temperature should be progressively overridden through inheritance."""
     # Create 3-level hierarchy with different temperatures
@@ -261,6 +266,7 @@ def test_temperature_override_cascade(repo, factory, base_reviewer_spec):
 # Test: Model Upgrade Through Inheritance
 # =============================================================================
 
+
 def test_model_upgrade_in_specialization(repo, factory, base_reviewer_spec):
     """Specialized agents can upgrade to more capable models."""
     python_security_spec = AgentSpec(
@@ -282,6 +288,7 @@ def test_model_upgrade_in_specialization(repo, factory, base_reviewer_spec):
 # Test: Metadata Merging
 # =============================================================================
 
+
 def test_metadata_merging_through_inheritance(repo, factory, base_reviewer_spec):
     """Metadata should merge across inheritance levels."""
     security_spec = AgentSpec(
@@ -292,7 +299,7 @@ def test_metadata_merging_through_inheritance(repo, factory, base_reviewer_spec)
         metadata={
             "focus": "security",
             "owasp_version": "2023",
-        }
+        },
     )
     repo.register_spec(security_spec)
 
@@ -304,7 +311,7 @@ def test_metadata_merging_through_inheritance(repo, factory, base_reviewer_spec)
         metadata={
             "language": "python",
             "python_version": "3.10+",
-        }
+        },
     )
     repo.register_spec(python_security_spec)
 
@@ -322,6 +329,7 @@ def test_metadata_merging_through_inheritance(repo, factory, base_reviewer_spec)
 # =============================================================================
 # Test: System Prompt Inheritance
 # =============================================================================
+
 
 def test_system_prompt_override(repo, factory, base_reviewer_spec):
     """Child should override parent system prompt."""
@@ -349,6 +357,7 @@ def test_system_prompt_override(repo, factory, base_reviewer_spec):
 # Test: No Duplicate Tools/Skills
 # =============================================================================
 
+
 def test_no_duplicates_in_inheritance(repo, factory, base_reviewer_spec):
     """Tools and skills should not be duplicated through inheritance."""
     # Create child with some overlapping tools/skills
@@ -371,10 +380,10 @@ def test_no_duplicates_in_inheritance(repo, factory, base_reviewer_spec):
     tools_list = list(effective.tools)
     skills_list = list(effective.skills)
 
-    assert len(tools_list) == len(set(tools_list)
-                                  ), "Tools should not have duplicates"
-    assert len(skills_list) == len(set(skills_list)
-                                   ), "Skills should not have duplicates"
+    assert len(tools_list) == len(set(tools_list)), "Tools should not have duplicates"
+    assert len(skills_list) == len(
+        set(skills_list)
+    ), "Skills should not have duplicates"
 
     # security_scan should appear only once
     assert tools_list.count("security_scan") == 1
@@ -386,6 +395,7 @@ def test_no_duplicates_in_inheritance(repo, factory, base_reviewer_spec):
 # =============================================================================
 # Test: Validation of Inheritance Chain
 # =============================================================================
+
 
 def test_inheritance_chain_validation(repo, factory, base_reviewer_spec):
     """Factory should validate inheritance chain is resolvable."""
@@ -406,7 +416,10 @@ def test_inheritance_chain_validation(repo, factory, base_reviewer_spec):
 # Test: Real-World Usage Pattern
 # =============================================================================
 
-def test_real_world_usage_create_specialized_reviewer(repo, factory, base_reviewer_spec):
+
+def test_real_world_usage_create_specialized_reviewer(
+    repo, factory, base_reviewer_spec
+):
     """Demonstrate real-world pattern: loading base from .parac/ and creating specialized agent."""
     # 1. Base reviewer is from .parac/agents/specs/reviewer.md (already loaded)
 
@@ -438,7 +451,7 @@ def test_real_world_usage_create_specialized_reviewer(repo, factory, base_review
             "framework": "fastapi",
             "python_version": "3.10+",
             "focus": "api_security",
-        }
+        },
     )
 
     repo.register_spec(fastapi_security_spec)
@@ -469,6 +482,7 @@ def test_real_world_usage_create_specialized_reviewer(repo, factory, base_review
 # =============================================================================
 # Summary Test: Complete Inheritance Hierarchy
 # =============================================================================
+
 
 def test_complete_inheritance_hierarchy(repo, factory, base_reviewer_spec):
     """Test a complete inheritance hierarchy with multiple levels and siblings."""
@@ -546,11 +560,13 @@ def test_complete_inheritance_hierarchy(repo, factory, base_reviewer_spec):
     assert python_security_spec.parent == "security-reviewer"
 
     print("\n✅ Complete inheritance hierarchy test passed!")
+    print(f"   Base: {len(base_eff.tools)} tools, {len(base_eff.skills)} skills")
     print(
-        f"   Base: {len(base_eff.tools)} tools, {len(base_eff.skills)} skills")
+        f"   Security: {len(security_eff.tools)} tools, {len(security_eff.skills)} skills"
+    )
     print(
-        f"   Security: {len(security_eff.tools)} tools, {len(security_eff.skills)} skills")
+        f"   Performance: {len(performance_eff.tools)} tools, {len(performance_eff.skills)} skills"
+    )
     print(
-        f"   Performance: {len(performance_eff.tools)} tools, {len(performance_eff.skills)} skills")
-    print(
-        f"   Python Security: {len(python_security_eff.tools)} tools, {len(python_security_eff.skills)} skills")
+        f"   Python Security: {len(python_security_eff.tools)} tools, {len(python_security_eff.skills)} skills"
+    )

@@ -90,7 +90,9 @@ def _task_to_response(task: Task) -> TaskResponse:
         description=task.description,
         status=task.status.value if hasattr(task.status, "value") else str(task.status),
         priority=(
-            task.priority.value if hasattr(task.priority, "value") else str(task.priority)
+            task.priority.value
+            if hasattr(task.priority, "value")
+            else str(task.priority)
         ),
         task_type=(
             task.task_type.value

@@ -95,7 +95,7 @@ The `release` workflow automates the entire release process:
 
 
 ### External MCP Tools (from .parac/tools/mcp/)
-- `Astro docs.*` - 
+- `Astro docs.*` -
 
 ## Skills
 

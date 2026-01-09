@@ -52,8 +52,7 @@ class SandboxMonitor:
     async def start(self) -> None:
         """Start monitoring."""
         if self._task and not self._task.done():
-            logger.warning(
-                f"Monitor already running for {self.sandbox.sandbox_id}")
+            logger.warning(f"Monitor already running for {self.sandbox.sandbox_id}")
             return
 
         self._stop_event.clear()
@@ -117,14 +116,12 @@ class SandboxMonitor:
                             logger.error(f"Limit callback failed: {cb_error}")
 
             except Exception as e:
-                logger.error(
-                    f"Monitor error for {self.sandbox.sandbox_id}: {e}")
+                logger.error(f"Monitor error for {self.sandbox.sandbox_id}: {e}")
 
             # Wait for next interval
             try:
                 await asyncio.wait_for(
-                    self._stop_event.wait(),
-                    timeout=self.interval_seconds
+                    self._stop_event.wait(), timeout=self.interval_seconds
                 )
             except asyncio.TimeoutError:
                 continue

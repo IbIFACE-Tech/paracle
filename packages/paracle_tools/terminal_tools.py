@@ -319,9 +319,11 @@ class TerminalInteractiveTool(BaseTool):
                     cwd=cwd,
                     text=True,
                     bufsize=1,
-                    creationflags=subprocess.CREATE_NO_WINDOW
-                    if hasattr(subprocess, "CREATE_NO_WINDOW")
-                    else 0,
+                    creationflags=(
+                        subprocess.CREATE_NO_WINDOW
+                        if hasattr(subprocess, "CREATE_NO_WINDOW")
+                        else 0
+                    ),
                 )
                 # Send the initial command
                 process.stdin.write(f"{command}\n")
@@ -399,8 +401,7 @@ class TerminalInteractiveTool(BaseTool):
             if platform.system() == "Windows":
                 # On Windows, use a simple timeout approach
                 try:
-                    stdout_data, stderr_data = process.communicate(
-                        timeout=timeout)
+                    stdout_data, stderr_data = process.communicate(timeout=timeout)
                 except subprocess.TimeoutExpired:
                     stdout_data = ""
                     stderr_data = ""
@@ -514,14 +515,15 @@ class TerminalInfoTool(BaseTool):
                 if path:
                     shells[shell] = path
             result["available_shells"] = shells
-            result["default_shell"] = os.environ.get(
-                "SHELL", os.environ.get("COMSPEC"))
+            result["default_shell"] = os.environ.get("SHELL", os.environ.get("COMSPEC"))
 
         if info_type in ("env", "all"):
             env_vars = dict(os.environ)
             if env_filter:
                 env_vars = {
-                    k: v for k, v in env_vars.items() if k.upper().startswith(env_filter.upper())
+                    k: v
+                    for k, v in env_vars.items()
+                    if k.upper().startswith(env_filter.upper())
                 }
             result["environment"] = env_vars
 

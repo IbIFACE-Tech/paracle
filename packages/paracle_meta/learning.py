@@ -134,8 +134,9 @@ class LearningEngine:
                 logger.info("LearningEngine initialized with repositories")
             else:
                 self._init_database()
-                logger.info("LearningEngine initialized",
-                            extra={"db": str(self.db_path)})
+                logger.info(
+                    "LearningEngine initialized", extra={"db": str(self.db_path)}
+                )
         else:
             logger.info("LearningEngine disabled")
 
@@ -146,7 +147,7 @@ class LearningEngine:
         enabled: bool = True,
         min_samples_for_template: int = 5,
         min_rating_for_template: float = 4.0,
-    ) -> "LearningEngine":
+    ) -> LearningEngine:
         """Create LearningEngine with repository-based storage.
 
         This is the preferred way to create a LearningEngine for production use
@@ -192,26 +193,29 @@ class LearningEngine:
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
 
-        cursor.execute("""
+        cursor.execute(
+            """
             INSERT INTO generations (
                 id, artifact_type, name, content, provider, model,
                 quality_score, cost_usd, tokens_input, tokens_output,
                 reasoning, created_at
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (
-            result.id,
-            result.artifact_type,
-            result.name,
-            result.content,
-            result.provider,
-            result.model,
-            result.quality_score,
-            result.cost_usd,
-            result.tokens_input,
-            result.tokens_output,
-            result.reasoning,
-            result.created_at.isoformat()
-        ))
+        """,
+            (
+                result.id,
+                result.artifact_type,
+                result.name,
+                result.content,
+                result.provider,
+                result.model,
+                result.quality_score,
+                result.cost_usd,
+                result.tokens_input,
+                result.tokens_output,
+                result.reasoning,
+                result.created_at.isoformat(),
+            ),
+        )
 
         conn.commit()
         conn.close()
@@ -240,30 +244,33 @@ class LearningEngine:
             generation_id=generation_id,
             rating=rating,
             comment=comment,
-            usage_count=usage_count
+            usage_count=usage_count,
         )
 
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
 
-        cursor.execute("""
+        cursor.execute(
+            """
             INSERT INTO feedback (
                 generation_id, rating, comment, usage_count, created_at
             ) VALUES (?, ?, ?, ?, ?)
-        """, (
-            feedback.generation_id,
-            feedback.rating,
-            feedback.comment,
-            feedback.usage_count,
-            feedback.created_at.isoformat()
-        ))
+        """,
+            (
+                feedback.generation_id,
+                feedback.rating,
+                feedback.comment,
+                feedback.usage_count,
+                feedback.created_at.isoformat(),
+            ),
+        )
 
         conn.commit()
         conn.close()
 
         logger.info(
             f"Feedback recorded: {generation_id}",
-            extra={"rating": rating, "usage": usage_count}
+            extra={"rating": rating, "usage": usage_count},
         )
 
         # Check if this pattern should become a template
@@ -295,32 +302,39 @@ class LearningEngine:
         avg_quality = cursor.fetchone()[0] or 0
 
         # Success rate (quality >= 7.0)
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT COUNT(*) * 100.0 / ?
             FROM generations
             WHERE quality_score >= 7.0
-        """, (total,))
+        """,
+            (total,),
+        )
         success_rate = cursor.fetchone()[0] or 0
 
         # Learning progress (first 50 vs last 50)
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT AVG(quality_score)
             FROM (
                 SELECT quality_score FROM generations
                 ORDER BY created_at ASC
                 LIMIT 50
             )
-        """)
+        """
+        )
         first_50_avg = cursor.fetchone()[0] or 0
 
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT AVG(quality_score)
             FROM (
                 SELECT quality_score FROM generations
                 ORDER BY created_at DESC
                 LIMIT 50
             )
-        """)
+        """
+        )
         last_50_avg = cursor.fetchone()[0] or 0
 
         improvement = 0
@@ -328,7 +342,8 @@ class LearningEngine:
             improvement = ((last_50_avg - first_50_avg) / first_50_avg) * 100
 
         # Top patterns (by avg rating + usage)
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT
                 g.artifact_type,
                 g.name,
@@ -342,18 +357,21 @@ class LearningEngine:
             HAVING COUNT(*) >= 3 AND AVG(f.rating) >= 4.0
             ORDER BY AVG(f.rating) DESC, total_usage DESC
             LIMIT 10
-        """)
+        """
+        )
 
         top_patterns = []
         for row in cursor.fetchall():
-            top_patterns.append({
-                "type": row[0],
-                "name": row[1],
-                "count": row[2],
-                "avg_rating": round(row[3] or 0, 2),
-                "usage": row[4] or 0,
-                "quality": round(row[5] or 0, 1)
-            })
+            top_patterns.append(
+                {
+                    "type": row[0],
+                    "name": row[1],
+                    "count": row[2],
+                    "avg_rating": round(row[3] or 0, 2),
+                    "usage": row[4] or 0,
+                    "quality": round(row[5] or 0, 1),
+                }
+            )
 
         conn.close()
 
@@ -385,7 +403,8 @@ class LearningEngine:
         cursor = conn.cursor()
 
         # Get generation with feedback
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT
                 g.id,
                 g.artifact_type,
@@ -399,20 +418,32 @@ class LearningEngine:
             LEFT JOIN feedback f ON g.id = f.generation_id
             WHERE g.id = ?
             GROUP BY g.id
-        """, (generation_id,))
+        """,
+            (generation_id,),
+        )
 
         row = cursor.fetchone()
         if not row:
             conn.close()
             return
 
-        (gen_id, artifact_type, name, content, quality,
-         feedback_count, avg_rating, usage) = row
+        (
+            gen_id,
+            artifact_type,
+            name,
+            content,
+            quality,
+            feedback_count,
+            avg_rating,
+            usage,
+        ) = row
 
         # Check criteria
-        if (feedback_count >= self.min_samples and
-            avg_rating >= self.min_rating and
-                quality >= 8.0):
+        if (
+            feedback_count >= self.min_samples
+            and avg_rating >= self.min_rating
+            and quality >= 8.0
+        ):
 
             # Promote to template!
             logger.info(
@@ -421,8 +452,8 @@ class LearningEngine:
                     "type": artifact_type,
                     "rating": avg_rating,
                     "quality": quality,
-                    "usage": usage
-                }
+                    "usage": usage,
+                },
             )
 
             # Legacy mode: log only (no template repository available)
@@ -438,7 +469,11 @@ class LearningEngine:
 
         This is the new implementation that actually saves to the template library.
         """
-        if not self._generation_repo or not self._feedback_repo or not self._template_repo:
+        if (
+            not self._generation_repo
+            or not self._feedback_repo
+            or not self._template_repo
+        ):
             return
 
         # Get generation
@@ -454,9 +489,11 @@ class LearningEngine:
             return
 
         # Check promotion criteria
-        if (feedback_count >= self.min_samples and
-            avg_rating >= self.min_rating and
-                generation.quality_score >= 8.0):
+        if (
+            feedback_count >= self.min_samples
+            and avg_rating >= self.min_rating
+            and generation.quality_score >= 8.0
+        ):
 
             # Check if template already exists for this generation
             existing = self._template_repo.get_by_name(f"{generation.name}_template")
@@ -472,7 +509,7 @@ class LearningEngine:
                     "rating": avg_rating,
                     "quality": generation.quality_score,
                     "feedback_count": feedback_count,
-                }
+                },
             )
 
             # Create template from generation
@@ -482,8 +519,7 @@ class LearningEngine:
             )
 
             logger.info(
-                f"Template created: {template.name}",
-                extra={"template_id": template.id}
+                f"Template created: {template.name}", extra={"template_id": template.id}
             )
 
     def _init_database(self) -> None:
@@ -494,7 +530,8 @@ class LearningEngine:
         cursor = conn.cursor()
 
         # Generations table
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS generations (
                 id TEXT PRIMARY KEY,
                 artifact_type TEXT NOT NULL,
@@ -509,10 +546,12 @@ class LearningEngine:
                 reasoning TEXT NOT NULL,
                 created_at TEXT NOT NULL
             )
-        """)
+        """
+        )
 
         # Feedback table
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS feedback (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 generation_id TEXT NOT NULL,
@@ -522,18 +561,23 @@ class LearningEngine:
                 created_at TEXT NOT NULL,
                 FOREIGN KEY (generation_id) REFERENCES generations(id)
             )
-        """)
+        """
+        )
 
         # Indexes
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE INDEX IF NOT EXISTS idx_generations_created
             ON generations(created_at)
-        """)
+        """
+        )
 
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE INDEX IF NOT EXISTS idx_feedback_generation
             ON feedback(generation_id)
-        """)
+        """
+        )
 
         conn.commit()
         conn.close()
@@ -565,22 +609,16 @@ class FeedbackCollector:
                 "Rate this generation (1-5 stars)",
                 type=click.IntRange(1, 5),
                 default=None,
-                show_default=False
+                show_default=False,
             )
 
             if rating is None:
                 return None
 
-            comment = click.prompt(
-                "Comment (optional)",
-                default="",
-                show_default=False
-            )
+            comment = click.prompt("Comment (optional)", default="", show_default=False)
 
             return Feedback(
-                generation_id=generation_id,
-                rating=rating,
-                comment=comment or None
+                generation_id=generation_id, rating=rating, comment=comment or None
             )
 
         except Exception as e:

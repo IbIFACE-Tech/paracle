@@ -55,7 +55,7 @@ from paracle_store.sqlite_repository import (
 from paracle_store.tool_repository import ToolRepository
 from paracle_store.workflow_repository import WorkflowRepository
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 __all__ = [
     # Base repository

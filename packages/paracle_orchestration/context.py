@@ -1,9 +1,9 @@
 """Execution context for workflow orchestration."""
 
-from paracle_core.compat import UTC, datetime
 from enum import Enum
 from typing import Any
 
+from paracle_core.compat import UTC, datetime
 from pydantic import BaseModel, Field
 
 
@@ -124,8 +124,7 @@ class ExecutionContext(BaseModel):
         >>> context.step_results["step1"] = {"result": "processed"}
     """
 
-    workflow_id: str = Field(...,
-                             description="ID of the workflow being executed")
+    workflow_id: str = Field(..., description="ID of the workflow being executed")
     execution_id: str = Field(..., description="Unique ID for this execution")
     inputs: dict[str, Any] = Field(..., description="Workflow input data")
     outputs: dict[str, Any] = Field(
@@ -134,17 +133,13 @@ class ExecutionContext(BaseModel):
     status: ExecutionStatus = Field(
         default=ExecutionStatus.PENDING, description="Current execution status"
     )
-    current_step: str | None = Field(
-        None, description="Currently executing step ID")
+    current_step: str | None = Field(None, description="Currently executing step ID")
     step_results: dict[str, Any] = Field(
         default_factory=dict, description="Results from completed steps"
     )
-    errors: list[str] = Field(default_factory=list,
-                              description="Execution errors")
-    start_time: datetime | None = Field(
-        None, description="Execution start timestamp")
-    end_time: datetime | None = Field(
-        None, description="Execution end timestamp")
+    errors: list[str] = Field(default_factory=list, description="Execution errors")
+    start_time: datetime | None = Field(None, description="Execution start timestamp")
+    end_time: datetime | None = Field(None, description="Execution end timestamp")
     metadata: dict[str, Any] = Field(
         default_factory=dict, description="Additional execution metadata"
     )

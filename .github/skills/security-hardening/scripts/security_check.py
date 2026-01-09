@@ -32,19 +32,21 @@ def check_hardcoded_secrets(file_path: Path) -> list[SecurityIssue]:
 
     try:
         content = file_path.read_text()
-        for line_num, line in enumerate(content.split('\n'), 1):
+        for line_num, line in enumerate(content.split("\n"), 1):
             for pattern, secret_type in patterns:
                 if re.search(pattern, line, re.IGNORECASE):
                     # Skip if using os.getenv or environment variable
-                    if 'os.getenv' in line or '${' in line or 'env[' in line:
+                    if "os.getenv" in line or "${" in line or "env[" in line:
                         continue
 
-                    issues.append(SecurityIssue(
-                        file=file_path,
-                        line=line_num,
-                        severity="HIGH",
-                        message=f"Potential hardcoded {secret_type} found"
-                    ))
+                    issues.append(
+                        SecurityIssue(
+                            file=file_path,
+                            line=line_num,
+                            severity="HIGH",
+                            message=f"Potential hardcoded {secret_type} found",
+                        )
+                    )
     except Exception:
         pass
 
@@ -57,16 +59,21 @@ def check_sql_injection(file_path: Path) -> list[SecurityIssue]:
 
     try:
         content = file_path.read_text()
-        for line_num, line in enumerate(content.split('\n'), 1):
+        for line_num, line in enumerate(content.split("\n"), 1):
             # Check for f-strings or format in SQL
-            if any(sql_keyword in line.upper() for sql_keyword in ['SELECT', 'INSERT', 'UPDATE', 'DELETE']):
-                if 'f"' in line or "f'" in line or '.format(' in line:
-                    issues.append(SecurityIssue(
-                        file=file_path,
-                        line=line_num,
-                        severity="CRITICAL",
-                        message="Potential SQL injection: use parameterized queries"
-                    ))
+            if any(
+                sql_keyword in line.upper()
+                for sql_keyword in ["SELECT", "INSERT", "UPDATE", "DELETE"]
+            ):
+                if 'f"' in line or "f'" in line or ".format(" in line:
+                    issues.append(
+                        SecurityIssue(
+                            file=file_path,
+                            line=line_num,
+                            severity="CRITICAL",
+                            message="Potential SQL injection: use parameterized queries",
+                        )
+                    )
     except Exception:
         pass
 
@@ -82,7 +89,7 @@ def run_security_checks(directory: Path, verbose: bool = False) -> tuple[int, in
 
     # Check Python files
     for py_file in directory.rglob("*.py"):
-        if '.venv' in str(py_file) or 'node_modules' in str(py_file):
+        if ".venv" in str(py_file) or "node_modules" in str(py_file):
             continue
 
         issues = []
@@ -117,8 +124,7 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Run security checks")
-    parser.add_argument("--verbose", action="store_true",
-                        help="Show detailed output")
+    parser.add_argument("--verbose", action="store_true", help="Show detailed output")
     parser.add_argument("--directory", default=".", help="Directory to check")
 
     args = parser.parse_args()

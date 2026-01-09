@@ -231,26 +231,30 @@ class IntegrityVerifier:
             if event.event_hash:
                 computed_hash = event.compute_hash()
                 if event.event_hash != computed_hash:
-                    violations.append({
-                        "event_id": event.event_id,
-                        "violation_type": "hash_mismatch",
-                        "details": {
-                            "expected": event.event_hash,
-                            "computed": computed_hash,
-                        },
-                    })
+                    violations.append(
+                        {
+                            "event_id": event.event_id,
+                            "violation_type": "hash_mismatch",
+                            "details": {
+                                "expected": event.event_hash,
+                                "computed": computed_hash,
+                            },
+                        }
+                    )
 
             # Check chain linkage
             if previous_hash is not None and event.previous_hash != previous_hash:
-                violations.append({
-                    "event_id": event.event_id,
-                    "violation_type": "chain_break",
-                    "details": {
-                        "expected_previous": previous_hash,
-                        "actual_previous": event.previous_hash,
-                        "previous_event": previous_event_id,
-                    },
-                })
+                violations.append(
+                    {
+                        "event_id": event.event_id,
+                        "violation_type": "chain_break",
+                        "details": {
+                            "expected_previous": previous_hash,
+                            "actual_previous": event.previous_hash,
+                            "previous_event": previous_event_id,
+                        },
+                    }
+                )
 
             previous_hash = event.event_hash
             previous_event_id = event.event_id

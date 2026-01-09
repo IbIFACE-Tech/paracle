@@ -42,33 +42,35 @@ async def main():
         print("2. Creating initial snapshot...")
         snapshot1_id = await rollback_manager.create_snapshot(
             sandbox.container.id,
-            metadata={"stage": "initial", "description": "Clean state"}
+            metadata={"stage": "initial", "description": "Clean state"},
         )
         print(f"   ✓ Snapshot created: {snapshot1_id}")
 
         # 3. Execute successful operation
         print("\n3. Executing successful operation...")
-        result = await sandbox.execute([
-            "sh", "-c",
-            "echo 'Creating file' && echo 'test data' > /workspace/test.txt"
-        ])
+        result = await sandbox.execute(
+            [
+                "sh",
+                "-c",
+                "echo 'Creating file' && echo 'test data' > /workspace/test.txt",
+            ]
+        )
         print(f"   Exit code: {result['exit_code']}")
 
         # 4. Create snapshot after success
         print("\n4. Creating snapshot after success...")
         snapshot2_id = await rollback_manager.create_snapshot(
             sandbox.container.id,
-            metadata={"stage": "after_write", "description": "File created"}
+            metadata={"stage": "after_write", "description": "File created"},
         )
         print(f"   ✓ Snapshot created: {snapshot2_id}")
 
         # 5. Simulate failure
         print("\n5. Simulating execution failure...")
         try:
-            result = await sandbox.execute([
-                "sh", "-c",
-                "rm /workspace/test.txt && exit 1"  # Delete file and fail
-            ])
+            result = await sandbox.execute(
+                ["sh", "-c", "rm /workspace/test.txt && exit 1"]  # Delete file and fail
+            )
             raise Exception("Simulated failure")
         except Exception as e:
             print(f"   ✗ Execution failed: {e}")
@@ -76,8 +78,7 @@ async def main():
             # 6. Automatic rollback
             print("\n6. Performing automatic rollback...")
             rolled_back = await rollback_manager.auto_rollback_on_error(
-                sandbox.container.id,
-                e
+                sandbox.container.id, e
             )
             if rolled_back:
                 print("   ✓ Automatic rollback successful")
@@ -86,10 +87,7 @@ async def main():
 
         # 7. Verify file restored
         print("\n7. Verifying file restoration...")
-        result = await sandbox.execute([
-            "sh", "-c",
-            "cat /workspace/test.txt"
-        ])
+        result = await sandbox.execute(["sh", "-c", "cat /workspace/test.txt"])
         print(f"   File contents: {result['stdout'].strip()}")
         print("   ✓ File restored successfully!")
 
@@ -100,10 +98,7 @@ async def main():
 
         # 9. Verify file gone
         print("\n9. Verifying file removed...")
-        result = await sandbox.execute([
-            "sh", "-c",
-            "ls /workspace/"
-        ])
+        result = await sandbox.execute(["sh", "-c", "ls /workspace/"])
         print(f"   Workspace contents: {result['stdout'].strip()}")
         print("   ✓ Back to clean state")
 
@@ -112,9 +107,9 @@ async def main():
         snapshots = rollback_manager.list_snapshots(sandbox.container.id)
         for snap in snapshots:
             print(
-                f"   - {snap['snapshot_id'][:12]}: {snap['metadata'].get('description')}")
-            print(
-                f"     Size: {snap['size_mb']:.2f} MB, Created: {snap['timestamp']}")
+                f"   - {snap['snapshot_id'][:12]}: {snap['metadata'].get('description')}"
+            )
+            print(f"     Size: {snap['size_mb']:.2f} MB, Created: {snap['timestamp']}")
 
     finally:
         # Cleanup

@@ -4,8 +4,9 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-ArtifactType = Literal["file_change",
-                       "command_execution", "api_call", "network_request"]
+ArtifactType = Literal[
+    "file_change", "command_execution", "api_call", "network_request"
+]
 ReviewTrigger = Literal["all_artifacts", "high_risk_only", "manual"]
 
 
@@ -23,14 +24,10 @@ class ReviewPolicy(BaseModel):
         min_approvals: Minimum approvals needed
     """
 
-    enabled: bool = Field(
-        default=True,
-        description="Enable artifact review"
-    )
+    enabled: bool = Field(default=True, description="Enable artifact review")
 
     trigger_mode: ReviewTrigger = Field(
-        default="high_risk_only",
-        description="Review trigger mode"
+        default="high_risk_only", description="Review trigger mode"
     )
 
     high_risk_patterns: list[str] = Field(
@@ -43,31 +40,23 @@ class ReviewPolicy(BaseModel):
             "DROP TABLE",
             "DELETE FROM",
         ],
-        description="Patterns indicating high-risk artifacts"
+        description="Patterns indicating high-risk artifacts",
     )
 
     auto_approve_low_risk: bool = Field(
-        default=False,
-        description="Auto-approve low-risk artifacts"
+        default=False, description="Auto-approve low-risk artifacts"
     )
 
     require_multiple_approvals: bool = Field(
-        default=False,
-        description="Require multiple approvers"
+        default=False, description="Require multiple approvers"
     )
 
     min_approvals: int = Field(
-        default=1,
-        ge=1,
-        le=10,
-        description="Minimum approvals required"
+        default=1, ge=1, le=10, description="Minimum approvals required"
     )
 
     review_timeout_hours: int = Field(
-        default=24,
-        ge=1,
-        le=168,
-        description="Review timeout in hours"
+        default=24, ge=1, le=168, description="Review timeout in hours"
     )
 
     model_config = {
@@ -96,30 +85,21 @@ class ReviewConfig(BaseModel):
     """
 
     policy: ReviewPolicy = Field(
-        default_factory=ReviewPolicy,
-        description="Review policy"
+        default_factory=ReviewPolicy, description="Review policy"
     )
 
     notify_on_review: bool = Field(
-        default=True,
-        description="Send notifications for reviews"
+        default=True, description="Send notifications for reviews"
     )
 
     notification_channels: list[str] = Field(
-        default=["log"],
-        description="Notification channels"
+        default=["log"], description="Notification channels"
     )
 
-    store_artifacts: bool = Field(
-        default=True,
-        description="Store artifact content"
-    )
+    store_artifacts: bool = Field(default=True, description="Store artifact content")
 
     max_artifact_size_mb: int = Field(
-        default=10,
-        ge=1,
-        le=100,
-        description="Maximum artifact size to store"
+        default=10, ge=1, le=100, description="Maximum artifact size to store"
     )
 
     model_config = {

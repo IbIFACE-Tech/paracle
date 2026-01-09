@@ -232,13 +232,21 @@ class RiskThresholds(BaseModel):
             if threshold.level == level:
                 # Create new threshold with updated values
                 new_threshold = RiskThreshold(
-                    min_score=min_score if min_score is not None else threshold.min_score,
-                    max_score=max_score if max_score is not None else threshold.max_score,
+                    min_score=(
+                        min_score if min_score is not None else threshold.min_score
+                    ),
+                    max_score=(
+                        max_score if max_score is not None else threshold.max_score
+                    ),
                     level=threshold.level,
                     action=action if action is not None else threshold.action,
                     require_justification=threshold.require_justification,
                     notification_channels=threshold.notification_channels,
-                    approval_roles=approval_roles if approval_roles is not None else threshold.approval_roles,
+                    approval_roles=(
+                        approval_roles
+                        if approval_roles is not None
+                        else threshold.approval_roles
+                    ),
                     escalation_timeout_minutes=threshold.escalation_timeout_minutes,
                 )
                 self.thresholds[i] = new_threshold

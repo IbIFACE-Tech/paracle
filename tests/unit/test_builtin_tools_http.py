@@ -1,15 +1,14 @@
 """Tests for built-in HTTP tools."""
 
-import pytest
 from unittest.mock import AsyncMock, patch
 
+import pytest
 from paracle_tools.builtin.http import (
+    HTTPDeleteTool,
     HTTPGetTool,
     HTTPPostTool,
     HTTPPutTool,
-    HTTPDeleteTool,
 )
-
 
 # Skip tests if httpx is not installed
 pytest.importorskip("httpx")
@@ -22,6 +21,7 @@ class TestHTTPGetTool:
     async def test_get_success(self):
         # Arrange
         from unittest.mock import Mock
+
         tool = HTTPGetTool()
         mock_response = Mock()
         mock_response.status_code = 200
@@ -32,7 +32,9 @@ class TestHTTPGetTool:
 
         # Act
         with patch("httpx.AsyncClient") as mock_client:
-            mock_client.return_value.__aenter__.return_value.get.return_value = mock_response
+            mock_client.return_value.__aenter__.return_value.get.return_value = (
+                mock_response
+            )
             result = await tool.execute(url="https://api.example.com/test")
 
         # Assert
@@ -58,7 +60,7 @@ class TestHTTPGetTool:
             result = await tool.execute(
                 url="https://api.example.com/test",
                 headers={"Authorization": "Bearer token"},
-                params={"key": "value"}
+                params={"key": "value"},
             )
 
             # Verify headers and params were passed
@@ -77,7 +79,10 @@ class TestHTTPGetTool:
         # Act
         with patch("httpx.AsyncClient") as mock_client:
             import httpx
-            mock_client.return_value.__aenter__.return_value.get.side_effect = httpx.TimeoutException("Timeout")
+
+            mock_client.return_value.__aenter__.return_value.get.side_effect = (
+                httpx.TimeoutException("Timeout")
+            )
 
             result = await tool.execute(url="https://slow.example.com")
 
@@ -93,6 +98,7 @@ class TestHTTPPostTool:
     async def test_post_with_json(self):
         # Arrange
         from unittest.mock import Mock
+
         tool = HTTPPostTool()
         mock_response = Mock()
         mock_response.status_code = 201
@@ -103,11 +109,12 @@ class TestHTTPPostTool:
 
         # Act
         with patch("httpx.AsyncClient") as mock_client:
-            mock_client.return_value.__aenter__.return_value.post.return_value = mock_response
+            mock_client.return_value.__aenter__.return_value.post.return_value = (
+                mock_response
+            )
 
             result = await tool.execute(
-                url="https://api.example.com/items",
-                json_data={"name": "test item"}
+                url="https://api.example.com/items", json_data={"name": "test item"}
             )
 
         # Assert
@@ -127,11 +134,13 @@ class TestHTTPPostTool:
 
         # Act
         with patch("httpx.AsyncClient") as mock_client:
-            mock_client.return_value.__aenter__.return_value.post.return_value = mock_response
+            mock_client.return_value.__aenter__.return_value.post.return_value = (
+                mock_response
+            )
 
             result = await tool.execute(
                 url="https://example.com/submit",
-                form_data={"field1": "value1", "field2": "value2"}
+                form_data={"field1": "value1", "field2": "value2"},
             )
 
         # Assert
@@ -146,6 +155,7 @@ class TestHTTPPutTool:
     async def test_put_success(self):
         # Arrange
         from unittest.mock import Mock
+
         tool = HTTPPutTool()
         mock_response = Mock()
         mock_response.status_code = 200
@@ -156,11 +166,13 @@ class TestHTTPPutTool:
 
         # Act
         with patch("httpx.AsyncClient") as mock_client:
-            mock_client.return_value.__aenter__.return_value.put.return_value = mock_response
+            mock_client.return_value.__aenter__.return_value.put.return_value = (
+                mock_response
+            )
 
             result = await tool.execute(
                 url="https://api.example.com/items/123",
-                json_data={"name": "updated item"}
+                json_data={"name": "updated item"},
             )
 
         # Assert
@@ -183,7 +195,9 @@ class TestHTTPDeleteTool:
 
         # Act
         with patch("httpx.AsyncClient") as mock_client:
-            mock_client.return_value.__aenter__.return_value.delete.return_value = mock_response
+            mock_client.return_value.__aenter__.return_value.delete.return_value = (
+                mock_response
+            )
 
             result = await tool.execute(url="https://api.example.com/items/123")
 

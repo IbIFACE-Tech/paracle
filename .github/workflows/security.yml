@@ -1,0 +1,299 @@
+name: Security Audit
+
+on:
+  schedule:
+    - cron: "0 2 * * *" # Daily at 2 AM UTC
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+  workflow_dispatch: # Manual trigger
+
+permissions:
+  contents: read
+  security-events: write
+  issues: write
+
+jobs:
+  security-scan:
+    name: OWASP & Security Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python security tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install bandit safety semgrep pip-audit detect-secrets
+
+      - name: Create reports directory
+        run: mkdir -p reports
+
+      # ========================================
+      # OWASP Dependency-Check
+      # ========================================
+      - name: Download OWASP Dependency-Check
+        run: |
+          wget https://github.com/dependency-check/DependencyCheck/releases/download/v12.1.9/dependency-check-12.1.9-release.zip
+          unzip dependency-check-12.1.9-release.zip -d dependency-check
+
+      - name: Run OWASP Dependency-Check
+        run: |
+          ./dependency-check/dependency-check/bin/dependency-check.sh \
+            --scan . \
+            --format JSON \
+            --format HTML \
+            --out reports/dependency-check \
+            --project "Paracle" \
+            --enableExperimental \
+            --suppression .github/dependency-check-suppressions.xml || true
+        continue-on-error: true
+
+      # ========================================
+      # Python Code Security (Bandit)
+      # ========================================
+      - name: Run Bandit
+        run: |
+          bandit -r packages/ -f json -o reports/bandit.json || true
+          bandit -r packages/ -f txt -o reports/bandit.txt || true
+        continue-on-error: true
+
+      # ========================================
+      # Dependency Vulnerabilities (Safety)
+      # ========================================
+      - name: Run Safety Check
+        run: |
+          safety check --json --output reports/safety.json || true
+          safety check --output reports/safety.txt || true
+        continue-on-error: true
+
+      # ========================================
+      # Static Analysis (Semgrep)
+      # ========================================
+      - name: Run Semgrep
+        run: |
+          semgrep --config auto --json -o reports/semgrep.json . || true
+          semgrep --config auto -o reports/semgrep.txt . || true
+        continue-on-error: true
+
+      # ========================================
+      # Python Dependency Audit
+      # ========================================
+      - name: Run pip-audit
+        run: |
+          pip-audit --format json > reports/pip-audit.json || true
+          pip-audit > reports/pip-audit.txt || true
+        continue-on-error: true
+
+      # ========================================
+      # Secret Detection
+      # ========================================
+      - name: Run detect-secrets
+        run: |
+          detect-secrets scan --baseline .secrets.baseline || true
+          detect-secrets audit .secrets.baseline || true
+        continue-on-error: true
+
+      # ========================================
+      # Generate Security Report
+      # ========================================
+      - name: Generate summary report
+        run: |
+          SCAN_DATE=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          cat > reports/SECURITY_SUMMARY.md << EOF
+          # Security Scan Summary
+
+          **Date**: ${SCAN_DATE}
+          **Branch**: ${{ github.ref_name }}
+          **Commit**: ${{ github.sha }}
+
+          ## Scans Performed
+
+          - ✅ OWASP Dependency-Check v12.1.9
+          - ✅ Bandit (Python code security)
+          - ✅ Safety (Python dependency vulnerabilities)
+          - ✅ Semgrep (SAST)
+          - ✅ pip-audit (Python package vulnerabilities)
+          - ✅ detect-secrets (Secret detection)
+
+          ## Results
+
+          See artifacts for detailed reports:
+          - \`dependency-check/\` - OWASP dependency vulnerabilities
+          - \`bandit.json\` - Python code security issues
+          - \`safety.json\` - Python dependency vulnerabilities
+          - \`semgrep.json\` - Static analysis findings
+          - \`pip-audit.json\` - Package audit results
+
+          ## OWASP Top 10 Compliance
+
+          This scan covers:
+          - A06:2021 – Vulnerable and Outdated Components
+          - A08:2021 – Software and Data Integrity Failures
+          - A09:2021 – Security Logging and Monitoring Failures
+          EOF
+
+      # ========================================
+      # Upload Security Reports
+      # ========================================
+      - name: Upload security reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: security-reports-${{ github.run_number }}
+          path: reports/
+          retention-days: 90
+
+      # ========================================
+      # Parse Results and Create Issue
+      # ========================================
+      - name: Check for critical vulnerabilities
+        id: check_vulns
+        run: |
+          # Set defaults
+          echo "critical=0" >> $GITHUB_OUTPUT
+          echo "high=0" >> $GITHUB_OUTPUT
+          echo "has_issues=false" >> $GITHUB_OUTPUT
+
+          # Check OWASP Dependency-Check results
+          if [ -f reports/dependency-check/dependency-check-report.json ]; then
+            CRITICAL=$(jq '.dependencies[].vulnerabilities[]? | select(.severity=="CRITICAL") | .name' reports/dependency-check/dependency-check-report.json 2>/dev/null | wc -l || echo "0")
+            HIGH=$(jq '.dependencies[].vulnerabilities[]? | select(.severity=="HIGH") | .name' reports/dependency-check/dependency-check-report.json 2>/dev/null | wc -l || echo "0")
+            echo "critical=$CRITICAL" >> $GITHUB_OUTPUT
+            echo "high=$HIGH" >> $GITHUB_OUTPUT
+
+            if [ "$CRITICAL" -gt 0 ] || [ "$HIGH" -gt 0 ]; then
+              echo "has_issues=true" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+      - name: Create issue if vulnerabilities found
+        if: steps.check_vulns.outputs.has_issues == 'true' && github.event_name != 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const critical = ${{ steps.check_vulns.outputs.critical || 0 }};
+            const high = ${{ steps.check_vulns.outputs.high || 0 }};
+
+            const body = `## 🚨 Security Vulnerabilities Detected
+
+            **Critical**: ${critical}
+            **High**: ${high}
+
+            **Scan Date**: ${new Date().toISOString()}
+            **Branch**: ${{ github.ref_name }}
+            **Commit**: ${{ github.sha }}
+
+            ### Action Required
+
+            1. Download the [security reports artifact](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            2. Review the OWASP Dependency-Check report in \`dependency-check/\`
+            3. Address critical and high severity vulnerabilities
+            4. Update dependencies or apply patches
+
+            ### Reports Generated
+
+            - OWASP Dependency-Check (JSON + HTML)
+            - Bandit (Python code security)
+            - Safety (Python dependencies)
+            - Semgrep (SAST)
+            - pip-audit (Package vulnerabilities)
+
+            ### Resources
+
+            - [OWASP Top 10](https://owasp.org/www-project-top-ten/)
+            - [Paracle Security Policy](.parac/policies/SECURITY.md)
+            - [Security Audit Report](content/docs/security-audit-report.md)
+            `;
+
+            // Check if issue already exists
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'security,automated'
+            });
+
+            const existingIssue = issues.data.find(issue =>
+              issue.title.includes('Security vulnerabilities detected')
+            );
+
+            if (existingIssue) {
+              // Update existing issue
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existingIssue.number,
+                body: body
+              });
+            } else {
+              // Create new issue
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: '🚨 Security vulnerabilities detected',
+                body: body,
+                labels: ['security', 'automated', 'priority:high']
+              });
+            }
+
+      # ========================================
+      # Security Badge Generation
+      # ========================================
+      - name: Generate security badge
+        if: github.ref == 'refs/heads/main'
+        run: |
+          if [ "${{ steps.check_vulns.outputs.has_issues }}" == "true" ]; then
+            echo "SECURITY_STATUS=failing" >> $GITHUB_ENV
+            echo "SECURITY_COLOR=red" >> $GITHUB_ENV
+          else
+            echo "SECURITY_STATUS=passing" >> $GITHUB_ENV
+            echo "SECURITY_COLOR=brightgreen" >> $GITHUB_ENV
+          fi
+
+  # Optional: OWASP ZAP API Scan (if you have a running API)
+  # zap-scan:
+  #   name: OWASP ZAP API Scan
+  #   runs-on: ubuntu-latest
+  #   if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+  #
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+  #
+  #     - name: Start API server
+  #       run: |
+  #         # Add commands to start your API
+  #         # docker-compose up -d api
+  #         # or python -m uvicorn main:app &
+  #
+  #     - name: Wait for API
+  #       run: |
+  #         timeout 60 bash -c 'until curl -s http://localhost:8000/health; do sleep 2; done'
+  #
+  #     - name: OWASP ZAP API Scan
+  #       uses: zaproxy/action-api-scan@v0.8.0
+  #       with:
+  #         target: 'http://localhost:8000'
+  #         rules_file_name: '.zap/rules.tsv'
+  #         cmd_options: '-a'
+  #
+  #     - name: Upload ZAP report
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: zap-report
+  #         path: zap-report/

@@ -12,12 +12,10 @@ class ReviewCreateRequest(BaseModel):
     artifact_type: str = Field(..., description="Artifact type")
     sandbox_id: str = Field(..., description="Source sandbox")
     artifact_content: dict[str, Any] = Field(
-        default_factory=dict,
-        description="Artifact content/metadata"
+        default_factory=dict, description="Artifact content/metadata"
     )
     risk_level: str | None = Field(
-        None,
-        description="Override risk level (auto-detected if None)"
+        None, description="Override risk level (auto-detected if None)"
     )
 
 

@@ -224,17 +224,13 @@ class TestConcurrentAccess:
 
                 state.update_progress(thread_id * 10)
                 success = save_state(state, temp_parac)
-                results.append(
-                    ("success" if success else "save_failed", thread_id))
+                results.append(("success" if success else "save_failed", thread_id))
             except StateConflictError:
                 results.append(("conflict", thread_id))
             except Exception as e:
                 results.append(("error", thread_id, str(e)))
 
-        threads = [
-            threading.Thread(target=write_state, args=(i,))
-            for i in range(1, 6)
-        ]
+        threads = [threading.Thread(target=write_state, args=(i,)) for i in range(1, 6)]
 
         for t in threads:
             t.start()
@@ -258,6 +254,7 @@ class TestConcurrentAccess:
         def write_in_process(parac_path: Path, process_id: int):
             """Write from separate process."""
             import sys
+
             sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
             try:
@@ -272,10 +269,7 @@ class TestConcurrentAccess:
                 return ("error", process_id, str(e))
 
         processes = [
-            multiprocessing.Process(
-                target=write_in_process,
-                args=(temp_parac, i)
-            )
+            multiprocessing.Process(target=write_in_process, args=(temp_parac, i))
             for i in range(3)
         ]
 
@@ -318,6 +312,7 @@ class TestErrorHandling:
 
         # Monkey-patch yaml.dump to raise error
         import yaml
+
         original_dump = yaml.dump
 
         def failing_dump(*args, **kwargs):
@@ -347,6 +342,7 @@ class TestErrorHandling:
         if lock_file.exists():
             # Should be able to acquire lock again
             from filelock import FileLock
+
             with FileLock(str(lock_file), timeout=1.0):
                 pass
 

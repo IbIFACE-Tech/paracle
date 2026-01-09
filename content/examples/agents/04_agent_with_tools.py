@@ -16,13 +16,7 @@ Run: uv run python examples/04_agent_with_tools.py
 import asyncio
 from pathlib import Path
 
-from paracle_tools import (
-    read_file,
-    write_file,
-    list_directory,
-    run_command,
-    http_get,
-)
+from paracle_tools import http_get, list_directory, read_file, run_command, write_file
 
 
 class CodeAnalysisAgent:
@@ -73,16 +67,16 @@ class CodeAnalysisAgent:
         print("\n📁 Step 1: Discovering files...")
 
         result = await list_directory.execute(
-            path=str(self.project_path),
-            recursive=True
+            path=str(self.project_path), recursive=True
         )
 
         if result.success:
             python_files = [
-                entry for entry in result.output['entries']
-                if entry['type'] == 'file' and entry['name'].endswith('.py')
+                entry
+                for entry in result.output["entries"]
+                if entry["type"] == "file" and entry["name"].endswith(".py")
             ]
-            self.analysis_results['files'] = python_files
+            self.analysis_results["files"] = python_files
             print(f"   Found {len(python_files)} Python files")
         else:
             print(f"   ❌ Error: {result.error}")
@@ -92,18 +86,18 @@ class CodeAnalysisAgent:
         print("\n📖 Step 2: Reading source files...")
 
         # Read first 3 files as examples
-        files_to_read = self.analysis_results['files'][:3]
+        files_to_read = self.analysis_results["files"][:3]
 
         for file_entry in files_to_read:
-            file_path = self.project_path / file_entry['name']
+            file_path = self.project_path / file_entry["name"]
 
             result = await read_file.execute(path=str(file_path))
 
             if result.success:
-                self.analysis_results['file_contents'][file_entry['name']] = {
-                    'lines': result.output['lines'],
-                    'size': result.output['size'],
-                    'content_preview': result.output['content'][:200] + "..."
+                self.analysis_results["file_contents"][file_entry["name"]] = {
+                    "lines": result.output["lines"],
+                    "size": result.output["size"],
+                    "content_preview": result.output["content"][:200] + "...",
                 }
                 print(f"   ✓ {file_entry['name']}: {result.output['lines']} lines")
             else:
@@ -119,19 +113,19 @@ class CodeAnalysisAgent:
         )
 
         if result.success:
-            self.analysis_results['test_results'] = {
-                'return_code': result.output['return_code'],
-                'passed': result.output['success'],
-                'output': result.output['stdout']
+            self.analysis_results["test_results"] = {
+                "return_code": result.output["return_code"],
+                "passed": result.output["success"],
+                "output": result.output["stdout"],
             }
 
-            if result.output['success']:
+            if result.output["success"]:
                 print("   ✅ Tests passed")
             else:
                 print(f"   ⚠️ Tests failed (exit code: {result.output['return_code']})")
 
             # Show summary
-            output_lines = result.output['stdout'].strip().split('\n')
+            output_lines = result.output["stdout"].strip().split("\n")
             for line in output_lines[-3:]:
                 if line.strip():
                     print(f"      {line}")
@@ -143,31 +137,27 @@ class CodeAnalysisAgent:
         print("\n🌐 Step 4: Fetching external documentation...")
 
         # Fetch Python package info from PyPI
-        result = await http_get.execute(
-            url="https://pypi.org/pypi/pydantic/json"
-        )
+        result = await http_get.execute(url="https://pypi.org/pypi/pydantic/json")
 
-        if result.success and result.output['json']:
-            package_info = result.output['json']['info']
-            self.analysis_results['external_data']['pydantic'] = {
-                'name': package_info['name'],
-                'version': package_info['version'],
-                'summary': package_info['summary']
+        if result.success and result.output["json"]:
+            package_info = result.output["json"]["info"]
+            self.analysis_results["external_data"]["pydantic"] = {
+                "name": package_info["name"],
+                "version": package_info["version"],
+                "summary": package_info["summary"],
             }
             print(f"   ✓ Pydantic: v{package_info['version']}")
             print(f"      {package_info['summary']}")
 
         # Fetch another package
-        result = await http_get.execute(
-            url="https://pypi.org/pypi/fastapi/json"
-        )
+        result = await http_get.execute(url="https://pypi.org/pypi/fastapi/json")
 
-        if result.success and result.output['json']:
-            package_info = result.output['json']['info']
-            self.analysis_results['external_data']['fastapi'] = {
-                'name': package_info['name'],
-                'version': package_info['version'],
-                'summary': package_info['summary']
+        if result.success and result.output["json"]:
+            package_info = result.output["json"]["info"]
+            self.analysis_results["external_data"]["fastapi"] = {
+                "name": package_info["name"],
+                "version": package_info["version"],
+                "summary": package_info["summary"],
             }
             print(f"   ✓ FastAPI: v{package_info['version']}")
 
@@ -184,27 +174,33 @@ class CodeAnalysisAgent:
             "",
             "## FILES",
             f"Total Python files: {len(self.analysis_results['files'])}",
-            ""
+            "",
         ]
 
         # Add file details
         report_lines.append("Analyzed files:")
-        for name, details in self.analysis_results['file_contents'].items():
+        for name, details in self.analysis_results["file_contents"].items():
             report_lines.append(f"  - {name}")
-            report_lines.append(f"    Lines: {details['lines']}, Size: {details['size']} bytes")
+            report_lines.append(
+                f"    Lines: {details['lines']}, Size: {details['size']} bytes"
+            )
 
         # Add test results
-        if self.analysis_results['test_results']:
+        if self.analysis_results["test_results"]:
             report_lines.append("")
             report_lines.append("## TESTS")
-            test_status = "PASSED" if self.analysis_results['test_results']['passed'] else "FAILED"
+            test_status = (
+                "PASSED"
+                if self.analysis_results["test_results"]["passed"]
+                else "FAILED"
+            )
             report_lines.append(f"Status: {test_status}")
 
         # Add external data
-        if self.analysis_results['external_data']:
+        if self.analysis_results["external_data"]:
             report_lines.append("")
             report_lines.append("## DEPENDENCIES")
-            for pkg_name, pkg_info in self.analysis_results['external_data'].items():
+            for pkg_name, pkg_info in self.analysis_results["external_data"].items():
                 report_lines.append(f"  - {pkg_info['name']} v{pkg_info['version']}")
                 report_lines.append(f"    {pkg_info['summary']}")
 
@@ -215,10 +211,7 @@ class CodeAnalysisAgent:
 
         # Write report to file
         report_path = self.project_path / "analysis_report.txt"
-        result = await write_file.execute(
-            path=str(report_path),
-            content=report_content
-        )
+        result = await write_file.execute(path=str(report_path), content=report_content)
 
         if result.success:
             print(f"   ✅ Report written to: {result.output['path']}")
@@ -268,7 +261,7 @@ async def registry_example():
         filesystem_paths=[".", "./tests", "./packages"],
         allowed_commands=["git", "pytest", "python", "ls", "dir"],
         http_timeout=10.0,
-        command_timeout=30.0
+        command_timeout=30.0,
     )
 
     # List available tools
@@ -284,28 +277,21 @@ async def registry_example():
     print("\n🔧 Executing tools through registry:")
 
     # Filesystem tool
-    result = await registry.execute_tool(
-        "list_directory",
-        path="examples"
-    )
+    result = await registry.execute_tool("list_directory", path="examples")
     if result.success:
         print(f"\n  ✓ list_directory: found {result.output['count']} items")
 
     # Shell tool
-    result = await registry.execute_tool(
-        "run_command",
-        command="git log -1 --oneline"
-    )
+    result = await registry.execute_tool("run_command", command="git log -1 --oneline")
     if result.success:
         print(f"  ✓ run_command: {result.output['stdout'].strip()}")
 
     # HTTP tool
     result = await registry.execute_tool(
-        "http_get",
-        url="https://api.github.com/repos/python/cpython"
+        "http_get", url="https://api.github.com/repos/python/cpython"
     )
-    if result.success and result.output['json']:
-        repo = result.output['json']
+    if result.success and result.output["json"]:
+        repo = result.output["json"]
         print(f"  ✓ http_get: {repo['full_name']} ({repo['stargazers_count']:,} stars)")
 
 

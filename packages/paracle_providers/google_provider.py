@@ -20,10 +20,7 @@ from paracle_providers.base import (
     StreamChunk,
     TokenUsage,
 )
-from paracle_providers.exceptions import (
-    LLMProviderError,
-    ProviderAuthenticationError,
-)
+from paracle_providers.exceptions import LLMProviderError, ProviderAuthenticationError
 from paracle_providers.retry import RetryableProvider, RetryConfig
 
 
@@ -85,9 +82,7 @@ class GoogleProvider(LLMProvider, RetryableProvider):
         """
 
         async def _make_request() -> LLMResponse:
-            return await self._raw_chat_completion(
-                messages, config, model, **kwargs
-            )
+            return await self._raw_chat_completion(messages, config, model, **kwargs)
 
         operation_name = f"google.chat_completion({model})"
         return await self.with_retry(_make_request, operation_name)
@@ -132,21 +127,27 @@ class GoogleProvider(LLMProvider, RetryableProvider):
                 content=response.text,
                 finish_reason="stop" if response.candidates else "unknown",
                 usage=TokenUsage(
-                    prompt_tokens=getattr(response.usage_metadata, "prompt_token_count", 0),
-                    completion_tokens=getattr(response.usage_metadata, "candidates_token_count", 0),
-                    total_tokens=getattr(response.usage_metadata, "total_token_count", 0),
+                    prompt_tokens=getattr(
+                        response.usage_metadata, "prompt_token_count", 0
+                    ),
+                    completion_tokens=getattr(
+                        response.usage_metadata, "candidates_token_count", 0
+                    ),
+                    total_tokens=getattr(
+                        response.usage_metadata, "total_token_count", 0
+                    ),
                 ),
                 model=model,
                 metadata={
-                    "candidates": len(response.candidates) if response.candidates else 0,
+                    "candidates": (
+                        len(response.candidates) if response.candidates else 0
+                    ),
                 },
             )
 
         except Exception as e:
             if "api_key" in str(e).lower():
-                raise ProviderAuthenticationError(
-                    str(e), provider="google"
-                ) from e
+                raise ProviderAuthenticationError(str(e), provider="google") from e
             raise LLMProviderError(
                 str(e), provider="google", model=model, original_error=e
             ) from e

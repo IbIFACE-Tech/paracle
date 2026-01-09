@@ -332,8 +332,7 @@ class TestPatternDetection:
         patterns = registry.get_patterns()
 
         # Should detect high frequency pattern
-        high_freq = [p for p in patterns if p["pattern_type"]
-                     == "high_frequency"]
+        high_freq = [p for p in patterns if p["pattern_type"] == "high_frequency"]
         assert len(high_freq) >= 1
 
     def test_cascading_errors_pattern(self):
@@ -378,7 +377,8 @@ class TestErrorSearch:
         registry.record_error(error, "api_client")
 
         results = registry.search_errors(
-            "connection", field="message", case_sensitive=False)
+            "connection", field="message", case_sensitive=False
+        )
         assert len(results) == 1
 
     def test_search_by_component(self):
@@ -404,8 +404,7 @@ class TestErrorExport:
         registry = ErrorRegistry()
 
         error = ValueError("Test error")
-        registry.record_error(error, "test_component",
-                              context={"key": "value"})
+        registry.record_error(error, "test_component", context={"key": "value"})
 
         exported = registry.export_errors(format="json")
 

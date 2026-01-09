@@ -19,9 +19,7 @@ class TestAIProviderHelper:
     def test_get_ai_provider_none_available(self, monkeypatch):
         """Test graceful handling when no AI available."""
         # Mock paracle_meta as not available
-        monkeypatch.setattr(
-            "paracle_cli.ai_helper._load_ai_config", lambda: None
-        )
+        monkeypatch.setattr("paracle_cli.ai_helper._load_ai_config", lambda: None)
 
         # Should return None when no providers available
         result = get_ai_provider()
@@ -63,9 +61,7 @@ class TestAIProviderProtocol:
     def test_openai_provider_protocol(self):
         """Test OpenAI provider implements protocol."""
         try:
-            from paracle_cli.providers.openai_provider import (
-                OpenAIProvider,
-            )
+            from paracle_cli.providers.openai_provider import OpenAIProvider
 
             # Check required attributes
             assert hasattr(OpenAIProvider, "name")
@@ -79,9 +75,7 @@ class TestAIProviderProtocol:
     def test_anthropic_provider_protocol(self):
         """Test Anthropic provider implements protocol."""
         try:
-            from paracle_cli.providers.anthropic_provider import (
-                AnthropicProvider,
-            )
+            from paracle_cli.providers.anthropic_provider import AnthropicProvider
 
             # Check required attributes
             assert hasattr(AnthropicProvider, "name")
@@ -115,9 +109,7 @@ class TestProviderConfiguration:
         from paracle_cli.ai_helper import _load_ai_config
 
         # Point to non-existent directory
-        monkeypatch.setattr(
-            "paracle_cli.ai_helper.find_parac_root", lambda: tmp_path
-        )
+        monkeypatch.setattr("paracle_cli.ai_helper.find_parac_root", lambda: tmp_path)
 
         config = _load_ai_config()
         assert config is None
@@ -130,17 +122,17 @@ class TestProviderConfiguration:
         config_dir = tmp_path / "config"
         config_dir.mkdir()
         config_file = config_dir / "ai.yaml"
-        config_file.write_text("""
+        config_file.write_text(
+            """
 ai:
   provider: meta
   providers:
     meta:
       model: gpt-4-turbo
-""")
-
-        monkeypatch.setattr(
-            "paracle_cli.ai_helper.find_parac_root", lambda: tmp_path
+"""
         )
+
+        monkeypatch.setattr("paracle_cli.ai_helper.find_parac_root", lambda: tmp_path)
 
         config = _load_ai_config()
         assert config is not None
@@ -177,9 +169,7 @@ class TestErrorHandling:
         monkeypatch.delenv("OPENAI_API_KEY", raising=False)
 
         try:
-            from paracle_cli.providers.openai_provider import (
-                OpenAIProvider,
-            )
+            from paracle_cli.providers.openai_provider import OpenAIProvider
 
             with pytest.raises(Exception):  # Should raise some error
                 OpenAIProvider()
@@ -191,9 +181,7 @@ class TestErrorHandling:
         monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
 
         try:
-            from paracle_cli.providers.anthropic_provider import (
-                AnthropicProvider,
-            )
+            from paracle_cli.providers.anthropic_provider import AnthropicProvider
 
             # Provider might fail during initialization or first use
             # This is implementation-dependent

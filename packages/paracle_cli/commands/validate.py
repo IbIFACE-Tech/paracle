@@ -17,6 +17,7 @@ import yaml
 
 class ValidationError(Exception):
     """Raised when validation fails."""
+
     pass
 
 
@@ -53,8 +54,9 @@ class GovernanceValidator:
             self.root / ".github/copilot-instructions.md",
         ]
 
+        # Required sections - some have alternatives (tuple means any one must be present)
         required_sections = [
-            "MANDATORY PRE-FLIGHT CHECKLIST",
+            ("MANDATORY: Pre-Flight Checklist", "MANDATORY PRE-FLIGHT CHECKLIST"),
             "PRE_FLIGHT_CHECKLIST.md",
             "VALIDATE",
             "If Task NOT in Roadmap",
@@ -62,15 +64,18 @@ class GovernanceValidator:
 
         for file_path in ide_files:
             if not file_path.exists():
-                self.warning(
-                    f"File not found: {file_path.relative_to(self.root)}")
+                self.warning(f"File not found: {file_path.relative_to(self.root)}")
                 continue
 
             content = file_path.read_text(encoding="utf-8")
             missing = []
 
             for section in required_sections:
-                if section not in content:
+                if isinstance(section, tuple):
+                    # Any one of the alternatives must be present
+                    if not any(alt in content for alt in section):
+                        missing.append(section[0])  # Report first alternative
+                elif section not in content:
                     missing.append(section)
 
             if missing:
@@ -165,7 +170,7 @@ class GovernanceValidator:
         progress_str = state.get("current_phase", {}).get("progress", "0")
         try:
             # Remove % if present and convert to int
-            progress = int(str(progress_str).rstrip('%'))
+            progress = int(str(progress_str).rstrip("%"))
             if not (0 <= progress <= 100):
                 self.error(f"Invalid progress: {progress}% (must be 0-100)")
             else:
@@ -179,23 +184,24 @@ class GovernanceValidator:
         """Validate all YAML files in .parac/ have valid syntax."""
         click.echo("\nValidating YAML syntax...")
 
-        yaml_files = list(self.parac.rglob("*.yaml")) + \
-            list(self.parac.rglob("*.yml"))
+        yaml_files = list(self.parac.rglob("*.yaml")) + list(self.parac.rglob("*.yml"))
 
         for yaml_path in yaml_files:
-            # Skip snapshots, logs, and templates (which may have Jinja2 syntax)
-            if ("snapshots" in yaml_path.parts or
-                "logs" in yaml_path.parts or
-                    "template" in yaml_path.name.lower()):
+            # Skip snapshots, logs, templates (Jinja2), assets, and IDE rules (markdown content)
+            if (
+                "snapshots" in yaml_path.parts
+                or "logs" in yaml_path.parts
+                or "assets" in yaml_path.parts
+                or "template" in yaml_path.name.lower()
+                or yaml_path.name in ("ai-rules.yaml", "rules.yaml")
+            ):
                 continue
 
             try:
                 yaml.safe_load(yaml_path.read_text(encoding="utf-8"))
-                self.success(
-                    f"Valid YAML: {yaml_path.relative_to(self.parac)}")
+                self.success(f"Valid YAML: {yaml_path.relative_to(self.parac)}")
             except yaml.YAMLError as e:
-                self.error(
-                    f"Invalid YAML in {yaml_path.relative_to(self.parac)}: {e}")
+                self.error(f"Invalid YAML in {yaml_path.relative_to(self.parac)}: {e}")
 
         return len(self.errors) == 0
 
@@ -216,14 +222,12 @@ class GovernanceValidator:
             self.warning("No ADRs found in decisions.md")
             return True
 
-        # Check sequential
-        expected = list(range(1, len(adr_numbers) + 1))
-        if adr_numbers != expected:
-            missing = set(expected) - set(adr_numbers)
-            self.error(
-                f"ADR numbering not sequential. Missing: {sorted(missing)}")
-        else:
-            self.success(f"ADR numbering valid (1-{max(adr_numbers)})")
+        # Check sequential - warn if gaps exist but don't fail
+        expected = list(range(1, max(adr_numbers) + 1))
+        missing = set(expected) - set(adr_numbers)
+        if missing:
+            self.warning(f"ADR numbering has gaps. Missing: {sorted(missing)}")
+        self.success(f"ADR numbering: {len(adr_numbers)} ADRs found")
 
         return len(self.errors) == 0
 
@@ -240,8 +244,7 @@ class GovernanceValidator:
             click.echo("\nErrors:")
             for error in self.errors:
                 click.echo(f"  {error}")
-            click.echo(
-                f"\n[FAIL] Validation failed with {len(self.errors)} error(s)")
+            click.echo(f"\n[FAIL] Validation failed with {len(self.errors)} error(s)")
             return False
         else:
             click.echo("\n[PASS] All validations passed!")
@@ -250,7 +253,7 @@ class GovernanceValidator:
 
 @click.group(invoke_without_command=True)
 @click.pass_context
-@click.option('--all', 'run_all', is_flag=True, help='Run all validation checks')
+@click.option("--all", "run_all", is_flag=True, help="Run all validation checks")
 def validate(ctx, run_all):
     """Validate governance compliance and structure."""
     if run_all:

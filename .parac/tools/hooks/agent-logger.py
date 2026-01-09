@@ -5,7 +5,6 @@ Agent Action Logger
 Utility pour logger automatiquement les actions des agents dans .parac/memory/logs/
 """
 
-import os
 from datetime import datetime
 from pathlib import Path
 from typing import Literal
@@ -106,9 +105,7 @@ class AgentLogger:
             timestamp = datetime.now()
 
         timestamp_str = timestamp.strftime("%Y-%m-%d %H:%M:%S")
-        log_entry = (
-            f"[{timestamp_str}] [{agent}] [DECISION] {decision} | {rationale} | {impact}\n"
-        )
+        log_entry = f"[{timestamp_str}] [{agent}] [DECISION] {decision} | {rationale} | {impact}\n"
 
         # Ajouter au log de décisions
         with open(self.decisions_log, "a", encoding="utf-8") as f:
@@ -124,7 +121,7 @@ class AgentLogger:
         if not self.actions_log.exists():
             return []
 
-        with open(self.actions_log, "r", encoding="utf-8") as f:
+        with open(self.actions_log, encoding="utf-8") as f:
             lines = f.readlines()
 
         return lines[-count:]
@@ -134,7 +131,7 @@ class AgentLogger:
         if not self.actions_log.exists():
             return []
 
-        with open(self.actions_log, "r", encoding="utf-8") as f:
+        with open(self.actions_log, encoding="utf-8") as f:
             lines = f.readlines()
 
         return [line for line in lines if f"[{agent}]" in line]
@@ -164,8 +161,6 @@ if __name__ == "__main__":
         if not args.rationale or not args.impact:
             print("Error: --decision requires --rationale and --impact")
             exit(1)
-        logger.log_decision(
-            args.agent, args.description, args.rationale, args.impact
-        )
+        logger.log_decision(args.agent, args.description, args.rationale, args.impact)
     else:
         logger.log_action(args.agent, args.action, args.description)

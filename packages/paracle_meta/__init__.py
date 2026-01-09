@@ -74,50 +74,42 @@ Interactive Sessions (v1.4.0):
     ...     await planner.execute_plan(plan)
 """
 
-from paracle_meta.engine import MetaAgent
-from paracle_meta.generators import (
-    AgentGenerator,
-    PolicyGenerator,
-    SkillGenerator,
-    WorkflowGenerator,
-)
-from paracle_meta.generators.base import GenerationRequest, GenerationResult
-from paracle_meta.knowledge import BestPracticesDatabase
-from paracle_meta.learning import FeedbackCollector, LearningEngine
-from paracle_meta.optimizer import CostOptimizer, QualityScorer
-from paracle_meta.providers import ProviderOrchestrator, ProviderSelector
-from paracle_meta.templates import TemplateEvolution, TemplateLibrary
-
 # Capabilities
-from paracle_meta.capabilities import (
+from paracle_meta.capabilities import (  # Hybrid capabilities (native + Anthropic SDK)
     AgentSpawner,
+    AnthropicCapability,
+    AnthropicConfig,
     BaseCapability,
     CapabilityConfig,
     CapabilityResult,
-    CodeExecutionCapability,
-    CodeExecutionConfig,
-    MCPCapability,
-    MCPConfig,
-    SpawnConfig,
-    SpawnedAgent,
-    TaskConfig,
-    TaskManagementCapability,
-    WebCapability,
-    WebConfig,
-    # Hybrid capabilities (native + Anthropic SDK)
-    AnthropicCapability,
-    AnthropicConfig,
     ClaudeModel,
-    ToolDefinition,
-    FileSystemCapability,
-    FileSystemConfig,
     CodeCreationCapability,
     CodeCreationConfig,
+    CodeExecutionCapability,
+    CodeExecutionConfig,
+    FileSystemCapability,
+    FileSystemConfig,
+    MCPCapability,
+    MCPConfig,
     MemoryCapability,
     MemoryConfig,
     MemoryItem,
     ShellCapability,
     ShellConfig,
+    SpawnConfig,
+    SpawnedAgent,
+    TaskConfig,
+    TaskManagementCapability,
+    ToolDefinition,
+    WebCapability,
+    WebConfig,
+)
+from paracle_meta.capabilities.provider_chain import (
+    CircuitBreaker,
+    FallbackStrategy,
+    ProviderChain,
+    ProviderChainError,
+    ProviderMetrics,
 )
 
 # Provider abstraction (v1.4.0)
@@ -134,19 +126,24 @@ from paracle_meta.capabilities.provider_protocol import (
     ToolCallResult,
     ToolDefinitionSchema,
 )
-from paracle_meta.capabilities.provider_chain import (
-    CircuitBreaker,
-    FallbackStrategy,
-    ProviderChain,
-    ProviderChainError,
-    ProviderMetrics,
-)
 from paracle_meta.capabilities.providers import (
     AnthropicProvider,
     MockProvider,
     OllamaProvider,
     OpenAIProvider,
 )
+from paracle_meta.engine import MetaAgent
+from paracle_meta.generators import (
+    AgentGenerator,
+    PolicyGenerator,
+    SkillGenerator,
+    WorkflowGenerator,
+)
+from paracle_meta.generators.base import GenerationRequest, GenerationResult
+from paracle_meta.knowledge import BestPracticesDatabase
+from paracle_meta.learning import FeedbackCollector, LearningEngine
+from paracle_meta.optimizer import CostOptimizer, QualityScorer
+from paracle_meta.providers import ProviderOrchestrator, ProviderSelector
 
 # Registry (v1.4.0)
 from paracle_meta.registry import (
@@ -174,6 +171,7 @@ from paracle_meta.sessions import (
     SessionConfig,
     SessionMessage,
 )
+from paracle_meta.templates import TemplateEvolution, TemplateLibrary
 
 # Database and repositories (v1.5.0) - Optional, requires sqlalchemy
 # These are imported lazily to allow basic usage without sqlalchemy
@@ -184,22 +182,6 @@ try:
         get_meta_database,
         get_system_data_path,
     )
-    from paracle_meta.repositories import (
-        BestPractice,
-        BestPracticesRepository,
-        CostEntry,
-        CostReport,
-        CostRepository,
-        ContextRepository,
-        Feedback,
-        FeedbackRepository,
-        GenerationRepository,
-        GenerationResult as RepoGenerationResult,
-        MemoryEntry,
-        MemoryRepository,
-        TemplateRepository,
-        TemplateSpec,
-    )
     from paracle_meta.health import (
         HealthCheck,
         HealthChecker,
@@ -207,6 +189,23 @@ try:
         check_health,
         format_health_report,
     )
+    from paracle_meta.repositories import (
+        BestPractice,
+        BestPracticesRepository,
+        ContextRepository,
+        CostEntry,
+        CostReport,
+        CostRepository,
+        Feedback,
+        FeedbackRepository,
+        GenerationRepository,
+        MemoryEntry,
+        MemoryRepository,
+        TemplateRepository,
+        TemplateSpec,
+    )
+    from paracle_meta.repositories import GenerationResult as RepoGenerationResult
+
     _HAS_DATABASE = True
 except ImportError:
     # SQLAlchemy not installed - database features unavailable
@@ -247,6 +246,7 @@ try:
         OpenAIEmbeddings,
         get_embedding_provider,
     )
+
     _HAS_EMBEDDINGS = True
 except ImportError:
     _HAS_EMBEDDINGS = False
@@ -260,11 +260,7 @@ except ImportError:
     get_embedding_provider = None  # type: ignore
 
 # Configuration - Always available (uses pydantic)
-from paracle_meta.config import (
-    MetaEngineConfig,
-    load_config,
-    validate_config,
-)
+from paracle_meta.config import MetaEngineConfig, load_config, validate_config
 
 __version__ = "1.5.0"
 
@@ -273,30 +269,24 @@ __all__ = [
     "MetaAgent",
     "GenerationRequest",
     "GenerationResult",
-
     # Learning
     "LearningEngine",
     "FeedbackCollector",
-
     # Providers
     "ProviderOrchestrator",
     "ProviderSelector",
-
     # Generators
     "AgentGenerator",
     "WorkflowGenerator",
     "SkillGenerator",
     "PolicyGenerator",
-
     # Optimization
     "CostOptimizer",
     "QualityScorer",
-
     # Templates & Knowledge
     "TemplateLibrary",
     "TemplateEvolution",
     "BestPracticesDatabase",
-
     # Capabilities
     "BaseCapability",
     "CapabilityConfig",
@@ -326,7 +316,6 @@ __all__ = [
     "MemoryItem",
     "ShellCapability",
     "ShellConfig",
-
     # Provider abstraction (v1.4.0)
     "CapabilityProvider",
     "LLMMessage",
@@ -348,13 +337,11 @@ __all__ = [
     "MockProvider",
     "OllamaProvider",
     "OpenAIProvider",
-
     # Registry (v1.4.0)
     "CapabilityFacade",
     "CapabilityRegistry",
     "CapabilityStatus",
     "RegistryConfig",
-
     # Sessions (v1.4.0)
     "ChatConfig",
     "ChatSession",
@@ -371,7 +358,6 @@ __all__ = [
     "Session",
     "SessionConfig",
     "SessionMessage",
-
     # Database and repositories (v1.5.0)
     "MetaDatabase",
     "MetaDatabaseConfig",
@@ -391,7 +377,6 @@ __all__ = [
     "MemoryRepository",
     "TemplateRepository",
     "TemplateSpec",
-
     # Embeddings (v1.5.0)
     "CachedEmbeddingProvider",
     "EmbeddingCache",
@@ -401,19 +386,16 @@ __all__ = [
     "OllamaEmbeddings",
     "OpenAIEmbeddings",
     "get_embedding_provider",
-
     # Configuration (v1.5.0)
     "MetaEngineConfig",
     "load_config",
     "validate_config",
-
     # Health checks (v1.5.0)
     "HealthCheck",
     "HealthChecker",
     "HealthStatus",
     "check_health",
     "format_health_report",
-
     # Feature flags
     "_HAS_DATABASE",
     "_HAS_EMBEDDINGS",

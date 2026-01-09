@@ -1,7 +1,6 @@
 """Unit tests for paracle_meta.capabilities.web_capabilities module."""
 
 import pytest
-
 from paracle_meta.capabilities.web_capabilities import (
     CrawlResult,
     SearchResult,
@@ -210,7 +209,10 @@ class TestWebCapability:
         assert result["url"] == "https://example.com"
         assert result["status_code"] == 200
         # Title should be extracted
-        assert "Test Page" in result.get("title", "") or "content" in result.get("content", "").lower()
+        assert (
+            "Test Page" in result.get("title", "")
+            or "content" in result.get("content", "").lower()
+        )
 
 
 class TestWebCapabilityIntegration:

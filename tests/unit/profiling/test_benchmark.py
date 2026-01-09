@@ -7,8 +7,6 @@ import json
 import time
 from pathlib import Path
 
-import pytest
-
 from paracle_profiling.benchmark import (
     Benchmark,
     BenchmarkResult,
@@ -45,6 +43,7 @@ class TestBenchmark:
 
     def test_benchmark_calculates_statistics(self):
         """Test benchmark calculates all statistics."""
+
         def target():
             time.sleep(0.001)  # 1ms
 
@@ -70,6 +69,7 @@ class TestBenchmark:
 
     def test_benchmark_handles_exception(self):
         """Test benchmark handles function exception."""
+
         def failing_func():
             raise ValueError("Test error")
 
@@ -88,6 +88,7 @@ class TestBenchmark:
 
     def test_benchmark_timeout(self):
         """Test benchmark respects timeout."""
+
         def slow_func():
             time.sleep(0.1)
 

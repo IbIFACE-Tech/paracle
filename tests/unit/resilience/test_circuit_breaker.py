@@ -15,8 +15,7 @@ class TestCircuitBreakerBasics:
 
     def test_circuit_breaker_creation(self):
         """Test circuit breaker initialization."""
-        circuit = CircuitBreaker(
-            "test_service", failure_threshold=5, timeout=60)
+        circuit = CircuitBreaker("test_service", failure_threshold=5, timeout=60)
         assert circuit.name == "test_service"
         assert circuit.state == CircuitBreakerState.CLOSED
         assert circuit.failure_count == 0
@@ -45,7 +44,9 @@ class TestCircuitBreakerBasics:
         with pytest.raises(ValueError, match="test error"):
             circuit.call(failure_func)
 
-        assert circuit.state == CircuitBreakerState.CLOSED  # Still closed after 1 failure
+        assert (
+            circuit.state == CircuitBreakerState.CLOSED
+        )  # Still closed after 1 failure
         assert circuit.failure_count == 1
 
 
@@ -89,7 +90,8 @@ class TestCircuitBreakerStates:
     def test_half_open_after_timeout(self):
         """Test circuit transitions to half-open after timeout."""
         circuit = CircuitBreaker(
-            "test", failure_threshold=2, timeout=0.1)  # 100ms timeout
+            "test", failure_threshold=2, timeout=0.1
+        )  # 100ms timeout
 
         def failure_func():
             raise ValueError("fail")

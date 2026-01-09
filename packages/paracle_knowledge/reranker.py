@@ -125,7 +125,9 @@ class CrossEncoderReranker(Reranker):
             rerank_score = float(scores[i])
 
             # Normalize rerank score to [0, 1]
-            rerank_score_normalized = (rerank_score + 10) / 20  # Approximate normalization
+            rerank_score_normalized = (
+                rerank_score + 10
+            ) / 20  # Approximate normalization
 
             # Combine scores
             combined_score = (
@@ -246,9 +248,8 @@ class RecencyReranker(Reranker):
             recency_score = max(0, 1 - (age_days / self._decay_days))
 
             combined_score = (
-                (1 - self._recency_weight) * original_score
-                + self._recency_weight * recency_score
-            )
+                1 - self._recency_weight
+            ) * original_score + self._recency_weight * recency_score
 
             results.append(
                 RerankResult(
@@ -302,9 +303,7 @@ class EnsembleReranker(Reranker):
         for reranker, weight in self._rerankers:
             results = await reranker.rerank(query, chunks, top_k=len(chunks))
             for result in results:
-                all_results[result.chunk.id].append(
-                    (result.combined_score, weight)
-                )
+                all_results[result.chunk.id].append((result.combined_score, weight))
 
         # Combine scores
         final_results = []

@@ -4,7 +4,6 @@ import uuid
 
 import pytest
 from fastapi.testclient import TestClient
-
 from paracle_api.main import app
 from paracle_api.routers import tool_crud
 
@@ -38,9 +37,7 @@ class TestToolCRUD:
             "is_mcp": False,
         }
 
-    def test_create_tool(
-        self, client: TestClient, sample_tool_spec: dict
-    ) -> None:
+    def test_create_tool(self, client: TestClient, sample_tool_spec: dict) -> None:
         """Test POST /api/tools."""
         response = client.post(
             "/api/tools",
@@ -67,9 +64,7 @@ class TestToolCRUD:
         assert response.status_code == 409
         assert "already exists" in response.json()["detail"].lower()
 
-    def test_list_tools(
-        self, client: TestClient, sample_tool_spec: dict
-    ) -> None:
+    def test_list_tools(self, client: TestClient, sample_tool_spec: dict) -> None:
         """Test GET /api/tools."""
         # Create some tools
         for i in range(3):
@@ -91,17 +86,13 @@ class TestToolCRUD:
         # Create enabled tool
         spec1 = sample_tool_spec.copy()
         spec1["name"] = "enabled-tool"
-        response1 = client.post(
-            "/api/tools", json={"spec": spec1, "enabled": True}
-        )
+        response1 = client.post("/api/tools", json={"spec": spec1, "enabled": True})
         tool_id = response1.json()["id"]
 
         # Create disabled tool
         spec2 = sample_tool_spec.copy()
         spec2["name"] = "disabled-tool"
-        response2 = client.post(
-            "/api/tools", json={"spec": spec2, "enabled": False}
-        )
+        response2 = client.post("/api/tools", json={"spec": spec2, "enabled": False})
 
         # Filter by enabled=true
         response = client.get("/api/tools?enabled=true")
@@ -133,14 +124,10 @@ class TestToolCRUD:
         data = response.json()
         assert all(t["is_mcp"] for t in data["tools"])
 
-    def test_get_tool(
-        self, client: TestClient, sample_tool_spec: dict
-    ) -> None:
+    def test_get_tool(self, client: TestClient, sample_tool_spec: dict) -> None:
         """Test GET /api/tools/{tool_id}."""
         # Create a tool
-        create_response = client.post(
-            "/api/tools", json={"spec": sample_tool_spec}
-        )
+        create_response = client.post("/api/tools", json={"spec": sample_tool_spec})
         tool_id = create_response.json()["id"]
 
         # Get the tool
@@ -157,14 +144,10 @@ class TestToolCRUD:
 
         assert response.status_code == 404
 
-    def test_update_tool(
-        self, client: TestClient, sample_tool_spec: dict
-    ) -> None:
+    def test_update_tool(self, client: TestClient, sample_tool_spec: dict) -> None:
         """Test PUT /api/tools/{tool_id}."""
         # Create a tool
-        create_response = client.post(
-            "/api/tools", json={"spec": sample_tool_spec}
-        )
+        create_response = client.post("/api/tools", json={"spec": sample_tool_spec})
         tool_id = create_response.json()["id"]
 
         # Update the tool
@@ -184,14 +167,10 @@ class TestToolCRUD:
 
         assert response.status_code == 404
 
-    def test_delete_tool(
-        self, client: TestClient, sample_tool_spec: dict
-    ) -> None:
+    def test_delete_tool(self, client: TestClient, sample_tool_spec: dict) -> None:
         """Test DELETE /api/tools/{tool_id}."""
         # Create a tool
-        create_response = client.post(
-            "/api/tools", json={"spec": sample_tool_spec}
-        )
+        create_response = client.post("/api/tools", json={"spec": sample_tool_spec})
         tool_id = create_response.json()["id"]
 
         # Delete the tool
@@ -211,9 +190,7 @@ class TestToolCRUD:
 
         assert response.status_code == 404
 
-    def test_enable_tool(
-        self, client: TestClient, sample_tool_spec: dict
-    ) -> None:
+    def test_enable_tool(self, client: TestClient, sample_tool_spec: dict) -> None:
         """Test PUT /api/tools/{tool_id}/enable."""
         # Create a disabled tool
         create_response = client.post(
@@ -222,9 +199,7 @@ class TestToolCRUD:
         tool_id = create_response.json()["id"]
 
         # Enable the tool
-        response = client.put(
-            f"/api/tools/{tool_id}/enable", json={"enabled": True}
-        )
+        response = client.put(f"/api/tools/{tool_id}/enable", json={"enabled": True})
 
         assert response.status_code == 200
         data = response.json()
@@ -235,9 +210,7 @@ class TestToolCRUD:
         get_response = client.get(f"/api/tools/{tool_id}")
         assert get_response.json()["enabled"] is True
 
-    def test_disable_tool(
-        self, client: TestClient, sample_tool_spec: dict
-    ) -> None:
+    def test_disable_tool(self, client: TestClient, sample_tool_spec: dict) -> None:
         """Test PUT /api/tools/{tool_id}/enable with enabled=false."""
         # Create an enabled tool
         create_response = client.post(
@@ -246,9 +219,7 @@ class TestToolCRUD:
         tool_id = create_response.json()["id"]
 
         # Disable the tool
-        response = client.put(
-            f"/api/tools/{tool_id}/enable", json={"enabled": False}
-        )
+        response = client.put(f"/api/tools/{tool_id}/enable", json={"enabled": False})
 
         assert response.status_code == 200
         data = response.json()

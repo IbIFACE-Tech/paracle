@@ -1,10 +1,8 @@
 """Tests for memory storage backends."""
 
-import tempfile
 from pathlib import Path
 
 import pytest
-
 from paracle_memory.models import Memory, MemoryType
 from paracle_memory.store import InMemoryStore, SQLiteMemoryStore
 
@@ -65,36 +63,42 @@ class TestInMemoryStore:
     @pytest.mark.asyncio
     async def test_list_by_type(self, store: InMemoryStore) -> None:
         """Test filtering by memory type."""
-        await store.save(Memory(
-            agent_id="agent1",
-            content="Long term",
-            memory_type=MemoryType.LONG_TERM,
-        ))
-        await store.save(Memory(
-            agent_id="agent1",
-            content="Short term",
-            memory_type=MemoryType.SHORT_TERM,
-        ))
-
-        memories = await store.list_by_agent(
-            "agent1", memory_type=MemoryType.LONG_TERM
+        await store.save(
+            Memory(
+                agent_id="agent1",
+                content="Long term",
+                memory_type=MemoryType.LONG_TERM,
+            )
         )
+        await store.save(
+            Memory(
+                agent_id="agent1",
+                content="Short term",
+                memory_type=MemoryType.SHORT_TERM,
+            )
+        )
+
+        memories = await store.list_by_agent("agent1", memory_type=MemoryType.LONG_TERM)
         assert len(memories) == 1
         assert memories[0].memory_type == MemoryType.LONG_TERM
 
     @pytest.mark.asyncio
     async def test_list_with_tags(self, store: InMemoryStore) -> None:
         """Test filtering by tags."""
-        await store.save(Memory(
-            agent_id="agent1",
-            content="Tagged",
-            tags=["important"],
-        ))
-        await store.save(Memory(
-            agent_id="agent1",
-            content="Untagged",
-            tags=[],
-        ))
+        await store.save(
+            Memory(
+                agent_id="agent1",
+                content="Tagged",
+                tags=["important"],
+            )
+        )
+        await store.save(
+            Memory(
+                agent_id="agent1",
+                content="Untagged",
+                tags=[],
+            )
+        )
 
         memories = await store.list_by_agent("agent1", tags=["important"])
         assert len(memories) == 1
@@ -103,16 +107,20 @@ class TestInMemoryStore:
     @pytest.mark.asyncio
     async def test_search_by_embedding(self, store: InMemoryStore) -> None:
         """Test semantic search."""
-        await store.save(Memory(
-            agent_id="agent1",
-            content="Hello",
-            embedding=[1.0, 0.0, 0.0],
-        ))
-        await store.save(Memory(
-            agent_id="agent1",
-            content="World",
-            embedding=[0.0, 1.0, 0.0],
-        ))
+        await store.save(
+            Memory(
+                agent_id="agent1",
+                content="Hello",
+                embedding=[1.0, 0.0, 0.0],
+            )
+        )
+        await store.save(
+            Memory(
+                agent_id="agent1",
+                content="World",
+                embedding=[0.0, 1.0, 0.0],
+            )
+        )
 
         results = await store.search(
             "agent1",
@@ -143,16 +151,20 @@ class TestInMemoryStore:
     @pytest.mark.asyncio
     async def test_get_summary(self, store: InMemoryStore) -> None:
         """Test getting memory summary."""
-        await store.save(Memory(
-            agent_id="agent1",
-            content="Long term",
-            memory_type=MemoryType.LONG_TERM,
-        ))
-        await store.save(Memory(
-            agent_id="agent1",
-            content="Short term",
-            memory_type=MemoryType.SHORT_TERM,
-        ))
+        await store.save(
+            Memory(
+                agent_id="agent1",
+                content="Long term",
+                memory_type=MemoryType.LONG_TERM,
+            )
+        )
+        await store.save(
+            Memory(
+                agent_id="agent1",
+                content="Short term",
+                memory_type=MemoryType.SHORT_TERM,
+            )
+        )
 
         summary = await store.get_summary("agent1")
 

@@ -39,7 +39,9 @@ def run_async(coro):
 
 
 @click.group(invoke_without_command=True)
-@click.option("--list", "-l", "list_flag", is_flag=True, help="List all groups (shortcut)")
+@click.option(
+    "--list", "-l", "list_flag", is_flag=True, help="List all groups (shortcut)"
+)
 @click.pass_context
 def groups(ctx: click.Context, list_flag: bool) -> None:
     """Manage agent groups for multi-agent collaboration.
@@ -95,7 +97,9 @@ def list_groups(output_format: str = "table", db_path: str | None = None) -> Non
 
     if not groups_list:
         console.print("[yellow]No agent groups found.[/yellow]")
-        console.print("Create one with: paracle groups create <name> --members=agent1,agent2")
+        console.print(
+            "Create one with: paracle groups create <name> --members=agent1,agent2"
+        )
         return
 
     if output_format == "json":
@@ -496,11 +500,13 @@ def list_sessions(
         if status:
             status_filter = GroupSessionStatus(status)
 
-        sessions = run_async(store.list_sessions(
-            group_id=group_id,
-            status=status_filter,
-            limit=limit,
-        ))
+        sessions = run_async(
+            store.list_sessions(
+                group_id=group_id,
+                status=status_filter,
+                limit=limit,
+            )
+        )
 
     except Exception as e:
         console.print(f"[red]Error:[/red] {e}")

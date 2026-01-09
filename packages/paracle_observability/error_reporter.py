@@ -69,9 +69,7 @@ class AutomatedErrorReporter:
         end_of_day = start_of_day + timedelta(days=1)
 
         errors = self.registry.get_errors(since=start_of_day.timestamp())
-        errors = [
-            e for e in errors if e.timestamp < end_of_day.timestamp()
-        ]
+        errors = [e for e in errors if e.timestamp < end_of_day.timestamp()]
 
         # Count by type
         error_counts: dict[str, int] = defaultdict(int)
@@ -84,9 +82,7 @@ class AutomatedErrorReporter:
             severity_counts[error.severity.value] += 1
 
         # Top errors
-        top_errors = sorted(
-            error_counts.items(), key=lambda x: x[1], reverse=True
-        )[:5]
+        top_errors = sorted(error_counts.items(), key=lambda x: x[1], reverse=True)[:5]
 
         # Top components
         top_components = sorted(
@@ -101,9 +97,7 @@ class AutomatedErrorReporter:
             "unique_error_types": len(error_counts),
             "affected_components": len(component_counts),
             "severity_breakdown": dict(severity_counts),
-            "top_errors": [
-                {"error_type": t, "count": c} for t, c in top_errors
-            ],
+            "top_errors": [{"error_type": t, "count": c} for t, c in top_errors],
             "top_components": [
                 {"component": comp, "count": c} for comp, c in top_components
             ],
@@ -200,8 +194,7 @@ class AutomatedErrorReporter:
         if first_half_avg == 0:
             change_percent = 100.0 if second_half_avg > 0 else 0.0
         else:
-            change_percent = (
-                (second_half_avg - first_half_avg) / first_half_avg) * 100
+            change_percent = ((second_half_avg - first_half_avg) / first_half_avg) * 100
 
         if change_percent > 20:
             direction = "increasing"
@@ -249,7 +242,7 @@ class AutomatedErrorReporter:
         counts = list(buckets.values())
         mean = sum(counts) / len(counts)
         variance = sum((x - mean) ** 2 for x in counts) / len(counts)
-        std_dev = variance ** 0.5
+        std_dev = variance**0.5
 
         threshold = mean + (threshold_std_dev * std_dev)
 
@@ -329,7 +322,9 @@ class AutomatedErrorReporter:
             "timeline": [
                 {
                     "timestamp": bucket * bucket_size,
-                    "datetime": datetime.fromtimestamp(bucket * bucket_size).isoformat(),
+                    "datetime": datetime.fromtimestamp(
+                        bucket * bucket_size
+                    ).isoformat(),
                     "count": count,
                 }
                 for bucket, count in sorted(timeline.items())
@@ -369,9 +364,7 @@ class AutomatedErrorReporter:
 
             # Check for recent errors (last hour)
             one_hour_ago = time.time() - 3600
-            recent_errors = [
-                e for e in component_errors if e.timestamp >= one_hour_ago
-            ]
+            recent_errors = [e for e in component_errors if e.timestamp >= one_hour_ago]
 
             component_health.append(
                 {

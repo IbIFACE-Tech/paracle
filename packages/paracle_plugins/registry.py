@@ -48,17 +48,13 @@ class PluginRegistry:
         plugin_name = plugin.metadata.name
 
         if plugin_name in self._plugins:
-            raise ValueError(
-                f"Plugin '{plugin_name}' is already registered"
-            )
+            raise ValueError(f"Plugin '{plugin_name}' is already registered")
 
         # Initialize plugin
         try:
             await plugin.initialize(config or {})
         except Exception as e:
-            logger.error(
-                f"Failed to initialize plugin '{plugin_name}': {e}"
-            )
+            logger.error(f"Failed to initialize plugin '{plugin_name}': {e}")
             raise
 
         # Register plugin
@@ -90,9 +86,7 @@ class PluginRegistry:
         try:
             await plugin.cleanup()
         except Exception as e:
-            logger.error(
-                f"Error cleaning up plugin '{plugin_name}': {e}"
-            )
+            logger.error(f"Error cleaning up plugin '{plugin_name}': {e}")
 
         # Unregister plugin
         del self._plugins[plugin_name]
@@ -112,9 +106,7 @@ class PluginRegistry:
         """
         return self._plugins.get(plugin_name)
 
-    def get_plugins_by_type(
-        self, plugin_type: PluginType
-    ) -> list[BasePlugin]:
+    def get_plugins_by_type(self, plugin_type: PluginType) -> list[BasePlugin]:
         """
         Get all plugins of a specific type.
 
@@ -140,9 +132,7 @@ class PluginRegistry:
                 "type": plugin.metadata.plugin_type.value,
                 "description": plugin.metadata.description,
                 "author": plugin.metadata.author,
-                "capabilities": [
-                    c.value for c in plugin.metadata.capabilities
-                ],
+                "capabilities": [c.value for c in plugin.metadata.capabilities],
             }
             for plugin in self._plugins.values()
         ]
@@ -172,9 +162,7 @@ class PluginRegistry:
             try:
                 await self.unregister(plugin_name)
             except Exception as e:
-                logger.error(
-                    f"Error cleaning up plugin '{plugin_name}': {e}"
-                )
+                logger.error(f"Error cleaning up plugin '{plugin_name}': {e}")
 
     @property
     def count(self) -> int:

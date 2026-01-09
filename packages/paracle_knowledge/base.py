@@ -7,10 +7,10 @@ from __future__ import annotations
 
 import hashlib
 import logging
-from paracle_core.compat import UTC, datetime
 from enum import Enum
 from typing import TYPE_CHECKING, Any
 
+from paracle_core.compat import UTC, datetime
 from paracle_core.ids import generate_ulid
 from pydantic import BaseModel, Field
 
@@ -130,7 +130,9 @@ class Document(BaseModel):
             self.content_hash = self.compute_hash()
 
     def __repr__(self) -> str:
-        return f"<Document(id={self.id!r}, name={self.name!r}, chunks={len(self.chunks)})>"
+        return (
+            f"<Document(id={self.id!r}, name={self.name!r}, chunks={len(self.chunks)})>"
+        )
 
 
 class Source(BaseModel):
@@ -240,7 +242,9 @@ class KnowledgeBase:
             if chunks_without_embeddings:
                 contents = [c.content for c in chunks_without_embeddings]
                 embeddings = await self._embedding_service.embed(contents)
-                for chunk, embedding in zip(chunks_without_embeddings, embeddings, strict=False):
+                for chunk, embedding in zip(
+                    chunks_without_embeddings, embeddings, strict=False
+                ):
                     chunk.embedding = embedding
 
             # Convert to vector store documents

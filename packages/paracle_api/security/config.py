@@ -163,8 +163,18 @@ class SecurityConfig(BaseSettings):
 
     shell_allowed_commands: list[str] = Field(
         default_factory=lambda: [
-            "git", "ls", "cat", "head", "tail", "grep", "find",
-            "python", "python3", "pip", "pytest", "make",
+            "git",
+            "ls",
+            "cat",
+            "head",
+            "tail",
+            "grep",
+            "find",
+            "python",
+            "python3",
+            "pip",
+            "pytest",
+            "make",
         ],
         description="Allowed shell commands",
     )
@@ -194,6 +204,7 @@ class SecurityConfig(BaseSettings):
         secret = v.get_secret_value()
         if "CHANGE-ME" in secret:
             import warnings
+
             warnings.warn(
                 "Using default JWT secret key! Set PARACLE_JWT_SECRET_KEY in production.",
                 UserWarning,
@@ -209,6 +220,7 @@ class SecurityConfig(BaseSettings):
         """Validate CORS origins."""
         if "*" in v:
             import warnings
+
             warnings.warn(
                 "CORS allows all origins ('*'). This is insecure for production.",
                 UserWarning,

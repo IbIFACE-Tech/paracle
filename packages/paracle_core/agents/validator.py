@@ -51,18 +51,12 @@ class ValidationResult:
     @property
     def error_count(self) -> int:
         """Count of errors (not warnings or info)."""
-        return sum(
-            1 for e in self.errors
-            if e.severity == ValidationSeverity.ERROR
-        )
+        return sum(1 for e in self.errors if e.severity == ValidationSeverity.ERROR)
 
     @property
     def warning_count(self) -> int:
         """Count of warnings."""
-        return sum(
-            1 for e in self.errors
-            if e.severity == ValidationSeverity.WARNING
-        )
+        return sum(1 for e in self.errors if e.severity == ValidationSeverity.WARNING)
 
     def __str__(self) -> str:
         if self.valid:
@@ -197,9 +191,7 @@ class AgentSpecValidator:
         errors.extend(self._check_parac_references(content))
 
         # Determine validity
-        has_errors = any(
-            e.severity == ValidationSeverity.ERROR for e in errors
-        )
+        has_errors = any(e.severity == ValidationSeverity.ERROR for e in errors)
         if self.strict:
             has_errors = has_errors or any(
                 e.severity == ValidationSeverity.WARNING for e in errors
@@ -234,7 +226,9 @@ class AgentSpecValidator:
                 # Start new section
                 current_section = line[3:].strip()
                 # Remove optional markers like "(required)"
-                current_section = re.sub(r"\s*\((?:required|optional)\)\s*$", "", current_section)
+                current_section = re.sub(
+                    r"\s*\((?:required|optional)\)\s*$", "", current_section
+                )
                 current_content = []
             elif current_section:
                 current_content.append(line)
@@ -269,7 +263,10 @@ class AgentSpecValidator:
             # Check title relates to agent_id
             normalized_title = title.lower().replace(" ", "-").replace("-agent", "")
             normalized_id = agent_id.lower()
-            if normalized_id not in normalized_title and normalized_title not in normalized_id:
+            if (
+                normalized_id not in normalized_title
+                and normalized_title not in normalized_id
+            ):
                 errors.append(
                     ValidationError(
                         message=f"Title '{title}' doesn't match agent ID '{agent_id}'",
@@ -390,7 +387,9 @@ class AgentSpecValidator:
             )
 
         # Check for bullet items
-        bullet_count = len(re.findall(r"^[\s]*[-*]\s+\S", responsibilities, re.MULTILINE))
+        bullet_count = len(
+            re.findall(r"^[\s]*[-*]\s+\S", responsibilities, re.MULTILINE)
+        )
         if bullet_count == 0:
             errors.append(
                 ValidationError(

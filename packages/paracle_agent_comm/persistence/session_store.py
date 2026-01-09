@@ -6,11 +6,7 @@ Provides persistence for group collaboration sessions.
 from abc import ABC, abstractmethod
 
 from paracle_agent_comm.exceptions import SessionNotFoundError
-from paracle_agent_comm.models import (
-    AgentGroup,
-    GroupSession,
-    GroupSessionStatus,
-)
+from paracle_agent_comm.models import AgentGroup, GroupSession, GroupSessionStatus
 
 
 class SessionStore(ABC):

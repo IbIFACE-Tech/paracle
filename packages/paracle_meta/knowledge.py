@@ -19,12 +19,16 @@ class BestPractice(BaseModel):
     """A best practice recommendation."""
 
     id: str = Field(..., description="Unique practice ID")
-    category: str = Field(..., description="Category: agent, workflow, skill, policy, general")
+    category: str = Field(
+        ..., description="Category: agent, workflow, skill, policy, general"
+    )
     pattern: str = Field(..., description="Pattern this practice applies to")
     title: str = Field(..., description="Short title")
     recommendation: str = Field(..., description="The recommendation")
     rationale: str = Field(default="", description="Why this is recommended")
-    examples: list[str] = Field(default_factory=list, description="Example implementations")
+    examples: list[str] = Field(
+        default_factory=list, description="Example implementations"
+    )
     confidence: float = Field(default=0.8, description="Confidence score 0-1")
     source: str = Field(default="built-in", description="Source of this practice")
     usage_count: int = Field(default=0, description="Times this was used")
@@ -251,7 +255,9 @@ class BestPracticesDatabase:
         self.db_path = db_path or self._default_db_path()
         self._init_database()
         self._load_builtins()
-        logger.debug("BestPracticesDatabase initialized", extra={"db": str(self.db_path)})
+        logger.debug(
+            "BestPracticesDatabase initialized", extra={"db": str(self.db_path)}
+        )
 
     async def get_for(
         self,
@@ -365,8 +371,8 @@ class BestPracticesDatabase:
             new_usage = usage_count + 1
             # Update success rate as moving average
             new_success_rate = (
-                (success_rate * usage_count + (1 if success else 0)) / new_usage
-            )
+                success_rate * usage_count + (1 if success else 0)
+            ) / new_usage
 
             cursor.execute(
                 """
@@ -443,7 +449,8 @@ class BestPracticesDatabase:
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
 
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS best_practices (
                 id TEXT PRIMARY KEY,
                 category TEXT NOT NULL,
@@ -458,12 +465,15 @@ class BestPracticesDatabase:
                 success_rate REAL DEFAULT 0.0,
                 created_at TEXT NOT NULL
             )
-        """)
+        """
+        )
 
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE INDEX IF NOT EXISTS idx_practices_category
             ON best_practices(category)
-        """)
+        """
+        )
 
         conn.commit()
         conn.close()

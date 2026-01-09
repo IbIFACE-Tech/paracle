@@ -31,9 +31,7 @@ async def example_manual_caching():
     key = CacheKey(
         provider="openai",
         model="gpt-4",
-        messages=[
-            {"role": "user", "content": "What is the capital of France?"}
-        ],
+        messages=[{"role": "user", "content": "What is the capital of France?"}],
         temperature=0.7,
     )
 
@@ -200,8 +198,7 @@ def example_configuration():
     print(f"  Enabled: {config.enabled}")
     print(f"  Backend: {config.backend}")
     print(f"  Redis URL: {config.redis_url}")
-    print(
-        f"  Default TTL: {config.default_ttl}s ({config.default_ttl // 60}min)")
+    print(f"  Default TTL: {config.default_ttl}s ({config.default_ttl // 60}min)")
     print(f"  Max Memory Size: {config.max_memory_size}")
 
     # Custom config

@@ -6,7 +6,6 @@ from pathlib import Path
 import pytest
 import yaml
 from fastapi.testclient import TestClient
-
 from paracle_api.main import app
 
 
@@ -159,9 +158,7 @@ class TestAgentsRouter:
         finally:
             os.chdir(original_cwd)
 
-    @pytest.mark.skip(
-        reason="Requires proper .parac/ discovery - CWD isolation"
-    )
+    @pytest.mark.skip(reason="Requires proper .parac/ discovery - CWD isolation")
     def test_get_manifest_json(self, temp_parac_project: Path) -> None:
         """Test getting manifest as JSON."""
         original_cwd = Path.cwd()

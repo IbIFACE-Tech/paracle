@@ -311,8 +311,7 @@ def full_stack_example():
     tracer = get_tracer()
     spans = tracer.get_completed_spans()
     print(f"  Total spans: {len(spans)}")
-    print(
-        f"  Avg duration: {sum(s.duration_ms for s in spans) / len(spans):.2f}ms")
+    print(f"  Avg duration: {sum(s.duration_ms for s in spans) / len(spans):.2f}ms")
 
 
 # ============================================================================

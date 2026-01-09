@@ -75,8 +75,7 @@ class ConventionalCommit(BaseModel):
 
         if self.breaking and "BREAKING CHANGE:" not in (self.body or ""):
             parts.append("")  # Blank line
-            parts.append(
-                "BREAKING CHANGE: This commit contains breaking changes")
+            parts.append("BREAKING CHANGE: This commit contains breaking changes")
 
         if self.footer:
             parts.append("")  # Blank line
@@ -129,7 +128,11 @@ class ConventionalCommit(BaseModel):
         for line in lines[1:]:
             if not line.strip():
                 continue
-            if line.startswith("BREAKING CHANGE:") or line.startswith("Refs:") or line.startswith("Closes:"):
+            if (
+                line.startswith("BREAKING CHANGE:")
+                or line.startswith("Refs:")
+                or line.startswith("Closes:")
+            ):
                 in_footer = True
             if in_footer:
                 footer_lines.append(line)

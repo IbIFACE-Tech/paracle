@@ -1,7 +1,6 @@
 """Unit tests for paracle_meta.templates module."""
 
 import pytest
-
 from paracle_meta.exceptions import TemplateNotFoundError
 from paracle_meta.templates import Template, TemplateEvolution, TemplateLibrary
 
@@ -148,9 +147,7 @@ class TestTemplateLibrary:
         await library.save(high_quality)
 
         # Filter by quality
-        templates = await library.list_templates(
-            artifact_type="agent", min_quality=8.0
-        )
+        templates = await library.list_templates(artifact_type="agent", min_quality=8.0)
         assert all(t.quality_score >= 8.0 for t in templates)
 
     @pytest.mark.asyncio

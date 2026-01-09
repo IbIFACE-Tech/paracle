@@ -146,10 +146,10 @@ result = await github_cli.execute(
     - Phase 7 Observability complete
     - Phase 8 Error Management
     - Phase 10 Security Audit (100/100)
-    
+
     ## Breaking Changes
     None
-    
+
     ## Bug Fixes
     - Fixed authentication issue
     """,
@@ -270,22 +270,22 @@ async def release_workflow():
         base="main",
         head="release/v1.0.0"
     )
-    
+
     if not pr_result.get("success"):
         print(f"Error creating PR: {pr_result.get('stderr')}")
         return
-    
+
     # Extract PR number from output
     pr_number = 123  # Parse from pr_result['stdout']
-    
+
     # 2. Check PR status
     print("Checking PR status...")
     checks_result = await github_cli.execute(action="pr_checks", pr_number=pr_number)
     print(checks_result['stdout'])
-    
+
     # 3. Wait for reviews (manual step)
     input("Press Enter after PR is reviewed...")
-    
+
     # 4. Merge PR
     print("Merging PR...")
     merge_result = await github_cli.execute(
@@ -294,11 +294,11 @@ async def release_workflow():
         merge_method="squash",
         delete_branch=True
     )
-    
+
     if not merge_result.get("success"):
         print(f"Error merging PR: {merge_result.get('stderr')}")
         return
-    
+
     # 5. Create GitHub release
     print("Creating GitHub release...")
     release_result = await github_cli.execute(
@@ -307,7 +307,7 @@ async def release_workflow():
         title="Production Release v1.0.0",
         generate_notes=True
     )
-    
+
     if release_result.get("success"):
         print("✅ Release v1.0.0 created successfully!")
         print(release_result['stdout'])

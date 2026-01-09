@@ -21,7 +21,6 @@ Example:
     >>> result = await cap.search("What are the user's preferences?")
 """
 
-import hashlib
 import json
 import sqlite3
 import time
@@ -43,35 +42,28 @@ class MemoryConfig(CapabilityConfig):
 
     storage_path: str | None = Field(
         default=None,
-        description="Path for persistent storage (defaults to .parac/memory)"
+        description="Path for persistent storage (defaults to .parac/memory)",
     )
     max_short_term_items: int = Field(
-        default=100,
-        ge=10,
-        le=10000,
-        description="Maximum short-term memory items"
+        default=100, ge=10, le=10000, description="Maximum short-term memory items"
     )
     max_context_tokens: int = Field(
-        default=100000,
-        ge=1000,
-        description="Maximum tokens in context window"
+        default=100000, ge=1000, description="Maximum tokens in context window"
     )
     enable_persistence: bool = Field(
-        default=True,
-        description="Enable persistent storage"
+        default=True, description="Enable persistent storage"
     )
     enable_embeddings: bool = Field(
         default=False,
-        description="Enable semantic embeddings (requires embedding model)"
+        description="Enable semantic embeddings (requires embedding model)",
     )
     ttl_hours: int = Field(
         default=24 * 7,  # 1 week
         ge=1,
-        description="Default TTL for memory items in hours"
+        description="Default TTL for memory items in hours",
     )
     namespace: str = Field(
-        default="default",
-        description="Memory namespace for isolation"
+        default="default", description="Memory namespace for isolation"
     )
 
 
@@ -123,7 +115,9 @@ class MemoryItem:
         """Check if item has expired."""
         if self.ttl_hours is None:
             return False
-        age_hours = (datetime.now(timezone.utc) - self.created_at).total_seconds() / 3600
+        age_hours = (
+            datetime.now(timezone.utc) - self.created_at
+        ).total_seconds() / 3600
         return age_hours > self.ttl_hours
 
 
@@ -190,7 +184,8 @@ class MemoryCapability(BaseCapability):
         cursor = self._conn.cursor()
 
         # Memory items table
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS memory_items (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 namespace TEXT NOT NULL,
@@ -204,10 +199,12 @@ class MemoryCapability(BaseCapability):
                 embedding BLOB,
                 UNIQUE(namespace, key)
             )
-        """)
+        """
+        )
 
         # Context history table
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS context_history (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 namespace TEXT NOT NULL,
@@ -217,18 +214,23 @@ class MemoryCapability(BaseCapability):
                 created_at TEXT NOT NULL,
                 token_count INTEGER DEFAULT 0
             )
-        """)
+        """
+        )
 
         # Create indexes
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE INDEX IF NOT EXISTS idx_memory_namespace_key
             ON memory_items(namespace, key)
-        """)
+        """
+        )
 
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE INDEX IF NOT EXISTS idx_context_namespace
             ON context_history(namespace, created_at)
-        """)
+        """
+        )
 
         self._conn.commit()
 
@@ -349,29 +351,33 @@ class MemoryCapability(BaseCapability):
         if len(self._short_term) > self.config.max_short_term_items:
             # Remove oldest accessed items
             sorted_items = sorted(
-                self._short_term.items(),
-                key=lambda x: x[1].accessed_at
+                self._short_term.items(), key=lambda x: x[1].accessed_at
             )
-            for k, _ in sorted_items[:len(self._short_term) - self.config.max_short_term_items]:
+            for k, _ in sorted_items[
+                : len(self._short_term) - self.config.max_short_term_items
+            ]:
                 del self._short_term[k]
 
         # Persist if enabled
         if self.config.enable_persistence and self._conn:
             cursor = self._conn.cursor()
-            cursor.execute("""
+            cursor.execute(
+                """
                 INSERT OR REPLACE INTO memory_items
                 (namespace, key, value, metadata, created_at, accessed_at, access_count, ttl_hours)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            """, (
-                self.config.namespace,
-                key,
-                json.dumps(value),
-                json.dumps(metadata) if metadata else None,
-                item.created_at.isoformat(),
-                item.accessed_at.isoformat(),
-                item.access_count,
-                item.ttl_hours,
-            ))
+            """,
+                (
+                    self.config.namespace,
+                    key,
+                    json.dumps(value),
+                    json.dumps(metadata) if metadata else None,
+                    item.created_at.isoformat(),
+                    item.accessed_at.isoformat(),
+                    item.access_count,
+                    item.ttl_hours,
+                ),
+            )
             self._conn.commit()
 
         return {
@@ -404,35 +410,57 @@ class MemoryCapability(BaseCapability):
         # Check persistent storage
         if self.config.enable_persistence and self._conn:
             cursor = self._conn.cursor()
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT value, metadata, created_at, accessed_at, access_count, ttl_hours
                 FROM memory_items
                 WHERE namespace = ? AND key = ?
-            """, (self.config.namespace, key))
+            """,
+                (self.config.namespace, key),
+            )
 
             row = cursor.fetchone()
             if row:
-                value, metadata_str, created_at, accessed_at, access_count, ttl_hours = row
+                (
+                    value,
+                    metadata_str,
+                    created_at,
+                    accessed_at,
+                    access_count,
+                    ttl_hours,
+                ) = row
 
                 # Check expiration
                 created = datetime.fromisoformat(created_at)
                 if ttl_hours:
-                    age_hours = (datetime.now(timezone.utc) - created).total_seconds() / 3600
+                    age_hours = (
+                        datetime.now(timezone.utc) - created
+                    ).total_seconds() / 3600
                     if age_hours > ttl_hours:
                         # Delete expired item
-                        cursor.execute("""
+                        cursor.execute(
+                            """
                             DELETE FROM memory_items
                             WHERE namespace = ? AND key = ?
-                        """, (self.config.namespace, key))
+                        """,
+                            (self.config.namespace, key),
+                        )
                         self._conn.commit()
                         return {"key": key, "value": None, "found": False}
 
                 # Update access info
-                cursor.execute("""
+                cursor.execute(
+                    """
                     UPDATE memory_items
                     SET accessed_at = ?, access_count = access_count + 1
                     WHERE namespace = ? AND key = ?
-                """, (datetime.now(timezone.utc).isoformat(), self.config.namespace, key))
+                """,
+                    (
+                        datetime.now(timezone.utc).isoformat(),
+                        self.config.namespace,
+                        key,
+                    ),
+                )
                 self._conn.commit()
 
                 return {
@@ -457,10 +485,13 @@ class MemoryCapability(BaseCapability):
         # Delete from persistent
         if self.config.enable_persistence and self._conn:
             cursor = self._conn.cursor()
-            cursor.execute("""
+            cursor.execute(
+                """
                 DELETE FROM memory_items
                 WHERE namespace = ? AND key = ?
-            """, (self.config.namespace, key))
+            """,
+                (self.config.namespace, key),
+            )
             if cursor.rowcount > 0:
                 deleted_from.append("persistent")
             self._conn.commit()
@@ -487,15 +518,21 @@ class MemoryCapability(BaseCapability):
         if self.config.enable_persistence and self._conn:
             cursor = self._conn.cursor()
             if pattern:
-                cursor.execute("""
+                cursor.execute(
+                    """
                     SELECT key FROM memory_items
                     WHERE namespace = ? AND key LIKE ?
-                """, (self.config.namespace, f"%{pattern}%"))
+                """,
+                    (self.config.namespace, f"%{pattern}%"),
+                )
             else:
-                cursor.execute("""
+                cursor.execute(
+                    """
                     SELECT key FROM memory_items
                     WHERE namespace = ?
-                """, (self.config.namespace,))
+                """,
+                    (self.config.namespace,),
+                )
 
             for row in cursor.fetchall():
                 keys.add(row[0])
@@ -521,20 +558,25 @@ class MemoryCapability(BaseCapability):
                 continue
             score = self._calculate_relevance(query_lower, key, item.value)
             if score > 0:
-                results.append({
-                    "key": key,
-                    "value": item.value,
-                    "score": score,
-                    "source": "short_term",
-                })
+                results.append(
+                    {
+                        "key": key,
+                        "value": item.value,
+                        "score": score,
+                        "source": "short_term",
+                    }
+                )
 
         # Search persistent
         if self.config.enable_persistence and self._conn:
             cursor = self._conn.cursor()
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT key, value, metadata FROM memory_items
                 WHERE namespace = ?
-            """, (self.config.namespace,))
+            """,
+                (self.config.namespace,),
+            )
 
             for row in cursor.fetchall():
                 key, value_str, _ = row
@@ -543,12 +585,14 @@ class MemoryCapability(BaseCapability):
                 value = json.loads(value_str)
                 score = self._calculate_relevance(query_lower, key, value)
                 if score > 0:
-                    results.append({
-                        "key": key,
-                        "value": value,
-                        "score": score,
-                        "source": "persistent",
-                    })
+                    results.append(
+                        {
+                            "key": key,
+                            "value": value,
+                            "score": score,
+                            "source": "persistent",
+                        }
+                    )
 
         # Sort by relevance and limit
         results.sort(key=lambda x: x["score"], reverse=True)
@@ -576,7 +620,9 @@ class MemoryCapability(BaseCapability):
             score += 1.0
 
         # Value match
-        value_str = json.dumps(value).lower() if not isinstance(value, str) else value.lower()
+        value_str = (
+            json.dumps(value).lower() if not isinstance(value, str) else value.lower()
+        )
         if query in value_str:
             score += 1.5
         elif any(word in value_str for word in query.split()):
@@ -607,18 +653,21 @@ class MemoryCapability(BaseCapability):
         # Persist if enabled
         if self.config.enable_persistence and self._conn:
             cursor = self._conn.cursor()
-            cursor.execute("""
+            cursor.execute(
+                """
                 INSERT INTO context_history
                 (namespace, role, content, metadata, created_at, token_count)
                 VALUES (?, ?, ?, ?, ?, ?)
-            """, (
-                self.config.namespace,
-                role,
-                content,
-                json.dumps(metadata) if metadata else None,
-                context_item["created_at"],
-                context_item["token_count"],
-            ))
+            """,
+                (
+                    self.config.namespace,
+                    role,
+                    content,
+                    json.dumps(metadata) if metadata else None,
+                    context_item["created_at"],
+                    context_item["token_count"],
+                ),
+            )
             self._conn.commit()
 
         return {
@@ -643,10 +692,13 @@ class MemoryCapability(BaseCapability):
                 continue
             if total_tokens + item["token_count"] > max_tokens:
                 break
-            messages.insert(0, {
-                "role": item["role"],
-                "content": item["content"],
-            })
+            messages.insert(
+                0,
+                {
+                    "role": item["role"],
+                    "content": item["content"],
+                },
+            )
             total_tokens += item["token_count"]
 
         return {
@@ -663,10 +715,13 @@ class MemoryCapability(BaseCapability):
 
         if self.config.enable_persistence and self._conn:
             cursor = self._conn.cursor()
-            cursor.execute("""
+            cursor.execute(
+                """
                 DELETE FROM context_history
                 WHERE namespace = ?
-            """, (self.config.namespace,))
+            """,
+                (self.config.namespace,),
+            )
             self._conn.commit()
 
         return {"cleared": True, "items_removed": count}
@@ -678,8 +733,7 @@ class MemoryCapability(BaseCapability):
 
         # Remove expired items from short-term
         expired_keys = [
-            key for key, item in self._short_term.items()
-            if item.is_expired()
+            key for key, item in self._short_term.items() if item.is_expired()
         ]
         for key in expired_keys:
             del self._short_term[key]
@@ -688,11 +742,14 @@ class MemoryCapability(BaseCapability):
         # Remove expired from persistent
         if self.config.enable_persistence and self._conn:
             cursor = self._conn.cursor()
-            cursor.execute("""
+            cursor.execute(
+                """
                 DELETE FROM memory_items
                 WHERE namespace = ? AND ttl_hours IS NOT NULL
                 AND datetime(created_at, '+' || ttl_hours || ' hours') < datetime('now')
-            """, (self.config.namespace,))
+            """,
+                (self.config.namespace,),
+            )
             expired_count += cursor.rowcount
             self._conn.commit()
 
@@ -717,24 +774,37 @@ class MemoryCapability(BaseCapability):
         # Export persistent
         if self.config.enable_persistence and self._conn:
             cursor = self._conn.cursor()
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT key, value, metadata, created_at, accessed_at, access_count, ttl_hours
                 FROM memory_items
                 WHERE namespace = ?
-            """, (self.config.namespace,))
+            """,
+                (self.config.namespace,),
+            )
 
             for row in cursor.fetchall():
-                key, value, metadata, created_at, accessed_at, access_count, ttl_hours = row
+                (
+                    key,
+                    value,
+                    metadata,
+                    created_at,
+                    accessed_at,
+                    access_count,
+                    ttl_hours,
+                ) = row
                 if key not in self._short_term:
-                    export_data["items"].append({
-                        "key": key,
-                        "value": json.loads(value),
-                        "metadata": json.loads(metadata) if metadata else {},
-                        "created_at": created_at,
-                        "accessed_at": accessed_at,
-                        "access_count": access_count,
-                        "ttl_hours": ttl_hours,
-                    })
+                    export_data["items"].append(
+                        {
+                            "key": key,
+                            "value": json.loads(value),
+                            "metadata": json.loads(metadata) if metadata else {},
+                            "created_at": created_at,
+                            "accessed_at": accessed_at,
+                            "access_count": access_count,
+                            "ttl_hours": ttl_hours,
+                        }
+                    )
 
         # Write to file
         export_path = Path(path)
@@ -780,14 +850,20 @@ class MemoryCapability(BaseCapability):
         if self.config.enable_persistence and self._conn:
             cursor = self._conn.cursor()
 
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT COUNT(*) FROM memory_items WHERE namespace = ?
-            """, (self.config.namespace,))
+            """,
+                (self.config.namespace,),
+            )
             stats["persistent_items"] = cursor.fetchone()[0]
 
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT COUNT(*) FROM context_history WHERE namespace = ?
-            """, (self.config.namespace,))
+            """,
+                (self.config.namespace,),
+            )
             stats["persistent_context"] = cursor.fetchone()[0]
 
         return stats
@@ -820,7 +896,9 @@ class MemoryCapability(BaseCapability):
         **kwargs,
     ) -> CapabilityResult:
         """Add to context history."""
-        return await self.execute(action="add_context", role=role, content=content, **kwargs)
+        return await self.execute(
+            action="add_context", role=role, content=content, **kwargs
+        )
 
     async def get_context(self, max_tokens: int = 100000) -> CapabilityResult:
         """Get context window."""

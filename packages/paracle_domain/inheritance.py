@@ -58,8 +58,7 @@ class ParentNotFoundError(InheritanceError):
     def __init__(self, child: str, parent: str) -> None:
         self.child = child
         self.parent = parent
-        super().__init__(
-            f"Parent agent '{parent}' not found for agent '{child}'")
+        super().__init__(f"Parent agent '{parent}' not found for agent '{child}'")
 
 
 class InheritanceResult:
@@ -127,8 +126,7 @@ def resolve_inheritance(
 
         # Check depth limit
         if len(chain) >= max_depth:
-            raise MaxDepthExceededError(
-                len(chain), max_depth, chain + [parent_name])
+            raise MaxDepthExceededError(len(chain), max_depth, chain + [parent_name])
 
         # Get parent spec
         parent_spec = get_parent(parent_name)

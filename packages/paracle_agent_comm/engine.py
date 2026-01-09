@@ -152,11 +152,14 @@ class GroupCollaborationEngine:
         self.group.current_session_id = session.id
 
         # Emit start event
-        await self._emit_event("group.session.started", {
-            "session_id": session.id,
-            "group_id": self.group.id,
-            "goal": goal,
-        })
+        await self._emit_event(
+            "group.session.started",
+            {
+                "session_id": session.id,
+                "group_id": self.group.id,
+                "goal": goal,
+            },
+        )
 
         # Broadcast goal to all members
         await self._broadcast(
@@ -182,13 +185,16 @@ class GroupCollaborationEngine:
             self.group.current_session_id = None
 
             # Emit end event
-            await self._emit_event("group.session.ended", {
-                "session_id": session.id,
-                "group_id": self.group.id,
-                "status": session.status.value,
-                "rounds": session.round_count,
-                "messages": len(session.messages),
-            })
+            await self._emit_event(
+                "group.session.ended",
+                {
+                    "session_id": session.id,
+                    "group_id": self.group.id,
+                    "status": session.status.value,
+                    "rounds": session.round_count,
+                    "messages": len(session.messages),
+                },
+            )
 
         return session
 
@@ -202,10 +208,13 @@ class GroupCollaborationEngine:
             session.round_count += 1
 
             # Emit round start event
-            await self._emit_event("group.round.started", {
-                "session_id": session.id,
-                "round": session.round_count,
-            })
+            await self._emit_event(
+                "group.round.started",
+                {
+                    "session_id": session.id,
+                    "round": session.round_count,
+                },
+            )
 
             # Run agents based on communication pattern
             if self.group.communication_pattern == CommunicationPattern.COORDINATOR:
@@ -310,11 +319,14 @@ class GroupCollaborationEngine:
             session.shared_context.update(response["update_context"])
 
         # Emit turn event
-        await self._emit_event("group.agent.responded", {
-            "session_id": session.id,
-            "agent_id": agent_id,
-            "message_type": response.get("type", "inform"),
-        })
+        await self._emit_event(
+            "group.agent.responded",
+            {
+                "session_id": session.id,
+                "agent_id": agent_id,
+                "message_type": response.get("type", "inform"),
+            },
+        )
 
     def _build_agent_context(
         self,
@@ -368,24 +380,29 @@ class GroupCollaborationEngine:
         session.add_message(message)
 
         # Emit message event
-        await self._emit_event("group.message.sent", {
-            "session_id": session.id,
-            "message_id": message.id,
-            "sender": sender,
-            "type": message_type.value,
-            "recipients": recipients,
-        })
+        await self._emit_event(
+            "group.message.sent",
+            {
+                "session_id": session.id,
+                "message_id": message.id,
+                "sender": sender,
+                "type": message_type.value,
+                "recipients": recipients,
+            },
+        )
 
         return message
 
     async def _emit_event(self, event_type: str, data: dict[str, Any]) -> None:
         """Emit an event to the event bus."""
         if self.event_bus:
-            await self.event_bus.publish({
-                "type": event_type,
-                "timestamp": datetime.utcnow().isoformat(),
-                **data,
-            })
+            await self.event_bus.publish(
+                {
+                    "type": event_type,
+                    "timestamp": datetime.utcnow().isoformat(),
+                    **data,
+                }
+            )
 
     async def inject_human_message(
         self,

@@ -116,8 +116,7 @@ def clear_old_changes(parac_root: Path, keep_days: int = 30) -> int:
 
                 try:
                     entry = json.loads(line)
-                    timestamp = datetime.fromisoformat(
-                        entry["timestamp"]).timestamp()
+                    timestamp = datetime.fromisoformat(entry["timestamp"]).timestamp()
 
                     if timestamp >= cutoff:
                         kept_entries.append(line)

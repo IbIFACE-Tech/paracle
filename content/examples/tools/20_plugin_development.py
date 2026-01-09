@@ -42,6 +42,7 @@ logger = logging.getLogger(__name__)
 # 1. PROVIDER PLUGIN: Ollama Local LLM
 # =============================================================================
 
+
 class OllamaProvider(ProviderPlugin):
     """Ollama local LLM provider plugin.
 
@@ -58,31 +59,19 @@ class OllamaProvider(ProviderPlugin):
             homepage="https://github.com/community/paracle-ollama",
             license="MIT",
             plugin_type=PluginType.PROVIDER,
-            capabilities=[
-                PluginCapability.CHAT_COMPLETION,
-                PluginCapability.STREAMING
-            ],
+            capabilities=[PluginCapability.CHAT_COMPLETION, PluginCapability.STREAMING],
             dependencies=["httpx>=0.24.0"],
             paracle_version=">=0.2.0",
             config_schema={
                 "type": "object",
                 "properties": {
-                    "base_url": {
-                        "type": "string",
-                        "default": "http://localhost:11434"
-                    },
-                    "default_model": {
-                        "type": "string",
-                        "default": "llama2"
-                    },
-                    "timeout": {
-                        "type": "integer",
-                        "default": 60
-                    }
+                    "base_url": {"type": "string", "default": "http://localhost:11434"},
+                    "default_model": {"type": "string", "default": "llama2"},
+                    "timeout": {"type": "integer", "default": 60},
                 },
-                "required": ["base_url"]
+                "required": ["base_url"],
             },
-            tags=["llm", "local", "ollama", "provider"]
+            tags=["llm", "local", "ollama", "provider"],
         )
 
     async def initialize(self, config: dict) -> None:
@@ -100,7 +89,7 @@ class OllamaProvider(ProviderPlugin):
 
     async def cleanup(self) -> None:
         """Cleanup resources."""
-        if hasattr(self, 'client'):
+        if hasattr(self, "client"):
             await self.client.aclose()
         logger.info("Ollama provider cleaned up")
 
@@ -122,14 +111,11 @@ class OllamaProvider(ProviderPlugin):
                 "details": {
                     "connected": True,
                     "models_available": len(models),
-                    "base_url": self.base_url
-                }
+                    "base_url": self.base_url,
+                },
             }
         except Exception as e:
-            return {
-                "status": "unhealthy",
-                "error": str(e)
-            }
+            return {"status": "unhealthy", "error": str(e)}
 
     async def chat_completion(
         self, request: ChatCompletionRequest
@@ -142,15 +128,14 @@ class OllamaProvider(ProviderPlugin):
             json={
                 "model": model,
                 "messages": [
-                    {"role": m.role, "content": m.content}
-                    for m in request.messages
+                    {"role": m.role, "content": m.content} for m in request.messages
                 ],
                 "stream": False,
                 "options": {
                     "temperature": request.temperature or 0.7,
-                    "num_predict": request.max_tokens or 1000
-                }
-            }
+                    "num_predict": request.max_tokens or 1000,
+                },
+            },
         )
         response.raise_for_status()
         data = response.json()
@@ -164,13 +149,11 @@ class OllamaProvider(ProviderPlugin):
             usage={
                 "prompt_tokens": data.get("prompt_eval_count", 0),
                 "completion_tokens": data.get("eval_count", 0),
-                "total_tokens": data.get("total_duration", 0)
-            }
+                "total_tokens": data.get("total_duration", 0),
+            },
         )
 
-    async def chat_completion_stream(
-        self, request: ChatCompletionRequest
-    ):
+    async def chat_completion_stream(self, request: ChatCompletionRequest):
         """Execute streaming chat completion."""
         model = request.model or self.default_model
 
@@ -180,11 +163,10 @@ class OllamaProvider(ProviderPlugin):
             json={
                 "model": model,
                 "messages": [
-                    {"role": m.role, "content": m.content}
-                    for m in request.messages
+                    {"role": m.role, "content": m.content} for m in request.messages
                 ],
-                "stream": True
-            }
+                "stream": True,
+            },
         ) as response:
             async for line in response.aiter_lines():
                 if line:
@@ -200,8 +182,7 @@ class OllamaProvider(ProviderPlugin):
     async def get_model_info(self, model_name: str) -> dict:
         """Get detailed model information."""
         response = await self.client.post(
-            f"{self.base_url}/api/show",
-            json={"name": model_name}
+            f"{self.base_url}/api/show", json={"name": model_name}
         )
         response.raise_for_status()
         return response.json()
@@ -210,6 +191,7 @@ class OllamaProvider(ProviderPlugin):
 # =============================================================================
 # 2. TOOL PLUGIN: Database Query Tool
 # =============================================================================
+
 
 class DatabaseTool(ToolPlugin):
     """SQL database query tool plugin.
@@ -232,21 +214,18 @@ class DatabaseTool(ToolPlugin):
                 "properties": {
                     "database_path": {
                         "type": "string",
-                        "description": "Path to SQLite database"
+                        "description": "Path to SQLite database",
                     },
                     "read_only": {
                         "type": "boolean",
                         "default": True,
-                        "description": "Allow only SELECT queries"
+                        "description": "Allow only SELECT queries",
                     },
-                    "max_rows": {
-                        "type": "integer",
-                        "default": 100
-                    }
+                    "max_rows": {"type": "integer", "default": 100},
                 },
-                "required": ["database_path"]
+                "required": ["database_path"],
             },
-            tags=["database", "sql", "sqlite", "tool"]
+            tags=["database", "sql", "sqlite", "tool"],
         )
 
     async def initialize(self, config: dict) -> None:
@@ -257,9 +236,7 @@ class DatabaseTool(ToolPlugin):
 
         # Verify database exists
         if not Path(self.db_path).exists():
-            raise FileNotFoundError(
-                f"Database not found: {self.db_path}"
-            )
+            raise FileNotFoundError(f"Database not found: {self.db_path}")
 
         logger.info(
             f"Initialized database tool: {self.db_path} "
@@ -286,45 +263,34 @@ class DatabaseTool(ToolPlugin):
 
             return {
                 "status": "healthy",
-                "details": {
-                    "database": self.db_path,
-                    "accessible": True
-                }
+                "details": {"database": self.db_path, "accessible": True},
             }
         except Exception as e:
-            return {
-                "status": "unhealthy",
-                "error": str(e)
-            }
+            return {"status": "unhealthy", "error": str(e)}
 
     def get_tool_schema(self) -> ToolSchema:
         """Define tool schema for agents."""
         return ToolSchema(
             name="database_query",
-            description=(
-                "Execute SQL query on database. "
-                "Returns columns and rows."
-            ),
+            description=("Execute SQL query on database. " "Returns columns and rows."),
             parameters=[
                 ToolParameter(
                     name="query",
                     type="string",
                     description="SQL query to execute",
-                    required=True
+                    required=True,
                 ),
                 ToolParameter(
                     name="limit",
                     type="integer",
                     description="Maximum rows to return",
                     required=False,
-                    default=100
-                )
-            ]
+                    default=100,
+                ),
+            ],
         )
 
-    async def execute(
-        self, context: ToolExecutionContext, **kwargs
-    ) -> dict:
+    async def execute(self, context: ToolExecutionContext, **kwargs) -> dict:
         """Execute database query."""
         query = kwargs["query"]
         limit = min(kwargs.get("limit", self.max_rows), self.max_rows)
@@ -333,9 +299,7 @@ class DatabaseTool(ToolPlugin):
         if self.read_only:
             query_upper = query.strip().upper()
             if not query_upper.startswith("SELECT"):
-                raise ValueError(
-                    "Only SELECT queries allowed in read-only mode"
-                )
+                raise ValueError("Only SELECT queries allowed in read-only mode")
 
         # Execute query
         try:
@@ -354,20 +318,17 @@ class DatabaseTool(ToolPlugin):
                 "columns": columns,
                 "rows": [list(row) for row in rows],
                 "row_count": len(rows),
-                "truncated": len(rows) == limit
+                "truncated": len(rows) == limit,
             }
 
         except sqlite3.Error as e:
-            return {
-                "success": False,
-                "error": str(e),
-                "error_type": type(e).__name__
-            }
+            return {"success": False, "error": str(e), "error_type": type(e).__name__}
 
 
 # =============================================================================
 # 3. OBSERVER PLUGIN: Simple Metrics Collector
 # =============================================================================
+
 
 class MetricsCollector(ObserverPlugin):
     """Simple metrics collection observer plugin.
@@ -387,14 +348,9 @@ class MetricsCollector(ObserverPlugin):
             paracle_version=">=0.2.0",
             config_schema={
                 "type": "object",
-                "properties": {
-                    "track_costs": {
-                        "type": "boolean",
-                        "default": True
-                    }
-                }
+                "properties": {"track_costs": {"type": "boolean", "default": True}},
             },
-            tags=["metrics", "monitoring", "observer"]
+            tags=["metrics", "monitoring", "observer"],
         )
 
     async def initialize(self, config: dict) -> None:
@@ -402,17 +358,8 @@ class MetricsCollector(ObserverPlugin):
         self.track_costs = config.get("track_costs", True)
 
         # Metrics storage
-        self.executions = {
-            "total": 0,
-            "successful": 0,
-            "failed": 0,
-            "by_agent": {}
-        }
-        self.llm_calls = {
-            "total": 0,
-            "by_provider": {},
-            "by_model": {}
-        }
+        self.executions = {"total": 0, "successful": 0, "failed": 0, "by_agent": {}}
+        self.llm_calls = {"total": 0, "by_provider": {}, "by_model": {}}
 
         logger.info("Initialized metrics collector")
 
@@ -426,10 +373,7 @@ class MetricsCollector(ObserverPlugin):
         """Return current metrics."""
         return {
             "status": "healthy",
-            "details": {
-                "executions": self.executions,
-                "llm_calls": self.llm_calls
-            }
+            "details": {"executions": self.executions, "llm_calls": self.llm_calls},
         }
 
     async def on_execution_started(self, event: ExecutionEvent) -> None:
@@ -441,18 +385,13 @@ class MetricsCollector(ObserverPlugin):
             self.executions["by_agent"][agent_id] = {
                 "total": 0,
                 "successful": 0,
-                "failed": 0
+                "failed": 0,
             }
         self.executions["by_agent"][agent_id]["total"] += 1
 
-        logger.info(
-            f"Execution started: {event.execution_id} "
-            f"(agent: {agent_id})"
-        )
+        logger.info(f"Execution started: {event.execution_id} " f"(agent: {agent_id})")
 
-    async def on_execution_completed(
-        self, event: ExecutionEvent
-    ) -> None:
+    async def on_execution_completed(self, event: ExecutionEvent) -> None:
         """Track successful execution."""
         self.executions["successful"] += 1
 
@@ -472,9 +411,7 @@ class MetricsCollector(ObserverPlugin):
         if agent_id in self.executions["by_agent"]:
             self.executions["by_agent"][agent_id]["failed"] += 1
 
-        logger.error(
-            f"Execution failed: {event.execution_id} - {error}"
-        )
+        logger.error(f"Execution failed: {event.execution_id} - {error}")
 
     async def on_llm_call(
         self, event: ExecutionEvent, provider: str, model: str
@@ -500,6 +437,7 @@ class MetricsCollector(ObserverPlugin):
 # MAIN: Plugin Usage Examples
 # =============================================================================
 
+
 async def example_ollama_provider():
     """Example: Using Ollama provider plugin."""
     print("\n" + "=" * 60)
@@ -508,10 +446,9 @@ async def example_ollama_provider():
 
     # Create and register plugin
     ollama = OllamaProvider()
-    await ollama.initialize({
-        "base_url": "http://localhost:11434",
-        "default_model": "llama2"
-    })
+    await ollama.initialize(
+        {"base_url": "http://localhost:11434", "default_model": "llama2"}
+    )
 
     registry = get_plugin_registry()
     registry.register("ollama-provider", ollama, {})
@@ -529,10 +466,8 @@ async def example_ollama_provider():
         # Test chat completion
         request = ChatCompletionRequest(
             model="llama2",
-            messages=[
-                Message(role="user", content="Say hello in 5 words")
-            ],
-            temperature=0.7
+            messages=[Message(role="user", content="Say hello in 5 words")],
+            temperature=0.7,
         )
 
         response = await ollama.chat_completion(request)
@@ -553,28 +488,25 @@ async def example_database_tool():
     db_path = "test_plugin.db"
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
-    cursor.execute("""
+    cursor.execute(
+        """
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY,
             name TEXT,
             email TEXT
         )
-    """)
+    """
+    )
     cursor.execute(
         "INSERT OR IGNORE INTO users VALUES (1, 'Alice', 'alice@example.com')"
     )
-    cursor.execute(
-        "INSERT OR IGNORE INTO users VALUES (2, 'Bob', 'bob@example.com')"
-    )
+    cursor.execute("INSERT OR IGNORE INTO users VALUES (2, 'Bob', 'bob@example.com')")
     conn.commit()
     conn.close()
 
     # Create and register plugin
     db_tool = DatabaseTool()
-    await db_tool.initialize({
-        "database_path": db_path,
-        "read_only": True
-    })
+    await db_tool.initialize({"database_path": db_path, "read_only": True})
 
     registry = get_plugin_registry()
     registry.register("database-tool", db_tool, {})
@@ -589,21 +521,14 @@ async def example_database_tool():
     print(f"Parameters: {[p.name for p in schema.parameters]}")
 
     # Execute query
-    context = ToolExecutionContext(
-        execution_id="test-001",
-        agent_id="test-agent"
-    )
+    context = ToolExecutionContext(execution_id="test-001", agent_id="test-agent")
 
-    result = await db_tool.execute(
-        context,
-        query="SELECT * FROM users",
-        limit=10
-    )
+    result = await db_tool.execute(context, query="SELECT * FROM users", limit=10)
 
     print("\nQuery result:")
     print(f"  Columns: {result['columns']}")
     print(f"  Rows: {result['row_count']}")
-    for row in result['rows']:
+    for row in result["rows"]:
         print(f"    {row}")
 
     await db_tool.cleanup()
@@ -632,7 +557,7 @@ async def example_metrics_collector():
         event_type="execution_started",
         timestamp="2026-01-07T14:30:00Z",
         agent_id="coder",
-        execution_id="exec-001"
+        execution_id="exec-001",
     )
     await metrics.on_execution_started(event1)
 
@@ -640,7 +565,7 @@ async def example_metrics_collector():
         event_type="llm_call",
         timestamp="2026-01-07T14:30:05Z",
         agent_id="coder",
-        execution_id="exec-001"
+        execution_id="exec-001",
     )
     await metrics.on_llm_call(event2, provider="openai", model="gpt-4")
 
@@ -648,7 +573,7 @@ async def example_metrics_collector():
         event_type="execution_completed",
         timestamp="2026-01-07T14:30:10Z",
         agent_id="coder",
-        execution_id="exec-001"
+        execution_id="exec-001",
     )
     await metrics.on_execution_completed(event3)
 

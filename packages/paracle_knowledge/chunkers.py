@@ -222,7 +222,9 @@ class TextChunker(BaseChunker):
     def _split_by_size(self, text: str) -> list[str]:
         """Split text by size when no separators work."""
         chunks = []
-        for i in range(0, len(text), self.config.chunk_size - self.config.chunk_overlap):
+        for i in range(
+            0, len(text), self.config.chunk_size - self.config.chunk_overlap
+        ):
             chunk = text[i : i + self.config.chunk_size]
             if len(chunk) >= self.config.min_chunk_size:
                 chunks.append(chunk)
@@ -363,7 +365,9 @@ class CodeChunker(BaseChunker):
             tree = ast.parse(content)
             return self._extract_python_nodes(tree, content, document_id)
         except SyntaxError:
-            logger.warning("Failed to parse Python code, falling back to generic chunker")
+            logger.warning(
+                "Failed to parse Python code, falling back to generic chunker"
+            )
             return self._chunk_generic(content, document_id, "python")
 
     def _extract_python_nodes(
@@ -517,9 +521,7 @@ class SemanticChunker(BaseChunker):
         # Split into sentences
         sentences = self._split_sentences(content)
         if len(sentences) <= 1:
-            return [
-                self._create_chunk(content, document_id, 0)
-            ]
+            return [self._create_chunk(content, document_id, 0)]
 
         # Generate embeddings for sentences
         embeddings = await self._embedding_service.embed(sentences)

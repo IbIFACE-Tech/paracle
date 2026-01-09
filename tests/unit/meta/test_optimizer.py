@@ -1,7 +1,6 @@
 """Unit tests for paracle_meta.optimizer module."""
 
 import pytest
-
 from paracle_meta.optimizer import (
     CostConfig,
     CostOptimizer,

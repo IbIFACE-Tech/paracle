@@ -197,9 +197,7 @@ class RiskScorer:
         approval_roles = self._thresholds.get_approval_roles(overall_score)
 
         threshold = self._thresholds.get_threshold_for_score(overall_score)
-        justification_required = (
-            threshold.require_justification if threshold else False
-        )
+        justification_required = threshold.require_justification if threshold else False
 
         return RiskScore(
             score=overall_score,
@@ -302,9 +300,7 @@ class RiskScorer:
 
         return 50.0  # Default neutral score
 
-    def _score_agent_trust(
-        self, agent: str | None, context: dict[str, Any]
-    ) -> float:
+    def _score_agent_trust(self, agent: str | None, context: dict[str, Any]) -> float:
         """Calculate agent trust score."""
         # Check explicit trust level in context
         trust_level = context.get("agent_trust_level") or context.get("trust_level")
@@ -385,9 +381,7 @@ class RiskScorer:
 
         return base_score
 
-    def _score_external_dependency(
-        self, action: str, context: dict[str, Any]
-    ) -> float:
+    def _score_external_dependency(self, action: str, context: dict[str, Any]) -> float:
         """Calculate external dependency score."""
         is_external = context.get("is_external", False)
         external_service = context.get("external_service")
@@ -406,9 +400,7 @@ class RiskScorer:
 
         return 10.0  # Internal operation
 
-    def _score_reversibility(
-        self, action: str, context: dict[str, Any]
-    ) -> float:
+    def _score_reversibility(self, action: str, context: dict[str, Any]) -> float:
         """Calculate reversibility score."""
         reversibility = context.get("reversibility")
 

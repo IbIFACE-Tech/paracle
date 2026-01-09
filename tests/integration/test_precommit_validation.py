@@ -17,19 +17,18 @@ import pytest
 def git_repo(tmp_path):
     """Create a temporary git repository with .parac/ structure."""
     # Initialize git repo
-    subprocess.run(["git", "init"], cwd=tmp_path,
-                   check=True, capture_output=True)
+    subprocess.run(["git", "init"], cwd=tmp_path, check=True, capture_output=True)
     subprocess.run(
         ["git", "config", "user.email", "test@example.com"],
         cwd=tmp_path,
         check=True,
-        capture_output=True
+        capture_output=True,
     )
     subprocess.run(
         ["git", "config", "user.name", "Test User"],
         cwd=tmp_path,
         check=True,
-        capture_output=True
+        capture_output=True,
     )
 
     # Create .parac/ structure
@@ -44,8 +43,13 @@ def git_repo(tmp_path):
     (parac_dir / "tools" / "hooks").mkdir(parents=True)
 
     # Copy the pre-commit hook
-    hook_source = Path(__file__).parent.parent.parent.parent / \
-        ".parac" / "tools" / "hooks" / "validate-structure.py"
+    hook_source = (
+        Path(__file__).parent.parent.parent.parent
+        / ".parac"
+        / "tools"
+        / "hooks"
+        / "validate-structure.py"
+    )
     if hook_source.exists():
         hook_target = parac_dir / "tools" / "hooks" / "validate-structure.py"
         shutil.copy2(hook_source, hook_target)
@@ -55,10 +59,11 @@ def git_repo(tmp_path):
         shutil.copy2(hook_source, git_hook)
 
         # Make executable
-        if hasattr(os, 'chmod'):
+        if hasattr(os, "chmod"):
             current_perms = stat.S_IMODE(os.lstat(git_hook).st_mode)
-            os.chmod(git_hook, current_perms | stat.S_IXUSR |
-                     stat.S_IXGRP | stat.S_IXOTH)
+            os.chmod(
+                git_hook, current_perms | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
+            )
 
     return tmp_path
 
@@ -77,7 +82,7 @@ class TestPreCommitHook:
         assert hook_script.exists(), "Pre-commit hook should be installed"
 
         # Check if executable (Unix/Mac)
-        if hasattr(os, 'stat'):
+        if hasattr(os, "stat"):
             mode = os.stat(hook_script).st_mode
             assert mode & stat.S_IXUSR, "Hook should be executable"
 
@@ -92,7 +97,7 @@ class TestPreCommitHook:
             ["git", "add", str(valid_file.relative_to(git_repo))],
             cwd=git_repo,
             check=True,
-            capture_output=True
+            capture_output=True,
         )
 
         # Try to commit
@@ -100,12 +105,16 @@ class TestPreCommitHook:
             ["git", "commit", "-m", "Test commit with valid file"],
             cwd=git_repo,
             capture_output=True,
-            text=True
+            text=True,
         )
 
         # Commit should succeed
-        assert result.returncode == 0, f"Commit should succeed. Output: {result.stdout}\n{result.stderr}"
-        assert "validated successfully" in result.stdout.lower() or result.returncode == 0
+        assert (
+            result.returncode == 0
+        ), f"Commit should succeed. Output: {result.stdout}\n{result.stderr}"
+        assert (
+            "validated successfully" in result.stdout.lower() or result.returncode == 0
+        )
 
     def test_commit_blocked_with_invalid_files(self, git_repo):
         """Test that commits with invalid .parac/ files are blocked."""
@@ -118,7 +127,7 @@ class TestPreCommitHook:
             ["git", "add", str(invalid_file.relative_to(git_repo))],
             cwd=git_repo,
             check=True,
-            capture_output=True
+            capture_output=True,
         )
 
         # Try to commit
@@ -126,7 +135,7 @@ class TestPreCommitHook:
             ["git", "commit", "-m", "Test commit with invalid file"],
             cwd=git_repo,
             capture_output=True,
-            text=True
+            text=True,
         )
 
         # Commit should be blocked
@@ -144,7 +153,7 @@ class TestPreCommitHook:
             ["git", "add", str(invalid_file.relative_to(git_repo))],
             cwd=git_repo,
             check=True,
-            capture_output=True
+            capture_output=True,
         )
 
         # Try to commit
@@ -152,7 +161,7 @@ class TestPreCommitHook:
             ["git", "commit", "-m", "Test commit"],
             cwd=git_repo,
             capture_output=True,
-            text=True
+            text=True,
         )
 
         # Check for suggested path
@@ -170,7 +179,7 @@ class TestPreCommitHook:
             ["git", "add", str(invalid_file.relative_to(git_repo))],
             cwd=git_repo,
             check=True,
-            capture_output=True
+            capture_output=True,
         )
 
         # Commit with --no-verify
@@ -178,7 +187,7 @@ class TestPreCommitHook:
             ["git", "commit", "-m", "Test commit", "--no-verify"],
             cwd=git_repo,
             capture_output=True,
-            text=True
+            text=True,
         )
 
         # Commit should succeed (bypassed)
@@ -192,10 +201,7 @@ class TestPreCommitHook:
 
         # Stage the file
         subprocess.run(
-            ["git", "add", "README.md"],
-            cwd=git_repo,
-            check=True,
-            capture_output=True
+            ["git", "add", "README.md"], cwd=git_repo, check=True, capture_output=True
         )
 
         # Try to commit
@@ -203,7 +209,7 @@ class TestPreCommitHook:
             ["git", "commit", "-m", "Add README"],
             cwd=git_repo,
             capture_output=True,
-            text=True
+            text=True,
         )
 
         # Commit should succeed
@@ -221,10 +227,7 @@ class TestPreCommitHook:
 
         # Stage both files
         subprocess.run(
-            ["git", "add", ".parac/"],
-            cwd=git_repo,
-            check=True,
-            capture_output=True
+            ["git", "add", ".parac/"], cwd=git_repo, check=True, capture_output=True
         )
 
         # Try to commit
@@ -232,7 +235,7 @@ class TestPreCommitHook:
             ["git", "commit", "-m", "Test multiple files"],
             cwd=git_repo,
             capture_output=True,
-            text=True
+            text=True,
         )
 
         # Commit should be blocked due to invalid file
@@ -247,15 +250,14 @@ class TestHookInstallation:
     def test_hook_installed_on_init(self, tmp_path):
         """Test that pre-commit hook is installed during paracle init."""
         # Initialize git repo first
-        subprocess.run(["git", "init"], cwd=tmp_path,
-                       check=True, capture_output=True)
+        subprocess.run(["git", "init"], cwd=tmp_path, check=True, capture_output=True)
 
         # Run paracle init
         result = subprocess.run(
             ["paracle", "init", "--template", "lite"],
             cwd=tmp_path,
             capture_output=True,
-            text=True
+            text=True,
         )
 
         # Check that init succeeded
@@ -276,7 +278,7 @@ class TestHookInstallation:
             ["paracle", "init", "--template", "lite"],
             cwd=tmp_path,
             capture_output=True,
-            text=True
+            text=True,
         )
 
         # Init should succeed
@@ -302,7 +304,7 @@ class TestHookPerformance:
             ["git", "add", str(valid_file.relative_to(git_repo))],
             cwd=git_repo,
             check=True,
-            capture_output=True
+            capture_output=True,
         )
 
         # Time the commit
@@ -311,7 +313,7 @@ class TestHookPerformance:
             ["git", "commit", "-m", "Performance test"],
             cwd=git_repo,
             capture_output=True,
-            text=True
+            text=True,
         )
         elapsed = time.time() - start_time
 
@@ -339,10 +341,7 @@ class TestRealWorldScenarios:
 
         # Stage all files
         subprocess.run(
-            ["git", "add", "."],
-            cwd=git_repo,
-            check=True,
-            capture_output=True
+            ["git", "add", "."], cwd=git_repo, check=True, capture_output=True
         )
 
         # Commit should succeed (all .parac/ files in correct locations)
@@ -350,7 +349,7 @@ class TestRealWorldScenarios:
             ["git", "commit", "-m", "Feature implementation"],
             cwd=git_repo,
             capture_output=True,
-            text=True
+            text=True,
         )
 
         assert result.returncode == 0, "Valid commit should succeed"
@@ -366,7 +365,7 @@ class TestRealWorldScenarios:
             ["git", "add", ".parac/data.db"],
             cwd=git_repo,
             check=True,
-            capture_output=True
+            capture_output=True,
         )
 
         # Try to commit - should fail
@@ -374,7 +373,7 @@ class TestRealWorldScenarios:
             ["git", "commit", "-m", "Add database"],
             cwd=git_repo,
             capture_output=True,
-            text=True
+            text=True,
         )
         assert result1.returncode != 0, "Commit with wrong file should fail"
 
@@ -385,10 +384,7 @@ class TestRealWorldScenarios:
 
         # Stage corrected file
         subprocess.run(
-            ["git", "add", ".parac/"],
-            cwd=git_repo,
-            check=True,
-            capture_output=True
+            ["git", "add", ".parac/"], cwd=git_repo, check=True, capture_output=True
         )
 
         # Commit should now succeed
@@ -396,7 +392,7 @@ class TestRealWorldScenarios:
             ["git", "commit", "-m", "Add database (corrected)"],
             cwd=git_repo,
             capture_output=True,
-            text=True
+            text=True,
         )
         assert result2.returncode == 0, "Commit with corrected file should succeed"
 

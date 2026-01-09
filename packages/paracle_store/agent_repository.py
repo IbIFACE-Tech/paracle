@@ -122,8 +122,7 @@ class AgentRepository(InMemoryRepository[Agent]):
             List of active agents
         """
         return self.find_by(
-            lambda a: a.status.phase
-            in (EntityStatus.ACTIVE, EntityStatus.RUNNING)
+            lambda a: a.status.phase in (EntityStatus.ACTIVE, EntityStatus.RUNNING)
         )
 
     def find_by_provider(self, provider: str) -> list[Agent]:

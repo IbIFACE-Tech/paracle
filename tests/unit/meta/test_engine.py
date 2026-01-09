@@ -1,7 +1,6 @@
 """Unit tests for paracle_meta.engine module."""
 
 import pytest
-
 from paracle_meta.engine import MetaAgent
 from paracle_meta.generators.base import GenerationRequest, GenerationResult
 

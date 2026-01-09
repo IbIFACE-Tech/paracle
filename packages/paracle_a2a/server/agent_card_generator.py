@@ -144,9 +144,9 @@ class AgentCardGenerator:
                         skills.append(
                             AgentSkill(
                                 id=skill_spec.get("name", skill_dir.name),
-                                name=skill_spec.get(
-                                    "metadata", {}
-                                ).get("display_name", skill_dir.name),
+                                name=skill_spec.get("metadata", {}).get(
+                                    "display_name", skill_dir.name
+                                ),
                                 description=skill_spec.get("description", ""),
                                 tags=skill_spec.get("metadata", {}).get("tags", []),
                             )

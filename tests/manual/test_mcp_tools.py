@@ -13,9 +13,9 @@ logger = logging.getLogger("test_mcp_workflow")
 
 async def test_mcp_workflow_list():
     """Test listing workflows via MCP."""
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("🧪 TEST: MCP workflow_list")
-    print("="*70 + "\n")
+    print("=" * 70 + "\n")
 
     try:
         from paracle_mcp.server import ParacleMCPServer
@@ -24,8 +24,7 @@ async def test_mcp_workflow_list():
 
         # Get workflow tools
         tools = server._get_workflow_tools()
-        workflow_list_tool = next(
-            t for t in tools if t["name"] == "workflow_list")
+        workflow_list_tool = next(t for t in tools if t["name"] == "workflow_list")
 
         print("✅ Found workflow_list tool")
         print(f"   Description: {workflow_list_tool['description']}")
@@ -36,6 +35,7 @@ async def test_mcp_workflow_list():
         catalog_path = server.parac_root / "workflows" / "catalog.yaml"
         if catalog_path.exists():
             import yaml
+
             with open(catalog_path) as f:
                 catalog = yaml.safe_load(f)
 
@@ -53,15 +53,16 @@ async def test_mcp_workflow_list():
     except Exception as e:
         print(f"❌ ERROR: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
 
 async def test_mcp_context_tools():
     """Test context tools via MCP."""
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("🧪 TEST: MCP context tools")
-    print("="*70 + "\n")
+    print("=" * 70 + "\n")
 
     try:
         from paracle_mcp.server import ParacleMCPServer
@@ -84,6 +85,7 @@ async def test_mcp_context_tools():
 
         if state_path.exists():
             import yaml
+
             with open(state_path) as f:
                 state = yaml.safe_load(f)
 
@@ -105,15 +107,16 @@ async def test_mcp_context_tools():
     except Exception as e:
         print(f"❌ ERROR: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
 
 async def test_agent_tool_registry():
     """Test agent tool registry."""
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("🧪 TEST: Agent Tool Registry")
-    print("="*70 + "\n")
+    print("=" * 70 + "\n")
 
     try:
         from paracle_orchestration.agent_tool_registry import agent_tool_registry
@@ -140,8 +143,11 @@ async def test_agent_tool_registry():
 
         for tool in reviewer_tools:
             tool_name = tool if isinstance(tool, str) else tool.name
-            tool_desc = "Tool function" if isinstance(
-                tool, str) else getattr(tool, 'description', 'No description')
+            tool_desc = (
+                "Tool function"
+                if isinstance(tool, str)
+                else getattr(tool, "description", "No description")
+            )
             print(f"   ✅ {tool_name}")
             print(f"      {tool_desc}")
             print()
@@ -151,15 +157,16 @@ async def test_agent_tool_registry():
     except Exception as e:
         print(f"❌ ERROR: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
 
 async def test_real_workflow_parsing():
     """Test parsing a real workflow definition."""
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("🧪 TEST: Real Workflow Parsing")
-    print("="*70 + "\n")
+    print("=" * 70 + "\n")
 
     try:
         workflow_path = Path(".parac/workflows/definitions/bugfix.yaml")
@@ -169,6 +176,7 @@ async def test_real_workflow_parsing():
             return False
 
         import yaml
+
         with open(workflow_path) as f:
             workflow = yaml.safe_load(f)
 
@@ -181,8 +189,10 @@ async def test_real_workflow_parsing():
         for idx, step in enumerate(workflow["steps"], 1):
             print(f"   [{idx}] {step['id']}")
             print(f"       Agent: {step['agent']}")
-            print(f"       Config: model={step['config'].get('model', 'N/A')}, "
-                  f"temp={step['config'].get('temperature', 'N/A')}")
+            print(
+                f"       Config: model={step['config'].get('model', 'N/A')}, "
+                f"temp={step['config'].get('temperature', 'N/A')}"
+            )
 
             if step.get("depends_on"):
                 print(f"       Depends on: {', '.join(step['depends_on'])}")
@@ -197,10 +207,10 @@ async def test_real_workflow_parsing():
         if workflow.get("inputs"):
             print("📥 Required inputs:")
             for input_name, input_spec in workflow["inputs"].items():
-                required = "✅ Required" if input_spec.get(
-                    "required") else "⚪ Optional"
-                print(
-                    f"   {required} {input_name}: {input_spec.get('type', 'any')}")
+                required = (
+                    "✅ Required" if input_spec.get("required") else "⚪ Optional"
+                )
+                print(f"   {required} {input_name}: {input_spec.get('type', 'any')}")
                 if input_spec.get("description"):
                     print(f"      {input_spec['description']}")
 
@@ -209,15 +219,16 @@ async def test_real_workflow_parsing():
     except Exception as e:
         print(f"❌ ERROR: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
 
 async def test_github_agent_integration():
     """Test GitHub agent integration with workflows."""
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("🧪 TEST: GitHub Agent → Paracle Workflow")
-    print("="*70 + "\n")
+    print("=" * 70 + "\n")
 
     try:
         # Load GitHub agent
@@ -234,10 +245,12 @@ async def test_github_agent_integration():
 
         # Parse frontmatter
         import re
-        match = re.search(r'^---\n(.*?)\n---', content, re.DOTALL)
+
+        match = re.search(r"^---\n(.*?)\n---", content, re.DOTALL)
 
         if match:
             import yaml
+
             frontmatter = yaml.safe_load(match.group(1))
 
             print(f"   Description: {frontmatter.get('description', 'N/A')}")
@@ -253,16 +266,15 @@ async def test_github_agent_integration():
 
         workflow_path = Path(".parac/workflows/definitions/code_review.yaml")
         import yaml
+
         with open(workflow_path) as f:
             workflow = yaml.safe_load(f)
 
         # Find steps using security agent
-        security_steps = [s for s in workflow["steps"]
-                          if "security" in s["id"].lower()]
+        security_steps = [s for s in workflow["steps"] if "security" in s["id"].lower()]
 
         if security_steps:
-            print(
-                f"   ✅ Found {len(security_steps)} security steps in workflow:")
+            print(f"   ✅ Found {len(security_steps)} security steps in workflow:")
             for step in security_steps:
                 print(f"      - {step['id']}: {step['name']}")
         else:
@@ -273,6 +285,7 @@ async def test_github_agent_integration():
     except Exception as e:
         print(f"❌ ERROR: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -300,9 +313,9 @@ async def main():
             results[test_name] = False
 
     # Summary
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("🏁 TEST RESULTS SUMMARY")
-    print("="*70)
+    print("=" * 70)
 
     for test_name, success in results.items():
         status = "✅ PASSED" if success else "❌ FAILED"
@@ -312,7 +325,7 @@ async def main():
     passed = sum(1 for s in results.values() if s)
 
     print(f"\n📊 Total: {passed}/{total} tests passed")
-    print("="*70 + "\n")
+    print("=" * 70 + "\n")
 
     return all(results.values())
 
@@ -327,5 +340,6 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n❌ Tests failed: {e}")
         import traceback
+
         traceback.print_exc()
         exit(1)

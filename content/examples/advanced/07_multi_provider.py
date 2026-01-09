@@ -46,9 +46,11 @@ async def test_provider(provider_name: str, model: str, prompt: str):
         )
 
         print(f"Response: {response.content}")
-        print(f"Tokens: {response.usage.total_tokens} "
-              f"(prompt: {response.usage.prompt_tokens}, "
-              f"completion: {response.usage.completion_tokens})")
+        print(
+            f"Tokens: {response.usage.total_tokens} "
+            f"(prompt: {response.usage.prompt_tokens}, "
+            f"completion: {response.usage.completion_tokens})"
+        )
         print(f"Finish reason: {response.finish_reason}")
 
         return response
@@ -94,9 +96,9 @@ async def test_streaming(provider_name: str, model: str, prompt: str):
 
 async def discover_models():
     """Discover available models using the catalog."""
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("MODEL DISCOVERY")
-    print("="*60)
+    print("=" * 60)
 
     catalog = get_model_catalog()
 
@@ -146,9 +148,9 @@ async def compare_providers():
         ("groq", "llama-3.1-8b-instant"),
     ]
 
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("PROVIDER COMPARISON")
-    print("="*60)
+    print("=" * 60)
     print(f"Prompt: {prompt}\n")
 
     # Test each provider
@@ -175,9 +177,9 @@ async def compare_providers():
 
     # Summary
     if results:
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("SUMMARY")
-        print("="*60)
+        print("=" * 60)
         for provider_name, model, result in results:
             print(f"\n{provider_name}/{model}:")
             print(f"  Tokens: {result.usage.total_tokens}")
@@ -194,9 +196,9 @@ async def test_streaming_providers():
         ("deepseek", "deepseek-chat"),
     ]
 
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("STREAMING TEST")
-    print("="*60)
+    print("=" * 60)
 
     for provider_name, model in tests:
         # Check API key
@@ -217,27 +219,21 @@ async def test_streaming_providers():
 
 async def test_openai_compatible():
     """Test OpenAI-compatible providers."""
-    from paracle_providers.openai_compatible import (
-        create_lmstudio_provider,
-    )
+    from paracle_providers.openai_compatible import create_lmstudio_provider
 
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("OPENAI-COMPATIBLE PROVIDERS")
-    print("="*60)
+    print("=" * 60)
 
     # Example with LM Studio (if running locally)
     try:
         provider = create_lmstudio_provider(port=1234)
-        messages = [
-            ChatMessage(role="user", content="Hello from Paracle!")
-        ]
+        messages = [ChatMessage(role="user", content="Hello from Paracle!")]
         config = LLMConfig(temperature=0.7, max_tokens=50)
 
         print("\nTesting LM Studio (localhost:1234)...")
         response = await provider.chat_completion(
-            messages=messages,
-            config=config,
-            model="local-model"
+            messages=messages, config=config, model="local-model"
         )
         print(f"Response: {response.content}")
 
@@ -251,9 +247,9 @@ async def test_openai_compatible():
 
 async def main():
     """Run all examples."""
-    print("="*60)
+    print("=" * 60)
     print("PARACLE MULTI-PROVIDER EXAMPLE")
-    print("="*60)
+    print("=" * 60)
 
     # Model discovery
     await discover_models()
@@ -267,9 +263,9 @@ async def main():
     # Test OpenAI-compatible
     await test_openai_compatible()
 
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("EXAMPLES COMPLETE")
-    print("="*60)
+    print("=" * 60)
     print("\nTips:")
     print("- Set API keys as environment variables")
     print("- Use Groq for fastest inference")

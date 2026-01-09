@@ -82,7 +82,10 @@ def validate_regex_pattern(pattern: str) -> tuple[bool, str]:
     # Check for dangerous patterns
     for dangerous in DANGEROUS_REGEX_PATTERNS:
         if dangerous in pattern:
-            return False, f"Pattern contains potentially dangerous construct: {dangerous}"
+            return (
+                False,
+                f"Pattern contains potentially dangerous construct: {dangerous}",
+            )
 
     # Try to compile
     try:

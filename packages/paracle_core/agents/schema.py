@@ -125,7 +125,7 @@ class GovernanceSection(BaseModel):
             ParacPaths.CURRENT_STATE,
             ParacPaths.ROADMAP,
         ],
-        description="Files agent MUST read before starting any task"
+        description="Files agent MUST read before starting any task",
     )
 
     optional_reads: list[str] = Field(
@@ -133,24 +133,24 @@ class GovernanceSection(BaseModel):
             ParacPaths.OPEN_QUESTIONS,
             ParacPaths.DECISIONS,
         ],
-        description="Files agent SHOULD read when relevant"
+        description="Files agent SHOULD read when relevant",
     )
 
     post_task_logs: list[str] = Field(
         default_factory=lambda: [
             ParacPaths.ACTION_LOG,
         ],
-        description="Files agent MUST update after completing work"
+        description="Files agent MUST update after completing work",
     )
 
     decision_recording: str = Field(
         default=ParacPaths.DECISIONS,
-        description="Where to record architectural decisions"
+        description="Where to record architectural decisions",
     )
 
     policies_to_follow: list[str] = Field(
         default_factory=list,
-        description="Policies this agent must follow (e.g., CODE_STYLE, TESTING)"
+        description="Policies this agent must follow (e.g., CODE_STYLE, TESTING)",
     )
 
 
@@ -175,34 +175,30 @@ class AgentSpecSchema(BaseModel):
     id: str = Field(
         ...,
         description="Agent identifier (derived from filename, e.g., 'coder')",
-        pattern=r"^[a-z][a-z0-9-]*$"
+        pattern=r"^[a-z][a-z0-9-]*$",
     )
 
     name: str = Field(
-        ...,
-        description="Human-readable agent name (e.g., 'Coder Agent')"
+        ..., description="Human-readable agent name (e.g., 'Coder Agent')"
     )
 
     role: str = Field(
-        ...,
-        description="One-paragraph description of agent's primary function"
+        ..., description="One-paragraph description of agent's primary function"
     )
 
     governance: GovernanceSection = Field(
         default_factory=GovernanceSection,
-        description=".parac/ integration requirements - ALWAYS REQUIRED"
+        description=".parac/ integration requirements - ALWAYS REQUIRED",
     )
 
     skills: list[str] = Field(
         ...,
         min_length=1,
-        description="List of skills from .parac/skills/ this agent uses"
+        description="List of skills from .parac/skills/ this agent uses",
     )
 
     responsibilities: list[ResponsibilityCategory] = Field(
-        ...,
-        min_length=1,
-        description="Categorized list of agent responsibilities"
+        ..., min_length=1, description="Categorized list of agent responsibilities"
     )
 
     # ==========================================================================
@@ -210,23 +206,19 @@ class AgentSpecSchema(BaseModel):
     # ==========================================================================
 
     tools: Optional[list[str]] = Field(
-        default=None,
-        description="Tools and capabilities available to this agent"
+        default=None, description="Tools and capabilities available to this agent"
     )
 
     expertise: Optional[list[str]] = Field(
-        default=None,
-        description="Technical expertise areas"
+        default=None, description="Technical expertise areas"
     )
 
     coding_standards: Optional[list[str]] = Field(
-        default=None,
-        description="Specific coding standards this agent follows"
+        default=None, description="Specific coding standards this agent follows"
     )
 
     examples: Optional[dict[str, str]] = Field(
-        default=None,
-        description="Example scenarios showing how agent handles tasks"
+        default=None, description="Example scenarios showing how agent handles tasks"
     )
 
     class Config:
@@ -254,7 +246,7 @@ class AgentSpecSchema(BaseModel):
                         "items": [
                             "Write clean, maintainable Python code",
                             "Implement features according to specifications",
-                        ]
+                        ],
                     }
                 ],
             }

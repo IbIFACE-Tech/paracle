@@ -256,9 +256,7 @@ class SQLiteSessionStore(SessionStore):
             artifacts=json.loads(row["artifacts"] or "[]"),
             started_at=datetime.fromisoformat(row["started_at"]),
             ended_at=(
-                datetime.fromisoformat(row["ended_at"])
-                if row["ended_at"]
-                else None
+                datetime.fromisoformat(row["ended_at"]) if row["ended_at"] else None
             ),
             total_tokens=row["total_tokens"],
             estimated_cost=row["estimated_cost"],
@@ -392,9 +390,7 @@ class SQLiteSessionStore(SessionStore):
     async def list_groups(self) -> list[AgentGroup]:
         """List all groups."""
         with self._get_connection() as conn:
-            rows = conn.execute(
-                "SELECT * FROM agent_groups ORDER BY name"
-            ).fetchall()
+            rows = conn.execute("SELECT * FROM agent_groups ORDER BY name").fetchall()
             return [self._row_to_group(row) for row in rows]
 
     async def get_group_by_name(self, name: str) -> AgentGroup | None:
@@ -448,9 +444,7 @@ class SQLiteSessionStore(SessionStore):
                     (group_id,),
                 ).fetchone()
             else:
-                result = conn.execute(
-                    "SELECT COUNT(*) FROM group_sessions"
-                ).fetchone()
+                result = conn.execute("SELECT COUNT(*) FROM group_sessions").fetchone()
             return result[0]
 
     async def get_message_count(self, session_id: str) -> int:

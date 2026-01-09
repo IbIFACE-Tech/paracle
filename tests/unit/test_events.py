@@ -1,8 +1,8 @@
 """Tests for event system."""
 
-import pytest
 import asyncio
 
+import pytest
 from paracle_events import (
     Event,
     EventBus,
@@ -201,8 +201,12 @@ class TestEventBus:
         bus = EventBus()
         results = {"h1": 0, "h2": 0}
 
-        bus.subscribe(EventType.AGENT_CREATED, lambda e: results.update(h1=results["h1"] + 1))
-        bus.subscribe(EventType.AGENT_CREATED, lambda e: results.update(h2=results["h2"] + 1))
+        bus.subscribe(
+            EventType.AGENT_CREATED, lambda e: results.update(h1=results["h1"] + 1)
+        )
+        bus.subscribe(
+            EventType.AGENT_CREATED, lambda e: results.update(h2=results["h2"] + 1)
+        )
 
         bus.publish(agent_created("a1", "test"))
 

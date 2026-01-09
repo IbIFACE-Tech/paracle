@@ -38,8 +38,7 @@ def test_gauge():
 def test_histogram():
     """Test histogram metric."""
     registry = PrometheusRegistry()
-    histogram = registry.histogram(
-        "test_histogram", "Test histogram", {"env": "test"})
+    histogram = registry.histogram("test_histogram", "Test histogram", {"env": "test"})
 
     histogram.observe(0.1)
     histogram.observe(0.5)
@@ -68,8 +67,7 @@ def test_prometheus_export():
     """Test Prometheus text format export."""
     registry = PrometheusRegistry()
 
-    counter = registry.counter(
-        "requests_total", "Total requests", {"method": "GET"})
+    counter = registry.counter("requests_total", "Total requests", {"method": "GET"})
     counter.inc(42)
 
     gauge = registry.gauge("active_connections", "Active connections")

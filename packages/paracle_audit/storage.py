@@ -149,7 +149,8 @@ class SQLiteAuditStorage(AuditStorage):
         cursor = conn.cursor()
 
         # Create audit events table
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS audit_events (
                 event_id TEXT PRIMARY KEY,
                 event_type TEXT NOT NULL,
@@ -172,29 +173,40 @@ class SQLiteAuditStorage(AuditStorage):
                 data_classification TEXT,
                 created_at TEXT DEFAULT CURRENT_TIMESTAMP
             )
-        """)
+        """
+        )
 
         # Create indexes
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE INDEX IF NOT EXISTS idx_audit_timestamp
             ON audit_events(timestamp)
-        """)
-        cursor.execute("""
+        """
+        )
+        cursor.execute(
+            """
             CREATE INDEX IF NOT EXISTS idx_audit_event_type
             ON audit_events(event_type)
-        """)
-        cursor.execute("""
+        """
+        )
+        cursor.execute(
+            """
             CREATE INDEX IF NOT EXISTS idx_audit_actor
             ON audit_events(actor)
-        """)
-        cursor.execute("""
+        """
+        )
+        cursor.execute(
+            """
             CREATE INDEX IF NOT EXISTS idx_audit_outcome
             ON audit_events(outcome)
-        """)
-        cursor.execute("""
+        """
+        )
+        cursor.execute(
+            """
             CREATE INDEX IF NOT EXISTS idx_audit_correlation
             ON audit_events(correlation_id)
-        """)
+        """
+        )
 
         conn.commit()
 
@@ -375,26 +387,32 @@ class SQLiteAuditStorage(AuditStorage):
         total = cursor.fetchone()[0]
 
         # Count by type
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT event_type, COUNT(*) as count
             FROM audit_events
             GROUP BY event_type
-        """)
+        """
+        )
         by_type = {row["event_type"]: row["count"] for row in cursor.fetchall()}
 
         # Count by outcome
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT outcome, COUNT(*) as count
             FROM audit_events
             GROUP BY outcome
-        """)
+        """
+        )
         by_outcome = {row["outcome"]: row["count"] for row in cursor.fetchall()}
 
         # Date range
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT MIN(timestamp) as earliest, MAX(timestamp) as latest
             FROM audit_events
-        """)
+        """
+        )
         date_row = cursor.fetchone()
 
         return {

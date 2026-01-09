@@ -1,6 +1,5 @@
 """Tests for skill loading and injection system."""
 
-
 import pytest
 from paracle_orchestration.skill_injector import SkillInjector
 from paracle_orchestration.skill_loader import Skill, SkillLoader

@@ -85,5 +85,6 @@ async def main():
     for step_id, result in results.items():
         print(f"  {step_id}: {result['status']}")
 
+
 if __name__ == "__main__":
     asyncio.run(main())

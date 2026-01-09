@@ -9,19 +9,16 @@ This module provides core functionality for managing .parac/ workspaces:
 """
 
 from paracle_core.parac.adr_manager import ADR, ADRManager, ADRMetadata
-from paracle_core.parac.file_config import (
+from paracle_core.parac.file_config import (  # ADR configuration; Main configuration; Log configuration; Roadmap configuration
     ADRConfig,
     ADRDefaultsConfig,
-    # ADR configuration
     ADRLimitsConfig,
     ADRStatusConfig,
     ADRValidationConfig,
     CustomLogConfig,
     DeliverablesConfig,
-    # Main configuration
     FileManagementConfig,
     LogFileConfig,
-    # Log configuration
     LogGlobalConfig,
     LogsConfig,
     PhaseProgressConfig,
@@ -31,7 +28,6 @@ from paracle_core.parac.file_config import (
     RoadmapConfig,
     RoadmapExportConfig,
     RoadmapFileConfig,
-    # Roadmap configuration
     RoadmapLimitsConfig,
     RoadmapSyncConfig,
     RoadmapValidationConfig,

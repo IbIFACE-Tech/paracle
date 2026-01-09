@@ -11,7 +11,6 @@ Run: uv run python examples/05_tool_registry.py
 """
 
 import asyncio
-from pathlib import Path
 
 from paracle_tools import BuiltinToolRegistry
 
@@ -77,13 +76,11 @@ async def security_configuration():
     registry = BuiltinToolRegistry(
         # Restrict filesystem access
         filesystem_paths=["./examples", "./tests"],
-
         # Whitelist only safe commands
         allowed_commands=["echo", "git", "ls", "dir", "python"],
-
         # Set conservative timeouts
         http_timeout=10.0,
-        command_timeout=5.0
+        command_timeout=5.0,
     )
 
     print("\n🔒 Security settings applied:")
@@ -103,32 +100,22 @@ async def security_configuration():
 
     # Allowed path
     result = await registry.execute_tool(
-        "read_file",
-        path="examples/01_filesystem_tools.py"
+        "read_file", path="examples/01_filesystem_tools.py"
     )
     print(f"   Read allowed path: {result.success}")
 
     # Restricted path (should fail)
-    result = await registry.execute_tool(
-        "read_file",
-        path="/etc/passwd"
-    )
+    result = await registry.execute_tool("read_file", path="/etc/passwd")
     print(f"   Read restricted path: {result.success}")
     if not result.success:
         print(f"   ✓ Correctly blocked: {result.error[:60]}...")
 
     # Allowed command
-    result = await registry.execute_tool(
-        "run_command",
-        command="echo test"
-    )
+    result = await registry.execute_tool("run_command", command="echo test")
     print(f"   Run allowed command: {result.success}")
 
     # Blocked command
-    result = await registry.execute_tool(
-        "run_command",
-        command="rm -rf /"
-    )
+    result = await registry.execute_tool("run_command", command="rm -rf /")
     print(f"   Run dangerous command: {result.success}")
     if not result.success:
         print(f"   ✓ Correctly blocked: {result.error[:60]}...")
@@ -165,13 +152,13 @@ async def dynamic_tool_selection():
         print(f"      Tool: {tool.name}")
 
         # Prepare parameters (exclude 'type' and 'tool')
-        params = {k: v for k, v in task.items() if k not in ['type', 'tool']}
+        params = {k: v for k, v in task.items() if k not in ["type", "tool"]}
 
         # Execute
         result = await registry.execute_tool(tool_name, **params)
 
         if result.success:
-            print(f"      ✅ Success")
+            print("      ✅ Success")
         else:
             print(f"      ❌ Failed: {result.error[:50]}...")
 
@@ -200,18 +187,14 @@ async def error_handling_patterns():
 
     # File not found
     print("\n   3. File not found:")
-    result = await registry.execute_tool(
-        "read_file",
-        path="nonexistent_file_12345.txt"
-    )
+    result = await registry.execute_tool("read_file", path="nonexistent_file_12345.txt")
     print(f"      Success: {result.success}")
     print(f"      Error: {result.error}")
 
     # Network error (invalid URL)
     print("\n   4. Network error:")
     result = await registry.execute_tool(
-        "http_get",
-        url="https://invalid-domain-xyz-12345.com"
+        "http_get", url="https://invalid-domain-xyz-12345.com"
     )
     print(f"      Success: {result.success}")
     print(f"      Error: {result.error[:100]}...")
@@ -236,24 +219,23 @@ async def batch_operations():
 
     # Execute all in parallel
     tasks = [
-        registry.execute_tool(tool_name, **params)
-        for tool_name, params in operations
+        registry.execute_tool(tool_name, **params) for tool_name, params in operations
     ]
 
     results = await asyncio.gather(*tasks)
 
     # Process results
-    for (tool_name, params), result in zip(operations, results):
+    for (tool_name, params), result in zip(operations, results, strict=False):
         print(f"\n   {tool_name}:")
         if result.success:
-            print(f"      ✅ Success")
+            print("      ✅ Success")
             # Show snippet of output
-            if 'content' in result.output:
-                lines = result.output['content'].split('\n')[:2]
+            if "content" in result.output:
+                lines = result.output["content"].split("\n")[:2]
                 print(f"      Preview: {lines[0][:60]}...")
-            elif 'stdout' in result.output:
+            elif "stdout" in result.output:
                 print(f"      Output: {result.output['stdout'].strip()[:60]}...")
-            elif 'count' in result.output:
+            elif "count" in result.output:
                 print(f"      Found: {result.output['count']} items")
         else:
             print(f"      ❌ Failed: {result.error[:50]}...")
@@ -308,33 +290,33 @@ async def tool_introspection():
     # Get all tools
     all_tools = registry.list_tools()
 
-    print(f"\n📊 Tool metadata summary:")
+    print("\n📊 Tool metadata summary:")
     print(f"   Total tools: {len(all_tools)}")
 
     # Categorize by permission
     perms_count = {}
     for tool_info in all_tools:
-        tool_name = tool_info['name']
+        tool_name = tool_info["name"]
         permissions = registry.get_tool_permissions(tool_name)
         for perm in permissions:
             perms_count[perm] = perms_count.get(perm, 0) + 1
 
-    print(f"\n   Tools by permission:")
+    print("\n   Tools by permission:")
     for perm, count in sorted(perms_count.items()):
         print(f"      {perm}: {count} tools")
 
     # Show detailed info for one tool
-    print(f"\n📖 Detailed tool info (read_file):")
+    print("\n📖 Detailed tool info (read_file):")
     tool = registry.get_tool("read_file")
     print(f"   Name: {tool.name}")
     print(f"   Description: {tool.description}")
-    print(f"   Parameters:")
+    print("   Parameters:")
     for param_name, param_info in tool.parameters.items():
-        required = param_info.get('required', False)
-        param_type = param_info.get('type', 'any')
+        required = param_info.get("required", False)
+        param_type = param_info.get("type", "any")
         req_marker = "required" if required else "optional"
         print(f"      - {param_name} ({param_type}, {req_marker})")
-        if 'description' in param_info:
+        if "description" in param_info:
             print(f"        {param_info['description']}")
 
 

@@ -17,6 +17,7 @@ class RollbackError(Exception):
 
 class SnapshotError(RollbackError):
     """Raised when snapshot operation fails."""
+
     pass
 
 
@@ -42,4 +43,5 @@ class RestoreError(RollbackError):
 
 class SnapshotNotFoundError(RollbackError):
     """Raised when snapshot is not found."""
+
     pass

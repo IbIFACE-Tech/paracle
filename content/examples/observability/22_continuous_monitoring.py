@@ -102,7 +102,8 @@ def example_2_health_check():
         }.get(health.status, "white")
 
         table.add_row(
-            "Status", f"[{status_color}]{health.status.upper()}[/{status_color}]")
+            "Status", f"[{status_color}]{health.status.upper()}[/{status_color}]"
+        )
         table.add_row("Health", f"{health.health_percentage:.1f}%")
         table.add_row("Total Files", str(health.total_files))
         table.add_row("Valid Files", f"[green]{health.valid_files}[/green]")
@@ -136,7 +137,8 @@ def example_3_manual_repair():
         monitor._scan_all_files()
 
         console.print(
-            f"\n[yellow]Found {len(monitor.violations)} violation(s)[/yellow]")
+            f"\n[yellow]Found {len(monitor.violations)} violation(s)[/yellow]"
+        )
 
         # Display violations
         for v in monitor.get_violations():
@@ -147,7 +149,8 @@ def example_3_manual_repair():
         repaired = monitor.repair_all()
 
         console.print(
-            f"[green]✅ Successfully repaired {repaired} violation(s)[/green]")
+            f"[green]✅ Successfully repaired {repaired} violation(s)[/green]"
+        )
 
         # Verify
         target = parac_root / "memory" / "data" / "costs.db"
@@ -168,8 +171,7 @@ def example_4_auto_repair():
         # Create structure
         (parac_root / "memory" / "data").mkdir(parents=True)
 
-        console.print(
-            "\n[cyan]Starting monitor with auto-repair enabled...[/cyan]")
+        console.print("\n[cyan]Starting monitor with auto-repair enabled...[/cyan]")
 
         # Create monitor with auto-repair
         monitor = GovernanceMonitor(
@@ -179,8 +181,7 @@ def example_4_auto_repair():
         )
 
         monitor.start()
-        console.print(
-            "[green]✅ Monitor started (auto-repair: ENABLED)[/green]")
+        console.print("[green]✅ Monitor started (auto-repair: ENABLED)[/green]")
 
         time.sleep(0.5)  # Let watcher start
 
@@ -196,8 +197,7 @@ def example_4_auto_repair():
         target = parac_root / "memory" / "data" / "costs.db"
         if target.exists():
             console.print("\n[green]✅ Auto-repair successful![/green]")
-            console.print(
-                f"   File moved to: {target.relative_to(parac_root.parent)}")
+            console.print(f"   File moved to: {target.relative_to(parac_root.parent)}")
             console.print(f"   Content preserved: {target.read_text()}")
 
         monitor.stop()
@@ -236,8 +236,7 @@ def example_5_live_monitoring():
         (parac_root / "wrong1.db").touch()
         (parac_root / "wrong2.db").touch()
 
-        console.print(
-            "[yellow]Created 2 valid files and 2 violations[/yellow]")
+        console.print("[yellow]Created 2 valid files and 2 violations[/yellow]")
         console.print("[cyan]Waiting for auto-repair...[/cyan]")
 
         time.sleep(2.0)
@@ -312,39 +311,23 @@ def example_7_complete_protection():
     """Example 7: Complete 5-layer protection."""
     print_section("Example 7: Complete Protection", "🛡️")
 
-    console.print(
-        "\n[bold cyan]Complete 5-Layer Governance System:[/bold cyan]\n")
+    console.print("\n[bold cyan]Complete 5-Layer Governance System:[/bold cyan]\n")
 
     layers = [
         (
             "Layer 1",
             "Automatic Logging",
             "Every action logged to .parac/memory/logs/",
-            "✅"
+            "✅",
         ),
-        (
-            "Layer 2",
-            "State Management",
-            "Automatic current_state.yaml updates",
-            "✅"
-        ),
-        (
-            "Layer 3",
-            "AI Compliance",
-            "Real-time blocking in AI assistants",
-            "✅"
-        ),
-        (
-            "Layer 4",
-            "Pre-commit Hook",
-            "Commit-time blocking as safety net",
-            "✅"
-        ),
+        ("Layer 2", "State Management", "Automatic current_state.yaml updates", "✅"),
+        ("Layer 3", "AI Compliance", "Real-time blocking in AI assistants", "✅"),
+        ("Layer 4", "Pre-commit Hook", "Commit-time blocking as safety net", "✅"),
         (
             "Layer 5",
             "Continuous Monitor",
             "24/7 auto-repair and health monitoring",
-            "✅"
+            "✅",
         ),
     ]
 
@@ -360,7 +343,8 @@ def example_7_complete_protection():
     console.print(table)
 
     console.print(
-        "\n[bold green]🎉 All 5 Layers Active - Complete Protection![/bold green]\n")
+        "\n[bold green]🎉 All 5 Layers Active - Complete Protection![/bold green]\n"
+    )
 
     # Protection flow
     console.print("[bold cyan]Protection Flow:[/bold cyan]\n")
@@ -420,8 +404,7 @@ def example_8_performance_metrics():
         monitor.stop()
 
         if elapsed < max_wait:
-            console.print(
-                f"[green]✅ Auto-repair completed in {elapsed:.3f}s[/green]")
+            console.print(f"[green]✅ Auto-repair completed in {elapsed:.3f}s[/green]")
 
             # Metrics table
             table = Table(title="Performance Metrics")
@@ -450,8 +433,7 @@ def example_8_performance_metrics():
 
             console.print("\n[green]✅ All metrics within targets![/green]")
         else:
-            console.print(
-                "[yellow]⚠️  Repair took longer than expected[/yellow]")
+            console.print("[yellow]⚠️  Repair took longer than expected[/yellow]")
 
     wait_for_user()
 
@@ -459,13 +441,17 @@ def example_8_performance_metrics():
 def main():
     """Run all examples."""
     console.print(
-        "[bold cyan]╔══════════════════════════════════════════════════════╗[/bold cyan]")
+        "[bold cyan]╔══════════════════════════════════════════════════════╗[/bold cyan]"
+    )
     console.print(
-        "[bold cyan]║   Layer 5: Continuous Monitoring Examples          ║[/bold cyan]")
+        "[bold cyan]║   Layer 5: Continuous Monitoring Examples          ║[/bold cyan]"
+    )
     console.print(
-        "[bold cyan]║   24/7 Governance Integrity & Auto-Repair           ║[/bold cyan]")
+        "[bold cyan]║   24/7 Governance Integrity & Auto-Repair           ║[/bold cyan]"
+    )
     console.print(
-        "[bold cyan]╚══════════════════════════════════════════════════════╝[/bold cyan]")
+        "[bold cyan]╚══════════════════════════════════════════════════════╝[/bold cyan]"
+    )
 
     examples = [
         ("Monitor Setup", example_1_monitor_setup),
@@ -484,8 +470,7 @@ def main():
 
     # Summary
     console.print("\n" + "=" * 60)
-    console.print(
-        "[bold green]✅ Layer 5 Implementation Complete![/bold green]")
+    console.print("[bold green]✅ Layer 5 Implementation Complete![/bold green]")
     console.print("=" * 60)
 
     console.print("\n[bold cyan]Summary:[/bold cyan]\n")
@@ -514,8 +499,7 @@ def main():
     console.print("\n[bold cyan]Next Steps:[/bold cyan]")
     console.print("  1. Try in your project: paracle governance monitor")
     console.print("  2. Check health: paracle governance health")
-    console.print(
-        "  3. Enable auto-repair: paracle governance monitor --auto-repair")
+    console.print("  3. Enable auto-repair: paracle governance monitor --auto-repair")
     console.print()
 
 

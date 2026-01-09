@@ -9,27 +9,21 @@ Tests cover:
 """
 
 import tempfile
-from datetime import datetime
 from pathlib import Path
 
 import pytest
-
 from paracle_core.governance import (
-    GovernanceLogger,
-    get_governance_logger,
-    log_action,
-    log_decision,
-    agent_context,
-    session_context,
     AgentContext,
-    SessionContext,
     GovernanceActionType,
     GovernanceAgentType,
+    GovernanceLogger,
+    SessionContext,
+    agent_context,
+    log_action,
+    log_decision,
+    session_context,
 )
-from paracle_core.governance.context import (
-    get_current_agent,
-    get_current_session,
-)
+from paracle_core.governance.context import get_current_agent, get_current_session
 
 
 class TestGovernanceActionType:
@@ -77,8 +71,12 @@ class TestGovernanceAgentType:
 
     def test_from_string_exact_match(self):
         """Test parsing agent type from exact string."""
-        assert GovernanceAgentType.from_string("CoderAgent") == GovernanceAgentType.CODER
-        assert GovernanceAgentType.from_string("TesterAgent") == GovernanceAgentType.TESTER
+        assert (
+            GovernanceAgentType.from_string("CoderAgent") == GovernanceAgentType.CODER
+        )
+        assert (
+            GovernanceAgentType.from_string("TesterAgent") == GovernanceAgentType.TESTER
+        )
 
     def test_from_string_lowercase(self):
         """Test parsing agent type from lowercase."""
@@ -149,6 +147,7 @@ class TestSessionContext:
         """Test session duration tracking."""
         with SessionContext("Test") as ctx:
             import time
+
             time.sleep(0.01)
             duration = ctx.duration_seconds
             assert duration is not None
@@ -246,9 +245,19 @@ class TestGovernanceLogger:
         """Test getting actions by agent."""
         logger = GovernanceLogger(temp_parac)
 
-        logger.log(GovernanceActionType.IMPLEMENTATION, "Coder action", agent=GovernanceAgentType.CODER)
-        logger.log(GovernanceActionType.TEST, "Tester action", agent=GovernanceAgentType.TESTER)
-        logger.log(GovernanceActionType.IMPLEMENTATION, "Another coder", agent=GovernanceAgentType.CODER)
+        logger.log(
+            GovernanceActionType.IMPLEMENTATION,
+            "Coder action",
+            agent=GovernanceAgentType.CODER,
+        )
+        logger.log(
+            GovernanceActionType.TEST, "Tester action", agent=GovernanceAgentType.TESTER
+        )
+        logger.log(
+            GovernanceActionType.IMPLEMENTATION,
+            "Another coder",
+            agent=GovernanceAgentType.CODER,
+        )
 
         coder_actions = logger.get_agent_actions(GovernanceAgentType.CODER)
         assert len(coder_actions) == 2
@@ -270,6 +279,7 @@ class TestConvenienceFunctions:
 
             # Reset the global logger and create new one
             import paracle_core.governance.logger as logger_module
+
             logger_module._governance_logger = GovernanceLogger(parac_dir)
             yield parac_dir
             logger_module._governance_logger = None

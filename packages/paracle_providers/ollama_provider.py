@@ -84,9 +84,7 @@ class OllamaProvider(LLMProvider, RetryableProvider):
         """
 
         async def _make_request() -> LLMResponse:
-            return await self._raw_chat_completion(
-                messages, config, model, **kwargs
-            )
+            return await self._raw_chat_completion(messages, config, model, **kwargs)
 
         operation_name = f"ollama.chat_completion({model})"
         return await self.with_retry(_make_request, operation_name)
@@ -102,8 +100,7 @@ class OllamaProvider(LLMProvider, RetryableProvider):
         try:
             # Convert messages to Ollama format
             ollama_messages = [
-                {"role": msg.role, "content": msg.content}
-                for msg in messages
+                {"role": msg.role, "content": msg.content} for msg in messages
             ]
 
             # Build request payload
@@ -145,7 +142,8 @@ class OllamaProvider(LLMProvider, RetryableProvider):
                 usage=TokenUsage(
                     prompt_tokens=data.get("prompt_eval_count", 0),
                     completion_tokens=data.get("eval_count", 0),
-                    total_tokens=data.get("prompt_eval_count", 0) + data.get("eval_count", 0),
+                    total_tokens=data.get("prompt_eval_count", 0)
+                    + data.get("eval_count", 0),
                 ),
                 model=data.get("model", model),
                 metadata={
@@ -160,9 +158,7 @@ class OllamaProvider(LLMProvider, RetryableProvider):
                 str(e), provider="ollama", timeout=config.timeout
             ) from e
         except httpx.ConnectError as e:
-            raise ProviderConnectionError(
-                str(e), provider="ollama"
-            ) from e
+            raise ProviderConnectionError(str(e), provider="ollama") from e
         except httpx.HTTPError as e:
             raise LLMProviderError(
                 str(e), provider="ollama", model=model, original_error=e
@@ -192,8 +188,7 @@ class OllamaProvider(LLMProvider, RetryableProvider):
         """
         try:
             ollama_messages = [
-                {"role": msg.role, "content": msg.content}
-                for msg in messages
+                {"role": msg.role, "content": msg.content} for msg in messages
             ]
 
             payload = {
@@ -224,6 +219,7 @@ class OllamaProvider(LLMProvider, RetryableProvider):
                 async for line in response.aiter_lines():
                     if line.strip():
                         import json
+
                         data = json.loads(line)
 
                         message = data.get("message", {})
@@ -296,9 +292,7 @@ class OllamaProvider(LLMProvider, RetryableProvider):
             return [model["name"] for model in models]
 
         except httpx.HTTPError as e:
-            raise LLMProviderError(
-                str(e), provider="ollama", original_error=e
-            ) from e
+            raise LLMProviderError(str(e), provider="ollama", original_error=e) from e
 
     async def __aenter__(self):
         """Async context manager entry."""

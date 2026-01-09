@@ -8,9 +8,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-from paracle_core.agents.schema import (
-    ParacPaths,
-)
+from paracle_core.agents.schema import ParacPaths
 from paracle_core.agents.template import AgentTemplate
 from paracle_core.agents.validator import AgentSpecValidator
 
@@ -417,7 +415,9 @@ If making an architectural decision, document in `{ParacPaths.DECISIONS}`:
 
         return "\n".join(lines)
 
-    def generate_to_directory(self, specs_dir: Optional[Path] = None) -> dict[str, Path]:
+    def generate_to_directory(
+        self, specs_dir: Optional[Path] = None
+    ) -> dict[str, Path]:
         """Generate documentation files to directory.
 
         Args:

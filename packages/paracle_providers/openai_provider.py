@@ -103,9 +103,7 @@ class OpenAIProvider(LLMProvider, RetryableProvider):
         """
 
         async def _make_request() -> LLMResponse:
-            return await self._raw_chat_completion(
-                messages, config, model, **kwargs
-            )
+            return await self._raw_chat_completion(messages, config, model, **kwargs)
 
         operation_name = f"openai.chat_completion({model})"
         return await self.with_retry(_make_request, operation_name)
@@ -154,9 +152,7 @@ class OpenAIProvider(LLMProvider, RetryableProvider):
             params.update(kwargs)
 
             # Make API call
-            response = await self.client.chat.completions.create(
-                **params
-            )
+            response = await self.client.chat.completions.create(**params)
 
             # Extract response
             choice = response.choices[0]
@@ -179,9 +175,7 @@ class OpenAIProvider(LLMProvider, RetryableProvider):
                 metadata={
                     "id": response.id,
                     "created": response.created,
-                    "system_fingerprint": getattr(
-                        response, "system_fingerprint", None
-                    ),
+                    "system_fingerprint": getattr(response, "system_fingerprint", None),
                 },
             )
 
@@ -193,9 +187,7 @@ class OpenAIProvider(LLMProvider, RetryableProvider):
             ) from e
         except OpenAIError as e:
             if "authentication" in str(e).lower():
-                raise ProviderAuthenticationError(
-                    str(e), provider="openai"
-                ) from e
+                raise ProviderAuthenticationError(str(e), provider="openai") from e
             if "timeout" in str(e).lower():
                 raise ProviderTimeoutError(
                     str(e), provider="openai", timeout=config.timeout
@@ -260,9 +252,7 @@ class OpenAIProvider(LLMProvider, RetryableProvider):
                 delta = chunk.choices[0].delta
                 finish_reason = chunk.choices[0].finish_reason
 
-                tool_calls = (
-                    delta.tool_calls if hasattr(delta, "tool_calls") else None
-                )
+                tool_calls = delta.tool_calls if hasattr(delta, "tool_calls") else None
                 yield StreamChunk(
                     content=delta.content or "",
                     finish_reason=finish_reason,

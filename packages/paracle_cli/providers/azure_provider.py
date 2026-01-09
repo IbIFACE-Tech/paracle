@@ -40,9 +40,7 @@ class AzureProvider:
         """Provider name."""
         return "azure"
 
-    async def generate_agent(
-        self, description: str, **kwargs: Any
-    ) -> dict[str, Any]:
+    async def generate_agent(self, description: str, **kwargs: Any) -> dict[str, Any]:
         """Generate agent specification from description."""
         prompt = f"""Generate a Paracle agent specification for: {description}
 
@@ -88,9 +86,7 @@ approval_required: true
             "description": description,
         }
 
-    async def generate_skill(
-        self, description: str, **kwargs: Any
-    ) -> dict[str, Any]:
+    async def generate_skill(self, description: str, **kwargs: Any) -> dict[str, Any]:
         """Generate skill from description."""
         prompt = f"Generate a Paracle skill for: {description}\n\nReturn YAML and Python code."
 

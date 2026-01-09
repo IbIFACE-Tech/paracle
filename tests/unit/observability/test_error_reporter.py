@@ -99,8 +99,7 @@ class TestWeeklyReport:
 
         assert "trend" in report
         assert "direction" in report["trend"]
-        assert report["trend"]["direction"] in [
-            "increasing", "decreasing", "stable"]
+        assert report["trend"]["direction"] in ["increasing", "decreasing", "stable"]
 
 
 class TestAnomalyDetection:
@@ -217,8 +216,9 @@ class TestComponentHealthReport:
         assert len(report["components"]) >= 2
 
         # component_b should have lower health (more errors)
-        comp_b = next(c for c in report["components"]
-                      if c["component"] == "component_b")
+        comp_b = next(
+            c for c in report["components"] if c["component"] == "component_b"
+        )
         assert comp_b["health_score"] < 100
 
     def test_component_health_scores(self):
@@ -297,8 +297,7 @@ class TestAlertingDecisions:
         # Should detect patterns
         if len(registry.get_patterns()) > 0:
             assert decision["should_alert"] is True
-            assert any(
-                a["type"] == "error_patterns" for a in decision["alerts"])
+            assert any(a["type"] == "error_patterns" for a in decision["alerts"])
 
 
 class TestTrendAnalysis:

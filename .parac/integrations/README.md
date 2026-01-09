@@ -369,4 +369,3 @@ To add support for a new IDE:
 ---
 
 **Remember: The content is IDE-agnostic. Only the format changes.** 🎯
-

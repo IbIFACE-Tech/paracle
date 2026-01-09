@@ -85,7 +85,9 @@ def example_3_blocked_commit():
     print()
     print("1. File: .parac/costs.db")
     print("   Category: OPERATIONAL_DATA")
-    print("   Issue: File placement violation: All databases must be in .parac/memory/data/")
+    print(
+        "   Issue: File placement violation: All databases must be in .parac/memory/data/"
+    )
     print("   ✅ Fix: Move to .parac/memory/data/costs.db")
     print()
     print("=" * 70)
@@ -171,17 +173,23 @@ def example_5_multiple_violations():
     print()
     print("1. File: .parac/costs.db")
     print("   Category: OPERATIONAL_DATA")
-    print("   Issue: File placement violation: All databases must be in .parac/memory/data/")
+    print(
+        "   Issue: File placement violation: All databases must be in .parac/memory/data/"
+    )
     print("   ✅ Fix: Move to .parac/memory/data/costs.db")
     print()
     print("2. File: .parac/debug.log")
     print("   Category: LOGS")
-    print("   Issue: File placement violation: All log files must be in .parac/memory/logs/")
+    print(
+        "   Issue: File placement violation: All log files must be in .parac/memory/logs/"
+    )
     print("   ✅ Fix: Move to .parac/memory/logs/debug.log")
     print()
     print("3. File: .parac/architecture.md")
     print("   Category: KNOWLEDGE")
-    print("   Issue: File placement violation: Knowledge base files must be in .parac/memory/knowledge/")
+    print(
+        "   Issue: File placement violation: Knowledge base files must be in .parac/memory/knowledge/"
+    )
     print("   ✅ Fix: Move to .parac/memory/knowledge/architecture.md")
     print()
     print("=" * 70)

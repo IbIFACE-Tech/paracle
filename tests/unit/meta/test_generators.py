@@ -1,10 +1,8 @@
 """Unit tests for paracle_meta.generators module."""
 
 import pytest
-
 from paracle_meta.generators import (
     AgentGenerator,
-    BaseGenerator,
     PolicyGenerator,
     SkillGenerator,
     WorkflowGenerator,
@@ -120,9 +118,7 @@ class TestAgentGenerator:
         )
 
         # Mock practices
-        practices = [
-            {"title": "Clear Role", "recommendation": "Define specific role"}
-        ]
+        practices = [{"title": "Clear Role", "recommendation": "Define specific role"}]
 
         result = await generator.generate(
             request=request,

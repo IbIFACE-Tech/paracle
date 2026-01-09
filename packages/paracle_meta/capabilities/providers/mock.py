@@ -19,14 +19,14 @@ from __future__ import annotations
 
 import asyncio
 import re
-from typing import Any, AsyncIterator
+from collections.abc import AsyncIterator
+from typing import Any
 
 from paracle_meta.capabilities.provider_protocol import (
     BaseProvider,
     LLMRequest,
     LLMResponse,
     LLMUsage,
-    ProviderStatus,
     StreamChunk,
     ToolCallRequest,
 )
@@ -147,12 +147,14 @@ class MockProvider(BaseProvider):
             yield StreamChunk(
                 content=word + (" " if not is_final else ""),
                 is_final=is_final,
-                usage=LLMUsage(
-                    input_tokens=len(str(request.prompt or "")) // 4,
-                    output_tokens=len(content) // 4,
-                )
-                if is_final
-                else None,
+                usage=(
+                    LLMUsage(
+                        input_tokens=len(str(request.prompt or "")) // 4,
+                        output_tokens=len(content) // 4,
+                    )
+                    if is_final
+                    else None
+                ),
             )
 
     def _generate_response(self, request: LLMRequest) -> str:
@@ -279,9 +281,7 @@ class RefactoredClass:
                     input={"query": "mock search query"},
                 )
             ]
-        if "read" in prompt_lower and any(
-            t.name == "read_file" for t in request.tools
-        ):
+        if "read" in prompt_lower and any(t.name == "read_file" for t in request.tools):
             return [
                 ToolCallRequest(
                     id="mock_call_2",

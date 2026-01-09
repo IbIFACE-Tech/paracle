@@ -1,7 +1,6 @@
 """Unit tests for paracle_meta.capabilities.provider_chain module."""
 
 import pytest
-
 from paracle_meta.capabilities.provider_chain import (
     CircuitBreaker,
     FallbackStrategy,
@@ -9,12 +8,7 @@ from paracle_meta.capabilities.provider_chain import (
     ProviderChainError,
     ProviderMetrics,
 )
-from paracle_meta.capabilities.provider_protocol import (
-    LLMRequest,
-    LLMResponse,
-    ProviderAPIError,
-    ProviderRateLimitError,
-)
+from paracle_meta.capabilities.provider_protocol import LLMRequest
 from paracle_meta.capabilities.providers.mock import (
     FailingMockProvider,
     MockProvider,

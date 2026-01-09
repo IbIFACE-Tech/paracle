@@ -1,4 +1,5 @@
 """Compatibility helpers for different Python versions."""
+
 import sys
 from datetime import datetime, timedelta, timezone
 

@@ -117,7 +117,8 @@ def main():
     print("   [INFO] Agent2 waiting for lock (3 second timeout)...")
     start = time.time()
     success = lock_manager.wait_for_lock(
-        "critical_file.py", "agent2", timeout=3, poll_interval=0.5)
+        "critical_file.py", "agent2", timeout=3, poll_interval=0.5
+    )
     elapsed = time.time() - start
 
     if success:

@@ -1,12 +1,9 @@
 """Unit tests for paracle_meta.capabilities.filesystem module."""
 
-import pytest
 from pathlib import Path
 
-from paracle_meta.capabilities.filesystem import (
-    FileSystemCapability,
-    FileSystemConfig,
-)
+import pytest
+from paracle_meta.capabilities.filesystem import FileSystemCapability, FileSystemConfig
 
 
 class TestFileSystemConfig:
@@ -344,7 +341,9 @@ class TestFileSystemSecurity:
         result = await secure_capability.read_file("test.json")
 
         assert result.success is False
-        assert "extension" in result.error.lower() or "not allowed" in result.error.lower()
+        assert (
+            "extension" in result.error.lower() or "not allowed" in result.error.lower()
+        )
 
         await secure_capability.shutdown()
 

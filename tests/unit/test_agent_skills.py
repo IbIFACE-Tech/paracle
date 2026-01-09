@@ -8,8 +8,7 @@ from pathlib import Path
 import pytest
 
 # Test utilities for skill system
-SKILLS_DIR = Path(__file__).parent.parent.parent / \
-    ".parac" / "agents" / "skills"
+SKILLS_DIR = Path(__file__).parent.parent.parent / ".parac" / "agents" / "skills"
 SPECS_DIR = Path(__file__).parent.parent.parent / ".parac" / "agents" / "specs"
 
 
@@ -41,10 +40,8 @@ class TestSkillDiscovery:
 
         for skill_name in expected_skills:
             skill_dir = SKILLS_DIR / skill_name
-            assert skill_dir.exists(
-            ), f"Skill directory not found: {skill_name}"
-            assert skill_dir.is_dir(
-            ), f"Skill path is not a directory: {skill_name}"
+            assert skill_dir.exists(), f"Skill directory not found: {skill_name}"
+            assert skill_dir.is_dir(), f"Skill path is not a directory: {skill_name}"
 
     def test_skill_readme_exists(self):
         """Skills README should exist and document all skills."""
@@ -73,8 +70,7 @@ class TestSkillStructure:
         """Each skill directory must have a SKILL.md file."""
         for skill_name in all_skills:
             skill_file = SKILLS_DIR / skill_name / "SKILL.md"
-            assert skill_file.exists(
-            ), f"SKILL.md missing for skill: {skill_name}"
+            assert skill_file.exists(), f"SKILL.md missing for skill: {skill_name}"
 
     def test_skill_md_has_required_sections(self, all_skills):
         """SKILL.md files must have required sections."""
@@ -85,16 +81,12 @@ class TestSkillStructure:
             content = skill_file.read_text(encoding="utf-8")
 
             # Check for YAML frontmatter
-            assert content.startswith(
-                "---"), f"Missing YAML frontmatter: {skill_name}"
-            assert "---" in content[3:
-                                    ], f"Incomplete YAML frontmatter: {skill_name}"
+            assert content.startswith("---"), f"Missing YAML frontmatter: {skill_name}"
+            assert "---" in content[3:], f"Incomplete YAML frontmatter: {skill_name}"
 
             # Check required fields
             for section in required_sections:
-                assert (
-                    section in content
-                ), f"Missing {section} in {skill_name}/SKILL.md"
+                assert section in content, f"Missing {section} in {skill_name}/SKILL.md"
 
     def test_skill_md_content_not_empty(self, all_skills):
         """SKILL.md files must have actual content after frontmatter."""
@@ -135,9 +127,7 @@ class TestSkillOptionalDirectories:
             if scripts_dir.exists():
                 # Should have at least one script file
                 script_files = list(scripts_dir.glob("*"))
-                assert len(script_files) > 0, (
-                    f"Empty scripts/ directory: {skill_name}"
-                )
+                assert len(script_files) > 0, f"Empty scripts/ directory: {skill_name}"
 
     def test_references_directory_structure(self):
         """Skills with references/ should have documentation."""
@@ -153,9 +143,7 @@ class TestSkillOptionalDirectories:
             if refs_dir.exists():
                 # Should have at least one reference file
                 ref_files = list(refs_dir.glob("*.md"))
-                assert len(ref_files) > 0, (
-                    f"Empty references/ directory: {skill_name}"
-                )
+                assert len(ref_files) > 0, f"Empty references/ directory: {skill_name}"
 
     def test_assets_directory_structure(self):
         """Skills with assets/ should have templates."""
@@ -172,9 +160,7 @@ class TestSkillOptionalDirectories:
             if assets_dir.exists():
                 # Should have at least one asset file
                 asset_files = list(assets_dir.glob("*"))
-                assert len(asset_files) > 0, (
-                    f"Empty assets/ directory: {skill_name}"
-                )
+                assert len(asset_files) > 0, f"Empty assets/ directory: {skill_name}"
 
 
 class TestAgentSkillIntegration:
@@ -204,9 +190,7 @@ class TestAgentSkillIntegration:
         """Agent specs should have Skills section."""
         for spec_file in agent_specs:
             content = spec_file.read_text(encoding="utf-8")
-            assert "## Skills" in content, (
-                f"Missing Skills section in {spec_file.name}"
-            )
+            assert "## Skills" in content, f"Missing Skills section in {spec_file.name}"
 
     def test_agent_skills_are_valid(self, agent_specs):
         """Skills referenced in agent specs should exist."""
@@ -271,9 +255,9 @@ class TestSkillAssignments:
         ]
 
         for agent in expected_agents:
-            assert agent in content, (
-                f"Agent '{agent}' not documented in SKILL_ASSIGNMENTS.md"
-            )
+            assert (
+                agent in content
+            ), f"Agent '{agent}' not documented in SKILL_ASSIGNMENTS.md"
 
     def test_skill_assignments_documents_assigned_skills(self):
         """SKILL_ASSIGNMENTS.md should reference skills assigned to agents.
@@ -293,9 +277,9 @@ class TestSkillAssignments:
         ]
 
         for skill in core_skills:
-            assert skill in content, (
-                f"Core skill '{skill}' not documented in SKILL_ASSIGNMENTS.md"
-            )
+            assert (
+                skill in content
+            ), f"Core skill '{skill}' not documented in SKILL_ASSIGNMENTS.md"
 
 
 class TestProgressiveDisclosure:
@@ -353,22 +337,21 @@ class TestManifestIntegration:
         ]
 
         for spec_path in expected_specs:
-            assert spec_path in content, (
-                f"Spec file '{spec_path}' not referenced in manifest.yaml"
-            )
+            assert (
+                spec_path in content
+            ), f"Spec file '{spec_path}' not referenced in manifest.yaml"
 
     def test_manifest_has_agent_ids(self):
         """manifest.yaml should define agent IDs."""
         manifest_file = SPECS_DIR.parent / "manifest.yaml"
         content = manifest_file.read_text(encoding="utf-8")
 
-        expected_ids = ["architect", "coder",
-                        "reviewer", "tester", "pm", "documenter"]
+        expected_ids = ["architect", "coder", "reviewer", "tester", "pm", "documenter"]
 
         for agent_id in expected_ids:
-            assert f"id: {agent_id}" in content, (
-                f"Agent ID '{agent_id}' not found in manifest.yaml"
-            )
+            assert (
+                f"id: {agent_id}" in content
+            ), f"Agent ID '{agent_id}' not found in manifest.yaml"
 
     def test_manifest_has_skills_field(self):
         """manifest.yaml should have skills field for all agents."""
@@ -382,12 +365,8 @@ class TestManifestIntegration:
         for agent in agents:
             agent_id = agent.get("id")
             skills = agent.get("skills", [])
-            assert skills, (
-                f"Agent '{agent_id}' has no skills defined in manifest.yaml"
-            )
-            assert len(skills) >= 1, (
-                f"Agent '{agent_id}' should have at least 1 skill"
-            )
+            assert skills, f"Agent '{agent_id}' has no skills defined in manifest.yaml"
+            assert len(skills) >= 1, f"Agent '{agent_id}' should have at least 1 skill"
 
     def test_manifest_skills_are_valid(self):
         """All skills in manifest.yaml should exist as directories."""

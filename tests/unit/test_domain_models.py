@@ -1,18 +1,14 @@
 """Tests for paracle_domain models."""
 
 import pytest
-from datetime import datetime, timezone
-
 from paracle_domain import (
     Agent,
     AgentSpec,
-    AgentStatus,
     EntityStatus,
     Tool,
     ToolSpec,
     Workflow,
     WorkflowSpec,
-    WorkflowStatus,
     WorkflowStep,
 )
 
@@ -69,9 +65,7 @@ class TestAgentSpec:
 
     def test_has_parent(self) -> None:
         """Test has_parent method."""
-        spec_without_parent = AgentSpec(
-            name="test", provider="openai", model="gpt-4"
-        )
+        spec_without_parent = AgentSpec(name="test", provider="openai", model="gpt-4")
         spec_with_parent = AgentSpec(
             name="test", provider="openai", model="gpt-4", parent="base"
         )
@@ -81,13 +75,9 @@ class TestAgentSpec:
     def test_temperature_validation(self) -> None:
         """Test temperature must be between 0 and 2."""
         with pytest.raises(ValueError):
-            AgentSpec(
-                name="test", provider="openai", model="gpt-4", temperature=-0.1
-            )
+            AgentSpec(name="test", provider="openai", model="gpt-4", temperature=-0.1)
         with pytest.raises(ValueError):
-            AgentSpec(
-                name="test", provider="openai", model="gpt-4", temperature=2.1
-            )
+            AgentSpec(name="test", provider="openai", model="gpt-4", temperature=2.1)
 
 
 class TestAgent:
@@ -106,9 +96,7 @@ class TestAgent:
     def test_get_effective_spec(self) -> None:
         """Test get_effective_spec returns resolved or original."""
         spec = AgentSpec(name="test", provider="openai", model="gpt-4")
-        resolved = AgentSpec(
-            name="test", provider="openai", model="gpt-4-turbo"
-        )
+        resolved = AgentSpec(name="test", provider="openai", model="gpt-4-turbo")
 
         agent_without_resolved = Agent(spec=spec)
         agent_with_resolved = Agent(spec=spec, resolved_spec=resolved)

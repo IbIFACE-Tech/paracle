@@ -228,8 +228,7 @@ class SSHTransport(Transport):
             }
 
         except Exception as e:
-            raise RemoteExecutionError(
-                f"Failed to execute command: {e}") from e
+            raise RemoteExecutionError(f"Failed to execute command: {e}") from e
 
     async def is_connected(self) -> bool:
         """Check if SSH connection is active.

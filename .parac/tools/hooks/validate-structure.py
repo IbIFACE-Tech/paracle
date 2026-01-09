@@ -54,15 +54,12 @@ def get_staged_parac_files() -> list[str]:
             cwd=repo_root,
             capture_output=True,
             text=True,
-            check=True
+            check=True,
         )
 
         # Filter for .parac/ files only
         all_files = result.stdout.strip().split("\n")
-        parac_files = [
-            f for f in all_files
-            if f.startswith(".parac/") and f != ""
-        ]
+        parac_files = [f for f in all_files if f.startswith(".parac/") and f != ""]
 
         return parac_files
 
@@ -74,7 +71,9 @@ def get_staged_parac_files() -> list[str]:
         sys.exit(1)
 
 
-def validate_files(files: list[str]) -> tuple[list[ValidationResult], list[ValidationResult]]:
+def validate_files(
+    files: list[str],
+) -> tuple[list[ValidationResult], list[ValidationResult]]:
     """Validate list of files against structure rules.
 
     Args:
@@ -105,9 +104,9 @@ def display_violations(violations: list[ValidationResult]) -> None:
     Args:
         violations: List of validation results with violations
     """
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("❌ COMMIT BLOCKED - .parac/ Structure Violations Found")
-    print("="*70 + "\n")
+    print("=" * 70 + "\n")
 
     for i, v in enumerate(violations, 1):
         print(f"{i}. File: {v.path}")
@@ -116,9 +115,9 @@ def display_violations(violations: list[ValidationResult]) -> None:
         print(f"   ✅ Fix: Move to {v.suggested_path}")
         print()
 
-    print("="*70)
+    print("=" * 70)
     print(f"Total violations: {len(violations)}")
-    print("="*70 + "\n")
+    print("=" * 70 + "\n")
 
 
 def display_auto_fix_instructions(violations: list[ValidationResult]) -> None:
@@ -198,5 +197,6 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n❌ Unexpected error: {e}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)

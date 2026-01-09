@@ -130,9 +130,7 @@ class RoadmapStateSynchronizer:
 
         # Check if current phase exists in roadmap
         if current_phase_id not in roadmap_phases:
-            result.add_error(
-                f"Current phase '{current_phase_id}' not found in roadmap"
-            )
+            result.add_error(f"Current phase '{current_phase_id}' not found in roadmap")
             result.add_suggestion(
                 "Update roadmap.yaml to include this phase or change current_state.yaml"
             )
@@ -187,9 +185,7 @@ class RoadmapStateSynchronizer:
                 f"Phase {current_phase_id} completion mismatch: "
                 f"roadmap={roadmap_completion}%, state={state_completion}%"
             )
-            result.add_suggestion(
-                "Synchronize completion percentages between files"
-            )
+            result.add_suggestion("Synchronize completion percentages between files")
 
     def _check_deliverables(
         self,
@@ -229,9 +225,7 @@ class RoadmapStateSynchronizer:
         # Check for extra deliverables in state
         extra = state_deliverables - roadmap_deliverables
         if extra:
-            result.add_suggestion(
-                f"Consider adding to roadmap: {', '.join(extra)}"
-            )
+            result.add_suggestion(f"Consider adding to roadmap: {', '.join(extra)}")
 
     def _check_metrics(
         self,

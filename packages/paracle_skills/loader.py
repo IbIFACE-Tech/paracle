@@ -76,15 +76,13 @@ class SkillLoader:
                 If None, only project skills are loaded.
         """
         self.skills_dir = Path(skills_dir)
-        self.system_skills_dir = (
-            Path(system_skills_dir) if system_skills_dir else None
-        )
+        self.system_skills_dir = Path(system_skills_dir) if system_skills_dir else None
 
     @classmethod
     def with_system_skills(
         cls,
         project_skills_dir: Path | str,
-    ) -> "SkillLoader":
+    ) -> SkillLoader:
         """Create a loader that includes system-wide skills.
 
         System skills are loaded from platform-specific directories:
@@ -106,7 +104,7 @@ class SkillLoader:
         )
 
     @classmethod
-    def system_only(cls) -> "SkillLoader":
+    def system_only(cls) -> SkillLoader:
         """Create a loader for system skills only (no project skills).
 
         Useful for listing/managing framework-provided skills.

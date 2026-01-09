@@ -51,21 +51,17 @@ async def _commit_async(message: str, push: bool):
         status_result = await executor.execute_tool("git_status", cwd=".")
 
         if not status_result.success:
-            console.print(
-                f"[red]❌ Status check failed: {status_result.error}[/red]")
+            console.print(f"[red]❌ Status check failed: {status_result.error}[/red]")
             raise click.Abort()
 
         output = status_result.output
         total = output.get("total_changes", 0)
 
         console.print(f"[green]✅ Found {total} changes[/green]")
-        console.print(
-            f"[dim]  Modified: {len(output.get('modified', []))}[/dim]")
+        console.print(f"[dim]  Modified: {len(output.get('modified', []))}[/dim]")
         console.print(f"[dim]  Added: {len(output.get('added', []))}[/dim]")
-        console.print(
-            f"[dim]  Deleted: {len(output.get('deleted', []))}[/dim]")
-        console.print(
-            f"[dim]  Untracked: {len(output.get('untracked', []))}[/dim]")
+        console.print(f"[dim]  Deleted: {len(output.get('deleted', []))}[/dim]")
+        console.print(f"[dim]  Untracked: {len(output.get('untracked', []))}[/dim]")
 
         if total == 0:
             console.print("\n[yellow]ℹ️  No changes to commit[/yellow]")
@@ -85,7 +81,9 @@ async def _commit_async(message: str, push: bool):
         console.print("\n[bold]Step 3: Creating commit...[/bold]")
         console.print(f"[dim]Message: {message}[/dim]")
 
-        commit_result = await executor.execute_tool("git_commit", message=message, cwd=".")
+        commit_result = await executor.execute_tool(
+            "git_commit", message=message, cwd="."
+        )
 
         if not commit_result.success:
             console.print(f"[red]❌ Commit failed: {commit_result.error}[/red]")
@@ -103,8 +101,7 @@ async def _commit_async(message: str, push: bool):
 
             if not push_result.success:
                 console.print(f"[red]❌ Push failed: {push_result.error}[/red]")
-                console.print(
-                    "[yellow]⚠️  Commit was created but not pushed[/yellow]")
+                console.print("[yellow]⚠️  Commit was created but not pushed[/yellow]")
                 raise click.Abort()
 
             console.print("[green]✅ Pushed to remote successfully![/green]")
@@ -114,16 +111,14 @@ async def _commit_async(message: str, push: bool):
             Panel(
                 f"[bold green]✅ ReleaseManager completed successfully![/bold green]\n\n"
                 f"Files changed: {total}\n"
-                f"Commit created: ✓\n" +
-                ("Pushed to remote: ✓" if push else ""),
+                f"Commit created: ✓\n" + ("Pushed to remote: ✓" if push else ""),
                 border_style="green",
             )
         )
 
     except ImportError as e:
         console.print(f"[red]❌ Error: {e}[/red]")
-        console.print(
-            "[yellow]Make sure paracle_orchestration is installed[/yellow]")
+        console.print("[yellow]Make sure paracle_orchestration is installed[/yellow]")
         raise click.Abort()
     except Exception as e:
         console.print(f"[red]❌ Unexpected error: {e}[/red]")
@@ -170,33 +165,23 @@ async def _tag_async(tag_name: str, message: str, push: bool):
         # Create tag
         console.print(f"\n[bold]Creating tag '{tag_name}'...[/bold]")
         tag_result = await executor.execute_tool(
-            "git_tag",
-            tag=tag_name,
-            message=message,
-            cwd="."
+            "git_tag", tag=tag_name, message=message, cwd="."
         )
 
         if not tag_result.success:
-            console.print(
-                f"[red]❌ Tag creation failed: {tag_result.error}[/red]")
+            console.print(f"[red]❌ Tag creation failed: {tag_result.error}[/red]")
             raise click.Abort()
 
-        console.print(
-            f"[green]✅ Tag '{tag_name}' created successfully![/green]")
+        console.print(f"[green]✅ Tag '{tag_name}' created successfully![/green]")
 
         # Push if requested
         if push:
             console.print("\n[bold]Pushing tag to remote...[/bold]")
-            push_result = await executor.execute_tool(
-                "git_push",
-                tags=True,
-                cwd="."
-            )
+            push_result = await executor.execute_tool("git_push", tags=True, cwd=".")
 
             if not push_result.success:
                 console.print(f"[red]❌ Push failed: {push_result.error}[/red]")
-                console.print(
-                    "[yellow]⚠️  Tag was created but not pushed[/yellow]")
+                console.print("[yellow]⚠️  Tag was created but not pushed[/yellow]")
                 raise click.Abort()
 
             console.print("[green]✅ Tag pushed to remote![/green]")
@@ -204,8 +189,7 @@ async def _tag_async(tag_name: str, message: str, push: bool):
         console.print(
             Panel(
                 f"[bold green]✅ ReleaseManager completed![/bold green]\n\n"
-                f"Tag: {tag_name}\n" +
-                ("Pushed: ✓" if push else ""),
+                f"Tag: {tag_name}\n" + ("Pushed: ✓" if push else ""),
                 border_style="green",
             )
         )
@@ -244,8 +228,7 @@ async def _status_async():
         status_result = await executor.execute_tool("git_status", cwd=".")
 
         if not status_result.success:
-            console.print(
-                f"[red]❌ Status check failed: {status_result.error}[/red]")
+            console.print(f"[red]❌ Status check failed: {status_result.error}[/red]")
             raise click.Abort()
 
         output = status_result.output
@@ -261,16 +244,29 @@ async def _status_async():
         deleted = output.get("deleted", [])
         untracked = output.get("untracked", [])
 
-        table.add_row("Modified", str(len(modified)), ", ".join(
-            modified[:3]) + ("..." if len(modified) > 3 else ""))
-        table.add_row("Added", str(len(added)), ", ".join(
-            added[:3]) + ("..." if len(added) > 3 else ""))
-        table.add_row("Deleted", str(len(deleted)), ", ".join(
-            deleted[:3]) + ("..." if len(deleted) > 3 else ""))
-        table.add_row("Untracked", str(len(untracked)), ", ".join(
-            untracked[:3]) + ("..." if len(untracked) > 3 else ""))
-        table.add_row("[bold]TOTAL[/bold]",
-                      f"[bold]{output.get('total_changes', 0)}[/bold]", "")
+        table.add_row(
+            "Modified",
+            str(len(modified)),
+            ", ".join(modified[:3]) + ("..." if len(modified) > 3 else ""),
+        )
+        table.add_row(
+            "Added",
+            str(len(added)),
+            ", ".join(added[:3]) + ("..." if len(added) > 3 else ""),
+        )
+        table.add_row(
+            "Deleted",
+            str(len(deleted)),
+            ", ".join(deleted[:3]) + ("..." if len(deleted) > 3 else ""),
+        )
+        table.add_row(
+            "Untracked",
+            str(len(untracked)),
+            ", ".join(untracked[:3]) + ("..." if len(untracked) > 3 else ""),
+        )
+        table.add_row(
+            "[bold]TOTAL[/bold]", f"[bold]{output.get('total_changes', 0)}[/bold]", ""
+        )
 
         console.print(table)
 
@@ -278,7 +274,8 @@ async def _status_async():
             console.print("\n[green]✅ Working directory clean[/green]")
         else:
             console.print(
-                f"\n[yellow]ℹ️  {output['total_changes']} changes pending[/yellow]")
+                f"\n[yellow]ℹ️  {output['total_changes']} changes pending[/yellow]"
+            )
 
     except Exception as e:
         console.print(f"[red]❌ Error: {e}[/red]")

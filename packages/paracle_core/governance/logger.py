@@ -103,8 +103,7 @@ class GovernanceLogger:
                 return parac_dir
             current = current.parent
         raise FileNotFoundError(
-            "Cannot find .parac/ directory. "
-            "Run 'paracle init' to create one."
+            "Cannot find .parac/ directory. " "Run 'paracle init' to create one."
         )
 
     def log(
@@ -216,9 +215,7 @@ class GovernanceLogger:
 
         return entry
 
-    def agent_context(
-        self, agent: GovernanceAgentType | str
-    ) -> AgentContext:
+    def agent_context(self, agent: GovernanceAgentType | str) -> AgentContext:
         """Create an agent context for scoped logging.
 
         Args:
@@ -270,9 +267,7 @@ class GovernanceLogger:
 
         return lines[-count:]
 
-    def get_agent_actions(
-        self, agent: GovernanceAgentType | str
-    ) -> list[str]:
+    def get_agent_actions(self, agent: GovernanceAgentType | str) -> list[str]:
         """Get all actions by a specific agent.
 
         Args:

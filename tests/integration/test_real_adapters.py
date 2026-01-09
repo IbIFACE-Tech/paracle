@@ -4,22 +4,20 @@ These tests use real API calls to verify adapter functionality.
 Requires API keys in .env file.
 """
 
-import asyncio
 import os
+
 import pytest
 from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
 
-from paracle_domain.models import AgentSpec, WorkflowSpec, WorkflowStep
 from paracle_adapters import list_available_adapters
-
+from paracle_domain.models import AgentSpec, WorkflowSpec, WorkflowStep
 
 # Skip all tests if no API key
 pytestmark = pytest.mark.skipif(
-    not os.getenv("OPENAI_API_KEY"),
-    reason="OPENAI_API_KEY not set"
+    not os.getenv("OPENAI_API_KEY"), reason="OPENAI_API_KEY not set"
 )
 
 
@@ -74,7 +72,9 @@ class TestLangChainAdapter:
             pytest.skip("LangChain not installed")
 
     @pytest.mark.asyncio
-    async def test_langchain_agent_execution(self, skip_if_unavailable, simple_agent_spec):
+    async def test_langchain_agent_execution(
+        self, skip_if_unavailable, simple_agent_spec
+    ):
         """Test LangChain agent creation and execution."""
         from langchain_openai import ChatOpenAI
         from paracle_adapters.langchain_adapter import LangChainAdapter
@@ -96,8 +96,7 @@ class TestLangChainAdapter:
 
         # Execute agent
         result = await adapter.execute_agent(
-            agent_result,
-            {"input": "What is 2 + 2? Just give the number."}
+            agent_result, {"input": "What is 2 + 2? Just give the number."}
         )
 
         assert "response" in result
@@ -118,7 +117,9 @@ class TestLlamaIndexAdapter:
             pytest.skip("LlamaIndex not installed")
 
     @pytest.mark.asyncio
-    async def test_llamaindex_agent_execution(self, skip_if_unavailable, simple_agent_spec):
+    async def test_llamaindex_agent_execution(
+        self, skip_if_unavailable, simple_agent_spec
+    ):
         """Test LlamaIndex agent creation and execution."""
         from llama_index.llms.openai import OpenAI as LlamaOpenAI
         from paracle_adapters.llamaindex_adapter import LlamaIndexAdapter
@@ -140,8 +141,7 @@ class TestLlamaIndexAdapter:
 
         # Execute agent
         result = await adapter.execute_agent(
-            agent_result,
-            {"input": "What is the capital of France? One word answer."}
+            agent_result, {"input": "What is the capital of France? One word answer."}
         )
 
         assert "response" in result
@@ -197,7 +197,7 @@ class TestCrewAIAdapter:
             {
                 "input": "What year was Python programming language created?",
                 "expected_output": "The year Python was created",
-            }
+            },
         )
 
         assert "response" in result
@@ -218,7 +218,9 @@ class TestAutoGenAdapter:
             pytest.skip("AutoGen not installed")
 
     @pytest.mark.asyncio
-    async def test_autogen_agent_execution(self, skip_if_unavailable, simple_agent_spec):
+    async def test_autogen_agent_execution(
+        self, skip_if_unavailable, simple_agent_spec
+    ):
         """Test AutoGen agent creation and execution."""
         from paracle_adapters.autogen_adapter import AutoGenAdapter
 
@@ -241,8 +243,7 @@ class TestAutoGenAdapter:
 
         # Execute agent
         result = await adapter.execute_agent(
-            agent_result,
-            {"input": "What is 10 multiplied by 5? Just the number."}
+            agent_result, {"input": "What is 10 multiplied by 5? Just the number."}
         )
 
         assert "response" in result
@@ -288,8 +289,7 @@ class TestMSAFAdapter:
 
         # Execute agent
         result = await adapter.execute_agent(
-            agent_result,
-            {"input": "What is 7 plus 8? Just the number."}
+            agent_result, {"input": "What is 7 plus 8? Just the number."}
         )
 
         assert "response" in result
@@ -374,8 +374,9 @@ class TestAdapterComparison:
         # Check that non-error responses contain expected answer
         for name, response in results.items():
             if not response.startswith("ERROR:"):
-                assert expected_word.lower() in response.lower(), \
-                    f"{name} did not return expected answer"
+                assert (
+                    expected_word.lower() in response.lower()
+                ), f"{name} did not return expected answer"
 
 
 if __name__ == "__main__":

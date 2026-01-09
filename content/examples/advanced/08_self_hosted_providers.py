@@ -10,7 +10,6 @@ Demonstrates:
 6. Jan (desktop app)
 """
 
-
 from paracle_providers import (
     ChatMessage,
     LLMConfig,
@@ -33,9 +32,7 @@ async def test_lmstudio():
     try:
         response = await provider.chat_completion(
             messages=[
-                ChatMessage(
-                    role="user", content="What is the capital of France?"
-                )
+                ChatMessage(role="user", content="What is the capital of France?")
             ],
             config=LLMConfig(temperature=0.7, max_tokens=100),
             model="local-model",  # Use whatever model is loaded
@@ -59,9 +56,7 @@ async def test_vllm():
     try:
         response = await provider.chat_completion(
             messages=[
-                ChatMessage(
-                    role="user", content="Write a haiku about programming."
-                )
+                ChatMessage(role="user", content="Write a haiku about programming.")
             ],
             config=LLMConfig(temperature=0.9, max_tokens=100),
             model="meta-llama/Llama-3-8b-hf",  # Model loaded in vLLM
@@ -80,9 +75,7 @@ async def test_llamacpp():
     print("\n=== Testing llama.cpp ===")
 
     # llama.cpp server typically runs on http://localhost:8080
-    provider = create_llamacpp_provider(
-        base_url="http://localhost:8080/v1"
-    )
+    provider = create_llamacpp_provider(base_url="http://localhost:8080/v1")
 
     try:
         response = await provider.chat_completion(
@@ -99,10 +92,7 @@ async def test_llamacpp():
     except Exception as e:
         print(f"Error: {e}")
         print("Make sure llama.cpp server is running")
-        print(
-            "Start with: ./llama-server -m models/llama-3-8b.gguf "
-            "--port 8080"
-        )
+        print("Start with: ./llama-server -m models/llama-3-8b.gguf " "--port 8080")
     finally:
         await provider.__aexit__(None, None, None)
 
@@ -141,9 +131,7 @@ async def test_localai():
     print("\n=== Testing LocalAI ===")
 
     # LocalAI typically runs on http://localhost:8080
-    provider = create_localai_provider(
-        base_url="http://localhost:8080/v1"
-    )
+    provider = create_localai_provider(base_url="http://localhost:8080/v1")
 
     try:
         response = await provider.chat_completion(
@@ -247,9 +235,7 @@ async def streaming_example():
 
         async for chunk in provider.stream_completion(
             messages=[
-                ChatMessage(
-                    role="user", content="Write a short story about AI."
-                )
+                ChatMessage(role="user", content="Write a short story about AI.")
             ],
             config=LLMConfig(temperature=0.9, max_tokens=200),
             model="local-model",
@@ -283,10 +269,7 @@ if __name__ == "__main__":
     print("=" * 50)
     print("1. LM Studio - Easy GUI for local models")
     print("   Website: https://lmstudio.ai")
-    print(
-        "   Best for: Beginners, Windows/Mac users, "
-        "one-click local AI"
-    )
+    print("   Best for: Beginners, Windows/Mac users, " "one-click local AI")
     print()
     print("2. vLLM - High-performance inference")
     print("   Website: https://vllm.ai")
@@ -302,9 +285,7 @@ if __name__ == "__main__":
     print()
     print("5. LocalAI - Drop-in OpenAI replacement")
     print("   Website: https://localai.io")
-    print(
-        "   Best for: OpenAI API compatibility, Docker deployment"
-    )
+    print("   Best for: OpenAI API compatibility, Docker deployment")
     print()
     print("6. Jan - Modern desktop app")
     print("   Website: https://jan.ai")

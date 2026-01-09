@@ -70,7 +70,7 @@ class SessionMessage:
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "SessionMessage":
+    def from_dict(cls, data: dict[str, Any]) -> SessionMessage:
         """Create from dictionary."""
         return cls(
             id=data.get("id", f"msg_{uuid.uuid4().hex[:12]}"),
@@ -78,9 +78,11 @@ class SessionMessage:
             content=data["content"],
             tool_calls=data.get("tool_calls"),
             tool_results=data.get("tool_results"),
-            timestamp=datetime.fromisoformat(data["timestamp"])
-            if "timestamp" in data
-            else datetime.now(timezone.utc),
+            timestamp=(
+                datetime.fromisoformat(data["timestamp"])
+                if "timestamp" in data
+                else datetime.now(timezone.utc)
+            ),
             metadata=data.get("metadata", {}),
         )
 
@@ -125,8 +127,8 @@ class Session(ABC):
 
     def __init__(
         self,
-        provider: "CapabilityProvider",
-        registry: "CapabilityRegistry",
+        provider: CapabilityProvider,
+        registry: CapabilityRegistry,
         config: SessionConfig | None = None,
     ):
         """Initialize session.
@@ -250,7 +252,7 @@ class Session(ABC):
             "metadata": self._metadata,
         }
 
-    async def __aenter__(self) -> "Session":
+    async def __aenter__(self) -> Session:
         """Enter async context."""
         await self.initialize()
         return self

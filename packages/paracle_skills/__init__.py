@@ -28,7 +28,7 @@ Example:
 """
 
 from paracle_skills.exporter import SkillExporter
-from paracle_skills.loader import SkillLoadError, SkillLoader, SkillSource
+from paracle_skills.loader import SkillLoader, SkillLoadError, SkillSource
 from paracle_skills.models import (
     SkillCategory,
     SkillLevel,

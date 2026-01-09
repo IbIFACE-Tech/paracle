@@ -10,10 +10,9 @@ Tests security controls including:
 
 from __future__ import annotations
 
-import asyncio
 import threading
+
 import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
 
 # =============================================================================
 # Test Security Configuration
@@ -32,16 +31,16 @@ class TestSecurityConfig:
 
     def test_jwt_secret_minimum_length(self):
         """JWT secret must be at least 32 characters."""
-        from pydantic import SecretStr
         from paracle_api.security.config import SecurityConfig
+        from pydantic import SecretStr
 
         with pytest.raises(ValueError, match="at least 32 characters"):
             SecurityConfig(jwt_secret_key=SecretStr("short"))
 
     def test_cors_wildcard_warning(self):
         """CORS wildcard origin should trigger a warning."""
-        from pydantic import SecretStr
         from paracle_api.security.config import SecurityConfig
+        from pydantic import SecretStr
 
         with pytest.warns(UserWarning, match="allows all origins"):
             SecurityConfig(
@@ -51,8 +50,8 @@ class TestSecurityConfig:
 
     def test_production_validation(self):
         """Production config should fail with default values."""
-        from pydantic import SecretStr
         from paracle_api.security.config import SecurityConfig
+        from pydantic import SecretStr
 
         config = SecurityConfig(
             jwt_secret_key=SecretStr("CHANGE-ME-IN-PRODUCTION-USE-SECURE-RANDOM-KEY"),
@@ -84,9 +83,9 @@ class TestAuthentication:
 
     def test_token_creation(self):
         """JWT tokens should be created correctly."""
-        from pydantic import SecretStr
         from paracle_api.security.auth import create_access_token, decode_token
         from paracle_api.security.config import SecurityConfig
+        from pydantic import SecretStr
 
         config = SecurityConfig(
             jwt_secret_key=SecretStr("a" * 64),
@@ -107,12 +106,7 @@ class TestAuthentication:
 
     def test_user_creation_and_authentication(self):
         """User creation and authentication should work."""
-        from paracle_api.security.auth import (
-            authenticate_user,
-            create_user,
-            get_user,
-            _users_db,
-        )
+        from paracle_api.security.auth import _users_db, authenticate_user, create_user
 
         # Clear existing users
         _users_db.clear()
@@ -200,10 +194,9 @@ class TestFilesystemSecurity:
     def test_filesystem_requires_allowed_paths(self):
         """Filesystem tools should require allowed_paths."""
         from paracle_tools.builtin.filesystem import (
+            DeleteFileTool,
             ReadFileTool,
             WriteFileTool,
-            ListDirectoryTool,
-            DeleteFileTool,
         )
 
         with pytest.raises(ValueError, match="allowed_paths is required"):
@@ -221,8 +214,8 @@ class TestFilesystemSecurity:
     @pytest.mark.asyncio
     async def test_path_traversal_blocked(self, tmp_path):
         """Path traversal attempts should be blocked."""
-        from paracle_tools.builtin.filesystem import ReadFileTool
         from paracle_tools.builtin.base import PermissionError
+        from paracle_tools.builtin.filesystem import ReadFileTool
 
         # Create allowed directory
         allowed_dir = tmp_path / "allowed"
@@ -270,8 +263,8 @@ class TestShellSecurity:
     @pytest.mark.asyncio
     async def test_blocked_command_rejected(self):
         """Commands not in allowlist should be rejected."""
-        from paracle_tools.builtin.shell import RunCommandTool
         from paracle_tools.builtin.base import PermissionError
+        from paracle_tools.builtin.shell import RunCommandTool
 
         tool = RunCommandTool(allowed_commands=["ls", "cat"])
 
@@ -368,8 +361,8 @@ class TestInputValidation:
 
     def test_security_config_limits(self):
         """Security config should have sensible limits."""
-        from pydantic import SecretStr
         from paracle_api.security.config import SecurityConfig
+        from pydantic import SecretStr
 
         config = SecurityConfig(jwt_secret_key=SecretStr("a" * 64))
 
@@ -379,8 +372,8 @@ class TestInputValidation:
 
     def test_token_expiration_limits(self):
         """Token expiration should have limits."""
-        from pydantic import SecretStr
         from paracle_api.security.config import SecurityConfig
+        from pydantic import SecretStr
 
         # Should reject very long token expiration
         with pytest.raises(Exception):
@@ -401,11 +394,11 @@ class TestSecurityHeaders:
     @pytest.mark.asyncio
     async def test_headers_added(self):
         """Security headers should be added to responses."""
-        from starlette.testclient import TestClient
         from fastapi import FastAPI
-        from paracle_api.security.headers import SecurityHeadersMiddleware
         from paracle_api.security.config import SecurityConfig
+        from paracle_api.security.headers import SecurityHeadersMiddleware
         from pydantic import SecretStr
+        from starlette.testclient import TestClient
 
         app = FastAPI()
         config = SecurityConfig(jwt_secret_key=SecretStr("a" * 64))

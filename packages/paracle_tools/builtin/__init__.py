@@ -13,7 +13,7 @@ Available tool categories:
 - Shell: RunCommandTool (with mandatory command allowlist)
 """
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 from paracle_tools.builtin.base import (
     BaseTool,
@@ -29,12 +29,7 @@ from paracle_tools.builtin.filesystem import (
     WriteFileTool,
     create_sandboxed_filesystem_tools,
 )
-from paracle_tools.builtin.http import (
-    http_delete,
-    http_get,
-    http_post,
-    http_put,
-)
+from paracle_tools.builtin.http import http_delete, http_get, http_post, http_put
 from paracle_tools.builtin.registry import BuiltinToolRegistry
 from paracle_tools.builtin.shell import (
     DEVELOPMENT_COMMANDS,

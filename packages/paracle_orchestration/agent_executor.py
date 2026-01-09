@@ -59,6 +59,7 @@ class AgentExecutor:
         if self._cost_tracker is None:
             try:
                 from paracle_core.cost import CostTracker
+
                 self._cost_tracker = CostTracker()
             except ImportError:
                 logger.debug("Cost tracking not available")
@@ -103,10 +104,8 @@ class AgentExecutor:
             }
 
         # Calculate costs
-        prompt_cost, completion_cost, total_cost = (
-            self._cost_tracker.calculate_cost(
-                provider, model, prompt_tokens, completion_tokens
-            )
+        prompt_cost, completion_cost, total_cost = self._cost_tracker.calculate_cost(
+            provider, model, prompt_tokens, completion_tokens
         )
 
         # Track usage
@@ -231,13 +230,15 @@ class AgentExecutor:
         for key, value in inputs.items():
             prompt_parts.append(f"- {key}: {value}")
 
-        prompt_parts.extend([
-            "",
-            "## Instructions",
-            "Process the inputs and generate the required outputs.",
-            "",
-            "## Expected Outputs",
-        ])
+        prompt_parts.extend(
+            [
+                "",
+                "## Instructions",
+                "Process the inputs and generate the required outputs.",
+                "",
+                "## Expected Outputs",
+            ]
+        )
 
         for output_key in step.outputs.keys():
             prompt_parts.append(f"- {output_key}")
@@ -270,30 +271,23 @@ class AgentExecutor:
             provider_name = step.config.get(
                 "provider", agent_spec.get("provider", "openai")
             )
-            model_name = step.config.get(
-                "model", agent_spec.get("model", "gpt-4")
-            )
+            model_name = step.config.get("model", agent_spec.get("model", "gpt-4"))
 
             # Display execution info
-            console.print(
-                f"[cyan]→[/cyan] Executing step: [bold]{step.name}[/bold]"
-            )
+            console.print(f"[cyan]→[/cyan] Executing step: [bold]{step.name}[/bold]")
             console.print(f"[dim]  Agent: {step.agent}[/dim]")
             console.print(f"[dim]  Model: {provider_name}/{model_name}[/dim]")
 
             # Try to get provider
             try:
-                provider = self.provider_registry.create_provider(
-                    provider_name
-                )
+                provider = self.provider_registry.create_provider(provider_name)
 
                 # Execute with LLM
                 from paracle_providers.base import ChatMessage, LLMConfig
 
                 messages = [
                     ChatMessage(
-                        role="system",
-                        content=f"You are a {step.agent} agent."
+                        role="system", content=f"You are a {step.agent} agent."
                     ),
                     ChatMessage(role="user", content=prompt),
                 ]
@@ -350,8 +344,7 @@ class AgentExecutor:
             except Exception as provider_error:
                 # Fallback to mock execution if provider fails
                 console.print(
-                    "[yellow]  ⚠ Provider unavailable, "
-                    "using mock[/yellow]"
+                    "[yellow]  ⚠ Provider unavailable, " "using mock[/yellow]"
                 )
                 console.print(f"[dim]  {provider_error}[/dim]")
 
@@ -359,9 +352,7 @@ class AgentExecutor:
                 await asyncio.sleep(0.1)
 
                 # Return mock outputs
-                outputs = {
-                    key: f"mock_{key}_result" for key in step.outputs.keys()
-                }
+                outputs = {key: f"mock_{key}_result" for key in step.outputs.keys()}
 
                 return {
                     "step_id": step.id,

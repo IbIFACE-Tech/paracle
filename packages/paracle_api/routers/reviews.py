@@ -382,10 +382,18 @@ async def get_review_stats() -> ReviewStatsResponse:
 
         stats = {
             "total": len(all_reviews),
-            "pending": len([r for r in all_reviews if r.status == ReviewStatus.PENDING]),
-            "approved": len([r for r in all_reviews if r.status == ReviewStatus.APPROVED]),
-            "rejected": len([r for r in all_reviews if r.status == ReviewStatus.REJECTED]),
-            "timeout": len([r for r in all_reviews if r.status == ReviewStatus.TIMEOUT]),
+            "pending": len(
+                [r for r in all_reviews if r.status == ReviewStatus.PENDING]
+            ),
+            "approved": len(
+                [r for r in all_reviews if r.status == ReviewStatus.APPROVED]
+            ),
+            "rejected": len(
+                [r for r in all_reviews if r.status == ReviewStatus.REJECTED]
+            ),
+            "timeout": len(
+                [r for r in all_reviews if r.status == ReviewStatus.TIMEOUT]
+            ),
             "by_risk_level": {
                 "low": len([r for r in all_reviews if r.risk_level == "low"]),
                 "medium": len([r for r in all_reviews if r.risk_level == "medium"]),

@@ -65,7 +65,9 @@ class CircuitBreakerConfig(BaseModel):
         default=2, description="Number of successes before closing from half-open", ge=1
     )
     timeout: float = Field(
-        default=60.0, description="Seconds to wait before half-open (reset timeout)", gt=0
+        default=60.0,
+        description="Seconds to wait before half-open (reset timeout)",
+        gt=0,
     )
     half_open_max_calls: int = Field(
         default=3, description="Max concurrent calls in half-open state", ge=1
@@ -210,9 +212,9 @@ class CircuitBreaker:
 
         # Check state
         if self.state == CircuitBreakerState.OPEN:
-            retry_after = self.config.timeout - (
-                datetime.now() - self.opened_at
-            ).total_seconds()
+            retry_after = (
+                self.config.timeout - (datetime.now() - self.opened_at).total_seconds()
+            )
             raise CircuitOpenError(self.name, max(0, retry_after))
 
         if self.state == CircuitBreakerState.HALF_OPEN:
@@ -251,9 +253,10 @@ class CircuitBreaker:
 
             # Check state
             if self.state == CircuitBreakerState.OPEN:
-                retry_after = self.config.timeout - (
-                    datetime.now() - self.opened_at
-                ).total_seconds()
+                retry_after = (
+                    self.config.timeout
+                    - (datetime.now() - self.opened_at).total_seconds()
+                )
                 raise CircuitOpenError(self.name, max(0, retry_after))
 
             if self.state == CircuitBreakerState.HALF_OPEN:
@@ -309,9 +312,9 @@ class CircuitBreaker:
             self._half_open()
 
         if self.state == CircuitBreakerState.OPEN:
-            retry_after = self.config.timeout - (
-                datetime.now() - self.opened_at
-            ).total_seconds()
+            retry_after = (
+                self.config.timeout - (datetime.now() - self.opened_at).total_seconds()
+            )
             raise CircuitOpenError(self.name, max(0, retry_after))
 
         return self
@@ -331,9 +334,10 @@ class CircuitBreaker:
                 self._half_open()
 
             if self.state == CircuitBreakerState.OPEN:
-                retry_after = self.config.timeout - (
-                    datetime.now() - self.opened_at
-                ).total_seconds()
+                retry_after = (
+                    self.config.timeout
+                    - (datetime.now() - self.opened_at).total_seconds()
+                )
                 raise CircuitOpenError(self.name, max(0, retry_after))
 
         return self

@@ -28,7 +28,7 @@ Example:
 """
 
 from paracle_meta.sessions.base import Session, SessionConfig, SessionMessage
-from paracle_meta.sessions.chat import ChatSession, ChatConfig
+from paracle_meta.sessions.chat import ChatConfig, ChatSession
 from paracle_meta.sessions.edit import (
     EditBatch,
     EditConfig,

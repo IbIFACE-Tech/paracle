@@ -9,19 +9,19 @@ content = test_file.read_text(encoding="utf-8")
 # Patterns to replace
 patterns = [
     # agent.name -> effective.name
-    (r'assert agent\.name ==', 'assert effective.name =='),
+    (r"assert agent\.name ==", "assert effective.name =="),
     # agent.tools -> effective.tools
     (r'assert "([^"]+)" in agent\.tools', r'assert "\1" in effective.tools'),
-    (r'assert len\(agent\.tools\)', 'assert len(effective.tools)'),
+    (r"assert len\(agent\.tools\)", "assert len(effective.tools)"),
     # agent.skills -> effective.skills
     (r'assert "([^"]+)" in agent\.skills', r'assert "\1" in effective.skills'),
-    (r'assert len\(agent\.skills\)', 'assert len(effective.skills)'),
+    (r"assert len\(agent\.skills\)", "assert len(effective.skills)"),
     # agent.temperature -> effective.temperature
-    (r'assert agent\.temperature', 'assert effective.temperature'),
+    (r"assert agent\.temperature", "assert effective.temperature"),
     # agent.parent -> effective.parent
-    (r'assert agent\.parent', 'assert effective.parent'),
+    (r"assert agent\.parent", "assert effective.parent"),
     # agent.metadata -> effective.metadata
-    (r'agent\.metadata', 'effective.metadata'),
+    (r"agent\.metadata", "effective.metadata"),
 ]
 
 # Apply replacements
@@ -40,7 +40,7 @@ def add_effective_spec(match):
 
 
 # Only add if not already present
-lines = content.split('\n')
+lines = content.split("\n")
 new_lines = []
 i = 0
 while i < len(lines):
@@ -48,15 +48,18 @@ while i < len(lines):
     new_lines.append(line)
 
     # Check if this is an agent creation line
-    if re.search(r'(\s+)agent = agent_factory\.create\(', line):
+    if re.search(r"(\s+)agent = agent_factory\.create\(", line):
         # Check if next line already has effective =
-        if i + 1 < len(lines) and 'effective = agent.get_effective_spec()' not in lines[i + 1]:
-            indent = re.match(r'(\s+)', line).group(1)
+        if (
+            i + 1 < len(lines)
+            and "effective = agent.get_effective_spec()" not in lines[i + 1]
+        ):
+            indent = re.match(r"(\s+)", line).group(1)
             new_lines.append(f"{indent}effective = agent.get_effective_spec()")
 
     i += 1
 
-content = '\n'.join(new_lines)
+content = "\n".join(new_lines)
 
 # Write back
 test_file.write_text(content, encoding="utf-8")

@@ -27,10 +27,7 @@ if not CREWAI_AVAILABLE:
 from paracle_domain.models import AgentSpec, WorkflowSpec
 
 from paracle_adapters.base import FrameworkAdapter
-from paracle_adapters.exceptions import (
-    AdapterConfigurationError,
-    AdapterExecutionError,
-)
+from paracle_adapters.exceptions import AdapterConfigurationError, AdapterExecutionError
 
 
 class CrewAIAdapter(FrameworkAdapter):
@@ -100,12 +97,10 @@ class CrewAIAdapter(FrameworkAdapter):
                 "role", agent_spec.name.replace("_", " ").title()
             )
             goal = agent_spec.config.get(
-                "goal",
-                agent_spec.system_prompt or f"Act as a {role}"
+                "goal", agent_spec.system_prompt or f"Act as a {role}"
             )
             backstory = agent_spec.config.get(
-                "backstory",
-                f"You are an expert {role} with years of experience."
+                "backstory", f"You are an expert {role} with years of experience."
             )
 
             # Get tools for this agent
@@ -172,8 +167,7 @@ class CrewAIAdapter(FrameworkAdapter):
             task = Task(
                 description=user_input,
                 expected_output=input_data.get(
-                    "expected_output",
-                    "A comprehensive response to the task."
+                    "expected_output", "A comprehensive response to the task."
                 ),
                 agent=agent,
             )
@@ -246,12 +240,10 @@ class CrewAIAdapter(FrameworkAdapter):
 
                 # Create task
                 description = step.inputs.get(
-                    "description",
-                    step.inputs.get("task", f"Execute: {step.name}")
+                    "description", step.inputs.get("task", f"Execute: {step.name}")
                 )
                 expected_output = step.inputs.get(
-                    "expected_output",
-                    f"Completed output for {step.name}"
+                    "expected_output", f"Completed output for {step.name}"
                 )
 
                 # Handle dependencies - CrewAI uses context from previous tasks
@@ -405,16 +397,12 @@ class CrewAIAdapter(FrameworkAdapter):
         if "process" in config:
             valid_processes = ["sequential", "hierarchical"]
             if config["process"] not in valid_processes:
-                raise ValueError(
-                    f"process must be one of: {valid_processes}"
-                )
+                raise ValueError(f"process must be one of: {valid_processes}")
 
         if "tools" in config:
             for t in config["tools"]:
                 if not isinstance(t, CrewAIBaseTool):
-                    raise ValueError(
-                        "All tools must be CrewAI BaseTool instances"
-                    )
+                    raise ValueError("All tools must be CrewAI BaseTool instances")
 
         return True
 

@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       save_baseline:
-        description: 'Save results as new baseline'
+        description: "Save results as new baseline"
         required: false
         default: false
         type: boolean
@@ -27,16 +27,17 @@ jobs:
   benchmark:
     name: Performance Benchmarks
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Full history for git info
+          fetch-depth: 0 # Full history for git info
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.12"
 
       - name: Install uv
         uses: astral-sh/setup-uv@v4
@@ -46,7 +47,7 @@ jobs:
           uv sync --all-extras
 
       - name: Download baseline
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: .benchmarks/baseline.json
           key: benchmark-baseline-${{ github.base_ref || 'main' }}
@@ -98,7 +99,7 @@ jobs:
         if: |
           github.ref == 'refs/heads/main' ||
           github.event.inputs.save_baseline == 'true'
-        uses: actions/cache@v3
+        uses: actions/cache/save@v4
         with:
           path: .benchmarks/baseline.json
           key: benchmark-baseline-main-${{ github.sha }}
@@ -184,5 +185,3 @@ jobs:
                 body: body
               });
             }
-
-

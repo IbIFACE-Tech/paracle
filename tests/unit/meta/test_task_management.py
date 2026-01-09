@@ -1,7 +1,6 @@
 """Unit tests for paracle_meta.capabilities.task_management module."""
 
 import pytest
-
 from paracle_meta.capabilities.task_management import (
     Task,
     TaskConfig,
@@ -328,6 +327,7 @@ class TestTaskManagementCapability:
 
     def test_register_handler(self, task_capability):
         """Test registering a task handler."""
+
         async def handler(task, context):
             return {"handled": True}
 
@@ -342,9 +342,7 @@ class TestTaskManagementIntegration:
     @pytest.fixture
     def capability(self):
         """Create capability for tests."""
-        return TaskManagementCapability(
-            config=TaskConfig(max_concurrent_tasks=3)
-        )
+        return TaskManagementCapability(config=TaskConfig(max_concurrent_tasks=3))
 
     @pytest.mark.asyncio
     async def test_full_workflow_lifecycle(self, capability):

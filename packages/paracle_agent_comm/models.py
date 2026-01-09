@@ -222,9 +222,7 @@ class GroupSession(BaseModel):
             return False
 
         # Get unique participants (excluding system)
-        participants = {
-            m.sender for m in self.messages if m.sender != "system"
-        }
+        participants = {m.sender for m in self.messages if m.sender != "system"}
 
         # Check if there's a recent proposal and all accepted
         proposals = self.get_messages_by_type(MessageType.PROPOSE)

@@ -22,9 +22,14 @@ def compliance() -> None:
 @compliance.command("report")
 @click.option("--since", "-s", default="30d", help="Report period (e.g., '7d', '30d')")
 @click.option("--output", "-o", type=click.Path(), help="Output file path")
-@click.option("--format", "-f", "fmt", default="text",
-              type=click.Choice(["text", "json", "html"]),
-              help="Output format")
+@click.option(
+    "--format",
+    "-f",
+    "fmt",
+    default="text",
+    type=click.Choice(["text", "json", "html"]),
+    help="Output format",
+)
 @click.option("--db", "db_path", help="Path to audit database")
 def generate_report(
     since: str,
@@ -91,15 +96,17 @@ def _print_text_report(report: dict) -> None:
     recommendations = report.get("recommendations", [])
 
     # Header
-    console.print(Panel(
-        f"[bold]Compliance Report[/bold]\n\n"
-        f"[dim]Report Time:[/dim] {report.get('report_time', 'N/A')}\n"
-        f"[dim]Period:[/dim] {report.get('period', {}).get('start', 'N/A')} to "
-        f"{report.get('period', {}).get('end', 'N/A')}\n"
-        f"[dim]Total Events:[/dim] {summary.get('total_events', 0)}",
-        title="ISO 42001 Compliance",
-        border_style="blue",
-    ))
+    console.print(
+        Panel(
+            f"[bold]Compliance Report[/bold]\n\n"
+            f"[dim]Report Time:[/dim] {report.get('report_time', 'N/A')}\n"
+            f"[dim]Period:[/dim] {report.get('period', {}).get('start', 'N/A')} to "
+            f"{report.get('period', {}).get('end', 'N/A')}\n"
+            f"[dim]Total Events:[/dim] {summary.get('total_events', 0)}",
+            title="ISO 42001 Compliance",
+            border_style="blue",
+        )
+    )
 
     # Summary by type
     if summary.get("by_type"):
@@ -109,9 +116,7 @@ def _print_text_report(report: dict) -> None:
         table.add_column("Count", justify="right")
 
         for event_type, count in sorted(
-            summary["by_type"].items(),
-            key=lambda x: x[1],
-            reverse=True
+            summary["by_type"].items(), key=lambda x: x[1], reverse=True
         ):
             table.add_row(event_type, str(count))
         console.print(table)
@@ -131,9 +136,7 @@ def _print_text_report(report: dict) -> None:
         }
 
         for outcome, count in sorted(
-            summary["by_outcome"].items(),
-            key=lambda x: x[1],
-            reverse=True
+            summary["by_outcome"].items(), key=lambda x: x[1], reverse=True
         ):
             color = outcome_colors.get(outcome, "white")
             table.add_row(f"[{color}]{outcome}[/{color}]", str(count))
@@ -157,15 +160,21 @@ def _print_text_report(report: dict) -> None:
         if violations > 0:
             console.print(f"  [red]✗ {violations} policy violations[/red]")
         if high_risk >= 10:
-            console.print(f"  [yellow]⚠ {high_risk} high-risk actions detected[/yellow]")
+            console.print(
+                f"  [yellow]⚠ {high_risk} high-risk actions detected[/yellow]"
+            )
 
     # Policy violations details
     if compliance_data.get("policy_violations"):
         console.print("\n[bold red]Policy Violations:[/bold red]")
         for v in compliance_data["policy_violations"][:5]:
-            console.print(f"  • {v.get('timestamp', 'N/A')}: {v.get('actor')} - {v.get('action')}")
+            console.print(
+                f"  • {v.get('timestamp', 'N/A')}: {v.get('actor')} - {v.get('action')}"
+            )
         if len(compliance_data["policy_violations"]) > 5:
-            console.print(f"  [dim]... and {len(compliance_data['policy_violations']) - 5} more[/dim]")
+            console.print(
+                f"  [dim]... and {len(compliance_data['policy_violations']) - 5} more[/dim]"
+            )
 
     # High-risk actions
     if compliance_data.get("high_risk_actions"):
@@ -176,7 +185,9 @@ def _print_text_report(report: dict) -> None:
                 f"(risk: {a.get('risk_score', 0):.0f})"
             )
         if len(compliance_data["high_risk_actions"]) > 5:
-            console.print(f"  [dim]... and {len(compliance_data['high_risk_actions']) - 5} more[/dim]")
+            console.print(
+                f"  [dim]... and {len(compliance_data['high_risk_actions']) - 5} more[/dim]"
+            )
 
     # Recommendations
     if recommendations:
@@ -224,9 +235,7 @@ def _generate_html_report(report: dict) -> str:
 """
 
     for event_type, count in sorted(
-        summary.get("by_type", {}).items(),
-        key=lambda x: x[1],
-        reverse=True
+        summary.get("by_type", {}).items(), key=lambda x: x[1], reverse=True
     ):
         html += f"        <tr><td>{event_type}</td><td>{count}</td></tr>\n"
 
@@ -238,9 +247,7 @@ def _generate_html_report(report: dict) -> str:
 """
 
     for outcome, count in sorted(
-        summary.get("by_outcome", {}).items(),
-        key=lambda x: x[1],
-        reverse=True
+        summary.get("by_outcome", {}).items(), key=lambda x: x[1], reverse=True
     ):
         html += f"        <tr><td>{outcome}</td><td>{count}</td></tr>\n"
 
@@ -296,8 +303,7 @@ def show_status(db_path: str | None) -> None:
         enabled_policies = len(enabled_policies_list)
 
         integrity_status = (
-            "[green]OK[/green]" if integrity['valid']
-            else "[red]INVALID[/red]"
+            "[green]OK[/green]" if integrity["valid"] else "[red]INVALID[/red]"
         )
         hash_chain = "Enabled" if trail._enable_hash_chain else "Disabled"
         content = (
@@ -313,11 +319,13 @@ def show_status(db_path: str | None) -> None:
             "  Framework: Active\n"
             f"  Hash Chain: {hash_chain}"
         )
-        console.print(Panel(
-            content,
-            title="Paracle Compliance Status",
-            border_style="green" if integrity["valid"] else "red",
-        ))
+        console.print(
+            Panel(
+                content,
+                title="Paracle Compliance Status",
+                border_style="green" if integrity["valid"] else "red",
+            )
+        )
 
     except ImportError as e:
         console.print(f"[red]Error: Required package not installed: {e}[/red]")
@@ -404,7 +412,7 @@ def list_controls(as_json: bool) -> None:
                 "not_started": "[dim][ ][/dim]",
             }.get(info["status"], "[dim][?][/dim]")
 
-            name = info['name']
+            name = info["name"]
             label = f"{status_icon} [bold]{control_id}[/bold]: {name}"
             branch = tree.add(label)
             branch.add(f"[dim]Coverage:[/dim] {info['coverage']}")
@@ -433,46 +441,54 @@ def analyze_gaps(as_json: bool) -> None:
 
         # Check if hash chain is enabled
         if not trail._enable_hash_chain:
-            gaps.append({
-                "area": "Audit Integrity",
-                "issue": "Hash chain is disabled",
-                "recommendation": "Enable hash chain for tamper-evident audit trail",
-                "severity": "high",
-                "iso_control": "9.1",
-            })
+            gaps.append(
+                {
+                    "area": "Audit Integrity",
+                    "issue": "Hash chain is disabled",
+                    "recommendation": "Enable hash chain for tamper-evident audit trail",
+                    "severity": "high",
+                    "iso_control": "9.1",
+                }
+            )
 
         # Check for default policies only
         all_policies = engine.list_policies(enabled_only=False)
         if len(all_policies) <= 4:
-            gaps.append({
-                "area": "Policy Coverage",
-                "issue": "Only default policies are loaded",
-                "recommendation": "Define custom policies for your organization",
-                "severity": "medium",
-                "iso_control": "5.2",
-            })
+            gaps.append(
+                {
+                    "area": "Policy Coverage",
+                    "issue": "Only default policies are loaded",
+                    "recommendation": "Define custom policies for your organization",
+                    "severity": "medium",
+                    "iso_control": "5.2",
+                }
+            )
 
         # Check audit retention
         stats = trail.get_statistics()
         total_events = stats.get("total_events", 0)
         if total_events == 0:
-            gaps.append({
-                "area": "Audit Trail",
-                "issue": "No audit events recorded",
-                "recommendation": "Ensure audit hooks are configured for all agent actions",
-                "severity": "high",
-                "iso_control": "9.1",
-            })
+            gaps.append(
+                {
+                    "area": "Audit Trail",
+                    "issue": "No audit events recorded",
+                    "recommendation": "Ensure audit hooks are configured for all agent actions",
+                    "severity": "high",
+                    "iso_control": "9.1",
+                }
+            )
 
         # Add generic recommendations if no gaps found
         if not gaps:
-            gaps.append({
-                "area": "General",
-                "issue": "No critical gaps detected",
-                "recommendation": "Continue regular compliance monitoring",
-                "severity": "info",
-                "iso_control": "9.2",
-            })
+            gaps.append(
+                {
+                    "area": "General",
+                    "issue": "No critical gaps detected",
+                    "recommendation": "Continue regular compliance monitoring",
+                    "severity": "info",
+                    "iso_control": "9.2",
+                }
+            )
 
         if as_json:
             click.echo(json.dumps(gaps, indent=2))
@@ -487,13 +503,15 @@ def analyze_gaps(as_json: bool) -> None:
                     "info": "green",
                 }.get(gap["severity"], "white")
 
-                console.print(Panel(
-                    f"[dim]Issue:[/dim] {gap['issue']}\n"
-                    f"[dim]Recommendation:[/dim] {gap['recommendation']}\n"
-                    f"[dim]ISO Control:[/dim] {gap['iso_control']}",
-                    title=f"[{severity_color}]{gap['area']}[/{severity_color}]",
-                    border_style=severity_color,
-                ))
+                console.print(
+                    Panel(
+                        f"[dim]Issue:[/dim] {gap['issue']}\n"
+                        f"[dim]Recommendation:[/dim] {gap['recommendation']}\n"
+                        f"[dim]ISO Control:[/dim] {gap['iso_control']}",
+                        title=f"[{severity_color}]{gap['area']}[/{severity_color}]",
+                        border_style=severity_color,
+                    )
+                )
 
     except ImportError as e:
         console.print(f"[red]Error: Required package not installed: {e}[/red]")
@@ -505,9 +523,14 @@ def analyze_gaps(as_json: bool) -> None:
 
 @compliance.command("export-controls")
 @click.argument("output_path", type=click.Path())
-@click.option("--format", "-f", "fmt", default="json",
-              type=click.Choice(["json", "csv"]),
-              help="Output format")
+@click.option(
+    "--format",
+    "-f",
+    "fmt",
+    default="json",
+    type=click.Choice(["json", "csv"]),
+    help="Output format",
+)
 def export_controls(output_path: str, fmt: str) -> None:
     """Export ISO 42001 control mapping.
 

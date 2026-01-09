@@ -10,8 +10,8 @@ from paracle_kanban import Board, Task, TaskPriority, TaskStatus, TaskType
 from paracle_kanban.board import BoardRepository
 
 # Ensure UTF-8 output on Windows
-if sys.platform == 'win32':
-    sys.stdout.reconfigure(encoding='utf-8')
+if sys.platform == "win32":
+    sys.stdout.reconfigure(encoding="utf-8")
 
 
 def main() -> None:
@@ -130,11 +130,7 @@ def main() -> None:
             TaskPriority.CRITICAL: "[CRIT]",
         }.get(task.priority, "[?]")
 
-        assignee = (
-            f" (assigned: {task.assigned_to})"
-            if task.assigned_to
-            else ""
-        )
+        assignee = f" (assigned: {task.assigned_to})" if task.assigned_to else ""
         print(f"   {status_icon} {priority_icon} {task.title}{assignee}")
         if task.blocked_by:
             print(f"      BLOCKED BY: {task.blocked_by}")
@@ -151,8 +147,7 @@ def main() -> None:
 
     # Show metrics for completed tasks
     print("6. Task metrics:")
-    completed_tasks = repo.list_tasks(
-        board_id=board.id, status=TaskStatus.DONE)
+    completed_tasks = repo.list_tasks(board_id=board.id, status=TaskStatus.DONE)
     for task in completed_tasks:
         if task.cycle_time():
             print(f"   [OK] {task.title}")
@@ -163,14 +158,11 @@ def main() -> None:
     # CLI Usage
     print("=== CLI Usage Examples ===\n")
     print("Create a board:")
-    print(
-        '  paracle board create "My Board" '
-        '--description "Board description"\n'
-    )
+    print('  paracle board create "My Board" ' '--description "Board description"\n')
 
     print("Create a task:")
     print('  paracle task create <board_id> "Task title" \\')
-    print('    --priority HIGH --type FEATURE --tags api\n')
+    print("    --priority HIGH --type FEATURE --tags api\n")
 
     print("List tasks:")
     print("  paracle task list --board <board_id>")
@@ -178,22 +170,16 @@ def main() -> None:
     print("  paracle task list --assignee coder_agent\n")
 
     print("Move task:")
-    print('  paracle task move <task_id> IN_PROGRESS\n')
+    print("  paracle task move <task_id> IN_PROGRESS\n")
 
     print("Assign task:")
     print("  paracle task assign <task_id> coder_agent\n")
 
     print("Show board:")
-    print(
-        "  paracle board show <board_id>  "
-        "# Visual board with columns\n"
-    )
+    print("  paracle board show <board_id>  " "# Visual board with columns\n")
 
     print("Board stats:")
-    print(
-        "  paracle board stats <board_id>  "
-        "# Metrics and analytics\n"
-    )
+    print("  paracle board stats <board_id>  " "# Metrics and analytics\n")
 
     print("\nFor more help: paracle task --help, paracle board --help")
 

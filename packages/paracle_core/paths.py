@@ -74,9 +74,7 @@ def get_windows_paths() -> SystemPaths:
     Returns:
         Platform-specific system paths for Windows
     """
-    local_appdata = Path(
-        os.getenv("LOCALAPPDATA", Path.home() / "AppData" / "Local")
-    )
+    local_appdata = Path(os.getenv("LOCALAPPDATA", Path.home() / "AppData" / "Local"))
     base_dir = local_appdata / "Paracle"
 
     return SystemPaths(
@@ -102,12 +100,9 @@ def get_linux_paths() -> SystemPaths:
         Platform-specific system paths for Linux
     """
     # XDG Base Directory Specification
-    xdg_data_home = Path(
-        os.getenv("XDG_DATA_HOME", Path.home() / ".local" / "share")
-    )
+    xdg_data_home = Path(os.getenv("XDG_DATA_HOME", Path.home() / ".local" / "share"))
     xdg_cache_home = Path(os.getenv("XDG_CACHE_HOME", Path.home() / ".cache"))
-    xdg_config_home = Path(
-        os.getenv("XDG_CONFIG_HOME", Path.home() / ".config"))
+    xdg_config_home = Path(os.getenv("XDG_CONFIG_HOME", Path.home() / ".config"))
 
     base_dir = xdg_data_home / "paracle"
 

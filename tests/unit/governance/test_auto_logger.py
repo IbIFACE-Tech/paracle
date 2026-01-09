@@ -241,9 +241,7 @@ class TestIntegration:
         # Create logger
         logger = GovernanceLogger(parac_root=temp_parac)
 
-        with patch(
-            "paracle_core.governance.auto_logger.logger", logger
-        ):
+        with patch("paracle_core.governance.auto_logger.logger", logger):
 
             @log_agent_action("IntegrationTest", GovernanceActionType.TEST)
             def test_function():
@@ -263,9 +261,7 @@ class TestIntegration:
         assert "test_function" in content
 
     @pytest.mark.asyncio
-    async def test_async_decorator_writes_to_log(
-        self, temp_parac, monkeypatch
-    ):
+    async def test_async_decorator_writes_to_log(self, temp_parac, monkeypatch):
         """Test that async decorator writes to log file."""
         monkeypatch.chdir(temp_parac.parent)
 
@@ -273,9 +269,7 @@ class TestIntegration:
 
         logger = GovernanceLogger(parac_root=temp_parac)
 
-        with patch(
-            "paracle_core.governance.auto_logger.logger", logger
-        ):
+        with patch("paracle_core.governance.auto_logger.logger", logger):
 
             @log_agent_action(
                 "AsyncIntegrationTest", GovernanceActionType.IMPLEMENTATION

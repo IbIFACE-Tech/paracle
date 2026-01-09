@@ -238,8 +238,14 @@ def list_boards(archived: bool, as_json: bool) -> None:
             table.add_column("Status", style="yellow")
 
             for b in boards:
-                status = "[red]Archived[/red]" if b["archived"] else "[green]Active[/green]"
-                created = b["created_at"][:10] if isinstance(b["created_at"], str) else str(b["created_at"])[:10]
+                status = (
+                    "[red]Archived[/red]" if b["archived"] else "[green]Active[/green]"
+                )
+                created = (
+                    b["created_at"][:10]
+                    if isinstance(b["created_at"], str)
+                    else str(b["created_at"])[:10]
+                )
                 table.add_row(
                     b["id"][:8] + "...",
                     b["name"],
@@ -276,9 +282,7 @@ def get_board(board_id: str, as_json: bool) -> None:
             console.print(f"  Columns: {', '.join(result['columns'])}")
             console.print(f"  Created: {result['created_at']}")
             console.print(f"  Updated: {result['updated_at']}")
-            console.print(
-                f"  Status: {'Archived' if result['archived'] else 'Active'}"
-            )
+            console.print(f"  Status: {'Archived' if result['archived'] else 'Active'}")
 
     except (APIError, ValueError) as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -297,7 +301,12 @@ def show_board(board_id: str) -> None:
 
         board_info = result.get("board", {})
         tasks = result.get("tasks", [])
-        columns = [TaskStatus(c) for c in board_info.get("columns", ["TODO", "IN_PROGRESS", "REVIEW", "DONE"])]
+        columns = [
+            TaskStatus(c)
+            for c in board_info.get(
+                "columns", ["TODO", "IN_PROGRESS", "REVIEW", "DONE"]
+            )
+        ]
 
         # Group tasks by status
         tasks_by_status = {status: [] for status in columns}
@@ -343,7 +352,9 @@ def show_board(board_id: str) -> None:
                     task_text.append("\n")
                     task_text.append(task["title"][:30], style=priority_color)
                     if task.get("assigned_to"):
-                        task_text.append(f"\n-> {task['assigned_to'][:10]}", style="green")
+                        task_text.append(
+                            f"\n-> {task['assigned_to'][:10]}", style="green"
+                        )
                     if task.get("blocked_by"):
                         task_text.append("\n! BLOCKED", style="red bold")
 
@@ -382,7 +393,9 @@ def board_stats(board_id: str, as_json: bool) -> None:
         if as_json:
             click.echo(json.dumps(stats, indent=2))
         else:
-            console.print(f"\n[bold cyan]Statistics: {board_result['name']}[/bold cyan]\n")
+            console.print(
+                f"\n[bold cyan]Statistics: {board_result['name']}[/bold cyan]\n"
+            )
 
             # Total tasks
             console.print(f"  Total tasks: {stats['total_tasks']}")
@@ -421,7 +434,9 @@ def archive_board(board_id: str) -> None:
             _api_update_board, _fallback_update_board, board_id, True
         )
 
-        console.print(f"[green]OK[/green] Archived board: {result.get('name', board_id)}")
+        console.print(
+            f"[green]OK[/green] Archived board: {result.get('name', board_id)}"
+        )
 
     except (APIError, ValueError) as e:
         console.print(f"[red]Error: {e}[/red]")

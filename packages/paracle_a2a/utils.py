@@ -68,7 +68,7 @@ def get_message_text(message: Message) -> str:
     texts = []
     for part in message.parts:
         # SDK wraps parts in a Part container with .root
-        actual_part = getattr(part, 'root', part)
+        actual_part = getattr(part, "root", part)
         if isinstance(actual_part, TextPart):
             texts.append(actual_part.text)
     return "\n".join(texts)
@@ -86,7 +86,7 @@ def get_message_data(message: Message) -> list[dict[str, Any]]:
     data = []
     for part in message.parts:
         # SDK wraps parts in a Part container with .root
-        actual_part = getattr(part, 'root', part)
+        actual_part = getattr(part, "root", part)
         if isinstance(actual_part, DataPart):
             data.append(actual_part.data)
     return data
@@ -163,7 +163,7 @@ def get_artifact_text(artifact: Artifact) -> str:
     texts = []
     for part in artifact.parts:
         # SDK wraps parts in a Part container with .root
-        actual_part = getattr(part, 'root', part)
+        actual_part = getattr(part, "root", part)
         if isinstance(actual_part, TextPart):
             texts.append(actual_part.text)
     return "\n".join(texts)
@@ -181,7 +181,7 @@ def get_artifact_data(artifact: Artifact) -> list[dict[str, Any]]:
     data = []
     for part in artifact.parts:
         # SDK wraps parts in a Part container with .root
-        actual_part = getattr(part, 'root', part)
+        actual_part = getattr(part, "root", part)
         if isinstance(actual_part, DataPart):
             data.append(actual_part.data)
     return data

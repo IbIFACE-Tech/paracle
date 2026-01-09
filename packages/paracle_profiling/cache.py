@@ -182,16 +182,14 @@ class CacheManager:
             return
 
         # Find entry with lowest hit count (simple LRU approximation)
-        lru_key = min(self._cache.keys(),
-                      key=lambda k: self._cache[k].hit_count)
+        lru_key = min(self._cache.keys(), key=lambda k: self._cache[k].hit_count)
         self._cache.pop(lru_key)
         self._evictions += 1
 
     def get_stats(self) -> dict[str, Any]:
         """Get cache statistics."""
         total_requests = self._hits + self._misses
-        hit_rate = (self._hits / total_requests *
-                    100) if total_requests > 0 else 0
+        hit_rate = (self._hits / total_requests * 100) if total_requests > 0 else 0
 
         return {
             "size": len(self._cache),
@@ -219,6 +217,7 @@ class CacheManager:
             def expensive_operation(arg1, arg2):
                 ...
         """
+
         def decorator(func: Callable) -> Callable:
             @wraps(func)
             def wrapper(*args, **kwargs):
@@ -244,6 +243,7 @@ class CacheManager:
                 return result
 
             return wrapper
+
         return decorator
 
 
@@ -404,6 +404,7 @@ class MultiLevelCache:
                 return result
 
             return wrapper
+
         return decorator
 
     def get(self, layer: CacheLayer, key: str) -> Any | None:
@@ -450,7 +451,9 @@ class MultiLevelCache:
 
         # Calculate overall hit rate
         total_requests = total_hits + total_misses
-        overall_hit_rate = (total_hits / total_requests * 100) if total_requests > 0 else 0
+        overall_hit_rate = (
+            (total_hits / total_requests * 100) if total_requests > 0 else 0
+        )
 
         stats["summary"] = {
             "total_hits": total_hits,

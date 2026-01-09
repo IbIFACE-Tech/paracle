@@ -92,14 +92,12 @@ class GovernanceValidationTool:
                     "suggested_path": str(result.suggested_path),
                     "rule_violated": result.rule_violated,
                     "auto_fix_available": result.auto_fix_available,
-                    "category": result.category.value
-                    if result.category
-                    else None,
-                    "documentation": self.engine.get_structure_documentation(
-                        result.category
-                    )
-                    if result.category
-                    else None,
+                    "category": result.category.value if result.category else None,
+                    "documentation": (
+                        self.engine.get_structure_documentation(result.category)
+                        if result.category
+                        else None
+                    ),
                 }
             )
 
@@ -222,9 +220,7 @@ class StructureDocumentationTool:
 
         try:
             file_category = FileCategory(category)
-            documentation = self.engine.get_structure_documentation(
-                file_category
-            )
+            documentation = self.engine.get_structure_documentation(file_category)
 
             return {
                 "category": category,

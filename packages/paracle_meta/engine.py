@@ -30,6 +30,21 @@ from typing import Any
 
 from paracle_core.logging import get_logger
 
+# Import capabilities
+from paracle_meta.capabilities import (  # Original capabilities; New hybrid capabilities
+    AgentSpawner,
+    AnthropicCapability,
+    CodeCreationCapability,
+    CodeExecutionCapability,
+    FileSystemCapability,
+    MCPCapability,
+    MemoryCapability,
+    ShellCapability,
+    TaskManagementCapability,
+    ToolDefinition,
+    WebCapability,
+)
+from paracle_meta.capabilities.base import CapabilityResult
 from paracle_meta.generators import (
     AgentGenerator,
     PolicyGenerator,
@@ -42,24 +57,6 @@ from paracle_meta.learning import LearningEngine
 from paracle_meta.optimizer import CostOptimizer, QualityScorer
 from paracle_meta.providers import ProviderOrchestrator
 from paracle_meta.templates import TemplateLibrary
-
-# Import capabilities
-from paracle_meta.capabilities import (
-    # Original capabilities
-    AgentSpawner,
-    CodeExecutionCapability,
-    MCPCapability,
-    TaskManagementCapability,
-    WebCapability,
-    # New hybrid capabilities
-    AnthropicCapability,
-    FileSystemCapability,
-    CodeCreationCapability,
-    MemoryCapability,
-    ShellCapability,
-    ToolDefinition,
-)
-from paracle_meta.capabilities.base import CapabilityResult
 
 logger = get_logger(__name__)
 
@@ -162,13 +159,16 @@ class MetaAgent:
         self._memory: MemoryCapability | None = None
         self._shell: ShellCapability | None = None
 
-        logger.info("MetaAgent initialized", extra={
-            "providers": self.orchestrator.available_providers,
-            "learning": learning_enabled,
-            "cost_optimization": cost_optimization,
-            "capabilities": capabilities_enabled,
-            "hybrid_mode": True,
-        })
+        logger.info(
+            "MetaAgent initialized",
+            extra={
+                "providers": self.orchestrator.available_providers,
+                "learning": learning_enabled,
+                "cost_optimization": cost_optimization,
+                "capabilities": capabilities_enabled,
+                "hybrid_mode": True,
+            },
+        )
 
     async def generate_agent(
         self,
@@ -201,7 +201,7 @@ class MetaAgent:
             name=name,
             description=description,
             context=context or {},
-            auto_apply=auto_apply
+            auto_apply=auto_apply,
         )
 
         return await self._generate(request)
@@ -235,7 +235,7 @@ class MetaAgent:
             name=name,
             description=goal,
             context=context or {},
-            auto_apply=auto_apply
+            auto_apply=auto_apply,
         )
 
         return await self._generate(request)
@@ -260,7 +260,7 @@ class MetaAgent:
             artifact_type="skill",
             name=name,
             description=description,
-            auto_apply=auto_apply
+            auto_apply=auto_apply,
         )
 
         return await self._generate(request)
@@ -288,7 +288,7 @@ class MetaAgent:
             name=name,
             description=requirements,
             context={"policy_type": policy_type},
-            auto_apply=auto_apply
+            auto_apply=auto_apply,
         )
 
         return await self._generate(request)
@@ -308,8 +308,7 @@ class MetaAgent:
 
         # 1. Check for existing template
         template = await self.templates.find_similar(
-            artifact_type=request.artifact_type,
-            description=request.description
+            artifact_type=request.artifact_type, description=request.description
         )
 
         if template and template.quality_score > 9.0:
@@ -320,7 +319,7 @@ class MetaAgent:
             # 2. Select optimal provider
             provider_info = self.cost_optimizer.select_provider(
                 task_type=request.artifact_type,
-                complexity=self._estimate_complexity(request)
+                complexity=self._estimate_complexity(request),
             )
 
             # 3. Generate with LLM
@@ -331,7 +330,7 @@ class MetaAgent:
                 request=request,
                 provider=provider_info["provider"],
                 model=provider_info["model"],
-                best_practices=await self.best_practices.get_for(request.artifact_type)
+                best_practices=await self.best_practices.get_for(request.artifact_type),
             )
 
         # 4. Score quality
@@ -349,8 +348,8 @@ class MetaAgent:
                 "name": request.name,
                 "provider": result.provider,
                 "quality": result.quality_score,
-                "cost": result.cost_usd
-            }
+                "cost": result.cost_usd,
+            },
         )
 
         return result
@@ -381,7 +380,7 @@ class MetaAgent:
             generation_id=generation_id,
             rating=rating,
             comment=comment,
-            usage_count=usage_count
+            usage_count=usage_count,
         )
 
         logger.info(f"Feedback recorded: {generation_id} ({rating}/5)")
@@ -441,16 +440,12 @@ class MetaAgent:
         return min(base_complexity + context_bonus, 1.0)
 
     async def _generate_from_template(
-        self,
-        request: GenerationRequest,
-        template: Any
+        self, request: GenerationRequest, template: Any
     ) -> GenerationResult:
         """Generate from existing template (fast + cheap)."""
         # Customize template for this request
         content = template.customize(
-            name=request.name,
-            description=request.description,
-            context=request.context
+            name=request.name, description=request.description, context=request.context
         )
 
         return GenerationResult(
@@ -464,7 +459,7 @@ class MetaAgent:
             cost_usd=0.0,  # Free!
             tokens_input=0,
             tokens_output=0,
-            reasoning=f"Used high-quality template {template.id} (score: {template.quality_score})"
+            reasoning=f"Used high-quality template {template.id} (score: {template.quality_score})",
         )
 
     def _find_config(self) -> Path:
@@ -520,9 +515,12 @@ class MetaAgent:
             await self._memory.initialize()
             await self._shell.initialize()
 
-            logger.info("All hybrid capabilities initialized", extra={
-                "anthropic_available": self._anthropic.is_available,
-            })
+            logger.info(
+                "All hybrid capabilities initialized",
+                extra={
+                    "anthropic_available": self._anthropic.is_available,
+                },
+            )
 
         self._initialized = True
 
@@ -743,7 +741,9 @@ class MetaAgent:
         """
         if not self._tasks:
             await self.initialize()
-        return await self._tasks.create_task(name, description=description, priority=priority)
+        return await self._tasks.create_task(
+            name, description=description, priority=priority
+        )
 
     async def run_task(self, task_id: str) -> CapabilityResult:
         """Run a task by ID.
@@ -917,11 +917,13 @@ class MetaAgent:
             try:
                 page_result = await self.web_fetch(item.get("url", ""))
                 if page_result.success:
-                    sources.append({
-                        "title": item.get("title", ""),
-                        "url": item.get("url", ""),
-                        "snippet": item.get("snippet", ""),
-                    })
+                    sources.append(
+                        {
+                            "title": item.get("title", ""),
+                            "url": item.get("url", ""),
+                            "snippet": item.get("snippet", ""),
+                        }
+                    )
                     contents.append(page_result.output.get("content", "")[:2000])
             except Exception:
                 pass
@@ -953,8 +955,7 @@ class MetaAgent:
             load = status.output.get("load", 0)
             if load > 0.8:  # High load
                 result = await self.spawn_agent(
-                    f"AutoScaled_{datetime.now().timestamp():.0f}",
-                    agent_type="general"
+                    f"AutoScaled_{datetime.now().timestamp():.0f}", agent_type="general"
                 )
                 return result.success
         return False
@@ -971,9 +972,12 @@ class MetaAgent:
             "spawner": self._spawner is not None and self._spawner.is_initialized,
             # Hybrid
             "anthropic": self._anthropic is not None and self._anthropic.is_initialized,
-            "anthropic_available": self._anthropic is not None and self._anthropic.is_available,
-            "filesystem": self._filesystem is not None and self._filesystem.is_initialized,
-            "code_creation": self._code_creation is not None and self._code_creation.is_initialized,
+            "anthropic_available": self._anthropic is not None
+            and self._anthropic.is_available,
+            "filesystem": self._filesystem is not None
+            and self._filesystem.is_initialized,
+            "code_creation": self._code_creation is not None
+            and self._code_creation.is_initialized,
             "memory": self._memory is not None and self._memory.is_initialized,
             "shell": self._shell is not None and self._shell.is_initialized,
         }

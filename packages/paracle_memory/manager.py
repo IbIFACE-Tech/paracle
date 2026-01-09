@@ -7,9 +7,10 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from paracle_core.compat import UTC, datetime, timedelta
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
+
+from paracle_core.compat import UTC, datetime, timedelta
 
 from paracle_memory.config import MemoryBackend, MemoryConfig, MemoryRetentionPolicy
 from paracle_memory.models import Memory, MemorySummary, MemoryType
@@ -104,7 +105,9 @@ class MemoryManager:
                 )
                 self._embedding_service = EmbeddingService(config=emb_config)
             except ImportError:
-                logger.warning("paracle_vector not available, disabling semantic search")
+                logger.warning(
+                    "paracle_vector not available, disabling semantic search"
+                )
                 self._config.enable_semantic_search = False
 
         return self._embedding_service

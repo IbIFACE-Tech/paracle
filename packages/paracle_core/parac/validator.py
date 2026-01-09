@@ -190,11 +190,7 @@ class ParacValidator:
             state_version = state.get("project", {}).get("version")
             roadmap_version = roadmap.get("version")
 
-            if (
-                state_version
-                and roadmap_version
-                and state_version != roadmap_version
-            ):
+            if state_version and roadmap_version and state_version != roadmap_version:
                 result.add_warning(
                     "memory/context/current_state.yaml",
                     f"Version mismatch: state={state_version}, "

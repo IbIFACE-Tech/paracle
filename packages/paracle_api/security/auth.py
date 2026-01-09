@@ -6,11 +6,11 @@ security practices following OWASP guidelines.
 
 from __future__ import annotations
 
-from paracle_core.compat import UTC, datetime, timedelta
 from typing import Annotated, Any
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import APIKeyHeader, OAuth2PasswordBearer
+from paracle_core.compat import UTC, datetime, timedelta
 from pydantic import BaseModel, Field
 
 try:
@@ -141,13 +141,17 @@ def create_access_token(
     if expires_delta:
         expire = datetime.now(UTC) + expires_delta
     else:
-        expire = datetime.now(UTC) + timedelta(minutes=config.access_token_expire_minutes)
+        expire = datetime.now(UTC) + timedelta(
+            minutes=config.access_token_expire_minutes
+        )
 
-    to_encode.update({
-        "exp": expire,
-        "iat": datetime.now(UTC),
-        "type": "access",
-    })
+    to_encode.update(
+        {
+            "exp": expire,
+            "iat": datetime.now(UTC),
+            "type": "access",
+        }
+    )
 
     encoded_jwt = jwt.encode(
         to_encode,
@@ -383,7 +387,10 @@ def require_scopes(*required_scopes: str):
         current_user: Annotated[User, Depends(get_current_user)],
     ) -> User:
         for scope in required_scopes:
-            if scope not in current_user.scopes and "api:full" not in current_user.scopes:
+            if (
+                scope not in current_user.scopes
+                and "api:full" not in current_user.scopes
+            ):
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
                     detail=f"Missing required scope: {scope}",

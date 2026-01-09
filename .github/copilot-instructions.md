@@ -75,6 +75,8 @@ This checklist ensures:
 6. Select which agent to run (see `.parac/agents/specs/{agent}.md`)
 7. Check policies (CODE_STYLE, TESTING, SECURITY)
 
+**If Task NOT in Roadmap**: STOP - Add to roadmap first via PM Agent before proceeding.
+
 **Before ANY action**, you MUST:
 
 1. `.parac/GOVERNANCE.md` - Governance rules and dogfooding context

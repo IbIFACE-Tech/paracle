@@ -27,68 +27,45 @@ class SandboxConfig(BaseModel):
     """
 
     base_image: str = Field(
-        default="paracle/sandbox:latest",
-        description="Docker image for sandbox"
+        default="paracle/sandbox:latest", description="Docker image for sandbox"
     )
 
     cpu_cores: float = Field(
-        default=1.0,
-        ge=0.1,
-        le=16.0,
-        description="CPU cores (0.5 = 50% of one core)"
+        default=1.0, ge=0.1, le=16.0, description="CPU cores (0.5 = 50% of one core)"
     )
 
     memory_mb: int = Field(
-        default=512,
-        ge=128,
-        le=16384,
-        description="Memory limit in MB"
+        default=512, ge=128, le=16384, description="Memory limit in MB"
     )
 
     disk_mb: int = Field(
-        default=1024,
-        ge=256,
-        le=10240,
-        description="Disk space limit in MB"
+        default=1024, ge=256, le=10240, description="Disk space limit in MB"
     )
 
     timeout_seconds: int = Field(
-        default=300,
-        ge=10,
-        le=3600,
-        description="Execution timeout"
+        default=300, ge=10, le=3600, description="Execution timeout"
     )
 
     network_mode: NetworkMode = Field(
-        default="none",
-        description="Network isolation mode"
+        default="none", description="Network isolation mode"
     )
 
     read_only_filesystem: bool = Field(
-        default=True,
-        description="Mount root filesystem as read-only"
+        default=True, description="Mount root filesystem as read-only"
     )
 
     drop_capabilities: bool = Field(
-        default=True,
-        description="Drop all Linux capabilities"
+        default=True, description="Drop all Linux capabilities"
     )
 
-    working_dir: str = Field(
-        default="/workspace",
-        description="Working directory"
-    )
+    working_dir: str = Field(default="/workspace", description="Working directory")
 
     env_vars: dict[str, str] = Field(
-        default_factory=dict,
-        description="Environment variables"
+        default_factory=dict, description="Environment variables"
     )
 
     cleanup_timeout: int = Field(
-        default=30,
-        ge=5,
-        le=300,
-        description="Timeout for cleanup operations"
+        default=30, ge=5, le=300, description="Timeout for cleanup operations"
     )
 
     model_config = {

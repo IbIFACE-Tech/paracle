@@ -2,8 +2,6 @@
 
 from datetime import UTC, datetime, timedelta
 
-import pytest
-
 from paracle_memory.models import (
     ConversationMemory,
     EpisodicMemory,

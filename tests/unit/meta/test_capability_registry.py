@@ -1,7 +1,6 @@
 """Unit tests for paracle_meta.registry module."""
 
 import pytest
-
 from paracle_meta.registry import (
     AsyncCapabilityProxy,
     CapabilityFacade,

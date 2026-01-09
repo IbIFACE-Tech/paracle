@@ -1,8 +1,7 @@
 """Tests for RAG engine."""
 
 import pytest
-
-from paracle_knowledge.base import Chunk, ChunkMetadata, KnowledgeBase
+from paracle_knowledge.base import KnowledgeBase
 from paracle_knowledge.rag import RAGConfig, RAGContext, RAGEngine, RAGResponse
 
 
@@ -32,15 +31,17 @@ class MockVectorStore:
         results = []
 
         for i, doc in enumerate(self._collections.get(collection, [])[:top_k]):
-            results.append(SearchResult(
-                document=Document(
-                    id=doc.id,
-                    content=doc.content,
-                    embedding=doc.embedding,
-                    metadata=doc.metadata,
-                ),
-                score=0.9 - (i * 0.1),
-            ))
+            results.append(
+                SearchResult(
+                    document=Document(
+                        id=doc.id,
+                        content=doc.content,
+                        embedding=doc.embedding,
+                        metadata=doc.metadata,
+                    ),
+                    score=0.9 - (i * 0.1),
+                )
+            )
 
         return results
 

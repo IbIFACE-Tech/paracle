@@ -14,7 +14,7 @@ from paracle_domain.inheritance import (
     resolve_inheritance,
     validate_inheritance_chain,
 )
-from paracle_domain.models import (
+from paracle_domain.models import (  # Retry models
     Agent,
     AgentSpec,
     AgentStatus,
@@ -22,7 +22,6 @@ from paracle_domain.models import (
     ApprovalPriority,
     ApprovalRequest,
     ApprovalStatus,
-    # Retry models
     BackoffStrategy,
     EntityStatus,
     ErrorCategory,
@@ -38,7 +37,7 @@ from paracle_domain.models import (
     WorkflowStep,
 )
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 __all__ = [
     # Models

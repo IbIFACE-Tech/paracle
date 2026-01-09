@@ -240,7 +240,9 @@ class ChromaStore(VectorStore):
 
         try:
             coll.delete(ids=[document_id])
-            logger.debug("Deleted document %s from collection %s", document_id, collection)
+            logger.debug(
+                "Deleted document %s from collection %s", document_id, collection
+            )
             return True
         except Exception as e:
             raise VectorStoreError(f"Failed to delete document: {e}") from e
@@ -289,10 +291,14 @@ class ChromaStore(VectorStore):
                 doc = Document(
                     id=doc_id,
                     content=result["documents"][0][i] if result["documents"] else "",
-                    embedding=result["embeddings"][0][i] if result["embeddings"] else None,
+                    embedding=(
+                        result["embeddings"][0][i] if result["embeddings"] else None
+                    ),
                     metadata=result["metadatas"][0][i] if result["metadatas"] else {},
                 )
-                results.append(SearchResult(document=doc, score=score, distance=distance))
+                results.append(
+                    SearchResult(document=doc, score=score, distance=distance)
+                )
 
         return results
 

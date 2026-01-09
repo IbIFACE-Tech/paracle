@@ -49,7 +49,7 @@ def list_plugins(type: str):
                 plugin["version"],
                 plugin["type"],
                 plugin["author"],
-                ", ".join(plugin["capabilities"][:3])  # First 3
+                ", ".join(plugin["capabilities"][:3]),  # First 3
             )
 
         console.print(table)
@@ -70,9 +70,7 @@ def show_plugin(plugin_name: str):
         plugin = registry.get_plugin(plugin_name)
 
         if not plugin:
-            stderr_console.print(
-                f"[red]Plugin '{plugin_name}' not found[/red]"
-            )
+            stderr_console.print(f"[red]Plugin '{plugin_name}' not found[/red]")
             sys.exit(1)
 
         metadata = plugin.metadata
@@ -131,9 +129,7 @@ def health_check(output_json: bool):
 
             for plugin_name, result in results.items():
                 status = result.get("status", "unknown")
-                status_style = (
-                    "green" if status == "healthy" else "red"
-                )
+                status_style = "green" if status == "healthy" else "red"
 
                 details = result.get("error", "")
                 if not details and "capabilities" in result:
@@ -143,14 +139,12 @@ def health_check(output_json: bool):
                     plugin_name,
                     result.get("version", "?"),
                     f"[{status_style}]{status}[/{status_style}]",
-                    details
+                    details,
                 )
 
             console.print(table)
     except Exception as e:
-        stderr_console.print(
-            f"[red]Error checking plugin health: {e}[/red]"
-        )
+        stderr_console.print(f"[red]Error checking plugin health: {e}[/red]")
         sys.exit(1)
 
 
@@ -159,7 +153,7 @@ def health_check(output_json: bool):
     "--source",
     type=click.Choice(["all", "directory", "config", "entry_points"]),
     default="all",
-    help="Plugin source to load from"
+    help="Plugin source to load from",
 )
 def load_plugins(source: str):
     """Load plugins from configured sources."""
@@ -180,9 +174,7 @@ def load_plugins(source: str):
             stderr_console.print(f"[red]Unknown source: {source}[/red]")
             sys.exit(1)
 
-        console.print(
-            f"[green]✓[/green] Loaded {count} plugins from {source}"
-        )
+        console.print(f"[green]✓[/green] Loaded {count} plugins from {source}")
     except Exception as e:
         stderr_console.print(f"[red]Error loading plugins: {e}[/red]")
         sys.exit(1)
@@ -199,18 +191,12 @@ def reload_plugin(plugin_name: str):
         success = asyncio.run(loader.reload_plugin(plugin_name))
 
         if success:
-            console.print(
-                f"[green]✓[/green] Reloaded plugin '{plugin_name}'"
-            )
+            console.print(f"[green]✓[/green] Reloaded plugin '{plugin_name}'")
         else:
-            stderr_console.print(
-                f"[red]Failed to reload plugin '{plugin_name}'[/red]"
-            )
+            stderr_console.print(f"[red]Failed to reload plugin '{plugin_name}'[/red]")
             sys.exit(1)
     except Exception as e:
-        stderr_console.print(
-            f"[red]Error reloading plugin: {e}[/red]"
-        )
+        stderr_console.print(f"[red]Error reloading plugin: {e}[/red]")
         sys.exit(1)
 
 
@@ -233,9 +219,7 @@ def plugin_stats():
 
         console.print(table)
     except Exception as e:
-        stderr_console.print(
-            f"[red]Error getting plugin stats: {e}[/red]"
-        )
+        stderr_console.print(f"[red]Error getting plugin stats: {e}[/red]")
         sys.exit(1)
 
 

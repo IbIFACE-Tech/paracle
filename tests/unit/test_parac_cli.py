@@ -6,7 +6,6 @@ from pathlib import Path
 import pytest
 import yaml
 from click.testing import CliRunner
-
 from paracle_cli.main import cli
 
 
@@ -108,9 +107,10 @@ class TestGovernanceCommands:
         assert result.exit_code in (0, 1, 2)
         # Accept help output, validation output, or error messages
         output_lower = result.output.lower()
-        assert any(word in output_lower for word in [
-            "validate", "passed", "failed", "usage", "error"
-        ])
+        assert any(
+            word in output_lower
+            for word in ["validate", "passed", "failed", "usage", "error"]
+        )
 
     def test_sync(self, temp_parac_project: Path) -> None:
         """Test sync command."""
@@ -141,18 +141,20 @@ class TestGovernanceCommands:
         assert "Dry run" in result.output
         assert "progress" in result.output
 
-    def test_session_end_with_changes(
-        self, temp_parac_project: Path
-    ) -> None:
+    def test_session_end_with_changes(self, temp_parac_project: Path) -> None:
         """Test session end command with actual changes."""
         os.chdir(temp_parac_project)
         result = self.runner.invoke(
             cli,
             [
-                "session", "end",
-                "--progress", "75",
-                "--complete", "task_a",
-                "--start", "task_c",
+                "session",
+                "end",
+                "--progress",
+                "75",
+                "--complete",
+                "task_a",
+                "--start",
+                "task_c",
             ],
         )
 
@@ -161,8 +163,7 @@ class TestGovernanceCommands:
 
         # Verify changes were saved
         state_file = (
-            temp_parac_project / ".parac" / "memory" / "context"
-            / "current_state.yaml"
+            temp_parac_project / ".parac" / "memory" / "context" / "current_state.yaml"
         )
         with open(state_file, encoding="utf-8") as f:
             state = yaml.safe_load(f)
@@ -200,9 +201,7 @@ class TestGovernanceCommands:
 
     def test_init_force_overwrites(self, temp_parac_project: Path) -> None:
         """Test init --force overwrites existing .parac/."""
-        result = self.runner.invoke(
-            cli, ["init", str(temp_parac_project), "--force"]
-        )
+        result = self.runner.invoke(cli, ["init", str(temp_parac_project), "--force"])
 
         assert result.exit_code == 0
         assert "initialized" in result.output.lower()

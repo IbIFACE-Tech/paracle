@@ -18,10 +18,7 @@ from paracle_core.logging.audit import (
     AuditSeverity,
     get_audit_logger,
 )
-from paracle_core.logging.context import (
-    correlation_id,
-    get_correlation_id,
-)
+from paracle_core.logging.context import correlation_id, get_correlation_id
 from paracle_core.logging.logger import get_logger
 
 logger = get_logger(__name__)
@@ -37,11 +34,7 @@ def setup_eventbus_logging(event_bus=None) -> None:
     """
     # Import here to avoid circular imports
     try:
-        from paracle_events import (
-            Event,
-            EventType,
-            get_event_bus,
-        )
+        from paracle_events import Event, EventType, get_event_bus
     except ImportError:
         logger.warning("paracle_events not available, skipping EventBus integration")
         return

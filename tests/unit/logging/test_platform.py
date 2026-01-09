@@ -67,17 +67,23 @@ class TestWindowsPaths:
 
     def test_windows_paths_with_localappdata(self):
         """Test Windows paths using LOCALAPPDATA."""
-        with patch.dict(os.environ, {"LOCALAPPDATA": "C:\\Users\\test\\AppData\\Local"}):
+        with patch.dict(
+            os.environ, {"LOCALAPPDATA": "C:\\Users\\test\\AppData\\Local"}
+        ):
             paths = get_windows_paths()
 
             assert paths.log_dir == Path(
-                "C:\\Users\\test\\AppData\\Local\\Paracle\\logs")
+                "C:\\Users\\test\\AppData\\Local\\Paracle\\logs"
+            )
             assert paths.cache_dir == Path(
-                "C:\\Users\\test\\AppData\\Local\\Paracle\\cache")
+                "C:\\Users\\test\\AppData\\Local\\Paracle\\cache"
+            )
             assert paths.data_dir == Path(
-                "C:\\Users\\test\\AppData\\Local\\Paracle\\data")
+                "C:\\Users\\test\\AppData\\Local\\Paracle\\data"
+            )
             assert paths.config_dir == Path(
-                "C:\\Users\\test\\AppData\\Local\\Paracle\\config")
+                "C:\\Users\\test\\AppData\\Local\\Paracle\\config"
+            )
 
     def test_windows_paths_fallback_to_home(self):
         """Test Windows paths fallback when LOCALAPPDATA not set."""
@@ -86,7 +92,8 @@ class TestWindowsPaths:
                 paths = get_windows_paths()
 
                 assert paths.log_dir == Path(
-                    "C:\\Users\\test\\AppData\\Local\\Paracle\\logs")
+                    "C:\\Users\\test\\AppData\\Local\\Paracle\\logs"
+                )
 
 
 class TestLinuxPaths:
@@ -115,11 +122,9 @@ class TestLinuxPaths:
             with patch("pathlib.Path.home", return_value=Path("/home/test")):
                 paths = get_linux_paths()
 
-                assert paths.log_dir == Path(
-                    "/home/test/.local/share/paracle/logs")
+                assert paths.log_dir == Path("/home/test/.local/share/paracle/logs")
                 assert paths.cache_dir == Path("/home/test/.cache/paracle")
-                assert paths.data_dir == Path(
-                    "/home/test/.local/share/paracle")
+                assert paths.data_dir == Path("/home/test/.local/share/paracle")
                 assert paths.config_dir == Path("/home/test/.config/paracle")
 
 
@@ -132,13 +137,15 @@ class TestMacOSPaths:
             paths = get_macos_paths()
 
             assert paths.log_dir == Path(
-                "/Users/test/Library/Application Support/Paracle/logs")
-            assert paths.cache_dir == Path(
-                "/Users/test/Library/Caches/Paracle")
+                "/Users/test/Library/Application Support/Paracle/logs"
+            )
+            assert paths.cache_dir == Path("/Users/test/Library/Caches/Paracle")
             assert paths.data_dir == Path(
-                "/Users/test/Library/Application Support/Paracle")
+                "/Users/test/Library/Application Support/Paracle"
+            )
             assert paths.config_dir == Path(
-                "/Users/test/Library/Application Support/Paracle/config")
+                "/Users/test/Library/Application Support/Paracle/config"
+            )
 
 
 class TestDockerPaths:
@@ -155,7 +162,9 @@ class TestDockerPaths:
     def test_docker_paths_fallback_to_tmp(self):
         """Test Docker paths fallback to /tmp."""
         with patch("pathlib.Path.exists", return_value=False):
-            with patch("paracle_core.logging.platform._is_writable_parent", return_value=False):
+            with patch(
+                "paracle_core.logging.platform._is_writable_parent", return_value=False
+            ):
                 paths = get_docker_paths()
 
                 assert paths.log_dir == Path("/tmp/paracle/logs")
@@ -164,7 +173,9 @@ class TestDockerPaths:
     def test_docker_paths_var_log_writable_parent(self):
         """Test Docker paths when /var/log is writable."""
         with patch("pathlib.Path.exists", return_value=False):
-            with patch("paracle_core.logging.platform._is_writable_parent", return_value=True):
+            with patch(
+                "paracle_core.logging.platform._is_writable_parent", return_value=True
+            ):
                 paths = get_docker_paths()
 
                 assert paths.log_dir == Path("/var/log/paracle/logs")
@@ -175,8 +186,12 @@ class TestPlatformPaths:
 
     def test_get_platform_paths_windows(self):
         """Test get_platform_paths on Windows."""
-        with patch("paracle_core.logging.platform.detect_platform", return_value="windows"):
-            with patch.dict(os.environ, {"LOCALAPPDATA": "C:\\Users\\test\\AppData\\Local"}):
+        with patch(
+            "paracle_core.logging.platform.detect_platform", return_value="windows"
+        ):
+            with patch.dict(
+                os.environ, {"LOCALAPPDATA": "C:\\Users\\test\\AppData\\Local"}
+            ):
                 paths = get_platform_paths()
 
                 assert "Paracle" in str(paths.log_dir)
@@ -184,27 +199,36 @@ class TestPlatformPaths:
 
     def test_get_platform_paths_linux(self):
         """Test get_platform_paths on Linux."""
-        with patch("paracle_core.logging.platform.detect_platform", return_value="linux"):
+        with patch(
+            "paracle_core.logging.platform.detect_platform", return_value="linux"
+        ):
             with patch("pathlib.Path.home", return_value=Path("/home/test")):
                 paths = get_platform_paths()
 
-                assert paths.log_dir == Path(
-                    "/home/test/.local/share/paracle/logs")
+                assert paths.log_dir == Path("/home/test/.local/share/paracle/logs")
 
     def test_get_platform_paths_macos(self):
         """Test get_platform_paths on macOS."""
-        with patch("paracle_core.logging.platform.detect_platform", return_value="macos"):
+        with patch(
+            "paracle_core.logging.platform.detect_platform", return_value="macos"
+        ):
             with patch("pathlib.Path.home", return_value=Path("/Users/test")):
                 paths = get_platform_paths()
 
                 assert paths.log_dir == Path(
-                    "/Users/test/Library/Application Support/Paracle/logs")
+                    "/Users/test/Library/Application Support/Paracle/logs"
+                )
 
     def test_get_platform_paths_docker(self):
         """Test get_platform_paths in Docker."""
-        with patch("paracle_core.logging.platform.detect_platform", return_value="docker"):
+        with patch(
+            "paracle_core.logging.platform.detect_platform", return_value="docker"
+        ):
             with patch("pathlib.Path.exists", return_value=False):
-                with patch("paracle_core.logging.platform._is_writable_parent", return_value=False):
+                with patch(
+                    "paracle_core.logging.platform._is_writable_parent",
+                    return_value=False,
+                ):
                     paths = get_platform_paths()
 
                     assert paths.log_dir == Path("/tmp/paracle/logs")
@@ -215,17 +239,20 @@ class TestLogPaths:
 
     def test_get_log_path_main(self):
         """Test main log path."""
-        with patch("paracle_core.logging.platform.detect_platform", return_value="linux"):
+        with patch(
+            "paracle_core.logging.platform.detect_platform", return_value="linux"
+        ):
             with patch("pathlib.Path.home", return_value=Path("/home/test")):
                 log_path = get_log_path("main")
 
                 assert log_path.name == "paracle.log"
-                assert log_path.parent == Path(
-                    "/home/test/.local/share/paracle/logs")
+                assert log_path.parent == Path("/home/test/.local/share/paracle/logs")
 
     def test_get_log_path_cli(self):
         """Test CLI log path."""
-        with patch("paracle_core.logging.platform.detect_platform", return_value="linux"):
+        with patch(
+            "paracle_core.logging.platform.detect_platform", return_value="linux"
+        ):
             with patch("pathlib.Path.home", return_value=Path("/home/test")):
                 log_path = get_log_path("cli")
 
@@ -233,7 +260,9 @@ class TestLogPaths:
 
     def test_get_log_path_agent(self):
         """Test agent log path."""
-        with patch("paracle_core.logging.platform.detect_platform", return_value="linux"):
+        with patch(
+            "paracle_core.logging.platform.detect_platform", return_value="linux"
+        ):
             with patch("pathlib.Path.home", return_value=Path("/home/test")):
                 log_path = get_log_path("agent")
 
@@ -241,7 +270,9 @@ class TestLogPaths:
 
     def test_get_log_path_errors(self):
         """Test errors log path."""
-        with patch("paracle_core.logging.platform.detect_platform", return_value="linux"):
+        with patch(
+            "paracle_core.logging.platform.detect_platform", return_value="linux"
+        ):
             with patch("pathlib.Path.home", return_value=Path("/home/test")):
                 log_path = get_log_path("errors")
 
@@ -249,7 +280,9 @@ class TestLogPaths:
 
     def test_get_log_path_audit(self):
         """Test audit log path."""
-        with patch("paracle_core.logging.platform.detect_platform", return_value="linux"):
+        with patch(
+            "paracle_core.logging.platform.detect_platform", return_value="linux"
+        ):
             with patch("pathlib.Path.home", return_value=Path("/home/test")):
                 log_path = get_log_path("audit")
 
@@ -342,5 +375,4 @@ class TestInfo:
         info = get_info()
 
         for key, value in info.items():
-            assert isinstance(
-                value, str), f"{key} should be string, got {type(value)}"
+            assert isinstance(value, str), f"{key} should be string, got {type(value)}"

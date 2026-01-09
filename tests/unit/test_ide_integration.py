@@ -1,4 +1,4 @@
-"""Tests for IDE integration module.
+﻿"""Tests for IDE integration module.
 
 Tests cover:
 - ContextBuilder: context collection and truncation
@@ -10,7 +10,6 @@ from pathlib import Path
 
 import pytest
 import yaml
-
 from paracle_core.parac.context_builder import (
     ContextBuilder,
     ContextData,
@@ -135,9 +134,7 @@ class TestContextBuilder:
             "version": "0.0.1",
             "phases": [{"id": "phase-1", "name": "Core Domain"}],
         }
-        (roadmap_dir / "roadmap.yaml").write_text(
-            yaml.dump(roadmap), encoding="utf-8"
-        )
+        (roadmap_dir / "roadmap.yaml").write_text(yaml.dump(roadmap), encoding="utf-8")
 
         # Create decisions.md
         decisions_md = """# Architecture Decisions
@@ -166,6 +163,18 @@ You are a Python coder.
 .parac/ is the source of truth.
 """
         (parac_dir / "GOVERNANCE.md").write_text(governance_md, encoding="utf-8")
+        # Create policies structure
+        policies_dir = parac_dir / "policies"
+        policies_dir.mkdir()
+
+        policy_pack = {
+            "version": "1.0",
+            "enabled": True,
+            "active_policies": ["code_quality", "security_baseline"],
+        }
+        (policies_dir / "policy-pack.yaml").write_text(
+            yaml.dump(policy_pack), encoding="utf-8"
+        )
 
         return parac_dir
 
@@ -275,6 +284,18 @@ class TestIDEConfigGenerator:
         roadmap_dir.mkdir()
         (roadmap_dir / "roadmap.yaml").write_text(
             yaml.dump({"version": "0.0.1"}), encoding="utf-8"
+        )
+        # Create policies structure
+        policies_dir = parac_dir / "policies"
+        policies_dir.mkdir()
+
+        policy_pack = {
+            "version": "1.0",
+            "enabled": True,
+            "active_policies": ["code_quality", "security_baseline"],
+        }
+        (policies_dir / "policy-pack.yaml").write_text(
+            yaml.dump(policy_pack), encoding="utf-8"
         )
 
         return parac_dir
@@ -414,7 +435,6 @@ class TestIDECLI:
     def test_ide_list_command(self):
         """Test 'paracle ide list' command."""
         from click.testing import CliRunner
-
         from paracle_cli.commands.ide import ide_list
 
         runner = CliRunner()
@@ -426,7 +446,6 @@ class TestIDECLI:
     def test_ide_status_no_parac(self):
         """Test 'paracle ide status' without .parac/."""
         from click.testing import CliRunner
-
         from paracle_cli.commands.ide import ide_status
 
         runner = CliRunner()
@@ -439,7 +458,6 @@ class TestIDECLI:
     def test_ide_init_command(self, temp_project):
         """Test 'paracle ide init' command."""
         from click.testing import CliRunner
-
         from paracle_cli.commands.ide import ide_init
 
         runner = CliRunner()
@@ -460,7 +478,6 @@ class TestIDECLI:
     def test_ide_sync_command(self, temp_project):
         """Test 'paracle ide sync' command."""
         from click.testing import CliRunner
-
         from paracle_cli.commands.ide import ide_sync
 
         runner = CliRunner()
@@ -497,6 +514,18 @@ class TestTemplateRendering:
         roadmap_dir.mkdir()
         (roadmap_dir / "roadmap.yaml").write_text(
             yaml.dump({"version": "test"}), encoding="utf-8"
+        )
+        # Create policies structure
+        policies_dir = parac_dir / "policies"
+        policies_dir.mkdir()
+
+        policy_pack = {
+            "version": "1.0",
+            "enabled": True,
+            "active_policies": ["code_quality", "security_baseline"],
+        }
+        (policies_dir / "policy-pack.yaml").write_text(
+            yaml.dump(policy_pack), encoding="utf-8"
         )
 
         return parac_dir

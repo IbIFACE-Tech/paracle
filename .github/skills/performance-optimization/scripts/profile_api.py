@@ -68,6 +68,7 @@ async def profile_endpoint(url: str, num_requests: int = 100):
     else:
         print(f"\n⚠️  p95 ({p95:.2f}ms) exceeds target (500ms)")
 
+
 if __name__ == "__main__":
     import sys
 

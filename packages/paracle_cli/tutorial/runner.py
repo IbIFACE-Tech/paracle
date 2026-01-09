@@ -74,8 +74,7 @@ class InteractiveTutorialRunner:
             console.print()
             if not self._run_step(i, len(tutorial.steps), step, command):
                 console.print(
-                    "\n[yellow]Tutorial paused. "
-                    "Run again to continue.[/yellow]"
+                    "\n[yellow]Tutorial paused. " "Run again to continue.[/yellow]"
                 )
                 return False
 
@@ -89,10 +88,12 @@ class InteractiveTutorialRunner:
         Args:
             command: The command metadata.
         """
-        console.print(Panel(
-            f"[bold cyan]Quick Guide: {command.path}[/bold cyan]",
-            border_style="cyan"
-        ))
+        console.print(
+            Panel(
+                f"[bold cyan]Quick Guide: {command.path}[/bold cyan]",
+                border_style="cyan",
+            )
+        )
         console.print()
 
         # Show help text
@@ -124,9 +125,7 @@ class InteractiveTutorialRunner:
                 default = f" (default: {opt.default})" if opt.default else ""
                 console.print(f"  {flags}: {opt.help_text}{default}")
             if len(command.optional_options) > 5:
-                console.print(
-                    f"  ... and {len(command.optional_options) - 5} more"
-                )
+                console.print(f"  ... and {len(command.optional_options) - 5} more")
             console.print()
 
         # Show flags
@@ -168,47 +167,52 @@ class InteractiveTutorialRunner:
         """
         self.collected_params = []
 
-        console.print(Panel(
-            f"[bold cyan]Parameter Collection: {command.name}[/bold cyan]",
-            border_style="cyan"
-        ))
+        console.print(
+            Panel(
+                f"[bold cyan]Parameter Collection: {command.name}[/bold cyan]",
+                border_style="cyan",
+            )
+        )
         console.print()
 
         # Collect required arguments
         for arg in command.required_args:
             value = self._prompt_for_param(arg, required=True)
-            self.collected_params.append(CollectedParameter(
-                name=arg.name,
-                value=value,
-                param_type="argument",
-            ))
+            self.collected_params.append(
+                CollectedParameter(
+                    name=arg.name,
+                    value=value,
+                    param_type="argument",
+                )
+            )
 
         # Collect required options
         for opt in command.required_options:
             value = self._prompt_for_param(opt, required=True)
-            self.collected_params.append(CollectedParameter(
-                name=opt.name,
-                value=value,
-                param_type="option",
-                opts=opt.opts,
-            ))
+            self.collected_params.append(
+                CollectedParameter(
+                    name=opt.name,
+                    value=value,
+                    param_type="option",
+                    opts=opt.opts,
+                )
+            )
 
         # Ask about optional parameters
         if command.optional_options:
             console.print()
-            if Confirm.ask(
-                "Would you like to set optional parameters?",
-                default=False
-            ):
+            if Confirm.ask("Would you like to set optional parameters?", default=False):
                 for opt in command.optional_options:
                     value = self._prompt_for_param(opt, required=False)
                     if value:
-                        self.collected_params.append(CollectedParameter(
-                            name=opt.name,
-                            value=value,
-                            param_type="option",
-                            opts=opt.opts,
-                        ))
+                        self.collected_params.append(
+                            CollectedParameter(
+                                name=opt.name,
+                                value=value,
+                                param_type="option",
+                                opts=opt.opts,
+                            )
+                        )
 
         # Ask about flags
         if command.flags:
@@ -217,13 +221,15 @@ class InteractiveTutorialRunner:
             for flag in command.flags:
                 flag_str = flag.opts[-1] if flag.opts else f"--{flag.name}"
                 if Confirm.ask(f"  Enable {flag_str}?", default=False):
-                    self.collected_params.append(CollectedParameter(
-                        name=flag.name,
-                        value=True,
-                        param_type="option",
-                        opts=flag.opts,
-                        is_flag=True,
-                    ))
+                    self.collected_params.append(
+                        CollectedParameter(
+                            name=flag.name,
+                            value=True,
+                            param_type="option",
+                            opts=flag.opts,
+                            is_flag=True,
+                        )
+                    )
 
         return self.collected_params
 
@@ -310,11 +316,13 @@ class InteractiveTutorialRunner:
         tutorial: GeneratedTutorial,
     ) -> None:
         """Show tutorial header."""
-        console.print(Panel(
-            f"[bold green]Interactive Tutorial: {tutorial.title}[/bold green]\n\n"
-            f"{tutorial.overview[:200]}...",
-            border_style="green"
-        ))
+        console.print(
+            Panel(
+                f"[bold green]Interactive Tutorial: {tutorial.title}[/bold green]\n\n"
+                f"{tutorial.overview[:200]}...",
+                border_style="green",
+            )
+        )
 
     def _check_prerequisites(self, prerequisites: list[str]) -> bool:
         """Check and display prerequisites."""
@@ -338,10 +346,12 @@ class InteractiveTutorialRunner:
             True to continue, False to pause.
         """
         # Show step header
-        console.print(Panel(
-            f"[bold cyan]Step {step_num}/{total_steps}: {step.title}[/bold cyan]",
-            border_style="cyan"
-        ))
+        console.print(
+            Panel(
+                f"[bold cyan]Step {step_num}/{total_steps}: {step.title}[/bold cyan]",
+                border_style="cyan",
+            )
+        )
 
         # Show description
         console.print()
@@ -397,10 +407,7 @@ class InteractiveTutorialRunner:
             console.print(f"[cyan]Choose {param.name}:[/cyan]")
             for i, choice in enumerate(param.choices, 1):
                 console.print(f"  {i}. {choice}")
-            idx = Prompt.ask(
-                "Selection",
-                default="1" if not required else None
-            )
+            idx = Prompt.ask("Selection", default="1" if not required else None)
             try:
                 return param.choices[int(idx) - 1]
             except (ValueError, IndexError):
@@ -434,7 +441,7 @@ class InteractiveTutorialRunner:
             choice = Prompt.ask(
                 "What would you like to do?",
                 choices=["run", "edit", "skip", "quit"],
-                default="skip"
+                default="skip",
             )
 
             if choice == "run":
@@ -460,11 +467,13 @@ class InteractiveTutorialRunner:
     ) -> None:
         """Show tutorial completion message."""
         console.print()
-        console.print(Panel(
-            f"[bold green]Tutorial Complete![/bold green]\n\n"
-            f"You've learned how to use `paracle {command.path.replace('/', ' ')}`",
-            border_style="green"
-        ))
+        console.print(
+            Panel(
+                f"[bold green]Tutorial Complete![/bold green]\n\n"
+                f"You've learned how to use `paracle {command.path.replace('/', ' ')}`",
+                border_style="green",
+            )
+        )
 
         # Show related commands
         if tutorial.related_commands:
@@ -476,6 +485,4 @@ class InteractiveTutorialRunner:
         console.print("\n[bold]Next steps:[/bold]")
         console.print("  • Run `paracle tutorial list` to see all commands")
         console.print("  • Run `paracle <command> --help` for detailed help")
-        console.print(
-            "  • Run `paracle tutorial learn <command>` for more tutorials"
-        )
+        console.print("  • Run `paracle tutorial learn <command>` for more tutorials")

@@ -107,8 +107,7 @@ class TestLockManager:
         lock_manager.acquire_lock("test_file.py", "agent1", timeout=300)
 
         # Same agent can extend lock
-        success = lock_manager.acquire_lock(
-            "test_file.py", "agent1", timeout=600)
+        success = lock_manager.acquire_lock("test_file.py", "agent1", timeout=600)
 
         assert success is True
 
@@ -158,11 +157,11 @@ class TestLockManager:
             lock_manager.release_lock("test_file.py", "agent1")
 
         import threading
+
         thread = threading.Thread(target=release_lock_later)
         thread.start()
 
-        success = lock_manager.wait_for_lock(
-            "test_file.py", "agent2", timeout=3)
+        success = lock_manager.wait_for_lock("test_file.py", "agent2", timeout=3)
 
         thread.join()
         assert success is True
@@ -171,8 +170,7 @@ class TestLockManager:
         """Test waiting for lock with timeout."""
         lock_manager.acquire_lock("test_file.py", "agent1", timeout=300)
 
-        success = lock_manager.wait_for_lock(
-            "test_file.py", "agent2", timeout=1)
+        success = lock_manager.wait_for_lock("test_file.py", "agent2", timeout=1)
 
         assert success is False
 
@@ -228,8 +226,7 @@ class TestConflictDetector:
         test_file.write_text("v2")
 
         # Agent2 modifies - should detect conflict
-        conflict = conflict_detector.record_modification(
-            str(test_file), "agent2")
+        conflict = conflict_detector.record_modification(str(test_file), "agent2")
 
         assert conflict is not None
         assert conflict.agent1_id == "agent1"
@@ -245,8 +242,7 @@ class TestConflictDetector:
         test_file.write_text("v2")
 
         # Same agent - no conflict
-        conflict = conflict_detector.record_modification(
-            str(test_file), "agent1")
+        conflict = conflict_detector.record_modification(str(test_file), "agent1")
 
         assert conflict is None
 
@@ -257,8 +253,7 @@ class TestConflictDetector:
         test_file.write_text("v1")
         conflict_detector.record_modification(str(test_file), "agent1")
         test_file.write_text("v2")
-        conflict = conflict_detector.record_modification(
-            str(test_file), "agent2")
+        conflict = conflict_detector.record_modification(str(test_file), "agent2")
 
         conflicts = conflict_detector.get_conflicts()
 
@@ -271,8 +266,7 @@ class TestConflictDetector:
         test_file.write_text("v1")
         conflict_detector.record_modification(str(test_file), "agent1")
         test_file.write_text("v2")
-        conflict = conflict_detector.record_modification(
-            str(test_file), "agent2")
+        conflict = conflict_detector.record_modification(str(test_file), "agent2")
 
         conflict_detector.mark_resolved(conflict)
 
@@ -289,8 +283,7 @@ class TestConflictDetector:
 
         # New modification should not cause conflict
         test_file.write_text("v2")
-        conflict = conflict_detector.record_modification(
-            str(test_file), "agent2")
+        conflict = conflict_detector.record_modification(str(test_file), "agent2")
         assert conflict is None
 
 
@@ -336,8 +329,7 @@ class TestConflictResolver:
             detected_at=datetime.now(datetime.UTC),
         )
 
-        result = conflict_resolver.resolve(
-            conflict, ResolutionStrategy.FIRST_WINS)
+        result = conflict_resolver.resolve(conflict, ResolutionStrategy.FIRST_WINS)
 
         assert result.success is True
         assert "agent1" in result.message
@@ -356,8 +348,7 @@ class TestConflictResolver:
             detected_at=datetime.now(datetime.UTC),
         )
 
-        result = conflict_resolver.resolve(
-            conflict, ResolutionStrategy.LAST_WINS)
+        result = conflict_resolver.resolve(conflict, ResolutionStrategy.LAST_WINS)
 
         assert result.success is True
         assert "agent2" in result.message
@@ -376,8 +367,7 @@ class TestConflictResolver:
             detected_at=datetime.now(datetime.UTC),
         )
 
-        result = conflict_resolver.resolve(
-            conflict, ResolutionStrategy.BACKUP_BOTH)
+        result = conflict_resolver.resolve(conflict, ResolutionStrategy.BACKUP_BOTH)
 
         assert result.success is True
         assert len(result.backup_paths) == 2

@@ -43,17 +43,25 @@ class StateSnapshot(BaseModel):
     model_config = ConfigDict(frozen=True)
 
     id: str = Field(default_factory=_generate_snapshot_id)
-    aggregate_id: str = Field(..., description="ID of the aggregate this snapshot belongs to")
-    aggregate_type: str = Field(..., description="Type of the aggregate (e.g., 'Agent', 'Workflow')")
+    aggregate_id: str = Field(
+        ..., description="ID of the aggregate this snapshot belongs to"
+    )
+    aggregate_type: str = Field(
+        ..., description="Type of the aggregate (e.g., 'Agent', 'Workflow')"
+    )
     version: int = Field(..., description="Version number of this snapshot")
     state: dict[str, Any] = Field(..., description="Serialized state data")
     created_at: datetime = Field(default_factory=_utcnow)
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     # Optional fields for context
-    created_by: str | None = Field(None, description="ID of who/what created this snapshot")
+    created_by: str | None = Field(
+        None, description="ID of who/what created this snapshot"
+    )
     reason: str | None = Field(None, description="Reason for creating snapshot")
-    parent_snapshot_id: str | None = Field(None, description="Previous snapshot ID in chain")
+    parent_snapshot_id: str | None = Field(
+        None, description="Previous snapshot ID in chain"
+    )
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for serialization."""
@@ -180,9 +188,7 @@ class InMemorySnapshotStore(SnapshotStore):
         with self._lock:
             snapshot_ids = self._by_aggregate.get(aggregate_id, [])
             snapshots = [
-                self._snapshots[sid]
-                for sid in snapshot_ids
-                if sid in self._snapshots
+                self._snapshots[sid] for sid in snapshot_ids if sid in self._snapshots
             ]
             # Sort by version descending
             snapshots.sort(key=lambda s: s.version, reverse=True)
@@ -203,7 +209,8 @@ class InMemorySnapshotStore(SnapshotStore):
             # Remove from aggregate index
             if snapshot.aggregate_id in self._by_aggregate:
                 self._by_aggregate[snapshot.aggregate_id] = [
-                    sid for sid in self._by_aggregate[snapshot.aggregate_id]
+                    sid
+                    for sid in self._by_aggregate[snapshot.aggregate_id]
                     if sid != snapshot_id
                 ]
 
@@ -349,7 +356,9 @@ class Snapshottable(Generic[T]):
         self._snapshot_store.save(snapshot)
         return snapshot
 
-    def get_snapshot(self, entity_id: str, version: int | None = None) -> StateSnapshot | None:
+    def get_snapshot(
+        self, entity_id: str, version: int | None = None
+    ) -> StateSnapshot | None:
         """Get a snapshot for an entity.
 
         Args:

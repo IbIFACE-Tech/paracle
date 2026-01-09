@@ -26,7 +26,7 @@ What should I focus on first?
 
 ### Agent Inheritance
 ```
-I need to implement the agent inheritance resolution algorithm for Paracle. 
+I need to implement the agent inheritance resolution algorithm for Paracle.
 
 Requirements:
 - Resolve parent chain for any agent
@@ -51,7 +51,7 @@ Please provide:
 ```
 Implement a Repository pattern for Agent persistence with:
 - Abstract base class: AgentRepository
-- SQLite implementation: SQLiteAgentRepository  
+- SQLite implementation: SQLiteAgentRepository
 - Methods: get_by_id, get_by_name, list_all, save, delete
 - Async/await support
 - Transaction support via Unit of Work

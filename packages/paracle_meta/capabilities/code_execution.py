@@ -6,8 +6,6 @@ capabilities for the MetaAgent.
 
 import asyncio
 import os
-import shlex
-import subprocess
 import sys
 import tempfile
 import time
@@ -452,8 +450,7 @@ class CodeExecutionCapability(BaseCapability):
 
         # Overall success
         results["success"] = all(
-            check.get("success", False)
-            for check in results["checks"].values()
+            check.get("success", False) for check in results["checks"].values()
         )
 
         return results
@@ -472,9 +469,7 @@ class CodeExecutionCapability(BaseCapability):
                 stderr=asyncio.subprocess.PIPE,
             )
 
-            stdout, stderr = await asyncio.wait_for(
-                process.communicate(), timeout=30.0
-            )
+            stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=30.0)
 
             import json
 
@@ -505,14 +500,10 @@ class CodeExecutionCapability(BaseCapability):
                 stderr=asyncio.subprocess.PIPE,
             )
 
-            stdout, stderr = await asyncio.wait_for(
-                process.communicate(), timeout=30.0
-            )
+            stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=30.0)
 
             output = stdout.decode("utf-8", errors="replace")
-            issues = [
-                line for line in output.split("\n") if line and "error:" in line
-            ]
+            issues = [line for line in output.split("\n") if line and "error:" in line]
 
             return {
                 "success": process.returncode == 0,
@@ -586,6 +577,8 @@ class CodeExecutionCapability(BaseCapability):
         """Run pytest tests."""
         return await self.execute(action="test", test_path=test_path, coverage=coverage)
 
-    async def analyze(self, code: str, checks: list[str] | None = None) -> CapabilityResult:
+    async def analyze(
+        self, code: str, checks: list[str] | None = None
+    ) -> CapabilityResult:
         """Analyze code quality."""
         return await self.execute(action="analyze", code=code, checks=checks)

@@ -57,7 +57,9 @@ class StructuredFormatter(logging.Formatter):
         # Timestamp (ISO 8601 with milliseconds)
         if self.include_timestamp:
             dt = datetime.fromtimestamp(record.created, tz=timezone.utc)
-            timestamp = dt.strftime("%Y-%m-%dT%H:%M:%S.") + f"{int(dt.microsecond/1000):03d}Z"
+            timestamp = (
+                dt.strftime("%Y-%m-%dT%H:%M:%S.") + f"{int(dt.microsecond/1000):03d}Z"
+            )
             parts.append(timestamp)
 
         # Level
@@ -98,11 +100,28 @@ class StructuredFormatter(logging.Formatter):
         """
         # Standard LogRecord attributes to exclude
         standard_attrs = {
-            "name", "msg", "args", "created", "filename", "funcName",
-            "levelname", "levelno", "lineno", "module", "msecs",
-            "pathname", "process", "processName", "relativeCreated",
-            "stack_info", "exc_info", "exc_text", "thread", "threadName",
-            "message", "asctime",
+            "name",
+            "msg",
+            "args",
+            "created",
+            "filename",
+            "funcName",
+            "levelname",
+            "levelno",
+            "lineno",
+            "module",
+            "msecs",
+            "pathname",
+            "process",
+            "processName",
+            "relativeCreated",
+            "stack_info",
+            "exc_info",
+            "exc_text",
+            "thread",
+            "threadName",
+            "message",
+            "asctime",
         }
 
         extra = {}
@@ -253,11 +272,28 @@ class JsonFormatter(logging.Formatter):
             Dictionary of extra fields
         """
         standard_attrs = {
-            "name", "msg", "args", "created", "filename", "funcName",
-            "levelname", "levelno", "lineno", "module", "msecs",
-            "pathname", "process", "processName", "relativeCreated",
-            "stack_info", "exc_info", "exc_text", "thread", "threadName",
-            "message", "asctime",
+            "name",
+            "msg",
+            "args",
+            "created",
+            "filename",
+            "funcName",
+            "levelname",
+            "levelno",
+            "lineno",
+            "module",
+            "msecs",
+            "pathname",
+            "process",
+            "processName",
+            "relativeCreated",
+            "stack_info",
+            "exc_info",
+            "exc_text",
+            "thread",
+            "threadName",
+            "message",
+            "asctime",
         }
 
         extra = {}

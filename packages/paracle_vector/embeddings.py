@@ -132,8 +132,7 @@ class OpenAIEmbeddingProvider(EmbeddingProviderBase):
                 from openai import AsyncOpenAI
             except ImportError as e:
                 raise ImportError(
-                    "OpenAI package not installed. "
-                    "Install with: pip install openai"
+                    "OpenAI package not installed. " "Install with: pip install openai"
                 ) from e
 
             self._client = AsyncOpenAI(api_key=self._api_key)

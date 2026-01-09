@@ -49,9 +49,7 @@ class SyncResponse(BaseModel):
     """Sync operation response."""
 
     success: bool = Field(description="Whether sync succeeded")
-    changes: list[SyncChange] = Field(
-        default_factory=list, description="Changes made"
-    )
+    changes: list[SyncChange] = Field(default_factory=list, description="Changes made")
     errors: list[str] = Field(default_factory=list, description="Errors encountered")
 
 

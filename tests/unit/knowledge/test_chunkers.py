@@ -1,7 +1,6 @@
 """Tests for document chunkers."""
 
-import pytest
-
+from paracle_knowledge.base import DocumentType
 from paracle_knowledge.chunkers import (
     ChunkerConfig,
     CodeChunker,
@@ -9,7 +8,6 @@ from paracle_knowledge.chunkers import (
     TextChunker,
     get_chunker,
 )
-from paracle_knowledge.base import DocumentType
 
 
 class TestTextChunker:
@@ -155,11 +153,11 @@ class MyClass:
         """Test that decorators are included with functions."""
         chunker = CodeChunker()
 
-        content = '''
+        content = """
 @decorator
 def decorated_function():
     pass
-'''
+"""
         chunks = chunker.chunk(content, "doc1", language="python")
 
         assert len(chunks) >= 1
@@ -202,7 +200,7 @@ class MyClass:
         config = ChunkerConfig(min_chunk_size=10)
         chunker = CodeChunker(config)
 
-        content = '''
+        content = """
 function hello() {
     console.log("Hello");
 }
@@ -210,7 +208,7 @@ function hello() {
 const goodbye = () => {
     console.log("Goodbye");
 }
-'''
+"""
         chunks = chunker.chunk(content, "doc1", language="javascript")
 
         # Should find functions

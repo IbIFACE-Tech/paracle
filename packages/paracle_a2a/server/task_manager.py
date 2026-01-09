@@ -362,7 +362,8 @@ class TaskManager:
             if session_id:
                 # session_id is stored in metadata for SDK compatibility
                 tasks = [
-                    t for t in tasks
+                    t
+                    for t in tasks
                     if (t.metadata or {}).get("session_id") == session_id
                 ]
             if states:

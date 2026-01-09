@@ -6,7 +6,11 @@ when multiple agents modify the same files concurrently.
 
 from paracle_conflicts.detector import ConflictDetector, FileConflict
 from paracle_conflicts.lock import FileLock, LockManager
-from paracle_conflicts.resolver import ConflictResolver, ResolutionResult, ResolutionStrategy
+from paracle_conflicts.resolver import (
+    ConflictResolver,
+    ResolutionResult,
+    ResolutionStrategy,
+)
 
 __all__ = [
     "ConflictDetector",
@@ -18,4 +22,4 @@ __all__ = [
     "LockManager",
 ]
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"

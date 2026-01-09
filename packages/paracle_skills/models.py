@@ -232,11 +232,11 @@ class SkillSpec(BaseModel):
             lines.append("metadata:")
             if self.metadata.author:
                 lines.append(f"  author: {self.metadata.author}")
-            lines.append(f"  version: \"{self.metadata.version}\"")
+            lines.append(f'  version: "{self.metadata.version}"')
             lines.append(f"  category: {self.metadata.category.value}")
             lines.append(f"  level: {self.metadata.level.value}")
             if self.metadata.display_name:
-                lines.append(f"  display_name: \"{self.metadata.display_name}\"")
+                lines.append(f'  display_name: "{self.metadata.display_name}"')
             if self.metadata.tags:
                 lines.append("  tags:")
                 for tag in self.metadata.tags:

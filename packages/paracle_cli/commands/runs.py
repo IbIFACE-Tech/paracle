@@ -80,11 +80,7 @@ def list_runs(run_type, agent_id, workflow_id, status, since, limit):
         table.add_column("Duration", style="magenta")
 
         for run in agent_runs:
-            duration = (
-                f"{run.duration_seconds:.1f}s"
-                if run.duration_seconds
-                else "N/A"
-            )
+            duration = f"{run.duration_seconds:.1f}s" if run.duration_seconds else "N/A"
             table.add_row(
                 run.run_id[:16] + "...",
                 run.agent_name,
@@ -107,11 +103,7 @@ def list_runs(run_type, agent_id, workflow_id, status, since, limit):
         table.add_column("Duration", style="magenta")
 
         for run in workflow_runs:
-            duration = (
-                f"{run.duration_seconds:.1f}s"
-                if run.duration_seconds
-                else "N/A"
-            )
+            duration = f"{run.duration_seconds:.1f}s" if run.duration_seconds else "N/A"
             steps_str = f"{run.steps_completed}/{run.steps_total}"
             if run.steps_failed > 0:
                 steps_str += f" ({run.steps_failed} failed)"
@@ -159,8 +151,7 @@ def get_run(run_id, run_type, as_json):
             click.echo(json.dumps(output, indent=2, default=str))
         else:
             rprint(f"\n[bold cyan]Run: {run_id}[/bold cyan]")
-            rprint(
-                f"Status: [{metadata.status.value}]{metadata.status.value}[/]")
+            rprint(f"Status: [{metadata.status.value}]{metadata.status.value}[/]")
             rprint(f"Started: {metadata.started_at}")
             if metadata.completed_at:
                 rprint(f"Completed: {metadata.completed_at}")
@@ -175,9 +166,7 @@ def get_run(run_id, run_type, as_json):
                     rprint(f"Cost: ${metadata.cost_usd:.4f}")
             else:
                 rprint(f"\nWorkflow: {metadata.workflow_name}")
-                rprint(
-                    f"Steps: {metadata.steps_completed}/{metadata.steps_total}"
-                )
+                rprint(f"Steps: {metadata.steps_completed}/{metadata.steps_total}")
                 if metadata.steps_failed > 0:
                     rprint(
                         f"Failed steps: {metadata.steps_failed}",
@@ -232,8 +221,7 @@ def get_artifacts(run_id, run_type, output):
 
             rprint(f"[green]Artifacts extracted to {output_path}[/green]")
         else:
-            rprint(
-                f"\n[bold cyan]Artifacts ({len(artifacts)} files)[/bold cyan]")
+            rprint(f"\n[bold cyan]Artifacts ({len(artifacts)} files)[/bold cyan]")
             for name in artifacts:
                 rprint(f"  • {name}")
 
@@ -368,6 +356,4 @@ def search_runs(agent_id, workflow_id, status, since, until, limit):
     if workflow_runs:
         rprint(f"\nWorkflow runs: {len(workflow_runs)}")
         for run in workflow_runs[:10]:  # Show first 10
-            rprint(
-                f"  • {run.run_id} - {run.workflow_name} - {run.status.value}"
-            )
+            rprint(f"  • {run.run_id} - {run.workflow_name} - {run.status.value}")

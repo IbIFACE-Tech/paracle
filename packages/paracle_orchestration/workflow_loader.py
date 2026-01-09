@@ -17,6 +17,7 @@ from pydantic import ValidationError
 
 try:
     from paracle_profiling import cached, profile
+
     PROFILING_AVAILABLE = True
 except ImportError:
     # Profiling not available - use no-op decorators
@@ -25,11 +26,13 @@ except ImportError:
     def cached(*_args, **_kwargs):
         def decorator(func):
             return func
+
         return decorator
 
     def profile(*_args, **_kwargs):
         def decorator(func):
             return func
+
         return decorator
 
 
@@ -202,12 +205,12 @@ class WorkflowLoader:
             with open(file_path, encoding="utf-8") as f:
                 workflow_yaml = yaml.safe_load(f)
                 if not workflow_yaml:
-                    raise WorkflowLoadError(
-                        f"Empty workflow file: {file_path}")
+                    raise WorkflowLoadError(f"Empty workflow file: {file_path}")
                 return workflow_yaml
         except FileNotFoundError as exc:
             raise WorkflowLoadError(
-                f"Failed to load {file_path}: File not found") from exc
+                f"Failed to load {file_path}: File not found"
+            ) from exc
         except yaml.YAMLError as e:
             raise WorkflowLoadError(f"Invalid YAML in {file_path}: {e}") from e
         except Exception as e:
@@ -248,9 +251,7 @@ class WorkflowLoader:
             # Parse steps
             steps_yaml = workflow_yaml.get("steps", [])
             if not steps_yaml:
-                raise WorkflowLoadError(
-                    f"Workflow '{workflow_name}' has no steps"
-                )
+                raise WorkflowLoadError(f"Workflow '{workflow_name}' has no steps")
 
             steps = []
             for step_yaml in steps_yaml:

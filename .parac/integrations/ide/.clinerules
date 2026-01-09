@@ -27,8 +27,10 @@ This checklist ensures:
 3. Consult `.parac/roadmap/roadmap.yaml` - Phase & priorities
 4. Verify `.parac/memory/context/open_questions.md` - Blockers
 5. **VALIDATE**: Task in roadmap? Correct phase? Priority? Dependencies?
-6. Adopt agent persona from `.parac/agents/specs/{agent}.md`
+6. Select which agent to run (see `.parac/agents/specs/{agent}.md`)
 7. Check policies (CODE_STYLE, TESTING, SECURITY)
+
+**If Task NOT in Roadmap**: STOP - Add to roadmap first via PM Agent before proceeding.
 
 **Before ANY action**, you MUST:
 1. `.parac/GOVERNANCE.md` - Governance rules and dogfooding context

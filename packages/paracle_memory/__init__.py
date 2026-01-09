@@ -47,7 +47,7 @@ from paracle_memory.models import (
 )
 from paracle_memory.store import MemoryStore
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 __all__ = [
     # Core

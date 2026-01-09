@@ -1,8 +1,14 @@
 """Tests for repository pattern implementation."""
 
 import pytest
-
-from paracle_domain import Agent, AgentSpec, EntityStatus, Tool, ToolSpec
+from paracle_domain import (
+    Agent,
+    AgentSpec,
+    EntityStatus,
+    ToolSpec,
+    WorkflowSpec,
+    WorkflowStep,
+)
 from paracle_store import (
     AgentRepository,
     DuplicateError,
@@ -11,7 +17,6 @@ from paracle_store import (
     ToolRepository,
     WorkflowRepository,
 )
-from paracle_domain import Workflow, WorkflowSpec, WorkflowStep
 
 
 class TestInMemoryRepository:
@@ -300,15 +305,9 @@ class TestAgentRepository:
         """Test finding by provider."""
         repo = AgentRepository()
 
-        repo.add(
-            Agent(spec=AgentSpec(name="a1", provider="openai", model="gpt-4"))
-        )
-        repo.add(
-            Agent(spec=AgentSpec(name="a2", provider="anthropic", model="claude"))
-        )
-        repo.add(
-            Agent(spec=AgentSpec(name="a3", provider="openai", model="gpt-3.5"))
-        )
+        repo.add(Agent(spec=AgentSpec(name="a1", provider="openai", model="gpt-4")))
+        repo.add(Agent(spec=AgentSpec(name="a2", provider="anthropic", model="claude")))
+        repo.add(Agent(spec=AgentSpec(name="a3", provider="openai", model="gpt-3.5")))
 
         openai_agents = repo.find_by_provider("openai")
         assert len(openai_agents) == 2

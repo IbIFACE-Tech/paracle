@@ -11,20 +11,20 @@ The code in this module is the SOURCE OF TRUTH.
 SCHEMA.md and TEMPLATE.md in .parac/agents/specs/ are GENERATED from here.
 """
 
+from paracle_core.agents.doc_generator import AgentDocsGenerator
+from paracle_core.agents.formatter import AgentSpecFormatter
 from paracle_core.agents.schema import (
     AgentSpecSchema,
     GovernanceSection,
     ParacPaths,
     ResponsibilityCategory,
 )
+from paracle_core.agents.template import AgentTemplate
 from paracle_core.agents.validator import (
     AgentSpecValidator,
     ValidationError,
     ValidationResult,
 )
-from paracle_core.agents.formatter import AgentSpecFormatter
-from paracle_core.agents.template import AgentTemplate
-from paracle_core.agents.doc_generator import AgentDocsGenerator
 
 __all__ = [
     # Schema

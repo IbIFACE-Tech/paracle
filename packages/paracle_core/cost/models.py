@@ -4,11 +4,12 @@ Defines all models for tracking, aggregating, and reporting costs.
 """
 
 from dataclasses import dataclass, field
-from paracle_core.compat import UTC, datetime
 from enum import Enum
 from typing import Any
 
 from pydantic import BaseModel, Field
+
+from paracle_core.compat import UTC, datetime
 
 
 def _utcnow() -> datetime:
@@ -208,6 +209,8 @@ class CostReport(BaseModel):
             },
             "top_consumers": {
                 "models": [{"model": m, "cost": c} for m, c in self.top_models],
-                "workflows": [{"workflow": w, "cost": c} for w, c in self.top_workflows],
+                "workflows": [
+                    {"workflow": w, "cost": c} for w, c in self.top_workflows
+                ],
             },
         }

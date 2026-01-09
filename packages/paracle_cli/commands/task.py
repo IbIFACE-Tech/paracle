@@ -477,7 +477,9 @@ def get_task(task_id: str, as_json: bool) -> None:
             console.print(f"  Status: [{result['status']}]")
             console.print(f"  Priority: [{result['priority']}]")
             console.print(f"  Type: {result['task_type']}")
-            console.print(f"  Assigned to: {result.get('assigned_to') or '(unassigned)'}")
+            console.print(
+                f"  Assigned to: {result.get('assigned_to') or '(unassigned)'}"
+            )
             console.print(f"  Created: {result['created_at']}")
             console.print(f"  Updated: {result['updated_at']}")
 

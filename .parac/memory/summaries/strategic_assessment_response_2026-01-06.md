@@ -252,4 +252,3 @@ Your assessment was:
 - What resonates most?
 - Any concerns or modifications?
 - Which Phase 6 deliverable to prototype first?
-

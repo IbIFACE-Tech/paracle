@@ -19,11 +19,7 @@ Example:
     >>> print(event.event_id)
 """
 
-from .events import (
-    AuditEvent,
-    AuditEventType,
-    AuditOutcome,
-)
+from .events import AuditEvent, AuditEventType, AuditOutcome
 from .exceptions import (
     AuditError,
     AuditExportError,
@@ -57,4 +53,4 @@ __all__ = [
     "AuditExportError",
 ]
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"

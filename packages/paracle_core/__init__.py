@@ -45,15 +45,6 @@ from paracle_core.ids import (
     generate_ulid,
 )
 
-# Storage configuration is safe to export at top level
-from paracle_core.storage import (
-    StorageConfig,
-    StorageSettings,
-    get_storage_config,
-    reset_storage_config,
-    set_storage_config,
-)
-
 # System paths (cross-platform)
 from paracle_core.paths import (
     Platform,
@@ -65,7 +56,16 @@ from paracle_core.paths import (
     get_system_skills_dir,
 )
 
-__version__ = "1.0.0"
+# Storage configuration is safe to export at top level
+from paracle_core.storage import (
+    StorageConfig,
+    StorageSettings,
+    get_storage_config,
+    reset_storage_config,
+    set_storage_config,
+)
+
+__version__ = "1.0.1"
 
 __all__ = [
     # Exceptions

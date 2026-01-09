@@ -210,9 +210,7 @@ class AIComplianceEngine:
                     )
 
                 # Valid placement
-                return ValidationResult(
-                    is_valid=True, path=path, category=category
-                )
+                return ValidationResult(is_valid=True, path=path, category=category)
 
         # No rule matched - allow by default (unknown file type)
         return ValidationResult(is_valid=True, path=path)
@@ -264,9 +262,7 @@ class AIComplianceEngine:
             # Default: use required location + filename
             return Path(required_location) / filename
 
-    def validate_batch(
-        self, file_paths: list[str | Path]
-    ) -> list[ValidationResult]:
+    def validate_batch(self, file_paths: list[str | Path]) -> list[ValidationResult]:
         """Validate multiple file paths.
 
         Args:
@@ -277,9 +273,7 @@ class AIComplianceEngine:
         """
         return [self.validate_file_path(path) for path in file_paths]
 
-    def get_violations(
-        self, file_paths: list[str | Path]
-    ) -> list[ValidationResult]:
+    def get_violations(self, file_paths: list[str | Path]) -> list[ValidationResult]:
         """Get only violations from a list of paths.
 
         Args:
@@ -305,9 +299,7 @@ class AIComplianceEngine:
             return result.suggested_path
         return None
 
-    def generate_pre_save_validation(
-        self, file_path: str | Path
-    ) -> dict[str, Any]:
+    def generate_pre_save_validation(self, file_path: str | Path) -> dict[str, Any]:
         """Generate validation response for IDE pre-save hooks.
 
         Args:

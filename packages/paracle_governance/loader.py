@@ -240,11 +240,7 @@ class PolicyLoader:
             file_path = self._base_path / file_path
 
         # Convert policies to serializable format
-        data = {
-            "policies": [
-                self._policy_to_dict(policy) for policy in policies
-            ]
-        }
+        data = {"policies": [self._policy_to_dict(policy) for policy in policies]}
 
         file_path.parent.mkdir(parents=True, exist_ok=True)
         with open(file_path, "w", encoding="utf-8") as f:
@@ -264,8 +260,7 @@ class PolicyLoader:
             "name": policy.name,
             "type": policy.type.value,
             "actions": [
-                a.value if isinstance(a, PolicyAction) else a
-                for a in policy.actions
+                a.value if isinstance(a, PolicyAction) else a for a in policy.actions
             ],
             "priority": policy.priority,
             "enabled": policy.enabled,

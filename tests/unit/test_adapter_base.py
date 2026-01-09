@@ -1,11 +1,11 @@
 """Tests for framework adapter base protocol."""
 
-import pytest
 from typing import Any
 
+import pytest
 from paracle_adapters.base import FrameworkAdapter
-from paracle_adapters.registry import AdapterRegistry
 from paracle_adapters.exceptions import AdapterNotFoundError
+from paracle_adapters.registry import AdapterRegistry
 from paracle_domain.models import AgentSpec, WorkflowSpec
 
 
@@ -82,10 +82,7 @@ class TestFrameworkAdapter:
         spec = AgentSpec(name="test-agent", provider="openai", model="gpt-4")
 
         agent_instance = await adapter.create_agent(spec)
-        result = await adapter.execute_agent(
-            agent_instance,
-            {"prompt": "Hello"}
-        )
+        result = await adapter.execute_agent(agent_instance, {"prompt": "Hello"})
 
         assert "response" in result
         assert result["response"] == "mock response"

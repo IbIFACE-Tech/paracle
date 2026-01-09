@@ -6,8 +6,7 @@ try:
     import httpx
 except ImportError:
     raise ImportError(
-        "httpx is required for MCP client. "
-        "Install with: pip install httpx"
+        "httpx is required for MCP client. " "Install with: pip install httpx"
     )
 
 
@@ -30,7 +29,9 @@ class MCPClient:
             server_url: MCP server base URL
             **config: Additional configuration
         """
-        self.server_url = server_url or config.get("server_url", "http://localhost:3000")
+        self.server_url = server_url or config.get(
+            "server_url", "http://localhost:3000"
+        )
         self.config = config
         self.client = httpx.AsyncClient(
             base_url=self.server_url,

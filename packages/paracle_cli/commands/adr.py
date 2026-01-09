@@ -33,7 +33,13 @@ def get_adr_manager():
 
 
 @click.group(invoke_without_command=True)
-@click.option("--list", "-l", "list_flag", is_flag=True, help="List all ADRs (shortcut for 'list')")
+@click.option(
+    "--list",
+    "-l",
+    "list_flag",
+    is_flag=True,
+    help="List all ADRs (shortcut for 'list')",
+)
 @click.pass_context
 def adr(ctx: click.Context, list_flag: bool):
     """Manage Architecture Decision Records (ADRs).
@@ -55,7 +61,9 @@ def adr(ctx: click.Context, list_flag: bool):
 
 
 @adr.command("list")
-@click.option("--status", "-s", help="Filter by status (Proposed, Accepted, Deprecated)")
+@click.option(
+    "--status", "-s", help="Filter by status (Proposed, Accepted, Deprecated)"
+)
 @click.option("--since", help="Filter by date (YYYY-MM-DD)")
 @click.option("--json", "as_json", is_flag=True, help="Output as JSON")
 def list_adrs(status: str | None, since: str | None, as_json: bool):
@@ -266,8 +274,7 @@ def create_adr(
     if interactive:
         # Interactive prompts
         if not context:
-            console.print(
-                "\n[bold]Context[/bold] (why was this decision needed?):")
+            console.print("\n[bold]Context[/bold] (why was this decision needed?):")
             context = click.prompt("", default="", show_default=False)
 
         if not decision:
@@ -275,8 +282,7 @@ def create_adr(
             decision = click.prompt("", default="", show_default=False)
 
         if not consequences:
-            console.print(
-                "\n[bold]Consequences[/bold] (impact of the decision):")
+            console.print("\n[bold]Consequences[/bold] (impact of the decision):")
             consequences = click.prompt("", default="", show_default=False)
 
     # Validate required fields
@@ -314,7 +320,8 @@ def create_adr(
 @adr.command("status")
 @click.argument("adr_id")
 @click.argument(
-    "new_status", type=click.Choice(["Proposed", "Accepted", "Deprecated", "Superseded"])
+    "new_status",
+    type=click.Choice(["Proposed", "Accepted", "Deprecated", "Superseded"]),
 )
 def update_status(adr_id: str, new_status: str):
     """Update ADR status.
@@ -348,9 +355,7 @@ def update_status(adr_id: str, new_status: str):
 
     # Update status
     if manager.update_status(adr_id, new_status):
-        console.print(
-            f"[green]OK[/green] {adr_id}: {old_status} -> {new_status}"
-        )
+        console.print(f"[green]OK[/green] {adr_id}: {old_status} -> {new_status}")
     else:
         console.print("[red]Error:[/red] Failed to update status.")
         sys.exit(1)
@@ -377,17 +382,11 @@ def migrate_legacy(dry_run: bool):
 
     # Check if legacy file exists
     if manager.legacy_file is None or not manager.legacy_file.exists():
-        console.print(
-            "[yellow]No legacy decisions.md found.[/yellow]"
-        )
-        console.print(
-            f"[dim]Expected at: {manager.config.legacy_file}[/dim]"
-        )
+        console.print("[yellow]No legacy decisions.md found.[/yellow]")
+        console.print(f"[dim]Expected at: {manager.config.legacy_file}[/dim]")
         return
 
-    console.print(
-        f"[bold]Migrating from:[/bold] {manager.legacy_file}\n"
-    )
+    console.print(f"[bold]Migrating from:[/bold] {manager.legacy_file}\n")
 
     if dry_run:
         # Read and parse to show what would be migrated
@@ -405,7 +404,11 @@ def migrate_legacy(dry_run: bool):
         for adr_id, _ in matches:
             # Check if already exists
             exists = (manager.adr_dir / f"{adr_id}.md").exists()
-            status = "[dim]exists, will skip[/dim]" if exists else "[green]will create[/green]"
+            status = (
+                "[dim]exists, will skip[/dim]"
+                if exists
+                else "[green]will create[/green]"
+            )
             console.print(f"  - {adr_id}: {status}")
 
         console.print("\n[yellow]Dry run - no changes made.[/yellow]")
@@ -420,8 +423,7 @@ def migrate_legacy(dry_run: bool):
         console.print(f"[dim]ADR directory: {manager.adr_dir}[/dim]")
     else:
         console.print("[yellow]No new ADRs migrated.[/yellow]")
-        console.print(
-            "[dim]ADRs may already exist or none found in legacy file.[/dim]")
+        console.print("[dim]ADRs may already exist or none found in legacy file.[/dim]")
 
 
 # =============================================================================
@@ -508,8 +510,7 @@ def show_stats():
 
     if total == 0:
         console.print("[yellow]No ADRs found.[/yellow]")
-        console.print(
-            "Create your first ADR with: paracle adr create -t 'Title'")
+        console.print("Create your first ADR with: paracle adr create -t 'Title'")
         return
 
     console.print()
@@ -549,7 +550,6 @@ def show_stats():
         recent = sorted(adrs, key=lambda a: a.date, reverse=True)[:3]
         console.print("\n[bold]Recent:[/bold]")
         for adr_meta in recent:
-            console.print(
-                f"  - {adr_meta.id}: {adr_meta.title} ({adr_meta.date})")
+            console.print(f"  - {adr_meta.id}: {adr_meta.title} ({adr_meta.date})")
 
     console.print()

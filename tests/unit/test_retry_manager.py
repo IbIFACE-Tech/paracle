@@ -16,7 +16,7 @@ import pytest
 # Skip collection entirely - paracle_retry package does not exist
 pytest.skip(
     "paracle_retry package does not exist - planned feature not implemented",
-    allow_module_level=True
+    allow_module_level=True,
 )
 
 

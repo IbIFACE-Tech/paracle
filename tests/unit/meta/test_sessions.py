@@ -1,18 +1,14 @@
 """Unit tests for paracle_meta.sessions module."""
 
 import pytest
-
-from paracle_meta.sessions.base import (
-    Session,
-    SessionConfig,
-    SessionMessage,
-    SessionStatus,
-)
+from paracle_meta.capabilities.providers.mock import MockProvider
+from paracle_meta.registry import CapabilityRegistry
+from paracle_meta.sessions.base import SessionConfig, SessionMessage, SessionStatus
 from paracle_meta.sessions.chat import (
     CAPABILITY_TOOLS,
+    DEFAULT_CHAT_SYSTEM_PROMPT,
     ChatConfig,
     ChatSession,
-    DEFAULT_CHAT_SYSTEM_PROMPT,
 )
 from paracle_meta.sessions.plan import (
     Plan,
@@ -21,8 +17,6 @@ from paracle_meta.sessions.plan import (
     PlanStep,
     StepStatus,
 )
-from paracle_meta.capabilities.providers.mock import MockProvider
-from paracle_meta.registry import CapabilityRegistry
 
 
 class TestSessionMessage:
@@ -256,7 +250,9 @@ class TestPlan:
     def test_completed_steps(self):
         """Test completed steps counting."""
         steps = [
-            PlanStep(id="1", description="S1", action="A1", status=StepStatus.COMPLETED),
+            PlanStep(
+                id="1", description="S1", action="A1", status=StepStatus.COMPLETED
+            ),
             PlanStep(id="2", description="S2", action="A2", status=StepStatus.PENDING),
         ]
 
@@ -268,8 +264,12 @@ class TestPlan:
     def test_is_complete(self):
         """Test plan completion check."""
         steps = [
-            PlanStep(id="1", description="S1", action="A1", status=StepStatus.COMPLETED),
-            PlanStep(id="2", description="S2", action="A2", status=StepStatus.COMPLETED),
+            PlanStep(
+                id="1", description="S1", action="A1", status=StepStatus.COMPLETED
+            ),
+            PlanStep(
+                id="2", description="S2", action="A2", status=StepStatus.COMPLETED
+            ),
         ]
 
         plan = Plan(goal="Test", summary="Test", steps=steps)
@@ -279,7 +279,9 @@ class TestPlan:
     def test_get_next_step(self):
         """Test getting next step."""
         steps = [
-            PlanStep(id="1", description="S1", action="A1", status=StepStatus.COMPLETED),
+            PlanStep(
+                id="1", description="S1", action="A1", status=StepStatus.COMPLETED
+            ),
             PlanStep(id="2", description="S2", action="A2", status=StepStatus.PENDING),
         ]
 

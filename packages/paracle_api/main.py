@@ -75,6 +75,7 @@ async def lifespan(app: FastAPI):
     # Initialize default users for development
     if not config.is_production():
         from paracle_api.security.auth import init_default_users
+
         init_default_users()
         logger.info("Development mode: initialized default users")
 
@@ -140,8 +141,11 @@ def create_app(config: SecurityConfig | None = None) -> FastAPI:
         allow_credentials=config.cors_allow_credentials,
         allow_methods=config.cors_allowed_methods,
         allow_headers=config.cors_allowed_headers,
-        expose_headers=["X-RateLimit-Limit",
-                        "X-RateLimit-Remaining", "X-RateLimit-Reset"],
+        expose_headers=[
+            "X-RateLimit-Limit",
+            "X-RateLimit-Remaining",
+            "X-RateLimit-Reset",
+        ],
     )
 
     # 3. Request logging middleware with correlation IDs
@@ -154,10 +158,15 @@ def create_app(config: SecurityConfig | None = None) -> FastAPI:
     app.add_middleware(
         ResponseCacheMiddleware,
         default_ttl=60,  # 1 minute default TTL
-        cache_paths=["/api/agents", "/api/specs",
-                     "/api/workflows", "/api/tools"],
-        exclude_paths=["/health", "/docs", "/redoc",
-                       "/openapi.json", "/auth", "/api/executions"],
+        cache_paths=["/api/agents", "/api/specs", "/api/workflows", "/api/tools"],
+        exclude_paths=[
+            "/health",
+            "/docs",
+            "/redoc",
+            "/openapi.json",
+            "/auth",
+            "/api/executions",
+        ],
     )
 
     # =========================================================================
@@ -177,8 +186,7 @@ def create_app(config: SecurityConfig | None = None) -> FastAPI:
     async def provider_exception_handler(request: Request, exc: LLMProviderError):
         """Handle LLM provider errors with Problem Details."""
         logger.error(f"Provider error: {exc}", exc_info=True)
-        problem = provider_error_to_problem(
-            request, exc, config.is_production())
+        problem = provider_error_to_problem(request, exc, config.is_production())
         return problem.to_response()
 
     @app.exception_handler(OrchestrationError)
@@ -187,24 +195,21 @@ def create_app(config: SecurityConfig | None = None) -> FastAPI:
     ):
         """Handle orchestration errors with Problem Details."""
         logger.error(f"Orchestration error: {exc}", exc_info=True)
-        problem = orchestration_error_to_problem(
-            request, exc, config.is_production())
+        problem = orchestration_error_to_problem(request, exc, config.is_production())
         return problem.to_response()
 
     @app.exception_handler(InheritanceError)
     async def inheritance_exception_handler(request: Request, exc: InheritanceError):
         """Handle inheritance errors with Problem Details."""
         logger.error(f"Inheritance error: {exc}", exc_info=True)
-        problem = inheritance_error_to_problem(
-            request, exc, config.is_production())
+        problem = inheritance_error_to_problem(request, exc, config.is_production())
         return problem.to_response()
 
     @app.exception_handler(Exception)
     async def global_exception_handler(request: Request, exc: Exception):
         """Handle uncaught exceptions with Problem Details."""
         logger.exception(f"Unhandled exception: {exc}")
-        problem = internal_error_to_problem(
-            request, exc, config.is_production())
+        problem = internal_error_to_problem(request, exc, config.is_production())
         return problem.to_response()
 
     # =========================================================================
@@ -242,6 +247,7 @@ def create_app(config: SecurityConfig | None = None) -> FastAPI:
 
     # Auth router
     from paracle_api.routers.auth import router as auth_router
+
     app.include_router(auth_router, prefix="/v1")
 
     # =========================================================================

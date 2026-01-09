@@ -36,10 +36,10 @@ import uuid
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Any
 
+from paracle_core.logging import get_logger
 from pydantic import BaseModel, Field
 from sqlalchemy import func, select
 
-from paracle_core.logging import get_logger
 from paracle_meta.database import (
     BestPracticeRecord,
     ContextHistory,
@@ -52,7 +52,7 @@ from paracle_meta.database import (
 )
 
 if TYPE_CHECKING:
-    from sqlalchemy.ext.asyncio import AsyncSession
+    pass
 
 logger = get_logger(__name__)
 
@@ -262,7 +262,9 @@ class GenerationRepository:
             records = session.execute(stmt).scalars().all()
             return [self._to_model(r) for r in records]
 
-    def get_by_type(self, artifact_type: str, limit: int = 50) -> list[GenerationResult]:
+    def get_by_type(
+        self, artifact_type: str, limit: int = 50
+    ) -> list[GenerationResult]:
         """Get generations by artifact type."""
         with self.db.session() as session:
             stmt = (
@@ -278,20 +280,27 @@ class GenerationRepository:
         """Get generation statistics."""
         with self.db.session() as session:
             # Total count
-            total = session.execute(
-                select(func.count(GenerationRecord.id))
-            ).scalar() or 0
+            total = (
+                session.execute(select(func.count(GenerationRecord.id))).scalar() or 0
+            )
 
             # Average quality
-            avg_quality = session.execute(
-                select(func.avg(GenerationRecord.quality_score))
-            ).scalar() or 0
+            avg_quality = (
+                session.execute(
+                    select(func.avg(GenerationRecord.quality_score))
+                ).scalar()
+                or 0
+            )
 
             # Success rate (quality >= 7.0)
-            success_count = session.execute(
-                select(func.count(GenerationRecord.id))
-                .where(GenerationRecord.quality_score >= 7.0)
-            ).scalar() or 0
+            success_count = (
+                session.execute(
+                    select(func.count(GenerationRecord.id)).where(
+                        GenerationRecord.quality_score >= 7.0
+                    )
+                ).scalar()
+                or 0
+            )
 
             success_rate = (success_count / total * 100) if total > 0 else 0
 
@@ -371,18 +380,23 @@ class FeedbackRepository:
         """Get average rating for a generation."""
         with self.db.session() as session:
             result = session.execute(
-                select(func.avg(FeedbackRecord.rating))
-                .where(FeedbackRecord.generation_id == generation_id)
+                select(func.avg(FeedbackRecord.rating)).where(
+                    FeedbackRecord.generation_id == generation_id
+                )
             ).scalar()
             return float(result) if result else None
 
     def get_feedback_count(self, generation_id: str) -> int:
         """Get feedback count for a generation."""
         with self.db.session() as session:
-            return session.execute(
-                select(func.count(FeedbackRecord.id))
-                .where(FeedbackRecord.generation_id == generation_id)
-            ).scalar() or 0
+            return (
+                session.execute(
+                    select(func.count(FeedbackRecord.id)).where(
+                        FeedbackRecord.generation_id == generation_id
+                    )
+                ).scalar()
+                or 0
+            )
 
     def _to_model(self, record: FeedbackRecord) -> Feedback:
         """Convert database record to model."""
@@ -713,8 +727,9 @@ class CostRepository:
         since = self._parse_period(period)
         with self.db.session() as session:
             result = session.execute(
-                select(func.sum(CostRecord.cost_usd))
-                .where(CostRecord.created_at >= since)
+                select(func.sum(CostRecord.cost_usd)).where(
+                    CostRecord.created_at >= since
+                )
             ).scalar()
             return float(result) if result else 0.0
 
@@ -731,10 +746,14 @@ class CostRepository:
 
         with self.db.session() as session:
             # Total cost
-            total_cost = session.execute(
-                select(func.sum(CostRecord.cost_usd))
-                .where(CostRecord.created_at >= since)
-            ).scalar() or 0.0
+            total_cost = (
+                session.execute(
+                    select(func.sum(CostRecord.cost_usd)).where(
+                        CostRecord.created_at >= since
+                    )
+                ).scalar()
+                or 0.0
+            )
 
             # Cost by provider
             by_provider_rows = session.execute(
@@ -761,22 +780,33 @@ class CostRepository:
             by_operation = {row[0]: float(row[1]) for row in by_op_rows}
 
             # Token totals
-            tokens_input = session.execute(
-                select(func.sum(CostRecord.tokens_input))
-                .where(CostRecord.created_at >= since)
-            ).scalar() or 0
+            tokens_input = (
+                session.execute(
+                    select(func.sum(CostRecord.tokens_input)).where(
+                        CostRecord.created_at >= since
+                    )
+                ).scalar()
+                or 0
+            )
 
-            tokens_output = session.execute(
-                select(func.sum(CostRecord.tokens_output))
-                .where(CostRecord.created_at >= since)
-            ).scalar() or 0
+            tokens_output = (
+                session.execute(
+                    select(func.sum(CostRecord.tokens_output)).where(
+                        CostRecord.created_at >= since
+                    )
+                ).scalar()
+                or 0
+            )
 
             # Generation count
-            gen_count = session.execute(
-                select(func.count(CostRecord.generation_id.distinct()))
-                .where(CostRecord.created_at >= since)
-                .where(CostRecord.generation_id.isnot(None))
-            ).scalar() or 0
+            gen_count = (
+                session.execute(
+                    select(func.count(CostRecord.generation_id.distinct()))
+                    .where(CostRecord.created_at >= since)
+                    .where(CostRecord.generation_id.isnot(None))
+                ).scalar()
+                or 0
+            )
 
             return CostReport(
                 period=period,
@@ -941,11 +971,15 @@ class MemoryRepository:
         """
         with self.db.session() as session:
             now = datetime.utcnow()
-            expired = session.execute(
-                select(MemoryItem)
-                .where(MemoryItem.expires_at.isnot(None))
-                .where(MemoryItem.expires_at < now)
-            ).scalars().all()
+            expired = (
+                session.execute(
+                    select(MemoryItem)
+                    .where(MemoryItem.expires_at.isnot(None))
+                    .where(MemoryItem.expires_at < now)
+                )
+                .scalars()
+                .all()
+            )
 
             count = len(expired)
             for record in expired:
@@ -1005,10 +1039,15 @@ class ContextRepository:
     def clear_session(self, session_id: str) -> int:
         """Clear all messages for a session."""
         with self.db.session() as session:
-            records = session.execute(
-                select(ContextHistory)
-                .where(ContextHistory.session_id == session_id)
-            ).scalars().all()
+            records = (
+                session.execute(
+                    select(ContextHistory).where(
+                        ContextHistory.session_id == session_id
+                    )
+                )
+                .scalars()
+                .all()
+            )
 
             count = len(records)
             for record in records:

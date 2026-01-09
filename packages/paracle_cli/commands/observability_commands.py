@@ -154,7 +154,9 @@ def _fallback_traces_list(limit: int) -> dict:
                 "span_id": s.span_id,
                 "parent_span_id": s.parent_span_id,
                 "name": s.name,
-                "status": s.status.value if hasattr(s.status, "value") else str(s.status),
+                "status": (
+                    s.status.value if hasattr(s.status, "value") else str(s.status)
+                ),
                 "duration_ms": s.duration_ms,
                 "attributes": s.attributes or {},
                 "events": s.events or [],
@@ -180,7 +182,9 @@ def _fallback_traces_get(trace_id: str) -> dict:
                 "span_id": s.span_id,
                 "parent_span_id": s.parent_span_id,
                 "name": s.name,
-                "status": s.status.value if hasattr(s.status, "value") else str(s.status),
+                "status": (
+                    s.status.value if hasattr(s.status, "value") else str(s.status)
+                ),
                 "duration_ms": s.duration_ms,
                 "attributes": s.attributes or {},
                 "events": s.events or [],
@@ -227,9 +231,7 @@ def _api_alerts_evaluate(client: APIClient) -> dict:
     return client.alerts_evaluate()
 
 
-def _api_alerts_silence(
-    client: APIClient, fingerprint: str, duration: int
-) -> dict:
+def _api_alerts_silence(client: APIClient, fingerprint: str, duration: int) -> dict:
     """Silence alert via API."""
     return client.alerts_silence(fingerprint, duration)
 
@@ -239,9 +241,7 @@ def _api_alerts_silence(
 # =============================================================================
 
 
-def _fallback_alerts_list(
-    severity: str | None, active_only: bool, limit: int
-) -> dict:
+def _fallback_alerts_list(severity: str | None, active_only: bool, limit: int) -> dict:
     """List alerts directly from core."""
     manager = get_alert_manager()
 
@@ -612,9 +612,7 @@ def alerts():
 @click.option("--active-only", is_flag=True, help="Show only active alerts")
 @click.option("--limit", "-n", default=50, help="Maximum alerts to return")
 @click.option("--json", "as_json", is_flag=True, help="Output as JSON")
-def alerts_list(
-    severity: str | None, active_only: bool, limit: int, as_json: bool
-):
+def alerts_list(severity: str | None, active_only: bool, limit: int, as_json: bool):
     """List alerts.
 
     Examples:

@@ -52,7 +52,8 @@ def test_load_progress_new(temp_workspace):
         assert "started" in progress
         assert len(progress["checkpoints"]) == 6
         assert all(
-            status == "not_started" for status in progress["checkpoints"].values())
+            status == "not_started" for status in progress["checkpoints"].values()
+        )
 
 
 def test_save_and_load_progress(temp_workspace):
@@ -124,7 +125,10 @@ def test_tutorial_reset_command(runner, temp_workspace):
         result = runner.invoke(tutorial, ["reset"], input="y\n")
 
         assert result.exit_code == 0
-        assert "Tutorial progress reset" in result.output or "reset" in result.output.lower()
+        assert (
+            "Tutorial progress reset" in result.output
+            or "reset" in result.output.lower()
+        )
 
 
 def test_tutorial_reset_cancelled(runner, temp_workspace):
@@ -161,7 +165,10 @@ def test_step_1_create_agent_dry_run(temp_workspace):
         progress = load_progress()
 
         # Mock user inputs and confirmations
-        with patch("paracle_cli.commands.tutorial.Prompt.ask", side_effect=["test-agent", "Test description"]):
+        with patch(
+            "paracle_cli.commands.tutorial.Prompt.ask",
+            side_effect=["test-agent", "Test description"],
+        ):
             with patch("paracle_cli.commands.tutorial.Confirm.ask", return_value=False):
                 result = step_1_create_agent(progress)
 
@@ -171,7 +178,9 @@ def test_step_1_create_agent_dry_run(temp_workspace):
                 assert progress["last_step"] == 1
 
                 # Check agent file created
-                agent_file = temp_workspace / ".parac" / "agents" / "specs" / "test-agent.md"
+                agent_file = (
+                    temp_workspace / ".parac" / "agents" / "specs" / "test-agent.md"
+                )
                 assert agent_file.exists()
                 content = agent_file.read_text()
                 assert "test-agent" in content
@@ -187,13 +196,14 @@ def test_step_2_add_tools_dry_run(temp_workspace):
         agents_dir = temp_workspace / ".parac" / "agents" / "specs"
         agents_dir.mkdir(parents=True, exist_ok=True)
         agent_file = agents_dir / "test-agent.md"
-        agent_file.write_text(
-            "---\nname: test-agent\n---\n\n## Usage\n\nTest agent")
+        agent_file.write_text("---\nname: test-agent\n---\n\n## Usage\n\nTest agent")
 
         progress = load_progress()
 
         # Mock user inputs
-        with patch("paracle_cli.commands.tutorial.Prompt.ask", return_value="filesystem,http"):
+        with patch(
+            "paracle_cli.commands.tutorial.Prompt.ask", return_value="filesystem,http"
+        ):
             with patch("paracle_cli.commands.tutorial.Confirm.ask", return_value=False):
                 result = step_2_add_tools(progress)
 
@@ -233,7 +243,10 @@ def test_tutorial_start_command_from_beginning(runner, temp_workspace):
     with patch("paracle_cli.commands.tutorial.Path.cwd", return_value=temp_workspace):
         # Mock all user interactions to decline continuation
         with patch("paracle_cli.commands.tutorial.Confirm.ask", return_value=False):
-            with patch("paracle_cli.commands.tutorial.Prompt.ask", side_effect=["my-agent", "Test agent"]):
+            with patch(
+                "paracle_cli.commands.tutorial.Prompt.ask",
+                side_effect=["my-agent", "Test agent"],
+            ):
                 result = runner.invoke(tutorial, ["start"])
 
                 # Should show welcome and start step 1

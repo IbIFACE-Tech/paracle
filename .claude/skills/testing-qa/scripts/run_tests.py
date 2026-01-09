@@ -18,12 +18,14 @@ def run_tests(coverage=False, markers=None, failed_first=False):
     cmd = ["pytest"]
 
     if coverage:
-        cmd.extend([
-            "--cov=packages",
-            "--cov-report=term-missing",
-            "--cov-report=html",
-            "--cov-fail-under=90",
-        ])
+        cmd.extend(
+            [
+                "--cov=packages",
+                "--cov-report=term-missing",
+                "--cov-report=html",
+                "--cov-fail-under=90",
+            ]
+        )
 
     if markers:
         cmd.extend(["-m", markers])
@@ -32,12 +34,14 @@ def run_tests(coverage=False, markers=None, failed_first=False):
         cmd.append("--failed-first")
 
     # Add standard options
-    cmd.extend([
-        "-v",
-        "--tb=short",
-        "--strict-markers",
-        "tests/",
-    ])
+    cmd.extend(
+        [
+            "-v",
+            "--tb=short",
+            "--strict-markers",
+            "tests/",
+        ]
+    )
 
     print(f"Running: {' '.join(cmd)}")
     result = subprocess.run(cmd)
@@ -49,12 +53,13 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Run Paracle tests")
-    parser.add_argument("--coverage", action="store_true",
-                        help="Run with coverage")
+    parser.add_argument("--coverage", action="store_true", help="Run with coverage")
     parser.add_argument(
-        "--markers", help="Run tests with specific marker (unit, integration, etc.)")
-    parser.add_argument("--failed-first", action="store_true",
-                        help="Run failed tests first")
+        "--markers", help="Run tests with specific marker (unit, integration, etc.)"
+    )
+    parser.add_argument(
+        "--failed-first", action="store_true", help="Run failed tests first"
+    )
 
     args = parser.parse_args()
 

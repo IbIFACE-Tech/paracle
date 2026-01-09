@@ -83,7 +83,8 @@ class ProfilerMiddleware(BaseHTTPMiddleware):
             if response is not None:
                 response.headers["X-Process-Time"] = f"{duration:.6f}"
                 response.headers["X-Request-Count"] = str(
-                    self._request_counts[endpoint])
+                    self._request_counts[endpoint]
+                )
 
         return response
 

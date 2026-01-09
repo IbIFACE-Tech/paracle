@@ -68,13 +68,9 @@ def register_all_providers() -> None:
 
     # Try to register OpenAI-compatible provider
     try:
-        from paracle_providers.openai_compatible import (
-            OpenAICompatibleProvider,
-        )
+        from paracle_providers.openai_compatible import OpenAICompatibleProvider
 
-        ProviderRegistry.register(
-            "openai-compatible", OpenAICompatibleProvider
-        )
+        ProviderRegistry.register("openai-compatible", OpenAICompatibleProvider)
     except ImportError:
         pass  # httpx package not installed
 
@@ -104,9 +100,7 @@ def register_all_providers() -> None:
 
     # Try to register Perplexity provider
     try:
-        from paracle_providers.perplexity_provider import (
-            PerplexityProvider,
-        )
+        from paracle_providers.perplexity_provider import PerplexityProvider
 
         ProviderRegistry.register("perplexity", PerplexityProvider)
     except ImportError:
@@ -114,9 +108,7 @@ def register_all_providers() -> None:
 
     # Try to register OpenRouter provider
     try:
-        from paracle_providers.openrouter_provider import (
-            OpenRouterProvider,
-        )
+        from paracle_providers.openrouter_provider import OpenRouterProvider
 
         ProviderRegistry.register("openrouter", OpenRouterProvider)
     except ImportError:

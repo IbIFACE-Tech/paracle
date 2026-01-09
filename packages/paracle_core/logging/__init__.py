@@ -63,10 +63,7 @@ from paracle_core.logging.integration import (
     log_workflow_execution,
     setup_eventbus_logging,
 )
-from paracle_core.logging.logger import (
-    ParacleLogger,
-    get_logger,
-)
+from paracle_core.logging.logger import ParacleLogger, get_logger
 from paracle_core.logging.management import (
     AggregateQuery,
     LogEntry,
@@ -84,10 +81,7 @@ from paracle_core.logging.platform import (
     get_log_path,
     get_platform_paths,
 )
-from paracle_core.logging.structured import (
-    JsonFormatter,
-    StructuredFormatter,
-)
+from paracle_core.logging.structured import JsonFormatter, StructuredFormatter
 
 __all__ = [
     # Configuration

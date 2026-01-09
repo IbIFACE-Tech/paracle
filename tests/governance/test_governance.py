@@ -55,9 +55,9 @@ class TestAIInstructions:
                 content = f.read()
 
             for pattern, description in required_patterns:
-                assert pattern in content, (
-                    f"{file_path.name} missing {description}: {pattern}"
-                )
+                assert (
+                    pattern in content
+                ), f"{file_path.name} missing {description}: {pattern}"
 
     def test_pre_flight_checklist_exists(self, parac_path):
         """Ensure PRE_FLIGHT_CHECKLIST.md exists."""
@@ -67,9 +67,9 @@ class TestAIInstructions:
         content = checklist_path.read_text(encoding="utf-8")
         # Check for step references (various formats)
         has_steps = (
-            "9-step" in content.lower() or
-            "9 step" in content.lower() or
-            "step" in content.lower()
+            "9-step" in content.lower()
+            or "9 step" in content.lower()
+            or "step" in content.lower()
         )
         assert has_steps, "PRE_FLIGHT_CHECKLIST.md missing step references"
         assert "VALIDATE" in content or "Validate" in content
@@ -95,8 +95,7 @@ class TestGovernanceStructure:
 
         for file_rel in required_files:
             file_path = parac_path / file_rel
-            assert file_path.exists(
-            ), f"Missing required file: .parac/{file_rel}"
+            assert file_path.exists(), f"Missing required file: .parac/{file_rel}"
 
     def test_required_directories_exist(self, parac_path):
         """Ensure all required directories exist."""
@@ -112,20 +111,22 @@ class TestGovernanceStructure:
 
         for dir_rel in required_dirs:
             dir_path = parac_path / dir_rel
-            assert dir_path.exists(
-            ), f"Missing required directory: .parac/{dir_rel}"
+            assert dir_path.exists(), f"Missing required directory: .parac/{dir_rel}"
             assert dir_path.is_dir(), f"Not a directory: .parac/{dir_rel}"
 
     def test_yaml_files_valid(self, parac_path):
         """Ensure all YAML files have valid syntax."""
-        yaml_files = list(parac_path.rglob("*.yaml")) + \
-            list(parac_path.rglob("*.yml"))
+        yaml_files = list(parac_path.rglob("*.yaml")) + list(parac_path.rglob("*.yml"))
 
         # Skip templates, assets, definitions, and cache files
         # These may contain placeholders that aren't valid YAML
         skip_patterns = [
-            "snapshots", "__pycache__", "definitions",
-            "assets", "templates", "skills"
+            "snapshots",
+            "__pycache__",
+            "definitions",
+            "assets",
+            "templates",
+            "skills",
         ]
 
         for yaml_path in yaml_files:
@@ -136,8 +137,7 @@ class TestGovernanceStructure:
                 with open(yaml_path, encoding="utf-8") as f:
                     yaml.safe_load(f)
             except yaml.YAMLError as e:
-                pytest.fail(
-                    f"Invalid YAML in {yaml_path.relative_to(parac_path)}: {e}")
+                pytest.fail(f"Invalid YAML in {yaml_path.relative_to(parac_path)}: {e}")
 
 
 class TestRoadmapConsistency:
@@ -201,9 +201,9 @@ class TestADRGovernance:
         # Note: Duplicate checking is relaxed for historical reasons
         # Some ADRs may have been renumbered or merged
         unique_count = len(set(adr_numbers_int))
-        assert unique_count >= 10, (
-            f"Expected at least 10 unique ADRs, found {unique_count}"
-        )
+        assert (
+            unique_count >= 10
+        ), f"Expected at least 10 unique ADRs, found {unique_count}"
 
     def test_adr_format(self, parac_path):
         """Ensure ADRs follow the required format."""
@@ -214,9 +214,7 @@ class TestADRGovernance:
 
         # Find all ADRs
         adr_sections = re.findall(
-            r"## ADR-\d+:.*?\n\n(.*?)(?=\n## ADR-|\n---|\Z)",
-            content,
-            re.DOTALL
+            r"## ADR-\d+:.*?\n\n(.*?)(?=\n## ADR-|\n---|\Z)", content, re.DOTALL
         )
 
         if not adr_sections:
@@ -229,14 +227,12 @@ class TestADRGovernance:
             for field in required_fields:
                 # Accept: **Field**: or ### Field or ## Field
                 has_field = (
-                    f"**{field}**:" in adr_content or
-                    f"**{field}**" in adr_content or
-                    f"### {field}" in adr_content or
-                    f"## {field}" in adr_content
+                    f"**{field}**:" in adr_content
+                    or f"**{field}**" in adr_content
+                    or f"### {field}" in adr_content
+                    or f"## {field}" in adr_content
                 )
-                assert has_field, (
-                    f"ADR missing required field: {field}"
-                )
+                assert has_field, f"ADR missing required field: {field}"
 
 
 class TestPolicies:
@@ -248,8 +244,9 @@ class TestPolicies:
         assert policies_dir.exists(), "Missing policies directory"
 
         # Check that policies directory has content
-        policy_files = list(policies_dir.glob("*.md")) + \
-            list(policies_dir.glob("*.yaml"))
+        policy_files = list(policies_dir.glob("*.md")) + list(
+            policies_dir.glob("*.yaml")
+        )
 
         assert len(policy_files) >= 1, "No policy files found in policies/"
 
@@ -292,8 +289,7 @@ class TestAgents:
             agent_id = agent.get("id")
             spec_file = specs_dir / f"{agent_id}.md"
 
-            assert spec_file.exists(
-            ), f"Missing spec file for agent: {agent_id}"
+            assert spec_file.exists(), f"Missing spec file for agent: {agent_id}"
 
             # Check spec has required sections
             content = spec_file.read_text()

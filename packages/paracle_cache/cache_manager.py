@@ -7,6 +7,7 @@ from typing import Any
 
 try:
     import redis
+
     REDIS_AVAILABLE = True
 except ImportError:
     REDIS_AVAILABLE = False
@@ -27,12 +28,11 @@ class CacheConfig:
     def from_env(cls) -> "CacheConfig":
         """Create config from environment variables."""
         import os
+
         return cls(
-            enabled=os.getenv("PARACLE_CACHE_ENABLED",
-                              "true").lower() == "true",
+            enabled=os.getenv("PARACLE_CACHE_ENABLED", "true").lower() == "true",
             backend=os.getenv("PARACLE_CACHE_BACKEND", "memory"),
-            redis_url=os.getenv("PARACLE_CACHE_REDIS_URL",
-                                "redis://localhost:6379/0"),
+            redis_url=os.getenv("PARACLE_CACHE_REDIS_URL", "redis://localhost:6379/0"),
             default_ttl=int(os.getenv("PARACLE_CACHE_TTL", "3600")),
             max_memory_size=int(os.getenv("PARACLE_CACHE_MAX_SIZE", "1000")),
             key_prefix=os.getenv("PARACLE_CACHE_PREFIX", "paracle:llm:"),
@@ -91,11 +91,11 @@ class CacheManager:
             )
             # Test connection
             self._redis_client.ping()
-            print(
-                f"✅ Connected to {self.config.backend} at {self.config.redis_url}")
+            print(f"✅ Connected to {self.config.backend} at {self.config.redis_url}")
         except Exception as e:
             print(
-                f"Warning: Could not connect to Redis ({e}), falling back to memory cache")
+                f"Warning: Could not connect to Redis ({e}), falling back to memory cache"
+            )
             self._redis_client = None
             self.config.backend = "memory"
 

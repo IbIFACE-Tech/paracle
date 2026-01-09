@@ -1,7 +1,6 @@
 """Unit tests for paracle_meta.capabilities.code_creation module."""
 
 import pytest
-
 from paracle_meta.capabilities.code_creation import (
     CodeCreationCapability,
     CodeCreationConfig,

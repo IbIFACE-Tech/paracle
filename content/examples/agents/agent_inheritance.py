@@ -15,7 +15,7 @@ def main() -> None:
         provider="openai",
         model="gpt-4",
         temperature=0.7,
-        system_prompt="You are a software developer."
+        system_prompt="You are a software developer.",
     )
     print(f"   ✅ Base agent: {base_agent.name}")
     print(f"      Temperature: {base_agent.temperature}")
@@ -30,7 +30,7 @@ def main() -> None:
         provider="openai",
         model="gpt-4",
         temperature=0.5,  # Override
-        system_prompt="You are an expert Python developer specializing in best practices."
+        system_prompt="You are an expert Python developer specializing in best practices.",
     )
     print(f"   ✅ Specialist: {python_expert.name}")
     print(f"      Inherits from: {python_expert.parent}")
@@ -46,19 +46,19 @@ def main() -> None:
         provider="openai",
         model="gpt-4",
         temperature=0.3,  # Override again
-        system_prompt="You are a security expert focusing on secure Python code."
+        system_prompt="You are a security expert focusing on secure Python code.",
     )
     print(f"   ✅ Security expert: {security_expert.name}")
     print(f"      Inherits from: {security_expert.parent}")
     print(f"      Temperature: {security_expert.temperature} (overridden)")
-    print(f"\n📊 Inheritance Chain:")
-    print(f"   base-coder (temp: 0.7)")
-    print(f"      ↓")
-    print(f"   python-expert (temp: 0.5)")
-    print(f"      ↓")
-    print(f"   security-expert (temp: 0.3)")
-    print(f"\n💡 Each level specializes and overrides as needed!")
-    print(f"📝 Note: Inheritance resolution implemented in Phase 1")
+    print("\n📊 Inheritance Chain:")
+    print("   base-coder (temp: 0.7)")
+    print("      ↓")
+    print("   python-expert (temp: 0.5)")
+    print("      ↓")
+    print("   security-expert (temp: 0.3)")
+    print("\n💡 Each level specializes and overrides as needed!")
+    print("📝 Note: Inheritance resolution implemented in Phase 1")
 
 
 if __name__ == "__main__":

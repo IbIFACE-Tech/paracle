@@ -71,8 +71,7 @@ class WebSocketTransport:
 
         except Exception as e:
             logger.error(f"WebSocket connection failed: {e}")
-            raise ConnectionError(
-                f"Failed to connect to {self.url}: {e}") from e
+            raise ConnectionError(f"Failed to connect to {self.url}: {e}") from e
 
     async def disconnect(self) -> None:
         """Close WebSocket connection."""
@@ -146,7 +145,8 @@ class WebSocketTransport:
                             future.set_result(response)
                     else:
                         logger.warning(
-                            f"Received response for unknown request: {request_id}")
+                            f"Received response for unknown request: {request_id}"
+                        )
 
                 except json.JSONDecodeError as e:
                     logger.error(f"Failed to decode WebSocket message: {e}")

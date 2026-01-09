@@ -132,7 +132,9 @@ def _to_response(request: Any) -> ApprovalRequestResponse:
 # =============================================================================
 
 
-@router.get("/pending", response_model=ApprovalListResponse, operation_id="listPendingApprovals")
+@router.get(
+    "/pending", response_model=ApprovalListResponse, operation_id="listPendingApprovals"
+)
 async def list_pending_approvals(
     workflow_id: str | None = None,
     priority: str | None = None,
@@ -165,7 +167,9 @@ async def list_pending_approvals(
     )
 
 
-@router.get("/decided", response_model=ApprovalListResponse, operation_id="listDecidedApprovals")
+@router.get(
+    "/decided", response_model=ApprovalListResponse, operation_id="listDecidedApprovals"
+)
 async def list_decided_approvals(
     workflow_id: str | None = None,
     approval_status: str | None = None,
@@ -202,7 +206,9 @@ async def list_decided_approvals(
     )
 
 
-@router.get("/stats", response_model=ApprovalStatsResponse, operation_id="getApprovalStats")
+@router.get(
+    "/stats", response_model=ApprovalStatsResponse, operation_id="getApprovalStats"
+)
 async def get_approval_stats(
     manager: ApprovalManager = Depends(get_approval_manager),
 ) -> ApprovalStatsResponse:
@@ -215,7 +221,9 @@ async def get_approval_stats(
     return ApprovalStatsResponse(**stats)
 
 
-@router.get("/{approval_id}", response_model=ApprovalRequestResponse, operation_id="getApproval")
+@router.get(
+    "/{approval_id}", response_model=ApprovalRequestResponse, operation_id="getApproval"
+)
 async def get_approval(
     approval_id: str,
     manager: ApprovalManager = Depends(get_approval_manager),
@@ -240,7 +248,11 @@ async def get_approval(
     return _to_response(request)
 
 
-@router.post("/{approval_id}/approve", response_model=ApprovalRequestResponse, operation_id="approveRequest")
+@router.post(
+    "/{approval_id}/approve",
+    response_model=ApprovalRequestResponse,
+    operation_id="approveRequest",
+)
 async def approve_request(
     approval_id: str,
     body: ApproveRequest,
@@ -261,9 +273,7 @@ async def approve_request(
         403: If approver not authorized.
     """
     try:
-        request = await manager.approve(
-            approval_id, body.approver, body.reason
-        )
+        request = await manager.approve(approval_id, body.approver, body.reason)
         return _to_response(request)
 
     except ApprovalNotFoundError:
@@ -316,9 +326,7 @@ async def reject_request(
         403: If approver not authorized.
     """
     try:
-        request = await manager.reject(
-            approval_id, body.approver, body.reason
-        )
+        request = await manager.reject(approval_id, body.approver, body.reason)
         return _to_response(request)
 
     except ApprovalNotFoundError:

@@ -32,8 +32,7 @@ class LogGlobalConfig(BaseModel):
     timezone: str = "UTC"
 
     # Rotation settings (defaults)
-    default_rotation: Literal["none", "daily",
-                              "weekly", "monthly", "size"] = "none"
+    default_rotation: Literal["none", "daily", "weekly", "monthly", "size"] = "none"
     default_retention_days: int | None = None
     compress_rotated: bool = True
     backup_count: int = 10
@@ -94,8 +93,7 @@ class PredefinedLogsConfig(BaseModel):
             format="[{timestamp}] [{agent}] [DECISION] {decision} | {rationale} | {impact}",
             description="Important decisions made by agents",
             required_fields=["timestamp", "agent", "decision"],
-            optional_fields=["rationale", "impact",
-                             "alternatives", "references"],
+            optional_fields=["rationale", "impact", "alternatives", "references"],
         )
     )
     security: LogFileConfig = Field(
@@ -107,8 +105,13 @@ class PredefinedLogsConfig(BaseModel):
             rotation="daily",
             retention_days=365,
             required_fields=["timestamp", "level", "event_type", "actor"],
-            optional_fields=["resource", "action",
-                             "outcome", "ip_address", "user_agent"],
+            optional_fields=[
+                "resource",
+                "action",
+                "outcome",
+                "ip_address",
+                "user_agent",
+            ],
             redact_sensitive=True,
         )
     )
@@ -147,8 +150,7 @@ class PredefinedLogsConfig(BaseModel):
             rotation="daily",
             retention_days=90,
             required_fields=["timestamp", "level", "message", "error_type"],
-            optional_fields=["stack_trace",
-                             "context", "request_id", "user_id"],
+            optional_fields=["stack_trace", "context", "request_id", "user_id"],
             include_stack_trace=True,
         )
     )
@@ -185,8 +187,7 @@ class LogsConfig(BaseModel):
     global_config: LogGlobalConfig = Field(
         default_factory=LogGlobalConfig, alias="global"
     )
-    predefined: PredefinedLogsConfig = Field(
-        default_factory=PredefinedLogsConfig)
+    predefined: PredefinedLogsConfig = Field(default_factory=PredefinedLogsConfig)
     custom: list[CustomLogConfig] = Field(default_factory=list)
 
     model_config = ConfigDict(populate_by_name=True)
@@ -342,8 +343,7 @@ class ADRConfig(BaseModel):
     backup_before_migrate: bool = True
 
     # Validation
-    validation: ADRValidationConfig = Field(
-        default_factory=ADRValidationConfig)
+    validation: ADRValidationConfig = Field(default_factory=ADRValidationConfig)
 
 
 # =============================================================================
@@ -388,13 +388,17 @@ class PhasesConfig(BaseModel):
                 name="pending", description="Not yet started", color="gray"
             ),
             PhaseStatusConfig(
-                name="in_progress", description="Currently being worked on", color="yellow"
+                name="in_progress",
+                description="Currently being worked on",
+                color="yellow",
             ),
             PhaseStatusConfig(
                 name="completed", description="Successfully finished", color="green"
             ),
             PhaseStatusConfig(
-                name="blocked", description="Cannot proceed due to blockers", color="red"
+                name="blocked",
+                description="Cannot proceed due to blockers",
+                color="red",
             ),
             PhaseStatusConfig(
                 name="on_hold", description="Temporarily paused", color="orange"
@@ -413,7 +417,12 @@ class DeliverablesConfig(BaseModel):
 
     statuses: list[str] = Field(
         default_factory=lambda: [
-            "pending", "in_progress", "completed", "blocked", "cancelled"]
+            "pending",
+            "in_progress",
+            "completed",
+            "blocked",
+            "cancelled",
+        ]
     )
     default_status: str = "pending"
     track_completion_date: bool = True
@@ -454,8 +463,9 @@ class RoadmapValidationConfig(BaseModel):
 class RoadmapExportConfig(BaseModel):
     """Export settings for roadmaps."""
 
-    formats: list[str] = Field(default_factory=lambda: [
-                               "yaml", "json", "markdown", "html"])
+    formats: list[str] = Field(
+        default_factory=lambda: ["yaml", "json", "markdown", "html"]
+    )
     default_format: str = "yaml"
     include_metadata: bool = True
 
@@ -476,8 +486,7 @@ class RoadmapConfig(BaseModel):
     phases: PhasesConfig = Field(default_factory=PhasesConfig)
 
     # Deliverable configuration
-    deliverables: DeliverablesConfig = Field(
-        default_factory=DeliverablesConfig)
+    deliverables: DeliverablesConfig = Field(default_factory=DeliverablesConfig)
 
     # Additional roadmaps
     additional: list[RoadmapFileConfig] = Field(default_factory=list)
@@ -486,8 +495,7 @@ class RoadmapConfig(BaseModel):
     sync: RoadmapSyncConfig = Field(default_factory=RoadmapSyncConfig)
 
     # Validation
-    validation: RoadmapValidationConfig = Field(
-        default_factory=RoadmapValidationConfig)
+    validation: RoadmapValidationConfig = Field(default_factory=RoadmapValidationConfig)
 
     # Export
     export: RoadmapExportConfig = Field(default_factory=RoadmapExportConfig)
@@ -657,23 +665,29 @@ class FileManagementConfig(BaseModel):
 
         # Parse global config
         global_data = data.get("global", {})
-        global_config = LogGlobalConfig(
-            **global_data) if global_data else LogGlobalConfig()
+        global_config = (
+            LogGlobalConfig(**global_data) if global_data else LogGlobalConfig()
+        )
 
         # Parse predefined logs
         predefined_data = data.get("predefined", {})
         predefined = PredefinedLogsConfig()
 
         if predefined_data:
-            for name in ["actions", "decisions", "security", "performance", "risk", "errors"]:
+            for name in [
+                "actions",
+                "decisions",
+                "security",
+                "performance",
+                "risk",
+                "errors",
+            ]:
                 if name in predefined_data:
-                    setattr(predefined, name, LogFileConfig(
-                        **predefined_data[name]))
+                    setattr(predefined, name, LogFileConfig(**predefined_data[name]))
 
         # Parse custom logs
         custom_data = data.get("custom", [])
-        custom = [CustomLogConfig(**c)
-                  for c in custom_data] if custom_data else []
+        custom = [CustomLogConfig(**c) for c in custom_data] if custom_data else []
 
         return LogsConfig(
             base_path=data.get("base_path", "memory/logs"),
@@ -690,12 +704,12 @@ class FileManagementConfig(BaseModel):
 
         # Parse nested configs
         limits_data = data.get("limits", {})
-        limits = ADRLimitsConfig(
-            **limits_data) if limits_data else ADRLimitsConfig()
+        limits = ADRLimitsConfig(**limits_data) if limits_data else ADRLimitsConfig()
 
         defaults_data = data.get("defaults", {})
-        defaults = ADRDefaultsConfig(
-            **defaults_data) if defaults_data else ADRDefaultsConfig()
+        defaults = (
+            ADRDefaultsConfig(**defaults_data) if defaults_data else ADRDefaultsConfig()
+        )
 
         validation_data = data.get("validation", {})
         validation = (
@@ -742,12 +756,14 @@ class FileManagementConfig(BaseModel):
 
         # Parse nested configs
         limits_data = data.get("limits", {})
-        limits = RoadmapLimitsConfig(
-            **limits_data) if limits_data else RoadmapLimitsConfig()
+        limits = (
+            RoadmapLimitsConfig(**limits_data) if limits_data else RoadmapLimitsConfig()
+        )
 
         phases_data = data.get("phases", {})
-        phases = cls._parse_phases_config(
-            phases_data) if phases_data else PhasesConfig()
+        phases = (
+            cls._parse_phases_config(phases_data) if phases_data else PhasesConfig()
+        )
 
         deliverables_data = data.get("deliverables", {})
         deliverables = (
@@ -757,8 +773,7 @@ class FileManagementConfig(BaseModel):
         )
 
         sync_data = data.get("sync", {})
-        sync = RoadmapSyncConfig(
-            **sync_data) if sync_data else RoadmapSyncConfig()
+        sync = RoadmapSyncConfig(**sync_data) if sync_data else RoadmapSyncConfig()
 
         validation_data = data.get("validation", {})
         validation = (
@@ -768,21 +783,20 @@ class FileManagementConfig(BaseModel):
         )
 
         export_data = data.get("export", {})
-        export = RoadmapExportConfig(
-            **export_data) if export_data else RoadmapExportConfig()
+        export = (
+            RoadmapExportConfig(**export_data) if export_data else RoadmapExportConfig()
+        )
 
         # Parse additional roadmaps
         additional_data = data.get("additional", [])
         additional = (
-            [RoadmapFileConfig(**r)
-             for r in additional_data] if additional_data else []
+            [RoadmapFileConfig(**r) for r in additional_data] if additional_data else []
         )
 
         return RoadmapConfig(
             base_path=data.get("base_path", "roadmap"),
             primary=data.get("primary", "roadmap.yaml"),
-            primary_description=data.get(
-                "primary_description", "Main project roadmap"),
+            primary_description=data.get("primary_description", "Main project roadmap"),
             limits=limits,
             phases=phases,
             deliverables=deliverables,
@@ -803,8 +817,9 @@ class FileManagementConfig(BaseModel):
 
         progress_data = data.get("progress", {})
         progress = (
-            PhaseProgressConfig(
-                **progress_data) if progress_data else PhaseProgressConfig()
+            PhaseProgressConfig(**progress_data)
+            if progress_data
+            else PhaseProgressConfig()
         )
 
         return PhasesConfig(

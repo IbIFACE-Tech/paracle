@@ -71,5 +71,5 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: 'âš ï¸? **Warning**: This PR requires `.parac/` workspace updates. Please run `python .parac/tools/hooks/auto-maintain.py` locally and commit the changes.'
+              body: '**Warning**: This PR requires `.parac/` workspace updates. Please run `python .parac/tools/hooks/auto-maintain.py` locally and commit the changes.'
             })
