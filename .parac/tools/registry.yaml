@@ -1,0 +1,62 @@
+# Tools Registry
+# Version: 1.0
+
+# Built-in Tools
+builtin:
+  - name: web_search
+    type: web
+    description: Search the web for information
+    permissions:
+      - internet_access
+    status: available
+
+  - name: code_executor
+    type: execution
+    description: Execute code snippets safely
+    permissions:
+      - code_execution
+    status: available
+
+  - name: file_reader
+    type: filesystem
+    description: Read files from the workspace
+    permissions:
+      - read_files
+    status: available
+
+  - name: api_caller
+    type: network
+    description: Make HTTP API calls
+    permissions:
+      - internet_access
+    status: available
+
+# Custom Tools
+custom: []
+
+# Tool Categories
+categories:
+  web:
+    description: Web-related tools (scraping, search, etc.)
+  execution:
+    description: Code and command execution tools
+  filesystem:
+    description: File system operations
+  network:
+    description: Network and API tools
+  data:
+    description: Data processing and transformation tools
+
+# Default Tool Sets
+tool_sets:
+  basic:
+    - file_reader
+
+  developer:
+    - file_reader
+    - code_executor
+
+  researcher:
+    - web_search
+    - file_reader
+    - api_caller

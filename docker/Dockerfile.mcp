@@ -1,0 +1,50 @@
+# Paracle MCP Server - Production Dockerfile
+# Exposes Paracle tools via Model Context Protocol (MCP)
+
+FROM python:3.12-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install uv for fast package management
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+
+# Set Python environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    UV_SYSTEM_PYTHON=1 \
+    PYTHONPATH=/app
+
+# Copy dependency files
+COPY pyproject.toml uv.lock README.md ./
+COPY packages/ ./packages/
+
+# Install dependencies with MCP extras
+RUN uv sync --frozen --no-dev --extra mcp --extra store --extra events
+
+# Copy application code
+COPY . .
+
+# Create .parac directory for workspace
+RUN mkdir -p /app/.parac/memory/logs /app/.parac/memory/data && \
+    useradd -m -u 1000 paracle && \
+    chown -R paracle:paracle /app
+USER paracle
+
+# MCP server uses stdio by default (no port exposed)
+# For HTTP transport, expose port 3000
+EXPOSE 3000
+
+# Health check using CLI version
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+    CMD uv run --no-project paracle --version || exit 1
+
+# Default: Run MCP server with stdio transport
+# Override with --http for HTTP transport
+CMD ["uv", "run", "--no-project", "paracle", "mcp", "serve", "--stdio"]

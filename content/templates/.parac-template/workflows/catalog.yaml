@@ -1,0 +1,41 @@
+# Workflow Catalog
+# Registry of all workflows in this project
+
+# Schema version
+schema_version: "1.0"
+
+# Workflow list
+workflows:
+  # Example workflow
+  - name: hello-world
+    description: A simple hello world workflow
+    template: templates/hello_world.yaml
+    enabled: true
+    version: 1.0.0
+    tags:
+      - example
+      - getting-started
+
+  # Add your workflows here
+  # - name: data-pipeline
+  #   description: Process data through multiple agents
+  #   definition: definitions/data_pipeline.yaml
+  #   enabled: true
+  #   version: 1.0.0
+  #   tags:
+  #     - data
+  #     - pipeline
+
+# Global workflow settings
+settings:
+  auto_register: false # Auto-register workflows from definitions/
+  require_validation: true # Validate workflow definitions on load
+  enable_parallel: true # Enable parallel execution
+  default_timeout: 600 # Default timeout in seconds
+  max_retries: 3 # Maximum retry attempts
+
+# Execution policies (optional)
+policies:
+  require_approval: false # Require approval before execution
+  enable_logging: true # Log workflow executions
+  enable_tracing: false # Enable distributed tracing

@@ -1,0 +1,38 @@
+# Paracle .parac directory - .gitignore template
+# Copy this to your .parac/.gitignore file
+
+# Runtime data (generated during execution)
+logs/
+runs/
+*.log
+
+# Temporary context (changes frequently)
+memory/context/current_state.yaml
+memory/context/open_questions.md
+
+# Local development
+*.local.yaml
+*.dev.yaml
+.tmp/
+.cache/
+
+# Sensitive information
+*.key
+*.secret
+secrets/
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Keep structure
+!logs/README.md
+!logs/.gitkeep
+!runs/.gitkeep

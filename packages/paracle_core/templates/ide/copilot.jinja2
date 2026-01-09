@@ -1,0 +1,233 @@
+{% extends "base.jinja2" %}
+
+{% block header %}
+# Paracle AI Instructions for GitHub Copilot
+# Auto-generated from .parac/ - DO NOT EDIT MANUALLY
+# Regenerate with: paracle ide sync --copy
+# Generated: {{ generated_at }}
+#
+# 📖 Read First: .parac/UNIVERSAL_AI_INSTRUCTIONS.md (works with ANY IDE)
+
+## 🚨 MANDATORY PRE-FLIGHT CHECKLIST
+
+**Before ANY implementation task**, complete the checklist:
+
+👉 **READ THIS FIRST: [.parac/PRE_FLIGHT_CHECKLIST.md](../.parac/PRE_FLIGHT_CHECKLIST.md)**
+
+**Quick version (4 minutes):**
+```
+✅ 1. Read GOVERNANCE.md
+✅ 2. Check current_state.yaml (phase, progress, in_progress)
+✅ 3. Consult roadmap.yaml (phase focus, deliverables, priorities)
+✅ 4. Check open_questions.md (blockers, related questions)
+✅ 5. VALIDATE: Task in roadmap? Current phase? Priority? Dependencies?
+✅ 6. Adopt agent persona from specs/{agent}.md
+✅ 7. Check policies (CODE_STYLE, TESTING, SECURITY)
+✅ 8. AFTER: Log to agent_actions.log
+✅ 9. AFTER: Update current_state.yaml if milestone reached
+```
+
+**This ensures you work on THE RIGHT THING at the RIGHT TIME.**
+{% endblock %}
+
+{% block ide_specific %}
+
+## GitHub Copilot Features for .parac/ Integration
+
+### Chat Commands
+
+**Use Copilot Chat for context-aware assistance:**
+- **`/explain`** - Explain selected code
+- **`/fix`** - Fix issues in code
+- **`/tests`** - Generate tests for code
+- **`/doc`** - Add documentation
+- **`@workspace`** - Reference workspace files
+
+### Leveraging .parac/ with @workspace
+
+**Before starting ANY task - Check governance:**
+```
+@workspace Open .parac/GOVERNANCE.md and explain the governance rules
+@workspace What's the current state in .parac/memory/context/current_state.yaml?
+@workspace What phase are we in? Check .parac/roadmap/roadmap.yaml
+```
+
+**When adopting agent persona:**
+```
+@workspace Which agent in .parac/agents/manifest.yaml should I use for [task]?
+@workspace Show me .parac/agents/specs/coder.md agent responsibilities
+@workspace What skills does this agent have? Check .parac/agents/SKILL_ASSIGNMENTS.md
+```
+
+**For implementation guidance:**
+```
+@workspace .parac/policies/CODE_STYLE.md - What's the code style?
+@workspace .parac/policies/TESTING.md - What's the testing policy?
+@workspace content/docs/architecture.md - Show me the architecture
+```
+
+**After actions - MANDATORY logging:**
+```
+User: "Add to .parac/memory/logs/agent_actions.log:
+[2026-01-04 15:30:00] [CoderAgent] [IMPLEMENTATION] Implemented [feature] in packages/[path]"
+```
+
+### Code Generation with .parac/ Context
+
+**1. Check current context:**
+```
+User: "Before implementing [feature], check:
+- @workspace .parac/memory/context/current_state.yaml
+- @workspace .parac/agents/specs/coder.md
+- @workspace .parac/policies/CODE_STYLE.md"
+```
+
+**2. Generate code following standards:**
+- Python 3.10+ with type hints
+- Pydantic v2 for all models
+- Hexagonal architecture (ports & adapters)
+- Google-style docstrings
+- pytest for testing
+
+**3. After generation - LOG IT:**
+```
+User: "Log this implementation to .parac/memory/logs/agent_actions.log"
+```
+
+### Complete Workflow with Copilot Chat
+
+**Step 1: Pre-work**
+```
+User: "I want to work on [task]. First, show me:
+@workspace .parac/GOVERNANCE.md
+@workspace .parac/memory/context/current_state.yaml
+@workspace .parac/roadmap/roadmap.yaml
+
+What should I know?"
+```
+
+**Step 2: Agent Selection**
+```
+User: "@workspace Which agent from .parac/agents/manifest.yaml should handle [task type]?
+Then show me the full spec from .parac/agents/specs/{agent}.md"
+```
+
+**Step 3: Implementation**
+```
+User: "Implement [feature] following:
+- Agent standards from @workspace .parac/agents/specs/coder.md
+- Code style from @workspace .parac/policies/CODE_STYLE.md
+- Architecture from @workspace content/docs/architecture.md"
+```
+
+**Step 4: Testing**
+```
+User: "/tests Generate tests following @workspace .parac/policies/TESTING.md"
+```
+
+**Step 5: Post-work (MANDATORY)**
+```
+User: "Add to @workspace .parac/memory/logs/agent_actions.log:
+[TIMESTAMP] [AGENT] [ACTION] Description with file paths
+
+Update @workspace .parac/memory/context/current_state.yaml if needed"
+```
+
+### Inline Suggestions Tips
+
+**When Copilot suggests code:**
+1. Check if it follows agent standards (see .parac/agents/specs/)
+2. Verify code style compliance (see .parac/policies/CODE_STYLE.md)
+3. Ensure architectural patterns (hexagonal architecture)
+4. After accepting, log the change
+
+**Use inline comments to guide Copilot:**
+```python
+# Following CoderAgent standards from .parac/agents/specs/coder.md
+# Using Pydantic v2 as per .parac/policies/CODE_STYLE.md
+class MyModel(BaseModel):
+    # Copilot will suggest fields following these standards
+```
+
+### Chat Slash Commands for .parac/
+
+- **`/explain @workspace .parac/agents/specs/coder.md`** - Understand agent responsibilities
+- **`/fix`** (with context from .parac/policies/) - Fix code following policies
+- **`/tests @workspace .parac/policies/TESTING.md`** - Generate tests per policy
+- **`/doc`** (Google-style) - Add docstrings as per CODE_STYLE.md
+
+### .parac/ Quick Reference for Copilot
+
+| What You Need | Use @workspace |
+| --- | --- |
+| Governance rules | `@workspace .parac/GOVERNANCE.md` |
+| Current project state | `@workspace .parac/memory/context/current_state.yaml` |
+| Current phase/priorities | `@workspace .parac/roadmap/roadmap.yaml` |
+| Available agents | `@workspace .parac/agents/manifest.yaml` |
+| Agent responsibilities | `@workspace .parac/agents/specs/{agent}.md` |
+| Agent skills | `@workspace .parac/agents/SKILL_ASSIGNMENTS.md` |
+| Code style | `@workspace .parac/policies/CODE_STYLE.md` |
+| Testing policy | `@workspace .parac/policies/TESTING.md` |
+| Security policy | `@workspace .parac/policies/SECURITY.md` |
+| Action log | `@workspace .parac/memory/logs/agent_actions.log` |
+| Open questions | `@workspace .parac/memory/context/open_questions.md` |
+| Architecture | `@workspace content/docs/architecture.md` |
+| Config files explained | `@workspace .parac/CONFIG_FILES.md` |
+
+### Multi-Turn Conversation Pattern
+
+```
+User: "Let's work on [feature] following .parac/ governance"
+
+Copilot: "I'll check the necessary files first..."
+[Copilot reads GOVERNANCE.md, current_state.yaml, roadmap.yaml]
+
+User: "Which agent should I adopt?"
+
+Copilot: "Based on [task type], you should adopt CoderAgent"
+[Copilot references .parac/agents/manifest.yaml and specs/coder.md]
+
+User: "Show me the implementation plan"
+
+Copilot: "Here's the plan following CoderAgent standards..."
+
+User: "Implement it"
+
+Copilot: [Generates code following all standards]
+
+User: "Log this action"
+
+Copilot: [Adds entry to agent_actions.log]
+```
+
+### Common Patterns
+
+**Pattern 1: New Feature**
+```
+1. @workspace .parac/memory/context/current_state.yaml - Check state
+2. @workspace .parac/agents/specs/coder.md - Adopt CoderAgent
+3. @workspace .parac/policies/CODE_STYLE.md - Follow style
+4. Implement feature
+5. /tests - Generate tests
+6. Log to agent_actions.log
+```
+
+**Pattern 2: Bug Fix**
+```
+1. @workspace .parac/GOVERNANCE.md - Understand dogfooding
+2. /explain - Understand buggy code
+3. @workspace .parac/agents/specs/coder.md - Follow CoderAgent
+4. /fix - Fix the bug
+5. /tests - Add regression test
+6. Log to agent_actions.log
+```
+
+**Pattern 3: Documentation**
+```
+1. @workspace .parac/agents/specs/documenter.md - Adopt Documenter
+2. @workspace .parac/policies/CODE_STYLE.md - Google-style docstrings
+3. /doc - Generate documentation
+4. Log to agent_actions.log
+```
+
+{% endblock %}

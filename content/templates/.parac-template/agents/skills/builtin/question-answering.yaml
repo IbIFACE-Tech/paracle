@@ -1,0 +1,34 @@
+name: question-answering
+display_name: "Question Answering"
+category: communication
+description: |
+  Ability to answer questions accurately and concisely based on knowledge and context.
+  Provides clear, informative responses to user queries.
+
+  Use cases:
+  - General Q&A
+  - Knowledge retrieval
+  - Information lookup
+  - Clarification requests
+
+level: intermediate
+
+# No specific tools required - uses model's built-in capabilities
+tools: []
+
+capabilities:
+  - factual_responses
+  - context_understanding
+  - clarification
+  - follow_up_questions
+
+requirements: []
+
+tags:
+  - qa
+  - conversation
+  - knowledge
+  - information
+
+version: "1.0.0"
+enabled: true

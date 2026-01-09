@@ -1,0 +1,48 @@
+{# Gemini CLI Instructions Template #}
+{% extends "base.jinja2" %}
+
+{% block header %}
+# Gemini CLI Instructions for Paracle
+# Auto-generated from .parac/ - DO NOT EDIT MANUALLY
+# Regenerate with: paracle ide sync --copy
+# Generated: {{ generated_at }}
+#
+# Place this file in .gemini/instructions.md
+{% endblock %}
+
+{% block ide_specific %}
+## Gemini CLI Configuration
+
+This file configures Google's Gemini CLI for Paracle projects.
+
+### Setup
+
+1. Install Gemini CLI: `npm install -g @google/gemini-cli`
+2. Configure: `gemini config set instructions_file .gemini/instructions.md`
+3. Use: `gemini ask "your question"`
+
+### Paracle Integration
+
+Access Paracle tools via MCP:
+
+```bash
+# Start MCP server
+paracle mcp serve --stdio
+
+# List tools
+paracle mcp list
+```
+
+### Project Context
+
+Always read these files for context:
+- `.parac/memory/context/current_state.yaml` - Current state
+- `.parac/roadmap/roadmap.yaml` - Priorities
+- `.parac/agents/specs/` - Agent guidelines
+
+### Agent Guidelines
+
+{% for agent in agents %}
+**{{ agent.name }}** (`{{ agent.id }}`): {{ agent.description }}
+{% endfor %}
+{% endblock %}

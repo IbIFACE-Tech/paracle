@@ -1,0 +1,20 @@
+# Paracle Project (Lite Mode)
+# Upgrade to full mode: paracle init --template standard --force
+
+name: { { PROJECT_NAME } }
+version: 0.0.1
+description: A Paracle lite project - perfect for prototyping!
+
+# Default LLM settings
+defaults:
+  model: gpt-4o-mini
+  provider: openai
+  temperature: 0.7
+  max_tokens: 2000
+
+# Metadata
+metadata:
+  created_at: "{{DATE}}"
+  mode: lite
+  phase: "Prototyping"
+  status: active

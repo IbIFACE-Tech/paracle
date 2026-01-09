@@ -1,0 +1,282 @@
+# Model Provider Adapters Configuration
+# Bring Your Own Models
+
+version: "1.0"
+
+# Available Providers
+providers:
+  # OpenAI
+  - id: openai
+    name: OpenAI
+    type: api
+    status: supported
+    priority: high
+    phase: phase_2
+    docs: https://platform.openai.com/docs
+
+    models:
+      - name: gpt-4
+        capabilities: [chat, function_calling, vision]
+        context_window: 8192
+        cost_per_1k_tokens: { input: 0.03, output: 0.06 }
+
+      - name: gpt-4-turbo
+        capabilities: [chat, function_calling, vision, json_mode]
+        context_window: 128000
+        cost_per_1k_tokens: { input: 0.01, output: 0.03 }
+
+      - name: gpt-3.5-turbo
+        capabilities: [chat, function_calling]
+        context_window: 16385
+        cost_per_1k_tokens: { input: 0.0005, output: 0.0015 }
+
+    configuration:
+      auth: api_key
+      env_var: OPENAI_API_KEY
+      base_url: https://api.openai.com/v1
+
+    adapter:
+      package: paracle_providers.openai
+      interface: OpenAIProvider
+
+  # Anthropic
+  - id: anthropic
+    name: Anthropic Claude
+    type: api
+    status: supported
+    priority: high
+    phase: phase_2
+    docs: https://docs.anthropic.com
+
+    models:
+      - name: claude-sonnet-4.5
+        capabilities: [chat, function_calling, vision]
+        context_window: 200000
+        cost_per_1k_tokens: { input: 0.003, output: 0.015 }
+
+      - name: claude-opus-4
+        capabilities: [chat, function_calling, vision]
+        context_window: 200000
+        cost_per_1k_tokens: { input: 0.015, output: 0.075 }
+
+      - name: claude-haiku-4
+        capabilities: [chat, function_calling]
+        context_window: 200000
+        cost_per_1k_tokens: { input: 0.00025, output: 0.00125 }
+
+    configuration:
+      auth: api_key
+      env_var: ANTHROPIC_API_KEY
+      base_url: https://api.anthropic.com
+
+    adapter:
+      package: paracle_providers.anthropic
+      interface: AnthropicProvider
+
+  # Google AI
+  - id: google
+    name: Google AI (Gemini)
+    type: api
+    status: planned
+    priority: medium
+    phase: phase_2
+    docs: https://ai.google.dev/docs
+
+    models:
+      - name: gemini-pro
+        capabilities: [chat, function_calling]
+        context_window: 32000
+
+      - name: gemini-pro-vision
+        capabilities: [chat, vision]
+        context_window: 16000
+
+    configuration:
+      auth: api_key
+      env_var: GOOGLE_API_KEY
+
+    adapter:
+      package: paracle_providers.google
+      interface: GoogleProvider
+
+  # Azure OpenAI
+  - id: azure_openai
+    name: Azure OpenAI Service
+    type: api
+    status: planned
+    priority: medium
+    phase: phase_2
+    docs: https://learn.microsoft.com/azure/ai-services/openai
+
+    models:
+      - name: gpt-4
+        capabilities: [chat, function_calling]
+
+      - name: gpt-35-turbo
+        capabilities: [chat, function_calling]
+
+    configuration:
+      auth: azure_ad
+      env_vars:
+        endpoint: AZURE_OPENAI_ENDPOINT
+        key: AZURE_OPENAI_KEY
+        deployment: AZURE_OPENAI_DEPLOYMENT
+
+    adapter:
+      package: paracle_providers.azure_openai
+      interface: AzureOpenAIProvider
+
+  # Local Models (Ollama)
+  - id: ollama
+    name: Ollama (Local)
+    type: local
+    status: planned
+    priority: medium
+    phase: phase_2
+    docs: https://ollama.ai
+
+    models:
+      - name: llama3
+        capabilities: [chat]
+        context_window: 8192
+
+      - name: codellama
+        capabilities: [chat, code]
+        context_window: 16384
+
+      - name: mistral
+        capabilities: [chat]
+        context_window: 8192
+
+    configuration:
+      auth: none
+      base_url: http://localhost:11434
+
+    adapter:
+      package: paracle_providers.ollama
+      interface: OllamaProvider
+
+  # HuggingFace
+  - id: huggingface
+    name: HuggingFace Inference
+    type: api
+    status: future
+    priority: low
+    phase: phase_4
+    docs: https://huggingface.co/docs/api-inference
+
+    configuration:
+      auth: api_key
+      env_var: HUGGINGFACE_API_KEY
+
+    adapter:
+      package: paracle_providers.huggingface
+      interface: HuggingFaceProvider
+
+# Provider Interface
+provider_interface:
+  required_methods:
+    - chat_completion(messages, config) -> Response
+    - stream_chat_completion(messages, config) -> AsyncIterator[Response]
+    - validate_config(config) -> bool
+    - get_available_models() -> List[str]
+
+  optional_methods:
+    - count_tokens(text) -> int
+    - embed(text) -> List[float]
+    - moderate(text) -> ModerationResult
+
+  response_format:
+    content: str
+    usage: Dict[str, int]
+    finish_reason: Optional[str]
+    metadata: Dict[str, Any]
+
+# Cost Tracking
+cost_tracking:
+  enabled: true
+  track_per:
+    - provider
+    - model
+    - agent
+    - workflow
+    - user
+
+  alerts:
+    - threshold: 100 # USD
+      action: notify
+    - threshold: 1000 # USD
+      action: block_and_notify
+
+# Fallback Strategy
+fallback:
+  enabled: true
+
+  strategies:
+    - name: primary_secondary
+      primary: openai
+      secondary: anthropic
+      trigger: rate_limit_or_error
+
+    - name: cost_optimized
+      order: [gpt-3.5-turbo, claude-haiku, ollama]
+      trigger: cost_threshold
+
+    - name: capability_based
+      rules:
+        vision_required: [gpt-4-turbo, claude-opus]
+        code_generation: [gpt-4, claude-sonnet, codellama]
+        fast_response: [gpt-3.5-turbo, claude-haiku]
+
+# Caching
+caching:
+  enabled: true
+  provider_level: true
+  ttl: 3600 # seconds
+
+  cache_keys:
+    - model
+    - messages
+    - temperature
+    - max_tokens
+
+# Monitoring
+monitoring:
+  metrics:
+    - latency_per_provider
+    - tokens_per_provider
+    - cost_per_provider
+    - error_rate_per_provider
+    - cache_hit_rate
+
+  logging:
+    request: true
+    response: true
+    errors: true
+
+# Rate Limiting
+rate_limiting:
+  per_provider: true
+  per_model: true
+
+  defaults:
+    requests_per_minute: 60
+    tokens_per_minute: 90000
+
+  overrides:
+    openai:
+      requests_per_minute: 3500
+      tokens_per_minute: 90000
+
+# Testing
+testing:
+  mock_providers: true
+  test_suite_per_provider: required
+  cost_estimation_tests: required
+
+# Documentation
+documentation:
+  provider_setup_guide: required
+  model_comparison: required
+  cost_calculator: required
+  examples: required

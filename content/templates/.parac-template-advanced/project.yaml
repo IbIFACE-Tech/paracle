@@ -1,0 +1,80 @@
+# Paracle Project (Advanced Mode)
+# Enterprise-ready configuration with all features enabled
+
+name: { { PROJECT_NAME } }
+version: 0.0.1
+description: Advanced Paracle project - production-ready with all features
+
+# Default LLM settings
+defaults:
+  model: gpt-4o
+  provider: openai
+  temperature: 0.7
+  max_tokens: 4000
+
+# Multi-provider configuration
+providers:
+  openai:
+    models: [gpt-4o, gpt-4o-mini, gpt-4-turbo]
+    api_key_env: OPENAI_API_KEY
+  anthropic:
+    models: [claude-3-5-sonnet-20241022, claude-3-opus-20240229]
+    api_key_env: ANTHROPIC_API_KEY
+  google:
+    models: [gemini-2.0-flash-exp, gemini-1.5-pro]
+    api_key_env: GOOGLE_API_KEY
+
+# Database configuration (PostgreSQL)
+database:
+  engine: postgresql
+  host: ${DB_HOST:-localhost}
+  port: ${DB_PORT:-5432}
+  name: ${DB_NAME:-paracle}
+  user: ${DB_USER:-paracle}
+  password_env: DB_PASSWORD
+  pool_size: 20
+  max_overflow: 10
+
+# Event bus configuration (Redis/Valkey)
+events:
+  engine: redis
+  host: ${REDIS_HOST:-localhost}
+  port: ${REDIS_PORT:-6379}
+  db: ${REDIS_DB:-0}
+  password_env: REDIS_PASSWORD
+
+# Observability
+observability:
+  tracing:
+    enabled: true
+    provider: opentelemetry
+    endpoint: ${OTEL_ENDPOINT:-http://localhost:4318}
+  metrics:
+    enabled: true
+    port: 9090
+  logging:
+    level: INFO
+    format: json
+    output: [console, file]
+
+# Security
+security:
+  rate_limiting:
+    enabled: true
+    requests_per_minute: 100
+  authentication:
+    enabled: true
+    method: jwt
+    token_expiry: 3600
+  secrets:
+    provider: env_vars
+    rotation: true
+
+# Metadata
+metadata:
+  created_at: "{{DATE}}"
+  mode: advanced
+  phase: "Production"
+  status: active
+  team_size: large
+  compliance: [SOC2, GDPR, ISO27001]

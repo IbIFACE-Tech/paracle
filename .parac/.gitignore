@@ -1,0 +1,11 @@
+# Runtime logs (exécution)
+memory/logs/runtime/
+
+# Cost tracking database (operational data)
+memory/data/costs.db
+
+# Execution runs (keep structure, ignore run data)
+runs/agents/*/
+runs/workflows/*/
+!runs/agents/.gitkeep
+!runs/workflows/.gitkeep

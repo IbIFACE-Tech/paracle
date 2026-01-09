@@ -1,0 +1,184 @@
+version: "3.8"
+
+services:
+  # Redis for event bus and caching
+  redis:
+    image: redis:7-alpine
+    container_name: paracle-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  # PostgreSQL database (production)
+  postgres:
+    image: postgres:15-alpine
+    container_name: paracle-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-paracle}
+      POSTGRES_USER: ${POSTGRES_USER:-paracle}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-CHANGE_ME_IN_PRODUCTION}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-paracle}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Paracle API server
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.api
+    container_name: paracle-api
+    environment:
+      # Database - Use secure connection string from .env
+      PARACLE_DATABASE_URL: ${PARACLE_DATABASE_URL:-postgresql://paracle:CHANGE_ME@postgres:5432/paracle}
+
+      # Redis
+      PARACLE_REDIS_URL: redis://redis:6379/0
+
+      # API configuration
+      PARACLE_API_HOST: 0.0.0.0
+      PARACLE_API_PORT: 8000
+      PARACLE_LOG_LEVEL: ${PARACLE_LOG_LEVEL:-INFO}
+
+      # Paracle workspace
+      PARACLE_WORKSPACE_ROOT: /app/.parac
+
+      # LLM Provider Keys (load from .env)
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+      XAI_API_KEY: ${XAI_API_KEY:-}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      MISTRAL_API_KEY: ${MISTRAL_API_KEY:-}
+
+      # Security
+      PARACLE_SECRET_KEY: ${PARACLE_SECRET_KEY:-CHANGE_ME_IN_PRODUCTION}
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      # Mount .parac workspace directory
+      - paracle-workspace:/app/.parac
+      # Mount data directory for persistence
+      - paracle-data:/app/data
+      # Mount Docker socket for sandbox execution (Phase 5)
+      - /var/run/docker.sock:/var/run/docker.sock
+    # Grant access to Docker socket
+    group_add:
+      - "${DOCKER_GROUP_ID:-999}"
+    restart: unless-stopped
+
+  # Paracle background worker
+  worker:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.worker
+    container_name: paracle-worker
+    environment:
+      # Database - Use secure connection string from .env
+      PARACLE_DATABASE_URL: ${PARACLE_DATABASE_URL:-postgresql://paracle:CHANGE_ME@postgres:5432/paracle}
+
+      # Redis
+      PARACLE_REDIS_URL: redis://redis:6379/0
+
+      # Worker configuration
+      PARACLE_LOG_LEVEL: ${PARACLE_LOG_LEVEL:-INFO}
+
+      # Paracle workspace
+      PARACLE_WORKSPACE_ROOT: /app/.parac
+
+      # LLM Provider Keys
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+      XAI_API_KEY: ${XAI_API_KEY:-}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      MISTRAL_API_KEY: ${MISTRAL_API_KEY:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      # Mount .parac workspace directory (shared with API)
+      - paracle-workspace:/app/.parac
+      # Mount data directory
+      - paracle-data:/app/data
+    restart: unless-stopped
+
+  # Paracle MCP Server (Model Context Protocol)
+  # Exposes Paracle tools to AI assistants (Claude Code, Cursor, etc.)
+  mcp:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.mcp
+    container_name: paracle-mcp
+    environment:
+      # Redis for event bus
+      PARACLE_REDIS_URL: redis://redis:6379/0
+
+      # MCP configuration
+      PARACLE_LOG_LEVEL: ${PARACLE_LOG_LEVEL:-INFO}
+
+      # Paracle workspace
+      PARACLE_WORKSPACE_ROOT: /app/.parac
+
+      # API URL for MCP to call Paracle API
+      PARACLE_API_URL: http://api:8000
+    depends_on:
+      - api
+      - redis
+    volumes:
+      # Mount .parac workspace directory (shared)
+      - paracle-workspace:/app/.parac
+      # Mount data directory
+      - paracle-data:/app/data
+    # For stdio transport (default), use: docker attach paracle-mcp
+    # For HTTP transport, uncomment below and change CMD in Dockerfile
+    # ports:
+    #   - "3000:3000"
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+  paracle-data:
+    driver: local
+  paracle-workspace:
+    driver: local
+  sandbox-cache:
+    driver: local
+
+networks:
+  default:
+    name: paracle-network
+  sandbox-network:
+    name: paracle-sandbox-network
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

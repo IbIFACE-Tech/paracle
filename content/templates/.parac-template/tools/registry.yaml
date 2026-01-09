@@ -1,0 +1,61 @@
+# Tool Registry
+# Registry of all tools available to agents
+
+# Schema version
+schema_version: "1.0"
+
+# Built-in tools (provided by Paracle)
+builtin_tools:
+  - name: web_search
+    description: Search the web for information
+    enabled: false
+    provider: duckduckgo
+    # api_key: set via SEARCH_API_KEY env var
+
+  - name: file_system
+    description: Read and write files
+    enabled: false
+    permissions:
+      - read
+      # - write  # Uncomment to allow write access
+    allowed_paths:
+      - /tmp
+      - ./data
+
+  - name: code_executor
+    description: Execute code in a sandboxed environment
+    enabled: false
+    languages:
+      - python
+      # - javascript
+    timeout: 30
+    max_memory: 512MB
+
+# Custom tools (user-defined)
+custom_tools:
+  # Example custom tool
+  # - name: my_custom_tool
+  #   description: A custom tool for my project
+  #   implementation: custom/my_tool.py
+  #   enabled: true
+  #   config:
+  #     param1: value1
+  #     param2: value2
+
+# Tool permissions (optional)
+permissions:
+  default_enabled: false # Tools disabled by default
+  require_approval: true # Require approval to use tools
+  enable_audit_log: true # Log tool usage
+
+# Tool categories (optional)
+categories:
+  search:
+    - web_search
+  filesystem:
+    - file_system
+  execution:
+    - code_executor
+  # Add custom categories
+  # custom:
+  #   - my_custom_tool

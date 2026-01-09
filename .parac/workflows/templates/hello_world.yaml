@@ -1,0 +1,57 @@
+# Hello World Workflow
+# Simple example workflow demonstrating basic agent orchestration
+
+name: hello_world
+version: 1.0.0
+description: A simple workflow that greets the user
+
+# Workflow metadata
+metadata:
+  category: examples
+  tags: [tutorial, basic]
+  author: Paracle Team
+
+# Input parameters
+inputs:
+  name:
+    type: string
+    description: Name to greet
+    default: World
+    required: false
+
+# Workflow steps
+steps:
+  - id: step_1
+    name: generate_greeting
+    description: Generate a personalized greeting
+    agent: greeter
+    config:
+      model: gpt-4
+      temperature: 0.7
+    inputs:
+      user_name: "{{ inputs.name }}"
+    outputs:
+      - greeting_message
+
+  - id: step_2
+    name: format_output
+    description: Format the greeting nicely
+    agent: formatter
+    depends_on: [step_1]
+    inputs:
+      message: "{{ steps.step_1.outputs.greeting_message }}"
+    outputs:
+      - formatted_greeting
+
+# Output mapping
+outputs:
+  final_greeting:
+    source: steps.step_2.outputs.formatted_greeting
+    description: The final formatted greeting
+
+# Execution settings
+settings:
+  timeout: 60
+  retry_on_failure: true
+  max_retries: 2
+  log_level: INFO

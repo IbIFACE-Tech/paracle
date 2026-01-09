@@ -1,0 +1,56 @@
+version: '3.8'
+
+# Development overrides for docker-compose.yaml
+# Usage: docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml up
+
+services:
+  # Use SQLite instead of PostgreSQL for dev
+  postgres:
+    profiles:
+      - production-only
+
+  # API with hot reload and code mounting
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.dev
+      target: dev
+    environment:
+      # Use SQLite for development
+      PARACLE_DATABASE_URL: sqlite:///data/paracle_dev.db
+      PARACLE_LOG_LEVEL: DEBUG
+      PARACLE_RELOAD: "true"
+    volumes:
+      # Mount source code for hot reload
+      - ../packages:/app/packages:ro
+      - ../tests:/app/tests:ro
+      - ../pyproject.toml:/app/pyproject.toml:ro
+      - ../uv.lock:/app/uv.lock:ro
+      # Persistent data
+      - paracle-dev-data:/app/data
+    command: ["uv", "run", "uvicorn", "paracle_api.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+  # Worker with code mounting
+  worker:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.dev
+      target: dev
+    environment:
+      PARACLE_DATABASE_URL: sqlite:///data/paracle_dev.db
+      PARACLE_LOG_LEVEL: DEBUG
+    volumes:
+      - ../packages:/app/packages:ro
+      - ../tests:/app/tests:ro
+      - ../pyproject.toml:/app/pyproject.toml:ro
+      - ../uv.lock:/app/uv.lock:ro
+      - paracle-dev-data:/app/data
+
+  # Redis - same as production
+  redis:
+    ports:
+      - "6379:6379"
+
+volumes:
+  paracle-dev-data:
+    driver: local

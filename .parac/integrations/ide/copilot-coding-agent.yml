@@ -1,0 +1,53 @@
+# GitHub Copilot Coding Agent Configuration
+# Auto-generated from .parac/ - DO NOT EDIT MANUALLY
+# Regenerate with: paracle ide sync --copy
+# Generated: 2026-01-08T16:50:20.901083
+#
+# This configures GitHub Copilot Coding Agent for your repository.
+# Documentation: https://docs.github.com/copilot/coding-agent
+
+name: Copilot Coding Agent
+
+# Instructions for Copilot Coding Agent
+instructions: |
+  You are working on the Paracle project.
+
+  ## Current State
+  - Project: paracle-lite v1.0.0
+  - Phase: Governance & v1.0 Release
+  - Status: in_progress
+
+  ## Key Files
+  - `.parac/GOVERNANCE.md` - Project governance
+  - `.parac/memory/context/current_state.yaml` - Current state
+  - `.parac/roadmap/roadmap.yaml` - Priorities
+  - `.parac/agents/specs/` - Agent guidelines
+
+  ## Available Agents
+  - architect: System architecture design, module structure, and technical decision making.
+  - coder: Implementation of features, writing production-quality code following project standards and best practices.
+  - documenter: Technical documentation, API references, user guides, and knowledge management.
+  - pm: Project coordination, roadmap management, progress tracking, and stakeholder communication.
+  - releasemanager: Manages git workflows, semantic versioning, releases, changelogs, and deployment automation for the Paracle project.
+  - reviewer: Code review, quality assurance, and ensuring adherence to project standards and best practices.
+  - SCHEMA: One-paragraph description of what this agent does.
+  - security: Security auditing, vulnerability detection, threat modeling, compliance enforcement, and security standards implementation for Paracle framework and AI applications.
+  - TEMPLATE: [Describe the agent's primary function in 1-2 sentences]
+  - tester: Test design, implementation, and quality validation ensuring comprehensive coverage and reliability.
+
+  ## Logging
+  After completing work, log to `.parac/memory/logs/agent_actions.log`:
+  Format: [TIMESTAMP] [AGENT] [ACTION] Description
+
+# MCP Tools (if supported)
+mcp:
+  servers:
+    paracle:
+      command: paracle
+      args: [mcp, serve, --stdio]
+
+# Files to always include in context
+context_files:
+  - .parac/GOVERNANCE.md
+  - .parac/memory/context/current_state.yaml
+  - .github/copilot-instructions.md

@@ -1,0 +1,124 @@
+# Adapters Configuration
+# Configure external framework and provider adapters
+
+# Schema version
+schema_version: "1.0"
+
+# Orchestrator adapters
+orchestrators:
+  # Internal orchestrator (default)
+  internal:
+    enabled: true
+    type: internal
+    priority: 1
+
+  # Microsoft Semantic Agent Framework (MSAF)
+  msaf:
+    enabled: false
+    type: msaf
+    priority: 2
+    config:
+      # version: "0.1.0"
+      # endpoint: http://localhost:8001
+
+  # LangChain
+  langchain:
+    enabled: false
+    type: langchain
+    priority: 3
+    config:
+      # version: "0.1.0"
+
+  # LlamaIndex
+  llamaindex:
+    enabled: false
+    type: llamaindex
+    priority: 4
+    config:
+      # version: "0.1.0"
+
+# Model provider adapters
+model_providers:
+  # OpenAI
+  openai:
+    enabled: true
+    type: openai
+    config:
+      # api_key: set via OPENAI_API_KEY
+      # organization: your-org-id
+      # base_url: https://api.openai.com/v1
+      default_model: gpt-4
+      available_models:
+        - gpt-4
+        - gpt-4-turbo
+        - gpt-3.5-turbo
+
+  # Anthropic (Claude)
+  anthropic:
+    enabled: false
+    type: anthropic
+    config:
+      # api_key: set via ANTHROPIC_API_KEY
+      default_model: claude-3-opus-20240229
+      available_models:
+        - claude-3-opus-20240229
+        - claude-3-sonnet-20240229
+        - claude-3-haiku-20240307
+
+  # Google AI (Gemini)
+  google:
+    enabled: false
+    type: google
+    config:
+      # api_key: set via GOOGLE_API_KEY
+      default_model: gemini-pro
+      available_models:
+        - gemini-pro
+        - gemini-pro-vision
+
+  # Azure OpenAI
+  azure_openai:
+    enabled: false
+    type: azure
+    config:
+      # api_key: set via AZURE_OPENAI_API_KEY
+      # endpoint: https://your-resource.openai.azure.com/
+      # deployment_name: your-deployment
+      # api_version: "2024-02-01"
+
+  # Local models (Ollama, LM Studio)
+  local:
+    enabled: false
+    type: local
+    config:
+      provider: ollama # ollama, lmstudio, llamacpp
+      base_url: http://localhost:11434
+      default_model: llama2
+      available_models:
+        - llama2
+        - mistral
+        - codellama
+
+# Language-specific adapters
+languages:
+  python:
+    enabled: true
+    version: "3.10+"
+
+  javascript:
+    enabled: false
+    runtime: node
+    version: "18+"
+
+  typescript:
+    enabled: false
+    runtime: node
+    version: "18+"
+
+# Adapter settings
+settings:
+  auto_discover: false # Auto-discover available adapters
+  fallback_enabled: true # Fallback to internal if adapter fails
+  timeout: 30 # Adapter timeout in seconds
+  retry_on_failure: true # Retry on adapter failure
+  max_retries: 3 # Maximum retry attempts

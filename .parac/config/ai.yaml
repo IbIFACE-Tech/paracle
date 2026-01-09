@@ -1,0 +1,108 @@
+# AI Provider Configuration
+
+# AI provider selection
+# Options: none, meta, openai, anthropic, azure
+# 'none' disables AI features (Paracle still works normally)
+ai:
+  provider: meta # Default: use paracle_meta if installed
+
+  # Provider-specific configurations
+  providers:
+    # paracle_meta (internal AI engine)
+    meta:
+      model: gpt-4-turbo
+      temperature: 0.7
+      max_tokens: 2000
+
+    # OpenAI
+    openai:
+      api_key: ${OPENAI_API_KEY} # From environment
+      model: gpt-4-turbo
+      temperature: 0.7
+      max_tokens: 2000
+      # Optional: organization ID
+      # organization: org-xxx
+
+    # Anthropic
+    anthropic:
+      api_key: ${ANTHROPIC_API_KEY} # From environment
+      model: claude-3-opus-20240229
+      temperature: 0.7
+      max_tokens: 2000
+
+    # Azure OpenAI
+    azure:
+      endpoint: ${AZURE_OPENAI_ENDPOINT} # From environment
+      api_key: ${AZURE_OPENAI_KEY} # From environment
+      deployment: gpt-4-turbo
+      api_version: "2024-02-15-preview"
+
+# Feature flags for AI-powered features
+features:
+  # AI-powered generation
+  generate_agents: true
+  generate_skills: true
+  generate_workflows: true
+  generate_docs: true
+
+  # AI-enhanced suggestions
+  suggest_improvements: true
+  suggest_tests: true
+  suggest_refactoring: true
+
+  # AI assistance
+  explain_code: true
+  debug_assistance: true
+  code_review: true
+
+# Usage limits (optional)
+limits:
+  # Maximum tokens per request
+  max_tokens_per_request: 4000
+
+  # Daily request limit (0 = unlimited)
+  daily_request_limit: 0
+
+  # Cost tracking
+  track_costs: true
+
+# Fallback behavior
+fallback:
+  # What to do if primary provider fails
+  # Options: disable, prompt, use_secondary
+  on_failure: prompt
+
+  # Secondary provider (optional)
+  secondary_provider: openai
+
+# Privacy settings
+privacy:
+  # Send usage analytics to improve AI
+  send_analytics: false
+
+  # Cache AI responses locally
+  cache_responses: true
+
+  # Share anonymized data
+  share_anonymized_data: false
+# Examples:
+#
+# Disable AI completely:
+#   ai:
+#     provider: none
+#
+# Use OpenAI:
+#   ai:
+#     provider: openai
+#     providers:
+#       openai:
+#         api_key: ${OPENAI_API_KEY}
+#         model: gpt-4-turbo
+#
+# Use paracle_meta with custom settings:
+#   ai:
+#     provider: meta
+#     providers:
+#       meta:
+#         model: gpt-3.5-turbo  # Lower cost
+#         temperature: 0.5      # More deterministic

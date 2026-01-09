@@ -1,0 +1,56 @@
+# Docker Compose override for sandbox development and testing
+# Usage: docker-compose -f docker-compose.yaml -f docker-compose.sandbox.yaml up
+
+version: "3.8"
+
+services:
+  # Build and tag sandbox image
+  sandbox-builder:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.sandbox
+    image: paracle/sandbox:latest
+    container_name: paracle-sandbox-builder
+    profiles:
+      - build
+    command: echo "Sandbox image built successfully"
+
+  # API with enhanced sandbox capabilities
+  api:
+    environment:
+      # Enable sandbox development mode
+      PARACLE_SANDBOX_DEV_MODE: "true"
+
+      # Relaxed limits for development
+      PARACLE_SANDBOX_DEFAULT_TIMEOUT: 600
+      PARACLE_SANDBOX_DEFAULT_MEMORY_MB: 1024
+      PARACLE_SANDBOX_DEFAULT_CPU_CORES: 2.0
+
+      # Network access for development (can download packages)
+      PARACLE_SANDBOX_NETWORK_MODE: bridge
+
+      # Allow more verbose logging
+      PARACLE_SANDBOX_LOG_LEVEL: DEBUG
+
+      # Auto-cleanup disabled for debugging
+      PARACLE_SANDBOX_AUTO_CLEANUP: "false"
+
+      # YOLO mode for testing (auto-approve everything)
+      PARACLE_REVIEW_YOLO_MODE: "true"
+
+    volumes:
+      # Additional volume for sandbox testing artifacts
+      - sandbox-test-data:/app/sandbox-test
+
+    networks:
+      - default
+      - sandbox-network
+
+volumes:
+  sandbox-test-data:
+    driver: local
+
+networks:
+  sandbox-network:
+    name: paracle-sandbox-network-dev
+    driver: bridge

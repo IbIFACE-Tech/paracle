@@ -1,0 +1,124 @@
+# Documentation Workflow
+# Create or update comprehensive documentation
+# Version: 1.0.0
+
+name: documentation
+version: 1.0.0
+description: |
+  Documentation workflow for creating guides, API refs, and tutorials.
+  Orchestrates: research → write → review → publish
+
+metadata:
+  category: documentation
+  tags: [docs, documentation, guides]
+  author: Paracle Team
+  created: "2026-01-06"
+
+inputs:
+  doc_type:
+    type: string
+    description: Type of documentation
+    enum: [api_reference, user_guide, tutorial, quickstart, architecture]
+    required: true
+
+  topic:
+    type: string
+    description: Documentation topic
+    required: true
+
+  target_audience:
+    type: string
+    enum: [beginner, intermediate, advanced, all]
+    default: intermediate
+    required: false
+
+steps:
+  - id: research
+    name: content_research
+    description: Research existing code and documentation
+    agent: documenter
+    config:
+      model: gpt-4
+      temperature: 0.5
+    inputs:
+      doc_type: "{{ inputs.doc_type }}"
+      topic: "{{ inputs.topic }}"
+      target_audience: "{{ inputs.target_audience }}"
+    outputs:
+      - content_outline
+      - existing_docs
+      - code_examples_needed
+    tools:
+      - name: search_code
+      - name: read_file
+
+  - id: write
+    name: content_creation
+    description: Write documentation content
+    agent: documenter
+    depends_on: [research]
+    config:
+      model: gpt-4
+      temperature: 0.7
+    inputs:
+      content_outline: "{{ steps.research.outputs.content_outline }}"
+      doc_type: "{{ inputs.doc_type }}"
+      topic: "{{ inputs.topic }}"
+      target_audience: "{{ inputs.target_audience }}"
+    outputs:
+      - document_content
+      - code_examples
+      - diagrams
+    tools:
+      - name: create_file
+      - name: mermaid_diagram
+
+  - id: review_content
+    name: content_review
+    description: Review documentation for accuracy and clarity
+    agent: reviewer
+    depends_on: [write]
+    config:
+      model: gpt-4
+      temperature: 0.5
+    inputs:
+      document_content: "{{ steps.write.outputs.document_content }}"
+      code_examples: "{{ steps.write.outputs.code_examples }}"
+      doc_type: "{{ inputs.doc_type }}"
+    outputs:
+      - review_status
+      - suggestions
+      - corrections
+    validation:
+      must_approve: true
+
+  - id: publish
+    name: publish_docs
+    description: Publish documentation to appropriate location
+    agent: documenter
+    depends_on: [review_content]
+    config:
+      model: gpt-4
+      temperature: 0.3
+    inputs:
+      document_content: "{{ steps.write.outputs.document_content }}"
+      corrections: "{{ steps.review_content.outputs.corrections }}"
+      doc_type: "{{ inputs.doc_type }}"
+      topic: "{{ inputs.topic }}"
+    outputs:
+      - published_path
+      - index_updated
+    tools:
+      - name: create_file
+      - name: edit_file
+
+outputs:
+  documentation_path:
+    value: "{{ steps.publish.outputs.published_path }}"
+  content:
+    value: "{{ steps.write.outputs.document_content }}"
+
+config:
+  timeout: 1800
+  logging:
+    level: INFO

@@ -1,0 +1,32 @@
+# Project State (Lite Mode)
+version: "1.0"
+snapshot_date: "{{DATE}}"
+
+project:
+  name: { { PROJECT_NAME } }
+  version: 0.0.1
+  phase: phase_0
+  status: in_progress
+  mode: lite
+
+current_phase:
+  id: phase_0
+  name: Setup & Prototyping
+  status: in_progress
+  progress: 10%
+  focus_areas:
+    - "Getting familiar with Paracle"
+    - "Customizing the first agent"
+    - "Running initial tasks"
+
+recent_updates:
+  - date: "{{DATE}}"
+    update: "Project initialized with Paracle lite template"
+    impact: "Ready for prototyping and experimentation"
+
+completed: []
+in_progress:
+  - "Initial setup"
+  - "Learning Paracle basics"
+
+blockers: []

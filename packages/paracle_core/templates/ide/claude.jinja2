@@ -1,0 +1,54 @@
+{% extends "base.jinja2" %}
+
+{% block header %}
+# Paracle AI Instructions for Claude Code
+# Auto-generated from .parac/ - DO NOT EDIT MANUALLY
+# Regenerate with: paracle ide sync --copy
+# Generated: {{ generated_at }}
+{% endblock %}
+
+{% block ide_specific %}
+
+## Claude Code Specific Features
+
+### Context Management
+
+Claude Code has access to the full codebase. Use these patterns:
+
+- Read `.parac/` files directly for context
+- Reference files with relative paths
+- Use the search tools to find relevant code
+
+### Recommended Workflow
+
+1. Start by reading `.parac/memory/context/current_state.yaml`
+2. Check `.parac/roadmap/roadmap.yaml` for current phase
+3. Read relevant agent spec from `.parac/agents/specs/`
+4. Apply agent's standards to your work
+5. Log actions via `paracle_core.governance`
+
+### Agent Selection
+
+Select the appropriate agent persona based on the task:
+
+- **pm.md**: Planning, roadmap updates, coordination
+- **architect.md**: Design decisions, architecture changes
+- **coder.md**: Implementation, feature development
+- **tester.md**: Test creation, coverage improvement
+- **reviewer.md**: Code review, quality checks
+- **documenter.md**: Documentation updates
+
+### Session Protocol
+
+At the start of each session:
+```
+SESSION START
+=============
+1. Read .parac/memory/context/current_state.yaml
+2. Check .parac/roadmap/roadmap.yaml
+3. Review recent decisions in .parac/roadmap/decisions.md
+
+Source of truth verified. Proceeding.
+```
+
+{% endblock %}

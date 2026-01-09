@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "paracle": {
+      "command": "paracle",
+      "args": [
+        "mcp",
+        "serve",
+        "--stdio"
+      ],
+      "env": {}
+    }
+  }
+}

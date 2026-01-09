@@ -1,0 +1,614 @@
+# Paracle Platform Build Workflow
+# Dogfooding Strategy: Using Paracle to build Paracle
+# Version: 1.0.0
+
+name: paracle_build
+version: 1.0.0
+description: |
+  Complete workflow for building Paracle platform features using the dogfooding strategy.
+  Orchestrates all agents (Architect, Coder, Tester, Reviewer, Documenter, PM) following
+  governance rules from .parac/GOVERNANCE.md.
+
+# Workflow metadata
+metadata:
+  category: development
+  tags: [dogfooding, platform, multi-agent, governance]
+  author: Paracle Team
+  created: "2026-01-05"
+  governance: true # Follows .parac/GOVERNANCE.md
+  iso42001: true # ISO 42001 compliance required
+
+# Input parameters
+inputs:
+  feature_name:
+    type: string
+    description: Name of the feature to build (e.g., "api_endpoint", "cli_command")
+    required: true
+    example: "workflow_execution_api"
+
+  feature_description:
+    type: string
+    description: Detailed description of the feature requirements
+    required: true
+    example: "Add async workflow execution endpoint with status tracking"
+
+  current_phase:
+    type: string
+    description: Current roadmap phase (from .parac/roadmap/roadmap.yaml)
+    default: "phase_4"
+    required: false
+
+  priority:
+    type: string
+    description: Feature priority (P0, P1, P2)
+    enum: [P0, P1, P2]
+    default: P1
+    required: false
+
+  skip_tests:
+    type: boolean
+    description: Skip test generation (not recommended)
+    default: false
+    required: false
+
+  skip_review:
+    type: boolean
+    description: Skip code review (not recommended for production)
+    default: false
+    required: false
+
+# Workflow steps following the agent workflow pattern
+steps:
+  # ============================================================================
+  # PHASE 0: PRE-FLIGHT CHECKLIST (MANDATORY)
+  # ============================================================================
+  - id: preflight_check
+    name: pre_flight_checklist
+    description: |
+      MANDATORY: Execute Pre-Flight Checklist before ANY implementation.
+      Reads governance, current state, roadmap, and validates task alignment.
+    agent: pm
+    config:
+      model: gpt-4
+      temperature: 0.1 # Low temperature for governance checks
+      system_prompt: |
+        You are the PM Agent. Execute the Pre-Flight Checklist from .parac/PRE_FLIGHT_CHECKLIST.md:
+        1. Read .parac/GOVERNANCE.md
+        2. Check .parac/memory/context/current_state.yaml
+        3. Consult .parac/roadmap/roadmap.yaml
+        4. Check .parac/memory/context/open_questions.md
+        5. VALIDATE: Is this task in roadmap? Correct phase? Priority? Dependencies?
+
+        STOP if task is not aligned with current phase or priorities.
+    inputs:
+      feature_name: "{{ inputs.feature_name }}"
+      feature_description: "{{ inputs.feature_description }}"
+      current_phase: "{{ inputs.current_phase }}"
+      priority: "{{ inputs.priority }}"
+      checklist_path: ".parac/PRE_FLIGHT_CHECKLIST.md"
+      governance_path: ".parac/GOVERNANCE.md"
+      state_path: ".parac/memory/context/current_state.yaml"
+      roadmap_path: ".parac/roadmap/roadmap.yaml"
+    outputs:
+      - validation_result # pass/fail
+      - blockers # List of blockers if any
+      - recommended_phase # Suggested phase if different
+      - alignment_report # Full alignment report
+    validation:
+      must_pass: true # Workflow stops if validation fails
+      on_fail: abort
+    tools:
+      - file_reader
+      - yaml_parser
+      - governance_validator
+
+  # ============================================================================
+  # PHASE 1: ARCHITECTURE & DESIGN
+  # ============================================================================
+  - id: architecture_design
+    name: architectural_design
+    description: |
+      Architect agent designs the system architecture for the feature.
+      Follows hexagonal architecture and DDD principles.
+    agent: architect
+    depends_on: [preflight_check]
+    config:
+      model: gpt-4
+      temperature: 0.3 # Moderate creativity for architecture
+      system_prompt: |
+        You are the System Architect Agent. Design the architecture for this feature:
+        - Use hexagonal architecture (ports & adapters)
+        - Follow Domain-Driven Design (DDD)
+        - Define module boundaries
+        - Create interface contracts
+        - Consider scalability and extensibility
+        - Document architectural decisions (ADR)
+
+        Reference: .parac/policies/CODE_STYLE.md
+    inputs:
+      feature_name: "{{ inputs.feature_name }}"
+      feature_description: "{{ inputs.feature_description }}"
+      current_architecture: "docs/architecture.md"
+      code_style_policy: ".parac/policies/CODE_STYLE.md"
+      existing_modules: "packages/"
+    outputs:
+      - architecture_design # High-level design
+      - module_structure # Package and module layout
+      - interfaces # API contracts
+      - adr_draft # Architecture Decision Record
+      - dependencies # Required dependencies
+    tools:
+      - file_reader
+      - diagram_generator
+      - dependency_analyzer
+    skills:
+      - framework-architecture
+      - api-development
+      - paracle-development
+
+  # ============================================================================
+  # PHASE 2: IMPLEMENTATION
+  # ============================================================================
+  - id: code_implementation
+    name: feature_implementation
+    description: |
+      Coder agent implements the feature according to architecture design.
+      Follows project code style and best practices.
+    agent: coder
+    depends_on: [architecture_design]
+    config:
+      model: gpt-4
+      temperature: 0.2 # Lower temperature for precise code
+      system_prompt: |
+        You are the Coder Agent. Implement this feature following these standards:
+        - Python 3.10+ with type hints
+        - Pydantic v2 for all models
+        - Google-style docstrings
+        - Black formatter (88 chars max line length)
+        - Hexagonal architecture (ports & adapters)
+        - Repository pattern for persistence
+        - Test-Driven Development (TDD)
+
+        Reference:
+        - .parac/policies/CODE_STYLE.md
+        - .parac/agents/specs/coder.md
+    inputs:
+      feature_name: "{{ inputs.feature_name }}"
+      architecture_design: "{{ steps.architecture_design.outputs.architecture_design }}"
+      module_structure: "{{ steps.architecture_design.outputs.module_structure }}"
+      interfaces: "{{ steps.architecture_design.outputs.interfaces }}"
+      code_style: ".parac/policies/CODE_STYLE.md"
+      target_directory: "packages/"
+    outputs:
+      - source_files # List of created/modified files
+      - implementation_summary # What was implemented
+      - code_changes # Git diff format
+    tools:
+      - file_writer
+      - file_editor
+      - git_diff
+      - linter
+      - formatter
+    skills:
+      - paracle-development
+      - api-development
+      - testing-qa
+
+  # ============================================================================
+  # PHASE 3: TEST DESIGN & IMPLEMENTATION
+  # ============================================================================
+  - id: test_design
+    name: test_suite_creation
+    description: |
+      Tester agent designs and implements comprehensive test suite.
+      Unit tests, integration tests, and coverage validation.
+    agent: tester
+    depends_on: [code_implementation]
+    condition: "{{ inputs.skip_tests == false }}"
+    config:
+      model: gpt-4
+      temperature: 0.2
+      system_prompt: |
+        You are the Tester Agent. Create comprehensive tests:
+        - Unit tests for all functions
+        - Integration tests for API endpoints
+        - Test coverage > 80%
+        - Use pytest fixtures
+        - Follow testing policy
+
+        Reference: .parac/policies/TESTING.md
+    inputs:
+      feature_name: "{{ inputs.feature_name }}"
+      source_files: "{{ steps.code_implementation.outputs.source_files }}"
+      implementation_summary: "{{ steps.code_implementation.outputs.implementation_summary }}"
+      testing_policy: ".parac/policies/TESTING.md"
+      test_directory: "tests/"
+    outputs:
+      - test_files # List of test files created
+      - coverage_report # Test coverage percentage
+      - test_summary # Summary of tests
+    tools:
+      - file_writer
+      - pytest_runner
+      - coverage_analyzer
+    skills:
+      - testing-qa
+      - paracle-development
+
+  # ============================================================================
+  # PHASE 4: CODE REVIEW & QUALITY ASSURANCE
+  # ============================================================================
+  - id: code_review
+    name: quality_assurance_review
+    description: |
+      Reviewer agent performs code review, security check, and quality validation.
+      Ensures adherence to all policies and standards.
+    agent: reviewer
+    depends_on: [test_design]
+    condition: "{{ inputs.skip_review == false }}"
+    config:
+      model: gpt-4
+      temperature: 0.1 # Very low for strict review
+      system_prompt: |
+        You are the Reviewer Agent. Perform thorough code review:
+        - Code quality and style compliance
+        - Security vulnerabilities (OWASP Top 10)
+        - Performance bottlenecks
+        - Test coverage adequacy
+        - Documentation completeness
+        - ISO 42001 compliance
+
+        Reference: .parac/policies/
+    inputs:
+      feature_name: "{{ inputs.feature_name }}"
+      source_files: "{{ steps.code_implementation.outputs.source_files }}"
+      test_files: "{{ steps.test_design.outputs.test_files }}"
+      coverage_report: "{{ steps.test_design.outputs.coverage_report }}"
+      code_style_policy: ".parac/policies/CODE_STYLE.md"
+      testing_policy: ".parac/policies/TESTING.md"
+      security_policy: ".parac/policies/SECURITY.md"
+    outputs:
+      - review_result # pass/fail/needs_work
+      - issues_found # List of issues
+      - security_findings # Security vulnerabilities
+      - recommendations # Improvement suggestions
+      - approval_status # approved/rejected
+    validation:
+      must_pass: true # Implementation must pass review
+      on_fail: retry_from_step
+      retry_step: code_implementation
+      max_retries: 3
+    tools:
+      - static_analyzer
+      - security_scanner
+      - linter
+      - complexity_analyzer
+    skills:
+      - security-hardening
+      - performance-optimization
+      - testing-qa
+      - paracle-development
+
+  # ============================================================================
+  # PHASE 5: DOCUMENTATION
+  # ============================================================================
+  - id: documentation
+    name: feature_documentation
+    description: |
+      Documenter agent creates comprehensive documentation for the feature.
+      API docs, user guides, and inline docstrings.
+    agent: documenter
+    depends_on: [code_review]
+    config:
+      model: gpt-4
+      temperature: 0.4 # Moderate creativity for docs
+      system_prompt: |
+        You are the Documenter Agent. Create comprehensive documentation:
+        - API reference (if applicable)
+        - User guide with examples
+        - Architecture documentation
+        - Inline docstrings (Google style)
+        - README updates
+
+        Follow technical documentation standards.
+    inputs:
+      feature_name: "{{ inputs.feature_name }}"
+      source_files: "{{ steps.code_implementation.outputs.source_files }}"
+      architecture_design: "{{ steps.architecture_design.outputs.architecture_design }}"
+      implementation_summary: "{{ steps.code_implementation.outputs.implementation_summary }}"
+      existing_docs: "docs/"
+    outputs:
+      - documentation_files # List of doc files created/updated
+      - api_reference # API documentation
+      - user_guide # User-facing guide
+      - examples # Code examples
+    tools:
+      - file_writer
+      - markdown_generator
+      - api_doc_generator
+    skills:
+      - technical-documentation
+      - paracle-development
+
+  # ============================================================================
+  # PHASE 6: GOVERNANCE UPDATE (MANDATORY)
+  # ============================================================================
+  - id: governance_update
+    name: update_parac_governance
+    description: |
+      PM agent updates .parac/ governance files with the completed feature.
+      This is MANDATORY for traceability and dogfooding.
+    agent: pm
+    depends_on: [documentation]
+    config:
+      model: gpt-4
+      temperature: 0.1 # Very low for governance updates
+      system_prompt: |
+        You are the PM Agent. Update .parac/ governance files:
+        1. Log action to .parac/memory/logs/agent_actions.log
+        2. Update .parac/memory/context/current_state.yaml (add to completed)
+        3. Update .parac/roadmap/roadmap.yaml if deliverable completed
+        4. Document decision in .parac/roadmap/decisions.md if applicable
+        5. Run `paracle sync --roadmap` to validate alignment
+
+        Follow GOVERNANCE.md protocol.
+    inputs:
+      feature_name: "{{ inputs.feature_name }}"
+      adr_draft: "{{ steps.architecture_design.outputs.adr_draft }}"
+      implementation_summary: "{{ steps.code_implementation.outputs.implementation_summary }}"
+      current_phase: "{{ inputs.current_phase }}"
+      governance_path: ".parac/GOVERNANCE.md"
+      state_path: ".parac/memory/context/current_state.yaml"
+      roadmap_path: ".parac/roadmap/roadmap.yaml"
+      decisions_path: ".parac/roadmap/decisions.md"
+      actions_log: ".parac/memory/logs/agent_actions.log"
+    outputs:
+      - updated_files # List of .parac/ files updated
+      - log_entry # Agent action log entry
+      - state_changes # Changes to current_state.yaml
+      - adr_number # ADR number if decision documented
+    validation:
+      must_pass: true
+      on_fail: manual_review
+    tools:
+      - file_editor
+      - yaml_editor
+      - paracle_sync
+      - git_commit
+    skills:
+      - workflow-orchestration
+      - agent-configuration
+      - paracle-development
+
+  # ============================================================================
+  # PHASE 7: INTEGRATION & VALIDATION
+  # ============================================================================
+  - id: integration_validation
+    name: integration_testing
+    description: |
+      Run integration tests and validate the feature in the context of the whole system.
+      Ensures no regressions and proper integration.
+    agent: tester
+    depends_on: [governance_update]
+    config:
+      model: gpt-4
+      temperature: 0.1
+      system_prompt: |
+        You are the Tester Agent. Run integration validation:
+        - Run full test suite (make test)
+        - Check for regressions
+        - Validate API endpoints (if applicable)
+        - Test CLI commands (if applicable)
+        - Verify governance sync (paracle validate)
+    inputs:
+      feature_name: "{{ inputs.feature_name }}"
+      source_files: "{{ steps.code_implementation.outputs.source_files }}"
+      test_files: "{{ steps.test_design.outputs.test_files }}"
+    outputs:
+      - integration_result # pass/fail
+      - test_output # Full test run output
+      - regressions # Any regressions found
+      - validation_report # Governance validation report
+    validation:
+      must_pass: true
+      on_fail: rollback
+    tools:
+      - test_runner
+      - api_tester
+      - cli_tester
+      - paracle_validate
+    skills:
+      - testing-qa
+      - paracle-development
+
+  # ============================================================================
+  # PHASE 8: FINAL SUMMARY & HANDOFF
+  # ============================================================================
+  - id: final_summary
+    name: feature_completion_summary
+    description: |
+      PM agent creates final summary of the completed feature.
+      Ready for merge and deployment.
+    agent: pm
+    depends_on: [integration_validation]
+    config:
+      model: gpt-4
+      temperature: 0.3
+      system_prompt: |
+        You are the PM Agent. Create final feature completion summary:
+        - What was built
+        - Which files were changed
+        - Test coverage achieved
+        - Documentation created
+        - Governance updates made
+        - Next steps (if any)
+    inputs:
+      feature_name: "{{ inputs.feature_name }}"
+      all_outputs: "{{ steps }}"
+    outputs:
+      - completion_summary # Full summary
+      - changed_files # All files changed
+      - metrics # Key metrics (coverage, LOC, etc.)
+      - next_steps # Recommended next actions
+      - merge_ready # boolean - ready to merge?
+    tools:
+      - report_generator
+      - metrics_collector
+    skills:
+      - workflow-orchestration
+      - paracle-development
+
+# ============================================================================
+# WORKFLOW OUTPUTS
+# ============================================================================
+outputs:
+  feature_completed:
+    source: steps.final_summary.outputs.merge_ready
+    description: Whether the feature is ready to merge
+
+  summary:
+    source: steps.final_summary.outputs.completion_summary
+    description: Complete feature development summary
+
+  files_changed:
+    source: steps.final_summary.outputs.changed_files
+    description: List of all files created or modified
+
+  test_coverage:
+    source: steps.test_design.outputs.coverage_report
+    description: Test coverage percentage achieved
+
+  documentation:
+    source: steps.documentation.outputs.documentation_files
+    description: Documentation files created
+
+  governance_updates:
+    source: steps.governance_update.outputs.updated_files
+    description: .parac/ governance files updated
+
+  adr_number:
+    source: steps.governance_update.outputs.adr_number
+    description: Architecture Decision Record number (if created)
+
+# ============================================================================
+# WORKFLOW SETTINGS
+# ============================================================================
+settings:
+  # Execution
+  timeout: 3600 # 1 hour max for full workflow
+  retry_on_failure: true
+  max_retries: 2
+  log_level: INFO
+
+  # Parallel execution (where possible)
+  parallel_execution:
+    enabled: false # Sequential by default for governance
+    max_concurrent: 2
+
+  # Checkpointing
+  checkpoint:
+    enabled: true # Save state at each step
+    on_failure: save # Save state on failure for debugging
+
+  # Notifications
+  notifications:
+    on_success: true
+    on_failure: true
+    channels: [console, log_file]
+
+  # Audit & Compliance
+  audit:
+    enabled: true # ISO 42001 compliance
+    log_all_steps: true
+    log_all_decisions: true
+    log_all_approvals: true
+
+  # Cost tracking
+  cost_tracking:
+    enabled: true
+    warn_threshold: 10.0 # USD
+    max_cost: 50.0 # USD
+
+# ============================================================================
+# FAILURE HANDLING
+# ============================================================================
+on_failure:
+  # Rollback strategy
+  rollback:
+    enabled: true
+    keep_logs: true
+    restore_state: true
+
+  # Notification
+  notify:
+    - type: log
+      message: "Paracle Build workflow failed for {{ inputs.feature_name }}"
+    - type: file
+      path: ".parac/memory/logs/workflow_failures.log"
+
+  # Cleanup
+  cleanup:
+    - remove_temp_files
+    - restore_backups
+
+# ============================================================================
+# SUCCESS HANDLING
+# ============================================================================
+on_success:
+  # Git operations
+  git:
+    create_branch: false # Manual branch creation
+    auto_commit: false # Manual commits for safety
+    commit_message_template: "feat: {{ inputs.feature_name }}"
+
+  # Notification
+  notify:
+    - type: log
+      message: "✅ Paracle Build workflow completed for {{ inputs.feature_name }}"
+    - type: file
+      path: ".parac/memory/logs/agent_actions.log"
+
+  # Metrics
+  collect_metrics:
+    - execution_time
+    - token_usage
+    - cost
+    - files_changed
+    - test_coverage
+
+# ============================================================================
+# METADATA & VERSIONING
+# ============================================================================
+version_history:
+  - version: 1.0.0
+    date: "2026-01-05"
+    changes: Initial workflow creation
+    author: GitHub Copilot (Architect Agent)
+
+# Dogfooding notes
+dogfooding:
+  description: |
+    This workflow embodies the Paracle dogfooding strategy:
+    - Uses Paracle framework to build Paracle itself
+    - Follows .parac/ governance strictly
+    - Demonstrates multi-agent orchestration
+    - Shows proper Pre-Flight Checklist usage
+    - Exemplifies governance updates
+    - Validates roadmap alignment
+    - Implements ISO 42001 compliance
+
+  self_improvement:
+    - Workflow can be improved by running itself
+    - Governance updates are automatically applied
+    - Demonstrates framework capabilities to users
+
+# References
+references:
+  governance: .parac/GOVERNANCE.md
+  pre_flight: .parac/PRE_FLIGHT_CHECKLIST.md
+  roadmap: .parac/roadmap/roadmap.yaml
+  architecture: docs/architecture.md
+  policies:
+    - .parac/policies/CODE_STYLE.md
+    - .parac/policies/TESTING.md
+    - .parac/policies/SECURITY.md

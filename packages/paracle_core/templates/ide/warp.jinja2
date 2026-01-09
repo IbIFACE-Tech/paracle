@@ -1,0 +1,46 @@
+{# Warp Terminal AI Rules Template #}
+{% extends "base.jinja2" %}
+
+{% block header %}
+# Warp AI Rules for Paracle
+# Auto-generated from .parac/ - DO NOT EDIT MANUALLY
+# Regenerate with: paracle ide sync --copy
+# Generated: {{ generated_at }}
+#
+# Place this file in .warp/ai-rules.yaml
+{% endblock %}
+
+{% block ide_specific %}
+## Warp Terminal Configuration
+
+This file configures Warp's AI assistant for Paracle projects.
+
+### How to Use
+
+1. Warp AI can read these instructions
+2. Reference `.parac/` files for context
+3. Follow agent guidelines for tasks
+
+### Quick Commands
+
+```bash
+# Check project state
+paracle status
+
+# Run MCP server (for tool access)
+paracle mcp serve --stdio
+
+# List available tools
+paracle mcp list
+
+# Sync IDE configurations
+paracle ide sync --copy
+```
+
+### Agent Selection for Warp
+
+When asking Warp AI to help with tasks:
+{% for agent in agents %}
+- For {{ agent.role }}: mention "as {{ agent.id }} agent"
+{% endfor %}
+{% endblock %}

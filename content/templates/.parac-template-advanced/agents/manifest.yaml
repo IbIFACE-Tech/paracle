@@ -1,0 +1,83 @@
+# Agent Manifest (Advanced Mode)
+# All 8 agent types configured for enterprise use
+
+version: "1.0"
+last_updated: "{{DATE}}"
+
+agents:
+  - id: architect
+    name: System Architect
+    description: Designs system architecture, modules, and interfaces
+    spec_file: specs/architect.md
+    model: gpt-4o
+    provider: openai
+    temperature: 0.7
+    enabled: true
+
+  - id: coder
+    name: Core Developer
+    description: Implements features following architecture and best practices
+    spec_file: specs/coder.md
+    model: gpt-4o-mini
+    provider: openai
+    temperature: 0.3
+    enabled: true
+
+  - id: tester
+    name: Test Engineer
+    description: Creates and maintains test suites
+    spec_file: specs/tester.md
+    model: gpt-4o-mini
+    provider: openai
+    temperature: 0.2
+    enabled: true
+
+  - id: reviewer
+    name: Code Reviewer
+    description: Reviews code for quality, security, and best practices
+    spec_file: specs/reviewer.md
+    model: gpt-4o
+    provider: openai
+    temperature: 0.5
+    enabled: true
+
+  - id: pm
+    name: Project Manager
+    description: Manages project progress, priorities, and coordination
+    spec_file: specs/pm.md
+    model: gpt-4o-mini
+    provider: openai
+    temperature: 0.7
+    enabled: true
+
+  - id: documenter
+    name: Documentation Writer
+    description: Creates and maintains project documentation
+    spec_file: specs/documenter.md
+    model: gpt-4o-mini
+    provider: openai
+    temperature: 0.6
+    enabled: true
+
+  - id: releasemanager
+    name: Release Manager
+    description: Manages versioning, releases, and deployment
+    spec_file: specs/releasemanager.md
+    model: gpt-4o-mini
+    provider: openai
+    temperature: 0.3
+    enabled: true
+
+  - id: security
+    name: Security Expert
+    description: Security audits, vulnerability detection, compliance
+    spec_file: specs/security.md
+    model: gpt-4o
+    provider: openai
+    temperature: 0.2
+    enabled: true
+
+metadata:
+  total_agents: 8
+  mode: advanced
+  last_sync: "{{DATE}}"

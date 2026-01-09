@@ -1,0 +1,393 @@
+[project]
+name = "paracle"
+version = "1.0.0"
+description = "User-driven multi-agent framework for AI-native applications"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "Apache-2.0"
+authors = [
+    {name = "IbIFACE-Team", email = "dev@ibiface.com"},
+    {name = "ANGX", email = "dev@ibiface.com"},
+]
+maintainers = [
+  {name = "IbIFACE-Team", email = "dev@ibiface.com"}
+]
+keywords = [
+    "ai",
+    "agents",
+    "multi-agent",
+    "llm",
+    "framework",
+    "orchestration",
+    "workflow",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Typing :: Typed",
+]
+
+dependencies = [
+    # Core utilities
+    "typing-extensions",
+    "pydantic>=2.5.0",
+    "pydantic-settings>=2.1.0",
+    "python-ulid>=2.2.0",
+    "click>=8.1.0",
+    "rich>=13.7.0",
+    "pyyaml>=6.0.1",
+    "httpx>=0.27.0",
+    "filelock>=3.13.0",  # Cross-platform file locking for state management
+    "watchdog>=3.0.0",  # File system monitoring for governance
+    # Remote development (Phase 8.1)
+    "asyncssh>=2.14.0",  # SSH transport for remote connections
+    "websockets>=12.0",  # WebSocket transport for MCP
+    # Security
+    "bcrypt>=5.0.0",
+    "argon2-cffi>=25.1.0",
+    "python-multipart>=0.0.21",
+    # Templates
+    "jinja2>=3.1.0",
+    # A2A Protocol
+    "a2a-sdk>=0.3.0",  # Official A2A types and utilities
+    "anthropic>=0.75.0",
+    "sqlalchemy>=2.0.45",
+]
+
+[project.optional-dependencies]
+api = [
+    "fastapi>=0.104.1",
+    "uvicorn[standard]>=0.24.0",
+    "python-jose[cryptography]>=3.3.0",
+    "passlib[bcrypt]>=1.7.4",
+]
+
+store = [
+    "sqlalchemy>=2.0.23",
+    "alembic>=1.13.1",
+]
+
+events = [
+    "redis>=5.0.1",
+]
+
+# Execution Safety & Isolation
+sandbox = [
+    "docker>=7.0.0",
+    "psutil>=5.9.0",
+]
+
+# AI-powered generation features (optional - requires AI provider)
+# paracle_meta is the recommended internal AI engine
+meta = [
+    # Core meta engine dependencies
+    "sqlalchemy>=2.0.23",
+    "aiosqlite>=0.19.0",  # Async SQLite support
+]
+
+# PostgreSQL + pgvector support for production (paracle_meta)
+postgres = [
+    "asyncpg>=0.29.0",  # Async PostgreSQL driver
+    "psycopg2-binary>=2.9.9",  # Sync PostgreSQL driver
+    "pgvector>=0.2.4",  # Vector similarity search
+    "sqlalchemy>=2.0.23",
+]
+
+# Full meta engine with PostgreSQL
+meta-full = [
+    "paracle[meta,postgres]",
+]
+
+# Popular LLM providers (users can install specific ones as needed)
+providers = [
+    "openai>=1.3.7",
+    "anthropic>=0.7.8",
+    "cohere>=5.0.0",
+]
+
+# Extended provider support (optional)
+providers-extended = [
+    "paracle[providers]",
+    "google-genai>=0.1.0",
+    "groq>=0.4.0",
+]
+
+# Cloud provider integrations (enterprise/production)
+azure = [
+    "openai>=1.3.7",  # Azure OpenAI uses openai SDK
+    "azure-identity>=1.15.0",
+]
+
+aws = [
+    "boto3>=1.34.0",  # AWS Bedrock
+    "botocore>=1.34.0",
+]
+
+gcp = [
+    "google-cloud-aiplatform>=1.38.0",  # Vertex AI
+    "google-auth>=2.23.0",
+]
+
+# All cloud providers
+cloud = [
+    "paracle[azure,aws,gcp]",
+]
+
+# Framework adapters - each can be installed separately
+langchain = [
+    "langchain>=0.2.0",
+    "langchain-core>=0.2.0",
+    "langchain-openai>=0.1.0",
+    "langgraph>=0.1.0",
+]
+
+llamaindex = [
+    "llama-index>=0.10.0",
+    "llama-index-llms-openai>=0.1.0",
+]
+
+crewai = [
+    "crewai>=0.41.0",
+    "crewai-tools>=0.4.0",
+]
+
+autogen = [
+    "autogen-agentchat>=0.4.0",
+    "autogen-ext>=0.4.0",
+]
+
+msaf = [
+    "agent-framework>=0.1.0",
+]
+
+msaf-azure = [
+    "azure-ai-projects>=1.0.0b3",
+]
+
+# All adapters combined
+adapters = [
+    "paracle[langchain,llamaindex,crewai,autogen,msaf]",
+]
+
+observability = [
+    "prometheus-client>=0.19.0",
+    "opentelemetry-api>=1.21.0",
+]
+
+dev = [
+    "pytest>=7.4.3",
+    "pytest-asyncio>=0.21.1",
+    "pytest-cov>=4.1.0",
+    "pytest-mock>=3.12.0",
+    "httpx>=0.27.0",
+    "black>=23.11.0",
+    "isort>=5.12.0",
+    "mypy>=1.7.1",
+    "ruff>=0.1.6",
+    "bandit>=1.7.5",
+    "safety>=2.3.0",
+    "pre-commit>=3.6.0",
+    "sqlalchemy>=2.0.23",
+    "alembic>=1.13.1",
+]
+
+docs = [
+    "mkdocs>=1.5.3",
+    "mkdocs-material>=9.4.14",
+    "mkdocstrings[python]>=0.24.0",
+]
+
+all = [
+    "paracle[api,store,events,sandbox,providers,cloud,adapters,observability]",
+]
+
+[project.urls]
+Homepage = "https://github.com/IbIFACE-Tech/paracle-lite"
+Documentation = "https://paracle.readthedocs.io"
+Repository = "https://github.com/IbIFACE-Tech/paracle-lite"
+Issues = "https://github.com/IbIFACE-Tech/paracle-lite/issues"
+Changelog = "https://github.com/IbIFACE-Tech/paracle-lite/blob/main/CHANGELOG.md"
+PyPI = "https://pypi.org/project/paracle/"
+
+[project.scripts]
+paracle = "paracle_cli.main:cli"
+
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["packages"]
+include = ["paracle_*"]
+
+[tool.setuptools.package-data]
+"*" = ["py.typed", "*.jinja2"]
+paracle_core = ["content/templates/**/*.jinja2"]
+
+# Black Configuration
+[tool.black]
+line-length = 88
+target-version = ['py310', 'py311', 'py312', 'py313', 'py314']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+# isort Configuration
+[tool.isort]
+profile = "black"
+line_length = 88
+skip_gitignore = true
+known_first_party = [
+    "paracle_core",
+    "paracle_domain",
+    "paracle_store",
+    "paracle_events",
+    "paracle_providers",
+    "paracle_adapters",
+    "paracle_orchestration",
+    "paracle_tools",
+    "paracle_skills",
+    "paracle_api",
+    "paracle_cli",
+    "paracle_sandbox",
+    "paracle_isolation",
+    "paracle_rollback",
+    "paracle_review",
+    "paracle_resources",
+    "paracle_mcp",
+    "paracle_a2a",
+]
+
+# mypy Configuration
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = false
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+follow_imports = "normal"
+strict_optional = true
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+
+# Ruff Configuration
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501",  # line too long (handled by black)
+    "B008",  # do not perform function calls in argument defaults
+    "B904",  # raise from err in except (will address incrementally)
+    "C901",  # too complex (will address individually)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+
+# Pytest Configuration
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "-ra",
+    "--strict-markers",
+    "--strict-config",
+    "--showlocals",
+]
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "slow: Slow running tests",
+    "asyncio: Async tests",
+]
+asyncio_mode = "auto"
+
+# Coverage Configuration
+[tool.coverage.run]
+source = ["packages"]
+branch = true
+omit = [
+    "*/tests/*",
+    "*/test_*.py",
+    "*/__init__.py",
+]
+
+[tool.coverage.report]
+precision = 2
+show_missing = true
+skip_covered = false
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@abstractmethod",
+]
+
+[tool.coverage.html]
+directory = "htmlcov"

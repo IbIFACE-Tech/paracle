@@ -1,0 +1,141 @@
+{% extends "base.jinja2" %}
+
+{% block header %}
+# Paracle AI Instructions for Cursor
+# Auto-generated from .parac/ - DO NOT EDIT MANUALLY
+# Regenerate with: paracle ide sync --copy
+# Generated: {{ generated_at }}
+#
+# 📖 Read First: .parac/UNIVERSAL_AI_INSTRUCTIONS.md (works with ANY IDE)
+{% endblock %}
+
+{% block ide_specific %}
+
+## Cursor-Specific Features for .parac/ Integration
+
+### Essential Keyboard Shortcuts
+- **`Cmd+K` / `Ctrl+K`** - Inline edits (quick changes)
+- **`Cmd+L` / `Ctrl+L`** - Chat sidebar (multi-turn conversation)
+- **`Cmd+I` / `Ctrl+I`** - Composer (multi-file edits)
+- **`@` mentions** - Reference specific files/folders
+
+### Leveraging .parac/ with @ Mentions
+
+**Before starting ANY task - Check governance:**
+```
+@.parac/GOVERNANCE.md What are the governance rules?
+@.parac/memory/context/current_state.yaml What's the current state?
+@.parac/roadmap/roadmap.yaml What phase are we in?
+```
+
+**When adopting agent persona:**
+```
+@.parac/agents/manifest.yaml Which agent should I use?
+@.parac/agents/specs/coder.md Show coder responsibilities
+@.parac/agents/SKILL_ASSIGNMENTS.md What skills does coder have?
+```
+
+**For implementation guidance:**
+```
+@.parac/policies/CODE_STYLE.md Code style guide
+@.parac/policies/TESTING.md Testing policy
+@content/docs/architecture.md Architecture patterns
+```
+
+**After actions - MANDATORY logging:**
+```
+@.parac/memory/logs/agent_actions.log
+[2026-01-04 15:30:00] [CoderAgent] [IMPLEMENTATION] Description...
+```
+
+### Composer Workflow (`Cmd+I`)
+
+1. **Start with context** (use @ mentions):
+   - `@.parac/memory/context/current_state.yaml` - Current state
+   - `@.parac/agents/specs/{agent}.md` - Agent responsibilities
+   - `@.parac/roadmap/roadmap.yaml` - Current priorities
+
+2. **Use @codebase for discovery**:
+   - `@codebase Where is workflow engine?`
+   - `@codebase Show similar patterns`
+
+3. **Reference architecture**:
+   - `@content/docs/architecture.md` - Hexagonal architecture
+   - `@.parac/memory/knowledge/architecture.md` - Design decisions
+
+4. **After changes - LOG immediately**:
+   - Add entry to `@.parac/memory/logs/agent_actions.log`
+
+### Chat Sidebar Tips (`Cmd+L`)
+
+**Start every session with context:**
+```
+User: "Check @.parac/GOVERNANCE.md and @.parac/memory/context/current_state.yaml
+first, then help me with [task]"
+```
+
+**Multi-turn conversations - keep .parac/ in context:**
+- Reference agent specs during discussion
+- Check policies before suggesting solutions
+- Validate against current_state.yaml
+- Log all significant outcomes
+
+### Inline Edit Tips (`Cmd+K`)
+
+For quick edits:
+1. Select code to edit
+2. Press `Cmd+K` / `Ctrl+K`
+3. Reference agent standards in prompt
+4. After edit, log to agent_actions.log
+
+### Recommended Complete Workflow
+
+1. **Pre-work** (`Cmd+L` Chat):
+   ```
+   @.parac/GOVERNANCE.md
+   @.parac/memory/context/current_state.yaml
+   @.parac/roadmap/roadmap.yaml
+
+   What should I know before working on [task]?
+   ```
+
+2. **Agent Selection** (`Cmd+L` Chat):
+   ```
+   @.parac/agents/manifest.yaml
+
+   Which agent should handle [task type]?
+   Then show me @.parac/agents/specs/{selected_agent}.md
+   ```
+
+3. **Implementation** (`Cmd+I` Composer):
+   - Multi-file changes with full context
+   - Reference policies and architecture docs
+   - Follow agent standards
+
+4. **Post-work** (Manual or `Cmd+L`):
+   ```
+   Log to @.parac/memory/logs/agent_actions.log:
+   [TIMESTAMP] [AGENT] [ACTION] What I did and where
+
+   Update @.parac/memory/context/current_state.yaml if needed
+   ```
+
+### .parac/ Quick Reference for Cursor
+
+| What You Need | Use @ Mention |
+| --- | --- |
+| Governance rules | `@.parac/GOVERNANCE.md` |
+| Current project state | `@.parac/memory/context/current_state.yaml` |
+| Current phase/priorities | `@.parac/roadmap/roadmap.yaml` |
+| Available agents | `@.parac/agents/manifest.yaml` |
+| Agent responsibilities | `@.parac/agents/specs/{agent}.md` |
+| Agent skills | `@.parac/agents/SKILL_ASSIGNMENTS.md` |
+| Code style | `@.parac/policies/CODE_STYLE.md` |
+| Testing policy | `@.parac/policies/TESTING.md` |
+| Security policy | `@.parac/policies/SECURITY.md` |
+| Action log | `@.parac/memory/logs/agent_actions.log` |
+| Open questions | `@.parac/memory/context/open_questions.md` |
+| Architecture | `@content/docs/architecture.md` |
+| Config files explained | `@.parac/CONFIG_FILES.md` |
+
+{% endblock %}

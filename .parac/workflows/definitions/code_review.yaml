@@ -1,0 +1,154 @@
+# Code Review Workflow
+# Automated code review process with multiple quality checks
+# Version: 1.0.0
+
+name: code_review
+version: 1.0.0
+description: |
+  Comprehensive code review workflow checking:
+  quality, security, performance, tests, and documentation.
+
+metadata:
+  category: quality
+  tags: [review, quality, security]
+  author: Paracle Team
+  created: "2026-01-06"
+
+inputs:
+  changed_files:
+    type: array
+    description: List of files to review
+    required: true
+
+  pr_number:
+    type: string
+    description: Pull request number (optional)
+    required: false
+
+  review_depth:
+    type: string
+    enum: [quick, standard, thorough]
+    default: standard
+    required: false
+
+steps:
+  - id: static_analysis
+    name: static_code_analysis
+    description: Run linting and type checking
+    agent: reviewer
+    config:
+      model: gpt-4
+      temperature: 0.1
+    inputs:
+      changed_files: "{{ inputs.changed_files }}"
+    outputs:
+      - lint_results
+      - typecheck_results
+      - syntax_errors
+    tools:
+      - name: run_lint
+      - name: run_typecheck
+
+  - id: security_check
+    name: security_analysis
+    description: Check for security vulnerabilities
+    agent: reviewer
+    depends_on: [static_analysis]
+    config:
+      model: gpt-4
+      temperature: 0.2
+    inputs:
+      changed_files: "{{ inputs.changed_files }}"
+    outputs:
+      - security_issues
+      - severity_levels
+      - recommendations
+    tools:
+      - name: read_file
+      - name: security_scan
+
+  - id: code_quality
+    name: quality_review
+    description: Review code quality and best practices
+    agent: reviewer
+    depends_on: [static_analysis]
+    config:
+      model: gpt-4
+      temperature: 0.5
+    inputs:
+      changed_files: "{{ inputs.changed_files }}"
+      review_depth: "{{ inputs.review_depth }}"
+    outputs:
+      - quality_score
+      - issues
+      - suggestions
+    tools:
+      - name: read_file
+
+  - id: test_coverage
+    name: coverage_analysis
+    description: Check test coverage for changed code
+    agent: tester
+    depends_on: [static_analysis]
+    config:
+      model: gpt-4
+      temperature: 0.2
+    inputs:
+      changed_files: "{{ inputs.changed_files }}"
+    outputs:
+      - coverage_percentage
+      - uncovered_lines
+      - missing_tests
+    tools:
+      - name: coverage_report
+
+  - id: performance_check
+    name: performance_review
+    description: Identify potential performance issues
+    agent: reviewer
+    depends_on: [code_quality]
+    config:
+      model: gpt-4
+      temperature: 0.4
+    inputs:
+      changed_files: "{{ inputs.changed_files }}"
+    outputs:
+      - bottlenecks
+      - optimization_opportunities
+    tools:
+      - name: read_file
+
+  - id: final_verdict
+    name: review_summary
+    description: Compile final review verdict
+    agent: reviewer
+    depends_on: [security_check, code_quality, test_coverage, performance_check]
+    config:
+      model: gpt-4
+      temperature: 0.3
+    inputs:
+      lint_results: "{{ steps.static_analysis.outputs.lint_results }}"
+      security_issues: "{{ steps.security_check.outputs.security_issues }}"
+      quality_score: "{{ steps.code_quality.outputs.quality_score }}"
+      coverage_percentage: "{{ steps.test_coverage.outputs.coverage_percentage }}"
+      bottlenecks: "{{ steps.performance_check.outputs.bottlenecks }}"
+    outputs:
+      - verdict # approved/needs_changes/rejected
+      - summary
+      - blocking_issues
+      - action_items
+    validation:
+      must_approve: false # Optional approval
+
+outputs:
+  review_verdict:
+    value: "{{ steps.final_verdict.outputs.verdict }}"
+  review_summary:
+    value: "{{ steps.final_verdict.outputs.summary }}"
+  blocking_issues:
+    value: "{{ steps.final_verdict.outputs.blocking_issues }}"
+
+config:
+  timeout: 900 # 15 minutes
+  logging:
+    level: INFO

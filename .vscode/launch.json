@@ -1,0 +1,92 @@
+{
+  // Launch configuration for debugging Paracle
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python: Current File",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal",
+      "justMyCode": false,
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}",
+        "PARACLE_ENV": "development"
+      }
+    },
+    {
+      "name": "Python: CLI",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "paracle_cli.main",
+      "console": "integratedTerminal",
+      "args": [
+        "--help"
+      ],
+      "justMyCode": false,
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}",
+        "PARACLE_ENV": "development"
+      }
+    },
+    {
+      "name": "Python: Pytest Current File",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pytest",
+      "args": [
+        "${file}",
+        "-v",
+        "-s",
+        "--tb=short"
+      ],
+      "console": "integratedTerminal",
+      "justMyCode": false,
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}",
+        "PARACLE_ENV": "test"
+      }
+    },
+    {
+      "name": "Python: Pytest All",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pytest",
+      "args": [
+        "tests/",
+        "-v",
+        "--tb=short"
+      ],
+      "console": "integratedTerminal",
+      "justMyCode": false,
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}",
+        "PARACLE_ENV": "test"
+      }
+    },
+    {
+      "name": "Python: Example - Hello World",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/examples/hello_world_agent.py",
+      "console": "integratedTerminal",
+      "justMyCode": false,
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}",
+        "PARACLE_ENV": "development"
+      }
+    },
+    {
+      "name": "Python: Example - Agent Inheritance",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/examples/agent_inheritance.py",
+      "console": "integratedTerminal",
+      "justMyCode": false,
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}",
+        "PARACLE_ENV": "development"
+      }
+    }
+  ]
+}

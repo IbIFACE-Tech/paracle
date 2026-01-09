@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "paracle": {
+      "type": "stdio",
+      "command": "uv",
+      "args": [
+        "run",
+        "paracle",
+        "mcp",
+        "serve",
+        "--stdio"
+      ]
+    }
+  }
+}

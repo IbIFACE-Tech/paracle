@@ -1,0 +1,55 @@
+name: api-integration
+display_name: "API Integration"
+category: integration
+description: |
+  Interact with external APIs and web services.
+  Handle authentication, requests, responses, and error handling.
+
+  Supported methods:
+  - REST APIs
+  - GraphQL
+  - SOAP
+  - Webhooks
+
+  Capabilities:
+  - API endpoint discovery
+  - Request construction
+  - Response parsing
+  - Error handling
+  - Rate limiting awareness
+
+  Use cases:
+  - Data fetching
+  - Service integration
+  - Third-party APIs
+  - Web scraping
+  - Automation
+
+level: advanced
+
+tools:
+  - web_search
+  - http_client
+
+capabilities:
+  - rest_api_calls
+  - graphql_queries
+  - authentication_handling
+  - response_parsing
+  - error_recovery
+
+requirements:
+  - skill_name: question-answering
+    min_level: basic
+  - skill_name: data-analysis
+    min_level: intermediate
+
+tags:
+  - api
+  - integration
+  - web
+  - services
+  - http
+
+version: "1.0.0"
+enabled: true

@@ -1,0 +1,2 @@
+# Keep workflows/ directory in git
+# Actual run directories will be gitignored

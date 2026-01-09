@@ -1,0 +1,53 @@
+# Agent Manifest
+# Registry of all agents in this project
+
+# Schema version
+schema_version: "1.0"
+
+# Agent list
+agents:
+  # Example agent - customize or remove
+  - name: assistant
+    description: A general-purpose AI assistant
+    spec_file: specs/assistant.yaml
+    enabled: true
+    version: 1.0.0
+    tags:
+      - general-purpose
+      - assistant
+
+  # Add your agents here
+  # - name: code-reviewer
+  #   description: Reviews code for quality and best practices
+  #   spec_file: specs/code-reviewer.yaml
+  #   enabled: true
+  #   version: 1.0.0
+  #   tags:
+  #     - coding
+  #     - review
+
+  # - name: data-analyst
+  #   description: Analyzes data and generates insights
+  #   spec_file: specs/data-analyst.yaml
+  #   enabled: true
+  #   version: 1.0.0
+  #   tags:
+  #     - data
+  #     - analytics
+
+# Global agent settings
+settings:
+  auto_register: false # Auto-register agents from specs/
+  require_validation: true # Validate agent specs on load
+  enable_inheritance: true # Enable agent inheritance
+  default_enabled: true # Default enabled state for new agents
+
+# Inheritance chains (optional)
+# Define parent-child relationships
+inheritance:
+  # Example: specialized agents inherit from base agents
+  # - child: code-reviewer
+  #   parent: base-coder
+  #   override:
+  #     - system_prompt
+  #     - temperature

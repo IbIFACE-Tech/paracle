@@ -1,0 +1,56 @@
+name: Security Audit
+
+on:
+  schedule:
+    - cron: "0 2 * * *" # Daily at 2 AM
+  workflow_dispatch: # Manual trigger
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install security tools
+        run: |
+          pip install bandit safety semgrep pip-audit
+
+      - name: Run Bandit
+        run: |
+          bandit -r . -f json -o reports/bandit.json || true
+
+      - name: Run Safety
+        run: |
+          safety check --json > reports/safety.json || true
+
+      - name: Run Semgrep
+        run: |
+          semgrep --config auto --json -o reports/semgrep.json . || true
+
+      - name: Run pip-audit
+        run: |
+          pip-audit --format json > reports/pip-audit.json || true
+
+      - name: Upload security reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: security-reports
+          path: reports/
+
+      - name: Create issue if vulnerabilities found
+        if: failure()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'Security vulnerabilities detected',
+              body: 'Automated security scan found vulnerabilities. Check artifacts for details.',
+              labels: ['security', 'automated']
+            })

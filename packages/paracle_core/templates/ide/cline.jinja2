@@ -1,0 +1,48 @@
+{% extends "base.jinja2" %}
+
+{% block header %}
+# Paracle AI Instructions for Cline
+# Auto-generated from .parac/ - DO NOT EDIT MANUALLY
+# Regenerate with: paracle ide sync --copy
+# Generated: {{ generated_at }}
+{% endblock %}
+
+{% block ide_specific %}
+
+## Cline-Specific Features
+
+### Command Execution
+
+Cline can execute commands. Use these Paracle CLI commands:
+
+```bash
+# Check project status
+paracle status
+
+# Sync IDE configs
+paracle ide sync --copy
+
+# Validate .parac/ workspace
+paracle validate
+
+# Start/end work session
+paracle session start
+paracle session end --progress 50
+```
+
+### File Operations
+
+When working with files:
+1. Read `.parac/` files for context before editing
+2. Follow patterns from `.parac/agents/specs/coder.md`
+3. Update `.parac/memory/context/current_state.yaml` when completing tasks
+
+### Recommended Workflow
+
+1. Run `paracle status` to understand current state
+2. Read relevant agent spec from `.parac/agents/specs/`
+3. Complete the task following agent guidelines
+4. Run `paracle validate` to check consistency
+5. Log actions via governance module
+
+{% endblock %}

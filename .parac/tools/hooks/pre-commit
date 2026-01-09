@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+# Git pre-commit hook for .parac/ maintenance
+#
+# Installation:
+#   .parac/tools/hooks/install-hooks.ps1  (Windows)
+#   bash .parac/tools/hooks/install-hooks.sh  (Unix/Linux/Mac)
+#
+# This unified hook handles:
+# 1. Agent manifest regeneration when agent specs change
+# 2. Project state maintenance when code/docs change
+
+set -e
+
+echo "🔄 Running .parac/ maintenance..."
+
+# ============================================================================
+# TASK 1: Agent Manifest Sync
+# ============================================================================
+# Check if any agent specs were modified
+AGENT_SPECS_CHANGED=$(git diff --cached --name-only | grep -c "^\.parac/agents/specs/.*\.md$" || true)
+
+if [ $AGENT_SPECS_CHANGED -gt 0 ]; then
+    echo "🤖 Agent specs modified, regenerating manifest..."
+
+    # Regenerate manifest
+    paracle sync --manifest --no-git --no-metrics
+
+    # Add the updated manifest to the commit
+    git add .parac/manifest.yaml
+
+    echo "✅ Manifest regenerated and staged"
+fi
+
+# ============================================================================
+# TASK 2: Project State Maintenance
+# ============================================================================
+# Check if code/docs changed
+CODE_CHANGED=$(git diff --cached --name-only | grep -E "^(packages|docs|examples|templates)/" || true)
+
+if [ -n "$CODE_CHANGED" ]; then
+    echo "📦 Project files modified, updating state..."
+
+    # Run the maintenance tool
+    python3 .parac/tools/hooks/auto-maintain.py --verbose
+
+    # If changes were made to .parac/, stage them
+    if git diff --name-only | grep -q "^\.parac/"; then
+        echo "✅ Staging .parac updates..."
+        git add .parac/memory/context/current_state.yaml
+        git add .parac/changelog.md
+        git add .parac/roadmap/roadmap.yaml
+    fi
+fi
+
+echo "✅ .parac/ maintenance complete"
+exit 0

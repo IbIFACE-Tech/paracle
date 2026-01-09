@@ -1,0 +1,162 @@
+{# Atlassian Rovo Dev Configuration Template #}
+# Rovo Dev Configuration for Paracle
+# Auto-generated from .parac/ - DO NOT EDIT MANUALLY
+# Regenerate with: paracle ide sync --copy
+# Generated: {{ generated_at }}
+#
+# Location: ~/.rovodev/config.yml or .rovodev/config.yml
+# Documentation: https://support.atlassian.com/rovo/docs/manage-rovo-dev-cli-settings/
+
+# =============================================================================
+# AGENT CONFIGURATION
+# =============================================================================
+
+agent:
+  # Additional system prompt appended to Rovo Dev's default instructions
+  # This contains Paracle governance rules and project context
+  additionalSystemPrompt: |
+    ## Paracle Project Context
+
+    You are working on a Paracle-governed project. Follow these rules:
+
+    ### Core Principle
+    `.parac/` is the single source of truth. Read it. Follow it. Log to it.
+
+    ### Before ANY Action
+    1. Read `.parac/GOVERNANCE.md` - Governance rules
+    2. Check `.parac/memory/context/current_state.yaml` - Current state
+    3. Consult `.parac/roadmap/roadmap.yaml` - Phase & priorities
+    4. Select appropriate agent from `.parac/agents/specs/`
+
+    ### Current Project State
+    {% if current_state %}
+    - Project: {{ current_state.project_name }} v{{ current_state.project_version }}
+    - Phase: {{ current_state.phase.id }} - {{ current_state.phase.name }} ({{ current_state.phase.progress }})
+    - Status: {{ current_state.phase.status }}
+    {% if current_state.phase.focus_areas %}
+    - Focus: {{ current_state.phase.focus_areas | join(', ') }}
+    {% endif %}
+    {% else %}
+    - Run `paracle status` to check project state
+    {% endif %}
+
+    ### Available Agents
+    {% for agent in agents %}
+    - **{{ agent.id }}**: {{ agent.role }}
+    {% endfor %}
+
+    ### After Actions (MANDATORY)
+    - Log to `.parac/memory/logs/agent_actions.log`
+    - Format: `[TIMESTAMP] [AGENT] [ACTION] Description`
+    - Update `.parac/memory/context/current_state.yaml` if progress made
+
+    ### Paracle CLI Commands
+    ```bash
+    paracle status          # Check project state
+    paracle validate        # Validate .parac/ workspace
+    paracle ide sync --copy # Sync IDE configurations
+    ```
+
+  # Enable streaming for responsive feedback
+  streaming: true
+
+  # Lower temperature for consistent, deterministic outputs
+  temperature: 0.3
+
+  # Auto-select best model
+  modelId: "auto"
+
+  # Enable deep planning for complex Paracle tasks
+  enableDeepPlanTool: true
+
+# =============================================================================
+# SESSION CONFIGURATION
+# =============================================================================
+
+sessions:
+  # Auto-restore previous session context
+  autoRestore: true
+
+  # Store session data in project directory
+  persistenceDir: ".rovodev/sessions"
+
+# =============================================================================
+# ATLASSIAN INTEGRATION (Optional)
+# =============================================================================
+
+atlassian:
+  # Enable Atlassian integration for Jira/Confluence
+  enabled: false
+
+  # Configure Jira projects if needed
+  # jiraProjects:
+  #   - url: "https://your-domain.atlassian.net"
+  #     key: "PROJ"
+
+# =============================================================================
+# CONSOLE DISPLAY
+# =============================================================================
+
+console:
+  # Use markdown for formatted output
+  outputFormat: "markdown"
+
+  # Show tool execution results
+  showToolResults: true
+
+  # Editor mode (EMACS or VI)
+  editingMode: "EMACS"
+
+  # Output width
+  maxOutputWidth: 120
+
+# =============================================================================
+# LOGGING
+# =============================================================================
+
+logging:
+  # Store logs in project directory
+  path: ".rovodev/logs/rovodev.log"
+
+# =============================================================================
+# MCP (Model Context Protocol) CONFIGURATION
+# =============================================================================
+
+mcp:
+  # MCP configuration file path
+  mcpConfigPath: ".rovodev/mcp_config.json"
+
+  # Allow Paracle MCP server
+  allowedMcpServers:
+    - "paracle"
+
+# =============================================================================
+# TOOL PERMISSIONS
+# =============================================================================
+
+tools:
+  # File operations - allow with governance
+  fileOperations:
+    read: "allow"
+    write: "ask"
+    delete: "ask"
+
+  # Bash commands - require confirmation for safety
+  bash:
+    execute: "ask"
+
+  # Atlassian operations
+  atlassian:
+    read: "allow"
+    write: "ask"
+
+# =============================================================================
+# EXPERIMENTAL FEATURES
+# =============================================================================
+
+experimental:
+  # Enable task delegation for complex workflows
+  enableDelegationTool: false
+
+  # Shadow mode for safe testing
+  enableShadowMode: false

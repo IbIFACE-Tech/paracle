@@ -1,0 +1,44 @@
+name: text-summarization
+display_name: "Text Summarization"
+category: transformation
+description: |
+  Summarize long texts into concise, coherent summaries.
+  Preserves key information while reducing length.
+
+  Summarization types:
+  - Extractive (selecting key sentences)
+  - Abstractive (generating new text)
+  - Single document
+  - Multi-document
+
+  Use cases:
+  - Article summarization
+  - Meeting notes
+  - Report condensing
+  - Email digests
+  - Research paper abstracts
+
+level: intermediate
+
+tools: []
+
+capabilities:
+  - extractive_summary
+  - abstractive_summary
+  - key_point_extraction
+  - length_control
+  - information_preservation
+
+requirements:
+  - skill_name: question-answering
+    min_level: basic
+
+tags:
+  - summary
+  - nlp
+  - compression
+  - extraction
+  - text
+
+version: "1.0.0"
+enabled: true

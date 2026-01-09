@@ -1,0 +1,42 @@
+{# Opencode AI Rules Template #}
+{% extends "base.jinja2" %}
+
+{% block header %}
+# Opencode AI Rules for Paracle
+# Auto-generated from .parac/ - DO NOT EDIT MANUALLY
+# Regenerate with: paracle ide sync --copy
+# Generated: {{ generated_at }}
+#
+# Place this file in .opencode/rules.yaml
+{% endblock %}
+
+{% block ide_specific %}
+## Opencode AI Configuration
+
+This file configures Opencode AI for Paracle projects.
+
+### MCP Integration
+
+Opencode supports MCP. Configure in your Opencode settings:
+
+```yaml
+mcp:
+  servers:
+    paracle:
+      command: paracle
+      args: [mcp, serve, --stdio]
+```
+
+### Available Tools
+
+Through Paracle MCP server:
+- 50+ built-in tools
+- Custom tools from `.parac/tools/custom/`
+- External MCP servers from `.parac/tools/mcp/mcp.json`
+
+### Agent Selection
+
+{% for agent in agents %}
+- **{{ agent.id }}**: {{ agent.role }}
+{% endfor %}
+{% endblock %}

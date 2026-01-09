@@ -1,0 +1,260 @@
+# MkDocs Configuration for Paracle Documentation
+
+site_name: Paracle Documentation
+site_url: https://paracle.readthedocs.io
+site_description: User-driven multi-agent framework for AI-native applications
+site_author: IbIFACE-Tech
+
+repo_name: IbIFACE-Tech/paracle-lite
+repo_url: https://github.com/IbIFACE-Tech/paracle-lite
+edit_uri: edit/main/content/docs/
+
+theme:
+    name: material
+    palette:
+        # Light mode
+        - media: "(prefers-color-scheme: light)"
+          scheme: default
+          primary: indigo
+          accent: indigo
+          toggle:
+              icon: material/brightness-7
+              name: Switch to dark mode
+        # Dark mode
+        - media: "(prefers-color-scheme: dark)"
+          scheme: slate
+          primary: indigo
+          accent: indigo
+          toggle:
+              icon: material/brightness-4
+              name: Switch to light mode
+
+    features:
+        - navigation.instant
+        - navigation.tracking
+        - navigation.tabs
+        - navigation.sections
+        - navigation.expand
+        - navigation.top
+        - search.suggest
+        - search.highlight
+        - content.code.copy
+        - content.code.annotate
+        - toc.follow
+        - toc.integrate
+
+markdown_extensions:
+    - pymdownx.highlight:
+          anchor_linenums: true
+          line_spans: __span
+          pygments_lang_class: true
+    - pymdownx.inlinehilite
+    - pymdownx.snippets
+    - pymdownx.superfences:
+          custom_fences:
+              - name: mermaid
+                class: mermaid
+                format: !!python/name:pymdownx.superfences.fence_code_format
+    - pymdownx.tabbed:
+          alternate_style: true
+    - pymdownx.tasklist:
+          custom_checkbox: true
+    - admonition
+    - pymdownx.details
+    - attr_list
+    - md_in_html
+    - toc:
+          permalink: true
+          title: On this page
+    - tables
+    - footnotes
+    - pymdownx.emoji:
+          emoji_index: !!python/name:material.extensions.emoji.twemoji
+          emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+plugins:
+    - search:
+          separator: '[\s\-,:!=\[\]()"/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
+    - mkdocstrings:
+          handlers:
+              python:
+                  options:
+                      show_source: true
+                      show_root_heading: true
+                      show_root_full_path: false
+                      show_root_toc_entry: false
+                      docstring_style: google
+                      members_order: source
+                      show_signature_annotations: true
+                      separate_signature: true
+                      merge_init_into_class: true
+
+extra:
+    version:
+        provider: mike
+    social:
+        - icon: fontawesome/brands/github
+          link: https://github.com/IbIFACE-Tech/paracle-lite
+        - icon: fontawesome/brands/python
+          link: https://pypi.org/project/paracle/
+    analytics:
+        provider: google
+        property: G-XXXXXXXXXX # Replace with your Google Analytics ID
+
+nav:
+    - Home: index.md
+
+    # 🚀 Getting Started
+    - Getting Started:
+          - Installation: getting-started.md
+          - Interactive Tutorial: tutorial.md
+          - Quick Start: quickstart.md
+          - Configuration: configuration-guide.md
+          - API Keys Setup: api-keys.md
+
+    # 📚 Core Concepts
+    - Core Concepts:
+          - Overview: concepts/overview.md
+          - Agents:
+                - Introduction: concepts/agents.md
+                - Agent Inheritance: agent-inheritance-example.md
+                - Agent Discovery: agent-discovery.md
+                - Agent Skills: agent-skills.md
+          - Workflows:
+                - Introduction: workflow-guide.md
+                - Execution Modes: execution-modes.md
+          - Tools:
+                - Built-in Tools: builtin-tools.md
+                - Custom Tools: concepts/custom-tools.md
+          - Providers:
+                - Overview: providers.md
+                - Multi-Provider: concepts/multi-provider.md
+
+    # 🏗️ Architecture & Modules
+    - Architecture:
+          - System Architecture: architecture.md
+          - Design Patterns: architecture/patterns.md
+          - Module Overview: architecture/modules.md
+          - Core Modules:
+                - paracle_core: modules/core.md
+                - paracle_domain: modules/domain.md
+                - paracle_cli: modules/cli.md
+                - paracle_api: modules/api.md
+          - Orchestration:
+                - paracle_orchestration: modules/orchestration.md
+                - paracle_workflows: modules/workflows.md
+          - Data & State:
+                - paracle_store: modules/store.md
+                - paracle_memory: modules/memory.md
+                - paracle_cache: modules/cache.md
+                - paracle_vector: modules/vector.md
+          - Integration:
+                - paracle_providers: modules/providers.md
+                - paracle_adapters: modules/adapters.md
+                - paracle_mcp: modules/mcp.md
+                - paracle_a2a: modules/a2a.md
+          - Execution & Safety:
+                - paracle_sandbox: modules/sandbox.md
+                - paracle_isolation: modules/isolation.md
+                - paracle_rollback: modules/rollback.md
+                - paracle_review: modules/review.md
+          - Advanced Features:
+                - paracle_skills: modules/skills.md
+                - paracle_tools: modules/tools.md
+                - paracle_knowledge: modules/knowledge.md
+                - paracle_kanban: modules/kanban.md
+                - paracle_git_workflows: modules/git-workflows.md
+          - Monitoring & Operations:
+                - paracle_events: modules/events.md
+                - paracle_audit: modules/audit.md
+                - paracle_profiling: modules/profiling.md
+                - paracle_governance: modules/governance.md
+
+    # 📖 User Guides
+    - User Guides:
+          - Agent Development:
+                - Creating Agents: guides/creating-agents.md
+                - Agent Patterns: guides/agent-patterns.md
+                - Testing Agents: guides/testing-agents.md
+          - Workflow Development:
+                - Creating Workflows: guides/creating-workflows.md
+                - Workflow Patterns: guides/workflow-patterns.md
+          - Tools & Skills:
+                - Using Built-in Tools: guides/using-tools.md
+                - Creating Custom Tools: guides/custom-tools.md
+                - Developing Skills: guides/developing-skills.md
+          - Memory & Knowledge:
+                - Memory System: memory-system-guide.md
+                - Knowledge Engine: knowledge-engine-guide.md
+                - Vector Store: vector-store-guide.md
+          - Integration:
+                - MCP Integration: mcp-integration.md
+                - A2A Protocol: a2a-integration.md
+                - IDE Integration: ide-integration.md
+          - Operations:
+                - Kanban Board: kanban-guide.md
+                - Git Workflows: modules/git-workflows.md
+                - Cost Tracking: cost-tracking-status.md
+                - Performance Profiling: performance-profiling-guide.md
+
+    # 🔧 Advanced Topics
+    - Advanced Topics:
+          - Execution & Safety:
+                - Sandbox Execution: phase5-guide.md
+                - Rollback System: guides/rollback.md
+                - Artifact Review: guides/artifact-review.md
+                - Network Isolation: guides/isolation.md
+          - Performance:
+                - Response Caching: response-caching-guide.md
+                - Connection Pooling: guides/connection-pooling.md
+                - Profiling: performance-profiling-guide.md
+          - State Management:
+                - Concurrency: state-management-concurrency.md
+                - File Locking: file-locking-implementation.md
+                - Conflict Resolution: guides/conflict-resolution.md
+          - Security & Compliance:
+                - Security Agent: security-agent.md
+                - Audit System: audit-guide.md
+                - Compliance: compliance-guide.md
+                - Governance: governance-guide.md
+
+    # 📡 API & CLI Reference
+    - Reference:
+          - CLI Commands: cli-reference.md
+          - REST API: api-reference.md
+          - Configuration: config-commands.md
+          - Python SDK:
+                - Core API: api/core.md
+                - Domain Models: api/domain.md
+                - Providers: api/providers.md
+                - Orchestration: api/orchestration.md
+                - Tools: api/tools.md
+                - Events: api/events.md
+
+    # 🚢 Deployment & Operations
+    - Deployment:
+          - Docker Setup: deployment/docker.md
+          - Production Deployment: deployment/production.md
+          - Monitoring: deployment/monitoring.md
+          - Scaling: deployment/scaling.md
+          - Publishing:
+                - Overview: publishing-guide.md
+                - Setup: publishing-setup-summary.md
+                - Windows: windows-publishing-guide.md
+                - Action Items: publishing-action-items.md
+
+    # 🤝 Development
+    - Development:
+          - Contributing: CONTRIBUTING.md
+          - Development Setup: development/setup.md
+          - Testing Strategy: development/testing.md
+          - Release Process: development/releases.md
+          - Phase Guides:
+                - Phase 5: phase5-guide.md
+                - Phase 7: phase7-integration-guide.md
+                - Phase 9: phase9-integration-guide.md
+
+copyright: Copyright &copy; 2026 IbIFACE-Tech
+
+extra_css:
+    - stylesheets/extra.css

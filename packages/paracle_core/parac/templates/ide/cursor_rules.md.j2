@@ -1,0 +1,86 @@
+# Paracle Agent System
+
+## Agent Selection
+
+Select the appropriate agent by prefixing with @tag:
+
+{% for agent in agents %}
+### @{{ agent.id }}
+**When**: {{ agent.description }}
+**Capabilities**: {{ agent.tools | join(', ') }}
+**Style**: Based on {{ agent.role }}
+
+When activated, follow `.parac/agents/specs/{{ agent.id }}.md` guidelines.
+
+{% endfor %}
+
+## MCP Tools
+
+Tools available via Paracle MCP server. Configure in Cursor Settings > MCP:
+- Command: `paracle mcp serve --stdio`
+
+### Available Tools
+{% for tool in all_tools %}
+- `{{ tool.name }}` - {{ tool.description }}
+{% endfor %}
+
+### Context Tools
+- `context.current_state` - Get current project state
+- `context.roadmap` - Get project roadmap
+- `context.policies` - Get active policies
+- `context.decisions` - Get architectural decisions
+
+### Workflow Tools
+- `workflow.run(workflow_id, inputs)` - Execute Paracle workflows
+- `workflow.list` - List available workflows
+
+**Available Workflows:**
+- `feature_development` - Full feature cycle (design → code → test → review → docs)
+- `bugfix` - Streamlined bugfix flow
+- `code_review` - Comprehensive code review (quality, security, tests)
+- `refactoring` - Safe refactoring with baseline tests
+- `release` - Release management (version, changelog, publish)
+- `documentation` - Documentation generation workflow
+
+**Workflow Examples by Agent:**
+
+@coder - Run code review:
+```
+workflow.run(workflow_id="code_review", inputs={changed_files: ["src/api.py"]})
+```
+
+@reviewer - Thorough code review:
+```
+workflow.run(workflow_id="code_review", inputs={changed_files: ["src/file.py"], review_depth: "thorough"})
+```
+
+@architect - Start feature development:
+```
+workflow.run(workflow_id="feature_development", inputs={feature_name: "authentication"})
+```
+
+@releasemanager - Create a release:
+```
+workflow.run(workflow_id="release", inputs={version_type: "minor"})
+```
+
+### Memory Tools
+- `memory.log_action(agent, action, description)` - Log agent actions
+
+## Before Any Task
+
+1. Read `.parac/memory/context/current_state.yaml`
+2. Check `.parac/roadmap/roadmap.yaml` for priorities
+3. Select appropriate agent persona
+4. Follow agent spec from `.parac/agents/specs/`
+
+## After Completing Work
+
+Log action to `.parac/memory/logs/agent_actions.log`:
+```
+[TIMESTAMP] [AGENT] [ACTION] Description
+```
+
+---
+
+{{ existing_rules }}

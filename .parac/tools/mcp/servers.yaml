@@ -1,0 +1,105 @@
+# MCP Servers Configuration
+#
+# This file defines external MCP servers that Paracle can integrate with.
+# These servers provide additional tools beyond Paracle's built-in tools.
+#
+# Usage:
+#   - Enable a server by setting enabled: true
+#   - Configure environment variables in .env or system environment
+#   - Paracle MCP server will proxy calls to these external servers
+#
+# MCP Specification: https://modelcontextprotocol.io/
+
+version: "1.0"
+
+servers:
+  # GitHub MCP Server
+  # Provides: create_issue, list_issues, create_pull_request, list_pull_requests,
+  #           get_file_contents, create_or_update_file, push_files, etc.
+  - id: github
+    name: GitHub
+    description: GitHub integration (issues, PRs, repos)
+    command: npx
+    args: ["-y", "@modelcontextprotocol/server-github"]
+    env:
+      GITHUB_PERSONAL_ACCESS_TOKEN: "${GITHUB_TOKEN}"
+    enabled: false  # Enable after setting GITHUB_TOKEN in .env
+    tools_prefix: github  # Tools will be namespaced as github.*
+
+  # Filesystem MCP Server
+  # Provides: read_file, read_multiple_files, write_file, edit_file,
+  #           create_directory, list_directory, move_file, etc.
+  - id: filesystem
+    name: Filesystem
+    description: Advanced filesystem operations with sandboxing
+    command: npx
+    args: ["-y", "@modelcontextprotocol/server-filesystem", "${PROJECT_ROOT}"]
+    enabled: false  # Enable if you need advanced file operations
+    tools_prefix: fs
+
+  # PostgreSQL MCP Server
+  # Provides: query, execute, list_tables, describe_table
+  - id: postgres
+    name: PostgreSQL
+    description: PostgreSQL database integration
+    command: npx
+    args: ["-y", "@modelcontextprotocol/server-postgres"]
+    env:
+      POSTGRES_URL: "${DATABASE_URL}"
+    enabled: false
+    tools_prefix: db
+
+  # SQLite MCP Server
+  # Provides: read_query, write_query, create_table, list_tables, describe_table
+  - id: sqlite
+    name: SQLite
+    description: SQLite database integration
+    command: npx
+    args: ["-y", "@modelcontextprotocol/server-sqlite", "${SQLITE_DB_PATH}"]
+    enabled: false
+    tools_prefix: sqlite
+
+  # Brave Search MCP Server
+  # Provides: brave_web_search, brave_local_search
+  - id: brave-search
+    name: Brave Search
+    description: Web and local search via Brave Search API
+    command: npx
+    args: ["-y", "@modelcontextprotocol/server-brave-search"]
+    env:
+      BRAVE_API_KEY: "${BRAVE_API_KEY}"
+    enabled: false
+    tools_prefix: search
+
+  # Fetch MCP Server
+  # Provides: fetch - Get contents of a URL
+  - id: fetch
+    name: Fetch
+    description: Fetch web content from URLs
+    command: npx
+    args: ["-y", "@modelcontextprotocol/server-fetch"]
+    enabled: false
+    tools_prefix: web
+
+  # Memory MCP Server
+  # Provides: store_memory, retrieve_memory, search_memories, delete_memory
+  - id: memory
+    name: Memory
+    description: Persistent memory/knowledge store
+    command: npx
+    args: ["-y", "@modelcontextprotocol/server-memory"]
+    enabled: false
+    tools_prefix: mem
+
+  # Example: Custom Company MCP Server
+  # Uncomment and configure for your internal tools
+  # - id: company-api
+  #   name: Company API
+  #   description: Internal company API integration
+  #   command: python
+  #   args: ["-m", "company_mcp_server"]
+  #   env:
+  #     COMPANY_API_KEY: "${COMPANY_API_KEY}"
+  #     COMPANY_API_URL: "${COMPANY_API_URL}"
+  #   enabled: false
+  #   tools_prefix: company

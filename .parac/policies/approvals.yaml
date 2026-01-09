@@ -1,0 +1,136 @@
+# Approval Rules for Paracle Development
+
+version: "1.0"
+
+# Approval Matrix
+approval_matrix:
+  # Architecture Decisions
+  architecture:
+    description: Changes to system architecture or module boundaries
+    required_approvers: 1
+    approvers:
+      - role: architect
+        required: true
+    auto_approve: false
+    timeout: 7_days
+
+  # Breaking Changes
+  breaking_changes:
+    description: Changes that break backward compatibility
+    required_approvers: 2
+    approvers:
+      - role: architect
+        required: true
+      - role: pm
+        required: true
+    auto_approve: false
+    timeout: 7_days
+    notification: all_team
+
+  # Security Changes
+  security:
+    description: Security-related code or configuration changes
+    required_approvers: 2
+    approvers:
+      - role: reviewer
+        required: true
+      - role: architect
+        required: false
+    auto_approve: false
+    timeout: 3_days
+
+  # Roadmap Changes
+  roadmap:
+    description: Changes to locked roadmap items
+    required_approvers: 1
+    approvers:
+      - role: pm
+        required: true
+    auto_approve: false
+    timeout: 5_days
+
+  # Destructive Operations
+  destructive:
+    description: Operations that delete or irreversibly modify data
+    required_approvers: 2
+    approvers:
+      - role: pm
+        required: true
+      - role: architect
+        required: true
+    auto_approve: false
+    timeout: 7_days
+    confirmation_required: true
+
+  # Documentation
+  documentation:
+    description: Documentation-only changes
+    required_approvers: 0
+    auto_approve: true
+    timeout: 1_day
+
+  # Bug Fixes
+  bugfix:
+    description: Bug fixes without architecture changes
+    required_approvers: 1
+    approvers:
+      - role: reviewer
+        required: false
+    auto_approve: false
+    timeout: 2_days
+
+  # Features
+  feature:
+    description: New feature implementation
+    required_approvers: 1
+    approvers:
+      - role: reviewer
+        required: false
+      - role: architect
+        required: false
+    auto_approve: false
+    timeout: 5_days
+
+# Special Cases
+special_cases:
+  # Hotfix
+  hotfix:
+    description: Critical production fixes
+    required_approvers: 1
+    approvers:
+      - role: any_senior
+    auto_approve: false
+    timeout: 4_hours
+    fast_track: true
+
+  # Dependency Updates
+  dependency_update:
+    description: Updating external dependencies
+    required_approvers: 1
+    approvers:
+      - role: reviewer
+    auto_approve: true # If security scan passes
+    conditions:
+      - security_scan_passed
+      - no_breaking_changes
+    timeout: 2_days
+
+# Escalation Process
+escalation:
+  timeout_action: notify_team
+  blocked_for: 3_days
+  escalate_to: pm
+
+# Approval History
+history:
+  retention: 365_days
+  audit_log: true
+
+# Override Process
+override:
+  allowed: true
+  requires:
+    - role: pm
+    - justification: required
+    - documentation: required
+  audit: true
