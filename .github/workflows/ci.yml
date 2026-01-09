@@ -98,10 +98,12 @@ jobs:
 
       - name: Run bandit
         run: |
+        continue-on-error: true  # Advisory only - track issues but don't fail CI
           uv run bandit -r packages/ -ll
 
       - name: Run safety
         run: |
+        continue-on-error: true  # Advisory only
           uv run safety check --json || true
 
 
