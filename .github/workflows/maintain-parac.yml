@@ -28,16 +28,14 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v4
-
       - name: Install dependencies
         run: |
-          uv sync --all-extras
+          python -m pip install --upgrade pip
+          pip install pyyaml
 
       - name: Run .parac maintenance
         run: |
-          uv run paracle sync --verbose
+          python .parac/tools/hooks/auto-maintain.py --verbose
 
       - name: Check for changes
         id: check_changes
@@ -68,5 +66,5 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: 'âš ï¸? **Warning**: This PR requires `.parac/` workspace updates. Please run `paracle sync` locally and commit the changes.'
+              body: 'âš ï¸? **Warning**: This PR requires `.parac/` workspace updates. Please run `python .parac/tools/hooks/auto-maintain.py` locally and commit the changes.'
             })
