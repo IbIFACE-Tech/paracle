@@ -9,7 +9,7 @@ Use cases:
 - Trusted automation workflows
 - Non-critical operations
 
-⚠️ WARNING: Use YOLO mode responsibly! In production, ensure:
+WARNING: Use YOLO mode responsibly! In production, ensure:
    - Workflows are thoroughly tested
    - Approval policies are configured
    - Audit logs are monitored
@@ -156,7 +156,7 @@ async def run_without_yolo() -> None:
 
     workflow = create_ci_cd_workflow()
 
-    print("\n🚀 Starting workflow execution...")
+    print("\n Starting workflow execution...")
     print("   (This will pause at approval gates)")
 
     try:
@@ -166,16 +166,16 @@ async def run_without_yolo() -> None:
             inputs={"version": "v1.2.3"},
             timeout_seconds=5,  # Will timeout waiting for approval
         )
-        print(f"\n✅ Workflow completed: {result.status}")
+        print(f"\n Workflow completed: {result.status}")
 
     except Exception as e:
-        print(f"\n⏱️  Workflow timed out (expected!): {e}")
+        print(f"\n  Workflow timed out (expected!): {e}")
         print("   In real usage, you would approve via API/CLI")
 
     # Show pending approvals
     pending = approval_manager.list_pending()
     if pending:
-        print(f"\n📋 Pending approvals: {len(pending)}")
+        print(f"\n Pending approvals: {len(pending)}")
         for req in pending:
             print(f"   - {req.step_name} (ID: {req.id})")
 
@@ -195,7 +195,7 @@ async def run_with_yolo() -> None:
     # Create ApprovalManager with YOLO mode enabled
     approval_manager = ApprovalManager(
         event_bus,
-        auto_approve=True,  # 🎯 YOLO MODE!
+        auto_approve=True,  # YOLO MODE!
         auto_approver="system:yolo",
     )
 
@@ -207,8 +207,8 @@ async def run_with_yolo() -> None:
 
     workflow = create_ci_cd_workflow()
 
-    print("\n⚠️  YOLO MODE ENABLED - Auto-approving all gates")
-    print("🚀 Starting workflow execution...")
+    print("\n  YOLO MODE ENABLED - Auto-approving all gates")
+    print(" Starting workflow execution...")
 
     # Execute - will complete without manual intervention
     result = await orchestrator.execute(
@@ -216,16 +216,16 @@ async def run_with_yolo() -> None:
         inputs={"version": "v1.2.3"},
     )
 
-    print(f"\n✅ Workflow completed: {result.status}")
-    print(f"📊 Steps completed: {len(result.step_results)}")
+    print(f"\n Workflow completed: {result.status}")
+    print(f" Steps completed: {len(result.step_results)}")
 
     # Show results
-    print("\n📋 Step Results:")
+    print("\n Step Results:")
     for step_name, step_result in result.step_results.items():
         print(f"   {step_name}: {step_result.get('status', 'N/A')}")
 
     # Show that approvals were auto-approved
-    print("\n🤖 Auto-Approvals:")
+    print("\n Auto-Approvals:")
     # In real implementation, query approval history
     print("   - deploy_staging: Auto-approved by system:yolo")
     print("   - deploy_prod: Auto-approved by system:yolo")
@@ -241,10 +241,10 @@ async def run_with_yolo_selective() -> None:
     print("SCENARIO 3: SELECTIVE YOLO (Policy Overrides)")
     print("=" * 60)
 
-    print("\n💡 In this scenario:")
+    print("\n In this scenario:")
     print("   - Staging deployment: Auto-approved (YOLO)")
     print("   - Production deployment: Requires human (policy override)")
-    print("   (Not implemented in this example - see docs/yolo-mode-design.md)")
+    print("   (Not implemented in this example - see content/docs/technical/yolo-mode-design.md)")
 
 
 async def main() -> None:
@@ -269,17 +269,17 @@ async def main() -> None:
     print("\n" + "=" * 60)
     print("SUMMARY")
     print("=" * 60)
-    print("\n✅ YOLO mode is useful for:")
+    print("\n YOLO mode is useful for:")
     print("   - CI/CD pipelines")
     print("   - Development/testing")
     print("   - Trusted automation")
     print("   - Non-critical workflows")
-    print("\n⚠️  Use with caution for:")
+    print("\n Use with caution for:")
     print("   - Production deployments")
     print("   - Security-sensitive operations")
     print("   - Financial transactions")
     print("   - Compliance-required approvals")
-    print("\n📖 For more info, see: docs/yolo-mode-design.md")
+    print("\n For more info, see: content/docs/technical/yolo-mode-design.md")
     print("=" * 60)
 
 

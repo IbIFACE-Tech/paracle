@@ -178,7 +178,7 @@ async def main():
     print()
 
     print("=" * 80)
-    print("Profiling complete! See docs/performance-profiling-guide.md for more.")
+    print("Profiling complete! See content/docs/technical/performance-profiling-guide.md for more.")
     print("=" * 80)
 
 

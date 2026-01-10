@@ -97,4 +97,4 @@ system_prompt: |
 ## Resources
 
 - Agent Specs: `.parac/agents/specs/`
-- Template: `templates/.parac-template/agents/specs/`
+- Template: `content/templates/.parac-template/agents/specs/`

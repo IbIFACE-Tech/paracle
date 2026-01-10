@@ -321,4 +321,4 @@ def test_rejects_invalid_agent_name():
 
 - FastAPI Security: https://fastapi.tiangolo.com/tutorial/security/
 - OWASP Top 10: https://owasp.org/www-project-top-ten/
-- Security Guide: `docs/security-audit-report.md`
+- Security Guide: `content/docs/technical/security-audit-report.md`

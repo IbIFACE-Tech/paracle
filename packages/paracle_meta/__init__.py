@@ -30,6 +30,17 @@ New in v1.4.0:
 - Capability registry with lazy loading
 - Circuit breaker pattern for provider resilience
 
+New in v1.8.0:
+- Image processing (vision, generation, editing, OCR)
+- Audio processing (transcription, TTS, conversion)
+- Database operations (SQL, NoSQL - PostgreSQL, MongoDB, Redis)
+- Multi-channel notifications (email, Slack, Discord, Teams, SMS)
+- Task scheduling (cron-based, delayed execution)
+- Container management (Docker, Podman)
+- Cloud services (AWS, GCP, Azure - storage, functions, secrets)
+- Document processing (PDF, Excel, CSV, Markdown)
+- Browser automation (Playwright - navigation, scraping, screenshots)
+
 Example:
     >>> from paracle_meta import MetaAgent
     >>>
@@ -262,7 +273,7 @@ except ImportError:
 # Configuration - Always available (uses pydantic)
 from paracle_meta.config import MetaEngineConfig, load_config, validate_config
 
-__version__ = "1.5.0"
+__version__ = "1.8.0"
 
 __all__ = [
     # Core

@@ -430,6 +430,19 @@ class TestIDECLI:
             yaml.dump({"version": "0.0.1"}), encoding="utf-8"
         )
 
+        # Create policies structure (required by ParacValidator)
+        policies_dir = parac_dir / "policies"
+        policies_dir.mkdir()
+
+        policy_pack = {
+            "version": "1.0",
+            "enabled": True,
+            "active_policies": ["code_quality", "security_baseline"],
+        }
+        (policies_dir / "policy-pack.yaml").write_text(
+            yaml.dump(policy_pack), encoding="utf-8"
+        )
+
         return tmp_path
 
     def test_ide_list_command(self):
@@ -445,15 +458,22 @@ class TestIDECLI:
 
     def test_ide_status_no_parac(self):
         """Test 'paracle ide status' without .parac/."""
+        from unittest.mock import patch
+
         from click.testing import CliRunner
         from paracle_cli.commands.ide import ide_status
 
         runner = CliRunner()
         with runner.isolated_filesystem():
-            result = runner.invoke(ide_status)
+            # Patch where find_parac_root is looked up in helpers module
+            with patch(
+                "paracle_cli.utils.helpers.find_parac_root",
+                return_value=None,
+            ):
+                result = runner.invoke(ide_status)
 
             assert result.exit_code == 1
-            assert "No .parac/" in result.output
+            assert "Not in a Paracle project" in result.output
 
     def test_ide_init_command(self, temp_project):
         """Test 'paracle ide init' command."""

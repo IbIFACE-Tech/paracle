@@ -44,7 +44,7 @@
 
 ## Overview
 
-Paracle is an enterprise-grade framework for building production-ready multi-agent AI applications. Designed for scalability, security, and interoperability, Paracle enables organizations to develop sophisticated AI systems with confidence.
+Paracle is a framework for building production-ready multi-agent AI applications. Designed for scalability, security, and interoperability, Paracle enables organizations to develop sophisticated AI systems with confidence.
 
 ### Core Capabilities
 
@@ -234,7 +234,7 @@ paracle-lite/
 ├── content/             # Documentation and templates
 │   ├── docs/            # User documentation
 │   └── templates/       # Project templates
-└── examples/            # Example projects
+└── content/examples/    # Example projects
 ```
 
 ## 🏗️ Architecture
@@ -359,7 +359,7 @@ workflow = Workflow(
 
 [🗺️ Roadmap](.parac/roadmap/roadmap.yaml) •
 [📝 Architecture Decisions](.parac/roadmap/decisions.md) •
-[💡 Examples](examples/)
+[💡 Examples](content/examples/)
 
 </td>
 </tr>

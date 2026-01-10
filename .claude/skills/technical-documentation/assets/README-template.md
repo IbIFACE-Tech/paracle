@@ -102,10 +102,10 @@ Configuration can be provided via:
 
 Full documentation is available at [https://[package].readthedocs.io](https://[package].readthedocs.io)
 
-- [Getting Started](docs/getting-started.md)
-- [API Reference](docs/api-reference.md)
+- [Getting Started](content/docs/users/getting-started/README.md)
+- [API Reference](content/docs/api/)
 - [Examples](examples/)
-- [FAQ](docs/faq.md)
+- [FAQ](content/docs/users/faq.md)
 
 ## Development
 

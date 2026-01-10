@@ -29,7 +29,7 @@ All agent actions are automatically logged with immutable audit trails:
 ```python
 # Automatic logging - no code needed
 agent.run(task="Deploy application")
-# → Logged to .parac/memory/logs/agent_actions.log
+# -> Logged to .parac/memory/logs/agent_actions.log
 ```
 
 **What's logged**:
@@ -167,8 +167,8 @@ paracle compliance check --standard iso27001
 ## Resources
 
 - **Documentation**: [docs.paracle.ai/compliance](https://docs.paracle.ai/compliance)
-- **Policy Examples**: `examples/policies/`
-- **Security Guide**: `docs/security.md`
+- **Policy Examples**: `content/examples/policies/`
+- **Security Guide**: `content/docs/security.md`
 
 ---
 

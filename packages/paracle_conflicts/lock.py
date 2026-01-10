@@ -92,7 +92,13 @@ class LockManager:
                     lock = FileLock(**lock_data)
 
                 # Check if lock has expired
-                if datetime.fromisoformat(lock.expires_at) > datetime.utcnow():
+                # expires_at is already datetime from Pydantic parsing
+                expires_at = (
+                    lock.expires_at
+                    if isinstance(lock.expires_at, datetime)
+                    else datetime.fromisoformat(str(lock.expires_at))
+                )
+                if expires_at > datetime.utcnow():
                     # Lock still valid
                     if lock.agent_id == agent_id:
                         # Same agent, extend lock
@@ -175,7 +181,13 @@ class LockManager:
                 lock = FileLock(**lock_data)
 
             # Check if expired
-            if datetime.fromisoformat(lock.expires_at) <= datetime.utcnow():
+            # expires_at is already datetime from Pydantic parsing
+            expires_at = (
+                lock.expires_at
+                if isinstance(lock.expires_at, datetime)
+                else datetime.fromisoformat(str(lock.expires_at))
+            )
+            if expires_at <= datetime.utcnow():
                 # Expired, remove lock
                 lock_path.unlink()
                 return None
@@ -236,7 +248,13 @@ class LockManager:
                     lock_data = json.load(f)
                     lock = FileLock(**lock_data)
 
-                if datetime.fromisoformat(lock.expires_at) <= datetime.utcnow():
+                # expires_at is already datetime from Pydantic parsing
+                expires_at = (
+                    lock.expires_at
+                    if isinstance(lock.expires_at, datetime)
+                    else datetime.fromisoformat(str(lock.expires_at))
+                )
+                if expires_at <= datetime.utcnow():
                     lock_file.unlink()
                     cleared += 1
             except Exception:

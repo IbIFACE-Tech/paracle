@@ -42,7 +42,7 @@ Use this skill when:
 
 Paracle follows **Semantic Versioning 2.0.0**: `MAJOR.MINOR.PATCH`
 
-```
+```text
 v0.1.0 → v0.2.0 → v0.2.1 → v1.0.0
 ```
 
@@ -69,30 +69,30 @@ v0.1.0 → v0.2.0 → v0.2.1 → v1.0.0
 
 ### Pre-Release Versions
 
-```
-v0.1.0-alpha.1    ← Alpha release
-v0.1.0-beta.2     ← Beta release
-v0.1.0-rc.1       ← Release candidate
-v0.1.0            ← Stable release
+```text
+v0.1.0-alpha.1    <- Alpha release
+v0.1.0-beta.2     <- Beta release
+v0.1.0-rc.1       <- Release candidate
+v0.1.0            <- Stable release
 ```
 
 ### Version Bump Decision Tree
 
-```
-┌─────────────────────────────────────────────────┐
-│ What changed?                                   │
-├─────────────────────────────────────────────────┤
-│ Breaking API changes?                           │
-│ ├─ YES → MAJOR bump (0.1.0 → 1.0.0)           │
-│ └─ NO → Continue                               │
-│                                                 │
-│ New features (backward compatible)?            │
-│ ├─ YES → MINOR bump (0.1.0 → 0.2.0)           │
-│ └─ NO → Continue                               │
-│                                                 │
-│ Bug fixes only?                                │
-│ └─ YES → PATCH bump (0.1.0 → 0.1.1)           │
-└─────────────────────────────────────────────────┘
+```text
++---------------------------------------------------+
+| What changed?                                     |
++---------------------------------------------------+
+| Breaking API changes?                             |
+| +-- YES -> MAJOR bump (0.1.0 -> 1.0.0)            |
+| +-- NO -> Continue                                |
+|                                                   |
+| New features (backward compatible)?               |
+| +-- YES -> MINOR bump (0.1.0 -> 0.2.0)            |
+| +-- NO -> Continue                                |
+|                                                   |
+| Bug fixes only?                                   |
+| +-- YES -> PATCH bump (0.1.0 -> 0.1.1)            |
++---------------------------------------------------+
 ```
 
 ### Paracle Version Examples
@@ -101,19 +101,19 @@ v0.1.0            ← Stable release
 # Current: v0.0.1 (initial development)
 
 # Add new feature (Phase 1-3)
-v0.0.1 → v0.1.0  # First feature-complete version
+v0.0.1 -> v0.1.0  # First feature-complete version
 
 # Add minor feature (Phase 4)
-v0.1.0 → v0.2.0  # API server added
+v0.1.0 -> v0.2.0  # API server added
 
 # Fix bug
-v0.2.0 → v0.2.1  # Bug fix
+v0.2.0 -> v0.2.1  # Bug fix
 
 # Add Phase 5 features
-v0.2.1 → v0.3.0  # Sandbox execution
+v0.2.1 -> v0.3.0  # Sandbox execution
 
 # Breaking API change
-v0.3.0 → v1.0.0  # Stable release
+v0.3.0 -> v1.0.0  # Stable release
 ```
 
 ## Version Management
@@ -127,20 +127,20 @@ Located at: `scripts/bump_version.py`
 python scripts/bump_version.py <major|minor|patch>
 
 # Examples
-python scripts/bump_version.py major   # 0.1.0 → 1.0.0
-python scripts/bump_version.py minor   # 0.1.0 → 0.2.0
-python scripts/bump_version.py patch   # 0.1.0 → 0.1.1
+python scripts/bump_version.py major   # 0.1.0 -> 1.0.0
+python scripts/bump_version.py minor   # 0.1.0 -> 0.2.0
+python scripts/bump_version.py patch   # 0.1.0 -> 0.1.1
 
 # Pre-release
-python scripts/bump_version.py minor --pre alpha  # 0.1.0 → 0.2.0-alpha.1
-python scripts/bump_version.py patch --pre beta   # 0.1.0 → 0.1.1-beta.1
+python scripts/bump_version.py minor --pre alpha  # 0.1.0 -> 0.2.0-alpha.1
+python scripts/bump_version.py patch --pre beta   # 0.1.0 -> 0.1.1-beta.1
 ```
 
 **What it updates**:
 
 - `pyproject.toml` - Project version
 - `packages/paracle_core/__version__.py` - Runtime version
-- `docs/VERSION` - Documentation version
+- `content/docs/VERSION` - Documentation version
 
 ### Manual Version Update
 
@@ -151,14 +151,14 @@ If script unavailable, update manually:
 ```toml
 [project]
 name = "paracle"
-version = "0.2.0"  # ← Update here
+version = "0.2.0"  # <- Update here
 ```
 
-**2. **version**.py**:
+**2. __version__.py**:
 
 ```python
 # packages/paracle_core/__version__.py
-__version__ = "0.2.0"  # ← Update here
+__version__ = "0.2.0"  # <- Update here
 ```
 
 **3. Verify consistency**:
@@ -447,7 +447,7 @@ jobs:
 git tag -a v0.2.0 -m "Release v0.2.0"
 git push origin v0.2.0
 
-# Go to GitHub → Releases → Draft new release
+# Go to GitHub -> Releases -> Draft new release
 # - Tag: v0.2.0
 # - Title: "Paracle v0.2.0 - API Server & Enhanced CLI"
 # - Description: Copy from CHANGELOG.md
@@ -520,7 +520,7 @@ grep version pyproject.toml
 git checkout -b release/v0.2.0
 
 # Bump version
-python scripts/bump_version.py minor  # 0.1.0 → 0.2.0
+python scripts/bump_version.py minor  # 0.1.0 -> 0.2.0
 
 # Generate changelog
 python scripts/generate_changelog.py --version v0.2.0 --output CHANGELOG.md
@@ -556,7 +556,7 @@ curl http://localhost:8000/health
 #### 4. Merge to Main
 
 ```bash
-# Create PR: release/v0.2.0 → main
+# Create PR: release/v0.2.0 -> main
 # After approval:
 
 git checkout main
@@ -599,7 +599,7 @@ docker push paracle/worker:latest
 #### 6. Create GitHub Release
 
 ```bash
-# Manual: GitHub UI → Releases → Draft new release
+# Manual: GitHub UI -> Releases -> Draft new release
 # Or automated via GitHub Actions (triggered by tag push)
 ```
 
@@ -622,7 +622,7 @@ git push origin --delete release/v0.2.0
 ```bash
 # Update .parac/memory/context/current_state.yaml
 project:
-  version: 0.2.0  # ← Update
+  version: 0.2.0  # <- Update
 
 # Log release
 echo "[$(date)] [ReleaseManager] [RELEASE] Published v0.2.0" >> .parac/memory/logs/agent_actions.log
@@ -685,7 +685,7 @@ Closes #456"
 
 ```bash
 # Bump patch version
-python scripts/bump_version.py patch  # 0.2.0 → 0.2.1
+python scripts/bump_version.py patch  # 0.2.0 -> 0.2.1
 
 # Update changelog
 python scripts/generate_changelog.py --version v0.2.1 --output CHANGELOG.md
@@ -769,20 +769,20 @@ set -e  # Exit on error
 
 # Validate current state
 if [[ -n $(git status --porcelain) ]]; then
-    echo "❌ Working directory not clean!"
+    echo "X Working directory not clean!"
     exit 1
 fi
 
 # Run tests
-echo "🧪 Running tests..."
+echo "Running tests..."
 make test || exit 1
 
 # Bump version
-echo "⬆️  Bumping version..."
+echo "Bumping version..."
 python scripts/bump_version.py "$1"
 
 # Verify
-echo "✅ Version bumped successfully!"
+echo "Version bumped successfully!"
 grep version pyproject.toml
 ```
 
@@ -805,17 +805,17 @@ fi
 python scripts/generate_changelog.py --version "$VERSION" > CHANGELOG_NEW.md
 
 # Review changes
-echo "📝 Review changelog:"
+echo "Review changelog:"
 cat CHANGELOG_NEW.md
 
 read -p "Accept changes? (y/n) " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     mv CHANGELOG_NEW.md CHANGELOG.md
-    echo "✅ Changelog updated!"
+    echo "Changelog updated!"
 else
     rm CHANGELOG_NEW.md
-    echo "❌ Changelog generation cancelled"
+    echo "X Changelog generation cancelled"
     exit 1
 fi
 ```
@@ -830,7 +830,7 @@ set -e
 
 VERSION="$1"
 
-echo "🚨 Rolling back release $VERSION"
+echo "Rolling back release $VERSION"
 
 # Delete tag locally
 git tag -d "v$VERSION"
@@ -845,15 +845,15 @@ gh release delete "v$VERSION" --yes
 pip install yank
 yank "paracle==$VERSION" --reason "Rollback due to critical issue"
 
-echo "✅ Release $VERSION rolled back"
-echo "⚠️  Manual steps required:"
+echo "Release $VERSION rolled back"
+echo "Manual steps required:"
 echo "  - Delete Docker images from Docker Hub"
 echo "  - Notify users via announcement"
 ```
 
 ## Examples
 
-### Example 1: Minor Release (0.1.0 → 0.2.0)
+### Example 1: Minor Release (0.1.0 -> 0.2.0)
 
 ```bash
 # 1. Create release branch
@@ -863,7 +863,7 @@ git checkout -b release/v0.2.0
 
 # 2. Bump version
 python scripts/bump_version.py minor
-# Updated: 0.1.0 → 0.2.0
+# Updated: 0.1.0 -> 0.2.0
 
 # 3. Generate changelog
 python scripts/generate_changelog.py --version v0.2.0 --output CHANGELOG.md
@@ -892,7 +892,7 @@ git merge --no-ff release/v0.2.0
 git push origin develop
 ```
 
-### Example 2: Patch Release (Hotfix 0.2.0 → 0.2.1)
+### Example 2: Patch Release (Hotfix 0.2.0 -> 0.2.1)
 
 ```bash
 # 1. Create hotfix branch from main
@@ -906,7 +906,7 @@ git commit -m "fix(api): patch authentication bypass vulnerability"
 
 # 3. Bump patch version
 python scripts/bump_version.py patch
-# Updated: 0.2.0 → 0.2.1
+# Updated: 0.2.0 -> 0.2.1
 
 # 4. Update changelog
 python scripts/generate_changelog.py --version v0.2.1 --output CHANGELOG.md
@@ -939,7 +939,7 @@ git checkout -b release/v0.2.0-beta.1
 
 # 2. Bump to pre-release version
 python scripts/bump_version.py minor --pre beta
-# Updated: 0.1.0 → 0.2.0-beta.1
+# Updated: 0.1.0 -> 0.2.0-beta.1
 
 # 3. Generate changelog
 python scripts/generate_changelog.py --version v0.2.0-beta.1
@@ -971,6 +971,5 @@ gh release create v0.2.0-beta.1 --prerelease --notes "Beta release for testing"
 - [Paracle Git Workflow Policy](../../../policies/GIT_WORKFLOW.md)
 - [Semantic Versioning](https://semver.org/)
 - [Keep a Changelog](https://keepachangelog.com/)
-- [PyPI Publishing Guide](../../../../.docs-private/pypi-publishing-guide.md) (Internal)
 - [PyPI Publishing Guide](https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/)
 - [Docker Hub Publishing](https://docs.docker.com/docker-hub/publish/)

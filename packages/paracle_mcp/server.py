@@ -26,6 +26,20 @@ from typing import Any
 
 import yaml
 
+from paracle_mcp.api_bridge import TOOL_API_MAPPINGS, MCPAPIBridge
+
+# Import IDE tools
+try:
+    from paracle_tools.ide_tools import (
+        IDE_TOOLS,
+        IDECommandError,
+        IDENotFoundError,
+    )
+    IDE_TOOLS_AVAILABLE = True
+except ImportError:
+    IDE_TOOLS = []
+    IDE_TOOLS_AVAILABLE = False
+
 logger = logging.getLogger("paracle.mcp.server")
 
 
@@ -70,11 +84,12 @@ class ParacleMCPServer:
     - Custom tools from .parac/tools/custom/
     """
 
-    def __init__(self, parac_root: Path | None = None):
+    def __init__(self, parac_root: Path | None = None, api_base_url: str = "http://localhost:8000"):
         """Initialize the MCP server.
 
         Args:
             parac_root: Path to .parac/ directory (auto-detected if not provided)
+            api_base_url: Base URL for REST API (for API bridge)
         """
         self.parac_root = parac_root or self._find_parac_root()
         self.tools = self._load_all_tools()
@@ -82,10 +97,21 @@ class ParacleMCPServer:
         self.external_mcp_servers: list[ExternalMCPServer] = []
         self.active_agent: str | None = None
 
+        # Initialize API bridge (ADR-022: MCP Full Coverage)
+        self.api_bridge = MCPAPIBridge(
+            api_base_url=api_base_url,
+            timeout=30.0,
+            enable_fallback=True
+        )
+        self.api_tools: list[dict] = []  # Tools from OpenAPI
+
         # Load user-defined tools from .parac/tools/
         if self.parac_root:
             self._load_custom_tools()
             self._load_external_mcp_servers()
+
+        # Load API tools from OpenAPI if API available
+        self._load_api_tools()
 
     def _find_parac_root(self) -> Path | None:
         """Find the .parac/ directory by walking up from cwd.
@@ -259,6 +285,84 @@ class ParacleMCPServer:
             self.external_mcp_servers.append(server)
             logger.info(f"Loaded external MCP server: {server.id}")
 
+    def _load_api_tools(self) -> None:
+        """Load tools from REST API OpenAPI specification.
+
+        Implements ADR-022 Phase 2: Auto-generate MCP tools from OpenAPI spec.
+        This enables instant coverage of all API endpoints without manual duplication.
+        """
+        if not self.api_bridge.is_api_available():
+            logger.warning(
+                "REST API not available, skipping OpenAPI tool generation")
+            return
+
+        try:
+            # Fetch OpenAPI spec from API
+            response = self.api_bridge.client.get(
+                f"{self.api_bridge.api_base_url}/openapi.json")
+            response.raise_for_status()
+            openapi_spec = response.json()
+
+            # Generate MCP tools from OpenAPI paths
+            for path, path_item in openapi_spec.get("paths", {}).items():
+                for method, operation in path_item.items():
+                    if method.upper() not in ["GET", "POST", "PUT", "DELETE", "PATCH"]:
+                        continue
+
+                    # Generate tool name from operationId or path
+                    operation_id = operation.get("operationId")
+                    if not operation_id:
+                        # Generate from path and method
+                        tool_name = f"paracle_api_{method}_{path.replace('/', '_').replace('{', '').replace('}', '').strip('_')}"
+                    else:
+                        tool_name = f"paracle_{operation_id}"
+
+                    # Build parameter schema from OpenAPI
+                    parameters = operation.get("parameters", [])
+                    request_body = operation.get("requestBody", {})
+
+                    properties = {}
+                    required = []
+
+                    # Add path/query parameters
+                    for param in parameters:
+                        param_name = param.get("name")
+                        param_schema = param.get("schema", {})
+                        properties[param_name] = {
+                            "type": param_schema.get("type", "string"),
+                            "description": param.get("description", "")
+                        }
+                        if param.get("required", False):
+                            required.append(param_name)
+
+                    # Add request body schema
+                    if request_body:
+                        content = request_body.get("content", {})
+                        json_schema = content.get(
+                            "application/json", {}).get("schema", {})
+                        if json_schema.get("properties"):
+                            properties.update(json_schema["properties"])
+                            if json_schema.get("required"):
+                                required.extend(json_schema["required"])
+
+                    tool_schema = {
+                        "name": tool_name,
+                        "description": operation.get("summary", operation.get("description", f"API: {method.upper()} {path}")),
+                        "inputSchema": {
+                            "type": "object",
+                            "properties": properties,
+                            "required": required if required else None
+                        }
+                    }
+
+                    self.api_tools.append(tool_schema)
+
+            logger.info(
+                f"Loaded {len(self.api_tools)} tools from OpenAPI specification")
+
+        except Exception as e:
+            logger.error(f"Failed to load API tools from OpenAPI: {e}")
+
     def _get_context_tools(self) -> list[dict]:
         """Get context tool schemas.
 
@@ -380,6 +484,46 @@ class ParacleMCPServer:
             },
         ]
 
+    def _get_ide_tools(self) -> list[dict]:
+        """Get IDE tool schemas.
+
+        Returns:
+            List of IDE tool schemas for VS Code, Cursor, Windsurf, Codium integration
+        """
+        if not IDE_TOOLS_AVAILABLE:
+            return []
+
+        schemas = []
+        for tool in IDE_TOOLS:
+            # Convert parameters to JSON Schema format
+            properties = {}
+            required = []
+
+            for param_name, param_def in tool.get("parameters", {}).items():
+                prop = {
+                    "type": param_def.get("type", "string"),
+                    "description": param_def.get("description", ""),
+                }
+                properties[param_name] = prop
+
+                if param_def.get("required", False):
+                    required.append(param_name)
+
+            input_schema = {
+                "type": "object",
+                "properties": properties,
+            }
+            if required:
+                input_schema["required"] = required
+
+            schemas.append({
+                "name": tool["name"],
+                "description": tool["description"],
+                "inputSchema": input_schema,
+            })
+
+        return schemas
+
     def _convert_to_json_schema(self, params: dict) -> dict:
         """Convert tool parameters to JSON Schema format for MCP.
 
@@ -456,6 +600,12 @@ class ParacleMCPServer:
 
         # Memory tools
         schemas.extend(self._get_memory_tools())
+
+        # IDE tools (VS Code, Cursor, Windsurf, Codium)
+        schemas.extend(self._get_ide_tools())
+
+        # API tools from OpenAPI (ADR-022 Phase 2)
+        schemas.extend(self.api_tools)
 
         # Custom tools from .parac/tools/custom/
         for custom_tool in self.custom_tools:
@@ -751,6 +901,74 @@ class ParacleMCPServer:
             logger.exception(f"Error executing custom tool {tool_name}")
             return {"error": str(e)}
 
+    async def _handle_ide_tool(self, name: str, arguments: dict) -> dict:
+        """Handle ide_* tool calls.
+
+        Args:
+            name: Tool name (ide_open_file, ide_diff, etc.)
+            arguments: Tool arguments
+
+        Returns:
+            Tool result
+        """
+        if not IDE_TOOLS_AVAILABLE:
+            return {
+                "content": [{"type": "text", "text": "IDE tools not available. Install paracle_tools package."}],
+                "isError": True
+            }
+
+        # Find the tool function
+        tool_func = None
+        for tool in IDE_TOOLS:
+            if tool["name"] == name:
+                tool_func = tool["function"]
+                break
+
+        if not tool_func:
+            return {"error": f"Unknown IDE tool: {name}"}
+
+        try:
+            result = tool_func(**arguments)
+
+            if result.get("success"):
+                # Format successful result
+                text_parts = [f"IDE: {result.get('ide', 'unknown')}"]
+
+                if "file" in result:
+                    text_parts.append(f"File: {result['file']}")
+                if "line" in result and result["line"]:
+                    text_parts.append(f"Line: {result['line']}")
+                if "folder" in result:
+                    text_parts.append(f"Folder: {result['folder']}")
+                if "extensions" in result:
+                    text_parts.append(f"Extensions ({result.get('count', 0)}):")
+                    for ext in result["extensions"][:20]:  # Limit to first 20
+                        text_parts.append(f"  - {ext}")
+                if "version_info" in result:
+                    text_parts.append("Version info:")
+                    for line in result["version_info"]:
+                        text_parts.append(f"  {line}")
+
+                return {"content": [{"type": "text", "text": "\n".join(text_parts)}]}
+            else:
+                # Format error result
+                error = result.get("error", "Unknown error")
+                return {"content": [{"type": "text", "text": f"Error: {error}"}], "isError": True}
+
+        except IDENotFoundError as e:
+            return {
+                "content": [{"type": "text", "text": f"No IDE found: {e}"}],
+                "isError": True
+            }
+        except IDECommandError as e:
+            return {
+                "content": [{"type": "text", "text": f"IDE command failed: {e}"}],
+                "isError": True
+            }
+        except Exception as e:
+            logger.exception(f"Error executing IDE tool {name}")
+            return {"error": str(e)}
+
     async def _handle_external_mcp_tool(
         self, server: ExternalMCPServer, name: str, arguments: dict
     ) -> dict:
@@ -836,6 +1054,28 @@ class ParacleMCPServer:
         # Memory tools
         if name.startswith("memory_"):
             return await self._handle_memory_tool(name, arguments)
+
+        # IDE tools (VS Code, Cursor, Windsurf, Codium)
+        if name.startswith("ide_"):
+            return await self._handle_ide_tool(name, arguments)
+
+        # API bridge tools (ADR-022: Route through REST API)
+        if name in TOOL_API_MAPPINGS or name.startswith("paracle_api_") or name.startswith("paracle_"):
+            # Check if this tool should use API bridge
+            if name in TOOL_API_MAPPINGS or any(t["name"] == name for t in self.api_tools):
+                try:
+                    result = await self.api_bridge.call_api_tool(name, arguments)
+                    # Format result for MCP
+                    if "error" in result:
+                        return {"content": [{"type": "text", "text": f"Error: {result['error']}"}], "isError": True}
+                    else:
+                        # Convert JSON result to text
+                        import json
+                        text = json.dumps(result, indent=2)
+                        return {"content": [{"type": "text", "text": text}]}
+                except Exception as e:
+                    logger.error(f"API bridge call failed for {name}: {e}")
+                    # Fall through to agent tools as last resort
 
         # Custom tools
         if name.startswith("custom_"):

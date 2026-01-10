@@ -72,7 +72,7 @@ When creating new features:
 4. Create API endpoints in `packages/paracle_api/`
 5. Add CLI commands in `packages/paracle_cli/`
 6. Write tests in `tests/unit/` and `tests/integration/`
-7. Update documentation in `docs/`
+7. Update documentation in `content/docs/`
 
 ## Governance
 
@@ -134,8 +134,8 @@ Before suggesting code:
 
 ## References
 
-- Architecture: `docs/architecture.md`
-- Getting Started: `docs/getting-started.md`
+- Architecture: `content/docs/technical/architecture/overview.md`
+- Getting Started: `content/docs/users/getting-started/README.md`
 - Domain Models: `packages/paracle_domain/models.py`
 - Roadmap: `.parac/roadmap/roadmap.yaml`
 - ADRs: `.parac/roadmap/decisions.md`

@@ -6,34 +6,67 @@ security practices following OWASP guidelines.
 
 from __future__ import annotations
 
-from typing import Annotated, Any
+from typing import TYPE_CHECKING, Annotated, Any
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import APIKeyHeader, OAuth2PasswordBearer
 from paracle_core.compat import UTC, datetime, timedelta
 from pydantic import BaseModel, Field
 
+# Optional dependencies - checked at runtime when actually used
 try:
     from jose import JWTError, jwt
+
+    JWT_AVAILABLE = True
 except ImportError:
-    raise ImportError(
-        "python-jose is required for authentication. "
-        "Install with: pip install python-jose[cryptography]"
-    )
+    JWTError = Exception  # type: ignore[misc,assignment]
+    jwt = None  # type: ignore[assignment]
+    JWT_AVAILABLE = False
 
 try:
     from passlib.context import CryptContext
+
+    PASSLIB_AVAILABLE = True
 except ImportError:
-    raise ImportError(
-        "passlib is required for password hashing. "
-        "Install with: pip install passlib[bcrypt]"
-    )
+    CryptContext = None  # type: ignore[misc,assignment]
+    PASSLIB_AVAILABLE = False
+
+if TYPE_CHECKING:
+    from jose import jwt
+    from passlib.context import CryptContext
 
 from paracle_api.security.config import SecurityConfig, get_security_config
 
-# Password hashing context with argon2 (more secure than bcrypt)
-# Argon2id is the recommended variant (memory-hard, resistant to side-channel attacks)
-pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
+
+def _check_auth_dependencies() -> None:
+    """Check that authentication dependencies are available.
+
+    Raises:
+        ImportError: If required dependencies are missing.
+    """
+    if not JWT_AVAILABLE:
+        raise ImportError(
+            "python-jose is required for authentication. "
+            "Install with: pip install python-jose[cryptography]"
+        )
+    if not PASSLIB_AVAILABLE:
+        raise ImportError(
+            "passlib is required for password hashing. "
+            "Install with: pip install passlib[bcrypt]"
+        )
+
+
+# Password hashing context - created lazily
+_pwd_context: "CryptContext | None" = None
+
+
+def _get_pwd_context() -> "CryptContext":
+    """Get password context, creating it if needed."""
+    global _pwd_context
+    if _pwd_context is None:
+        _check_auth_dependencies()
+        _pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
+    return _pwd_context
 
 # OAuth2 scheme for token extraction
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/token", auto_error=False)
@@ -94,7 +127,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     Returns:
         True if password matches
     """
-    return pwd_context.verify(plain_password, hashed_password)
+    return _get_pwd_context().verify(plain_password, hashed_password)
 
 
 def get_password_hash(password: str) -> str:
@@ -109,7 +142,7 @@ def get_password_hash(password: str) -> str:
     Returns:
         Argon2 hashed password
     """
-    return pwd_context.hash(password)
+    return _get_pwd_context().hash(password)
 
 
 # =============================================================================
@@ -132,6 +165,7 @@ def create_access_token(
     Returns:
         Encoded JWT token string
     """
+    _check_auth_dependencies()
     if config is None:
         config = get_security_config()
 
@@ -178,6 +212,7 @@ def decode_token(
     Raises:
         JWTError: If token is invalid
     """
+    _check_auth_dependencies()
     if config is None:
         config = get_security_config()
 

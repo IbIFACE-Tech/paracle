@@ -14,7 +14,7 @@ Focus: [Current task or feature]
 Source of Truth:
 - .parac/ - Project governance
 - .roadmap/ - Complete roadmap
-- docs/ - Architecture documentation
+- content/docs/ - Architecture documentation
 
 Continuing from previous state.
 I will not reintroduce rejected decisions (see .parac/roadmap/decisions.md).

@@ -1,28 +1,27 @@
 """Testing tools for Tester agent."""
 
+from paracle_tools.builtin.base import BaseTool
 import logging
 import subprocess
 from typing import Any
 
+logger = logging.getLogger("paracle.tools.tester")
+
 try:
     # SECURITY: Use defusedxml to prevent XML external entity attacks
     import defusedxml.ElementTree as ET  # type: ignore
+
+    _using_defusedxml = True
 except ImportError:
-    # Fallback to standard library with warning
-    import warnings
+    # Fallback to standard library with debug log only
     import xml.etree.ElementTree as ET
 
-    warnings.warn(
-        "defusedxml not installed. Using xml.etree.ElementTree which "
-        "may be vulnerable to XML attacks. Install defusedxml for "
-        "production use: pip install defusedxml",
-        UserWarning,
-        stacklevel=2,
+    _using_defusedxml = False
+    # Log at debug level - only visible when debugging is enabled
+    logger.debug(
+        "defusedxml not installed. Using xml.etree.ElementTree. "
+        "Install defusedxml for production: pip install defusedxml"
     )
-
-from paracle_tools.builtin.base import BaseTool
-
-logger = logging.getLogger("paracle.tools.tester")
 
 
 class TestGenerationTool(BaseTool):
@@ -363,6 +362,14 @@ class TestExecutionTool(BaseTool):
 
     def _parse_junit_xml(self, xml_path: str) -> dict[str, Any]:
         """Parse JUnit XML results."""
+        # Warn once if using unsafe XML parser in production
+        if not _using_defusedxml and not hasattr(self, "_xml_warning_shown"):
+            logger.warning(
+                "Using xml.etree.ElementTree for XML parsing. "
+                "Install defusedxml for production: pip install defusedxml"
+            )
+            self._xml_warning_shown = True
+
         try:
             tree = ET.parse(xml_path)
             root = tree.getroot()

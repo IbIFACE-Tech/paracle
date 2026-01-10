@@ -14,6 +14,238 @@ Each decision follows this structure:
 
 ---
 
+## ADR-022: MCP Full Coverage via API-First Bridge
+
+**Date**: 2026-01-09
+**Status**: Accepted
+**Priority**: HIGH
+**Phase**: 10 (Governance & v1.0 Release)
+**Deciders**: Architecture Team
+
+### Context
+
+Current MCP implementation has **partial coverage**:
+- ✅ Agent tools (from agent_tool_registry)
+- ✅ Context tools (current_state, roadmap, decisions, policies)
+- ✅ Workflow tools (run, list)
+- ✅ Memory tools (log_action)
+- ✅ Custom tools (.parac/tools/custom/)
+- ❌ **35+ CLI commands NOT accessible via MCP**
+
+Gap analysis shows:
+- IDEs/AI assistants can use agent tools but not CLI features
+- Users resort to shell execution workarounds: `shell_execute("paracle board list")`
+- No access to Kanban, Errors, Cost tracking, Inventory, etc. via MCP
+- Inconsistent: REST API has endpoints, but MCP doesn't expose them
+
+### Problem
+
+How to expose all Paracle functionality through MCP without:
+- ❌ Duplicating CLI command logic
+- ❌ Duplicating REST API endpoints
+- ❌ Creating maintenance burden (3 places to update per feature)
+
+### Decision
+
+**Implement Hybrid API-First + Critical Wrappers Architecture:**
+
+```
+┌─────────────────────────────────────────────────┐
+│       IDE / AI Assistant (MCP Client)           │
+└──────────────────────┬──────────────────────────┘
+                       │ MCP Protocol
+                       ↓
+┌─────────────────────────────────────────────────┐
+│         ParacleMCPServer (Enhanced)             │
+│                                                 │
+│  Strategy Selection:                            │
+│  1. Try REST API (if available)                │
+│     ↓                                           │
+│  2. Fallback to direct core (if API down)      │
+│     ↓                                           │
+│  3. Use offline wrappers (critical commands)   │
+└──────────────────────┬──────────────────────────┘
+                       │
+    ┌──────────────────┴────────────────────┐
+    ↓                                        ↓
+┌─────────────────┐              ┌──────────────────┐
+│  REST API       │              │  Direct Core     │
+│  (paracle_api)  │              │  (fallback)      │
+└─────────────────┘              └──────────────────┘
+```
+
+**Implementation Strategy:**
+
+1. **Primary: MCP → REST API Bridge**
+   - Auto-generate MCP tool schemas from OpenAPI spec (`/openapi.json`)
+   - Route MCP calls through existing REST API endpoints
+   - Zero duplication - reuse API logic
+
+2. **Fallback: Direct Core Access**
+   - Use existing `use_api_or_fallback()` pattern
+   - When API unavailable, call core functions directly
+   - Maintains API-first philosophy with graceful degradation
+
+3. **Critical Offline Wrappers**
+   - For commands that MUST work without API:
+     - `paracle_board_list` - Quick board status
+     - `paracle_errors_stats` - Error monitoring
+     - `paracle_inventory_check` - State validation
+   - Direct wrappers bypass API for offline reliability
+
+### Architecture Components
+
+```python
+# 1. MCP API Bridge
+class MCPAPIBridge:
+    """Bridge MCP tools to REST API endpoints."""
+
+    async def call_api_tool(self, tool_name: str, args: dict):
+        # Map MCP tool name to API endpoint
+        endpoint = self._tool_to_endpoint(tool_name)
+
+        # API-first with fallback
+        return await use_api_or_fallback(
+            api_func=lambda c: c.post(endpoint, json=args),
+            fallback_func=lambda: self._direct_call(tool_name, args)
+        )
+
+# 2. Auto-generate from OpenAPI
+def _generate_mcp_tools_from_api(self):
+    """Auto-generate MCP tools from OpenAPI spec."""
+    openapi = load_openapi_spec()  # /openapi.json
+
+    for path, methods in openapi["paths"].items():
+        yield {
+            "name": f"paracle_{path.replace('/', '_')}",
+            "description": methods["post"]["summary"],
+            "inputSchema": methods["post"]["requestBody"],
+        }
+
+# 3. Critical offline wrappers
+OFFLINE_CRITICAL = [
+    "paracle_board_list",
+    "paracle_errors_stats",
+    "paracle_inventory_check",
+]
+```
+
+### Benefits
+
+✅ **Instant Full Coverage**
+- All REST API endpoints → auto-available in MCP
+- ~40+ tools immediately exposed
+- Future endpoints auto-included
+
+✅ **Zero Duplication**
+- Single source of truth: REST API
+- MCP = thin bridge layer
+- Easy maintenance
+
+✅ **Aligns with Philosophy**
+- API-first design preserved
+- Graceful degradation (offline fallback)
+- Consistent behavior across CLI/API/MCP
+
+✅ **Resilient**
+- Works when API down (fallback to core)
+- Critical commands have direct wrappers
+- Multiple fallback layers
+
+✅ **Future-Proof**
+- Add new API endpoint → auto-available in MCP
+- No manual MCP tool registration needed
+- OpenAPI spec drives everything
+
+### Implementation Plan
+
+**Phase 1: API Bridge (2 hours)**
+- [ ] Create `MCPAPIBridge` class
+- [ ] Implement `_tool_to_endpoint()` mapping
+- [ ] Add API-first routing in `handle_call_tool()`
+- [ ] Unit tests
+
+**Phase 2: OpenAPI Auto-Generation (2 hours)**
+- [ ] Implement `_generate_mcp_tools_from_api()`
+- [ ] Parse OpenAPI spec from `/openapi.json`
+- [ ] Generate tool schemas dynamically
+- [ ] Add to `get_tool_schemas()`
+
+**Phase 3: Critical Wrappers (1 hour)**
+- [ ] Identify offline-critical commands
+- [ ] Create direct wrappers (bypass API)
+- [ ] Add fallback priority logic
+
+**Phase 4: Testing & Documentation (1 hour)**
+- [ ] Integration tests
+- [ ] Update MCP documentation
+- [ ] Add examples for new tools
+- [ ] Verify all 35+ commands accessible
+
+**Total: 6 hours**
+
+### Success Metrics
+
+- **Coverage**: 100% of REST API endpoints accessible via MCP
+- **Performance**: < 50ms overhead vs direct API calls
+- **Reliability**: > 99.9% uptime with fallback
+- **Adoption**: > 80% of IDE integrations use MCP tools
+
+### Consequences
+
+**Positive:**
+✅ **Complete MCP Coverage** - All Paracle functionality accessible
+✅ **Low Maintenance** - Single source of truth (REST API)
+✅ **Consistent Architecture** - API-first everywhere
+✅ **Better IDE Integration** - Native MCP tools vs shell workarounds
+✅ **Offline Support** - Critical commands work without API
+
+**Trade-offs:**
+⚠️ **API Dependency** - Primary path requires API server
+   - Mitigated: Graceful fallback to direct core
+⚠️ **OpenAPI Coupling** - Tool schema generation depends on spec
+   - Mitigated: Fallback to manual schema if spec unavailable
+⚠️ **Slight Overhead** - Extra HTTP hop for API calls
+   - Mitigated: < 50ms, acceptable for user operations
+
+**Risks:**
+⚠️ **API Changes** - Breaking API changes affect MCP tools
+   - Mitigated: Semantic versioning + OpenAPI spec validation
+⚠️ **Authentication** - MCP must handle API auth
+   - Mitigated: Reuse existing API client auth mechanism
+
+### Alternatives Considered
+
+**Alternative 1: Manual MCP Wrappers**
+- Create 35+ individual MCP tool handlers
+- ❌ High duplication
+- ❌ Maintenance burden
+- ❌ 3 places to update per feature
+
+**Alternative 2: CLI Process Spawning**
+- MCP spawns `paracle` CLI subprocess
+- ❌ Performance overhead
+- ❌ Parsing CLI output unreliable
+- ❌ No streaming support
+
+**Alternative 3: Shared Core Library**
+- Extract CLI logic to shared library, call from both CLI and MCP
+- ⚠️ Requires refactoring
+- ⚠️ Violates API-first principle
+- ✅ Future consideration for v2.0
+
+### Related ADRs
+
+- **ADR-003**: API-first architecture (foundation)
+- **ADR-012**: Error management strategy (fallback pattern)
+- **ADR-015**: MCP protocol implementation (initial MCP support)
+
+### Status
+
+**Accepted** - Implementation starting 2026-01-09
+
+---
+
 ## ADR-018: Paracle Meta-Agent Engine with Learning
 
 **Date**: 2026-01-08

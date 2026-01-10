@@ -13,7 +13,7 @@
 >
 > - ✅ **Say**: "I'll run CoderAgent..." or "Following CoderAgent standards..."
 > - ❌ **DON'T say**: "I adopt the CoderAgent persona..."
-> - 📖 **See**: `docs/agent-execution-model.md` for complete explanation
+> - 📖 **See**: `content/docs/technical/agent-execution-model.md` for complete explanation
 
 ## 🚨 MANDATORY: Pre-Flight Checklist
 
@@ -255,7 +255,7 @@ paracle agent run --help
 - `--mode sandbox`: Isolated execution environment
 - `--mode review`: Mandatory human approval
 
-**See**: [docs/agent-run-quickref.md](../docs/agent-run-quickref.md) for complete guide
+**See**: [content/docs/technical/agent-run-quickref.md](../content/docs/technical/agent-run-quickref.md) for complete guide
 
 ### Option 2: Manual Implementation Following Agent Standards
 
@@ -302,7 +302,7 @@ This detects:
 - Missing/extra deliverables
 - Metric inconsistencies
 
-**See [docs/roadmap-state-sync.md](../docs/roadmap-state-sync.md) for details.**
+**See [content/docs/technical/roadmap-state-sync.md](../content/docs/technical/roadmap-state-sync.md) for details.**
 
 ### Governance Validation
 
@@ -337,7 +337,7 @@ paracle session end
 2. Add keys to `.env`: `OPENAI_API_KEY=sk-...`
 3. Never commit `.env` to git!
 
-**See [docs/api-keys.md](../docs/api-keys.md) for:**
+**See [content/docs/users/reference/api-keys.md](../content/docs/users/reference/api-keys.md) for:**
 - 12+ provider setup guides
 - Security best practices
 - Docker/production deployment
@@ -369,8 +369,8 @@ paracle session end
 | **`.parac/policies/CODE_STYLE.md`**            | Code style guide                     | Before coding                           |
 | **`.parac/policies/TESTING.md`**               | Testing policy                       | Before writing tests                    |
 | **`.parac/policies/SECURITY.md`**              | Security policy                      | Security-sensitive code                 |
-| **`docs/api-keys.md`**                         | **NEW: API key management guide**    | **Setting up LLM providers**            |
-| **`docs/roadmap-state-sync.md`**               | **NEW: Roadmap sync guide**          | **Understanding governance automation** |
+| **`content/docs/users/reference/api-keys.md`**         | **NEW: API key management guide**    | **Setting up LLM providers**            |
+| **`content/docs/technical/roadmap-state-sync.md`**     | **NEW: Roadmap sync guide**          | **Understanding governance automation** |
 
 
 
@@ -493,7 +493,7 @@ After action (MANDATORY):
 - **[.parac/GOVERNANCE.md](../.parac/GOVERNANCE.md)** - Governance rules
 - **[.parac/STRUCTURE.md](../.parac/STRUCTURE.md)** - Complete structure
 - **[.parac/agents/SKILL_ASSIGNMENTS.md](../.parac/agents/SKILL_ASSIGNMENTS.md)** - Skills per agent
-- **[docs/architecture.md](../docs/architecture.md)** - Technical architecture
+- **[content/docs/technical/architecture/overview.md](../content/docs/technical/architecture/overview.md)** - Technical architecture
 
 ---
 

@@ -82,11 +82,46 @@ class APIClient:
         Returns:
             True if API responds to health check
         """
+        import logging
+
+        logger = logging.getLogger("paracle.cli.api")
+
         try:
             self.health()
             return True
-        except (APIError, ConnectionError, TimeoutError):
+        except (
+            APIError,
+            ConnectionError,
+            TimeoutError,
+            httpx.ConnectError,
+            OSError,
+        ) as e:
             # Expected errors when API is unavailable
+            # OSError includes WinError 10061 (connection refused)
+            logger.debug(f"API not available: {type(e).__name__}: {e}")
+
+            # Log to error registry if available (but don't fail if not)
+            try:
+                from paracle_observability import ErrorSeverityLevel, get_error_registry
+
+                registry = get_error_registry()
+                registry.record_error(
+                    error=e,
+                    component="api_health_check",
+                    severity=ErrorSeverityLevel.DEBUG,
+                    context={
+                        "api_url": self.base_url,
+                        "error_type": type(e).__name__,
+                    },
+                    include_traceback=False,
+                )
+            except ImportError:
+                # Observability not available, continue
+                pass
+            except Exception as reg_error:
+                # Don't fail on error registry issues
+                logger.debug(f"Error registry unavailable: {reg_error}")
+
             return False
 
     # =========================================================================
@@ -1385,6 +1420,9 @@ def use_api_or_fallback(api_func, fallback_func, *args, **kwargs):
     This is a utility function for CLI commands to implement
     API-first architecture with graceful fallback.
 
+    ALL errors are managed through the error registry for tracking,
+    analysis, and reporting.
+
     Args:
         api_func: Function to call via API (receives client as first arg)
         fallback_func: Function to call directly if API unavailable
@@ -1392,24 +1430,93 @@ def use_api_or_fallback(api_func, fallback_func, *args, **kwargs):
 
     Returns:
         Result from either function
+
+    Raises:
+        Exception: Re-raises after logging to error registry
     """
+    import logging
+
     from rich.console import Console
 
     console = Console()
+    logger = logging.getLogger("paracle.cli.api")
+
+    # Get error registry if available
+    error_registry = None
+    try:
+        from paracle_observability import get_error_registry
+
+        error_registry = get_error_registry()
+    except ImportError:
+        # Observability not available, continue without error tracking
+        pass
 
     client = get_client()
+
+    # Try API first
     if client.is_available():
         try:
             return api_func(client, *args, **kwargs)
         except APIError as e:
+            # Log to error registry
+            if error_registry:
+                error_registry.record_error(
+                    error=e,
+                    component="api_client",
+                    context={
+                        "status_code": e.status_code,
+                        "detail": e.detail,
+                        "function": api_func.__name__,
+                        "fallback_available": True,
+                    },
+                )
+
             if e.status_code == 404:
                 # .parac/ not found - let fallback handle gracefully
-                pass
+                logger.debug(f"API returned 404, falling back: {e.detail}")
             else:
                 console.print(f"[yellow]API error:[/yellow] {e.detail}")
                 console.print("[dim]Falling back to direct access...[/dim]")
+                logger.warning(f"API error, falling back: {e.detail}")
         except Exception as e:
+            # Log to error registry
+            if error_registry:
+                error_registry.record_error(
+                    error=e,
+                    component="api_connection",
+                    context={
+                        "error_type": type(e).__name__,
+                        "message": str(e),
+                        "function": api_func.__name__,
+                        "fallback_available": True,
+                    },
+                )
+
             console.print(f"[yellow]API unavailable:[/yellow] {e}")
             console.print("[dim]Falling back to direct access...[/dim]")
+            logger.debug(f"API connection failed, falling back: {e}")
 
-    return fallback_func(*args, **kwargs)
+    # Try fallback
+    try:
+        return fallback_func(*args, **kwargs)
+    except Exception as e:
+        # Log to error registry with CRITICAL severity (no fallback available)
+        if error_registry:
+            from paracle_observability import ErrorSeverityLevel
+
+            error_registry.record_error(
+                error=e,
+                component="fallback_execution",
+                severity=ErrorSeverityLevel.CRITICAL,
+                context={
+                    "error_type": type(e).__name__,
+                    "message": str(e),
+                    "function": fallback_func.__name__,
+                    "api_attempted": client.is_available(),
+                    "fallback_failed": True,
+                },
+            )
+
+        # Log and re-raise
+        logger.error(f"Fallback execution failed: {e}")
+        raise

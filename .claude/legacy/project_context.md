@@ -33,8 +33,8 @@ Paracle is a powerful multi-agent AI framework with unique features:
 - `Makefile` - Developer commands
 
 ### Documentation
-- `docs/` - Architecture, getting started, API reference
-- `examples/` - Working code examples
+- `content/docs/` - Architecture, getting started, API reference
+- `content/examples/` - Working code examples
 - `README.md` - Project overview
 
 ## Current Phase

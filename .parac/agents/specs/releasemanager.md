@@ -289,7 +289,7 @@ feat(domain)!: migrate to Pydantic v2
 BREAKING CHANGE: All models now use Pydantic v2 API.
 Users must update their agent specs to use new field syntax.
 
-Migration guide: docs/migrations/pydantic-v2.md
+Migration guide: content/docs/technical/migrations/pydantic-v2.md
 ```
 
 ## Version Bumping Logic
@@ -554,7 +554,7 @@ def bump_version(current: str, bump_type: str) -> str:
 
 # Update __version__ variables
 
-# Update docs/conf.py
+# Update content/docs/conf.py
 ```
 
 ### Changelog Generation

@@ -5,22 +5,32 @@ This module provides interactive session modes for the meta-agent:
 - PlanSession: Structured task decomposition and execution
 - EditSession: Structured code editing with diff previews
 
+NEW in v1.5.0: ChatSession now integrates PlanSession and EditSession,
+allowing seamless access to planning and editing tools from within chat mode.
+
 Example:
     >>> from paracle_meta.sessions import ChatSession, PlanSession, EditSession
     >>> from paracle_meta.capabilities.providers import AnthropicProvider
     >>> from paracle_meta.registry import CapabilityRegistry
     >>>
-    >>> # Start a chat session
+    >>> # Start a chat session with planning and editing enabled (default)
     >>> async with ChatSession(provider, registry) as chat:
     ...     response = await chat.send("Hello!")
     ...     print(response.content)
+    ...
+    ...     # Planning tools are now available in chat
+    ...     response = await chat.send("Create a plan to build a REST API")
+    ...     print(response.content)  # Shows plan with steps
+    ...
+    ...     # Editing tools are now available in chat
+    ...     response = await chat.send("Edit main.py to add type hints")
+    ...     print(response.content)  # Shows diff preview
     >>>
-    >>> # Start a planning session
+    >>> # You can still use standalone sessions if preferred
     >>> async with PlanSession(provider, registry) as planner:
     ...     plan = await planner.create_plan("Build a REST API")
     ...     await planner.execute_plan(plan)
     >>>
-    >>> # Start an edit session
     >>> async with EditSession(provider, registry) as editor:
     ...     edit = await editor.edit_file("main.py", "Add type hints")
     ...     print(edit.diff)  # Preview
@@ -37,14 +47,20 @@ from paracle_meta.sessions.edit import (
     EditStatus,
     EditType,
 )
-from paracle_meta.sessions.plan import Plan, PlanConfig, PlanSession, PlanStep
+from paracle_meta.sessions.plan import (
+    Plan,
+    PlanConfig,
+    PlanSession,
+    PlanStep,
+    StepStatus,
+)
 
 __all__ = [
     # Base
     "Session",
     "SessionConfig",
     "SessionMessage",
-    # Chat
+    # Chat (now with integrated planning and editing)
     "ChatSession",
     "ChatConfig",
     # Plan
@@ -52,6 +68,7 @@ __all__ = [
     "PlanConfig",
     "PlanStep",
     "Plan",
+    "StepStatus",
     # Edit
     "EditSession",
     "EditConfig",

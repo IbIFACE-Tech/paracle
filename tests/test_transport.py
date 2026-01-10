@@ -70,10 +70,13 @@ class TestRemoteConfig:
 
     def test_tunnel_port_validation(self):
         """Test port number validation."""
-        with pytest.raises(ValueError, match="Port must be between"):
+        from pydantic import ValidationError
+
+        # Pydantic validates port range via Field constraints
+        with pytest.raises(ValidationError):
             TunnelConfig(local=99999, remote=8000)
 
-        with pytest.raises(ValueError, match="Port must be between"):
+        with pytest.raises(ValidationError):
             TunnelConfig(local=8000, remote=0)
 
 
@@ -145,6 +148,18 @@ class TestRemotesConfig:
         assert config.get_default() is None
 
 
+try:
+    import asyncssh
+
+    ASYNCSSH_AVAILABLE = True
+except ImportError:
+    ASYNCSSH_AVAILABLE = False
+
+
+@pytest.mark.skipif(
+    not ASYNCSSH_AVAILABLE,
+    reason="asyncssh is not installed",
+)
 class TestSSHTransport:
     """Test SSHTransport class."""
 
@@ -247,6 +262,10 @@ class TestSSHTransport:
         assert await transport.is_connected()
 
 
+@pytest.mark.skipif(
+    not ASYNCSSH_AVAILABLE,
+    reason="asyncssh is not installed",
+)
 class TestTunnelManager:
     """Test TunnelManager class."""
 

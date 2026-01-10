@@ -159,20 +159,27 @@ logs/paracle.log                   # Not in project root!
 - **Knowledge base** → `.parac/memory/knowledge/*.md`
 - **Summaries** → `.parac/memory/summaries/*.md`
 - **Decisions (ADRs)** → `.parac/roadmap/decisions.md`
-- **User-facing docs** → `docs/` (not in .parac)
+- **User-facing docs** → `content/docs/` (NOT in .parac/)
+- **Examples** → `content/examples/` (NOT in .parac/)
+- **Templates** → `content/templates/` (NOT in .parac/)
 
 **Example**:
 ```bash
 # ✅ Correct
-.parac/GOVERNANCE.md               # Governance
-.parac/memory/knowledge/api.md     # Technical knowledge
-.parac/memory/summaries/week1.md   # Summary
-docs/getting-started.md            # User docs
+.parac/GOVERNANCE.md                     # Governance
+.parac/memory/knowledge/api.md           # Technical knowledge
+.parac/memory/summaries/week1.md         # Summary
+content/docs/getting-started.md          # User docs
+content/examples/01_basic_agent.py       # Code examples
+content/templates/.parac-template/       # Project templates
 
 # ❌ Wrong
-.parac/api-docs.md                 # Should be in memory/knowledge/
-.parac/decisions.md                # Should be in roadmap/
-docs/governance.md                 # Belongs in .parac/
+.parac/api-docs.md                       # Should be in memory/knowledge/
+.parac/decisions.md                      # Should be in roadmap/
+.parac/docs/                             # Belongs in content/docs/
+docs/getting-started.md                  # Should be in content/docs/
+examples/demo.py                         # Should be in content/examples/
+templates/                               # Should be in content/templates/
 ```
 
 ### 5. Agent Definitions
@@ -201,7 +208,9 @@ Use this checklist when adding new files:
 - [ ] **Is it a log file?** → `.parac/memory/logs/`
 - [ ] **Is it project knowledge?** → `.parac/memory/knowledge/`
 - [ ] **Is it a decision record?** → `.parac/roadmap/decisions.md`
-- [ ] **Is it user-facing documentation?** → `docs/`
+- [ ] **Is it user-facing documentation?** → `content/docs/`
+- [ ] **Is it a code example?** → `content/examples/`
+- [ ] **Is it a project template?** → `content/templates/`
 - [ ] **Is it an agent definition?** → `.parac/agents/specs/`
 - [ ] **Is it a workflow?** → `.parac/workflows/`
 - [ ] **Is it a policy?** → `.parac/policies/`

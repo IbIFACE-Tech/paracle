@@ -2,7 +2,7 @@
 
 This directory contains **optional** configuration files for advanced Paracle features.
 
-## 📁 Files
+## Files
 
 | File                   | Purpose                                   | When to Use                               |
 | ---------------------- | ----------------------------------------- | ----------------------------------------- |
@@ -10,7 +10,7 @@ This directory contains **optional** configuration files for advanced Paracle fe
 | `cost-tracking.yaml`   | LLM cost monitoring and budgets           | Want to track spending and set limits     |
 | `file-management.yaml` | Log limits, ADR templates, roadmap config | Need fine-grained control over files      |
 
-## 🎯 How It Works
+## How It Works
 
 ### Simple Setup (Default)
 
@@ -45,12 +45,12 @@ defaults:
 
 # Load optional configs
 include:
-  - config/logging.yaml           # ← Enable advanced logging
-  - config/cost-tracking.yaml     # ← Enable cost tracking
-  - config/file-management.yaml   # ← Enable file management
+  - config/logging.yaml           # <- Enable advanced logging
+  - config/cost-tracking.yaml     # <- Enable cost tracking
+  - config/file-management.yaml   # <- Enable file management
 ```
 
-## 📝 Editing Configuration Files
+## Editing Configuration Files
 
 ### 1. Logging Configuration (`logging.yaml`)
 
@@ -71,11 +71,11 @@ logging:
 ```yaml
 cost:
   tracking:
-    enabled: true  # ← Set to true
+    enabled: true  # <- Set to true
 
   budget:
-    enabled: true       # ← Enable budgets
-    monthly_limit: 50.0 # ← Set your limit (USD)
+    enabled: true       # <- Enable budgets
+    monthly_limit: 50.0 # <- Set your limit (USD)
     warning_threshold: 0.8  # Alert at 80%
 ```
 
@@ -108,14 +108,14 @@ file_management:
     format: markdown
 ```
 
-## 🔄 Enable/Disable Features
+## Enable/Disable Features
 
 ### Enable a Feature
 
 **1. Add to project.yaml**:
 ```yaml
 include:
-  - config/logging.yaml  # ← Add this line
+  - config/logging.yaml  # <- Add this line
 ```
 
 **2. Validate**:
@@ -133,7 +133,7 @@ paracle config show
 **1. Comment out in project.yaml**:
 ```yaml
 include:
-  # - config/logging.yaml  # ← Comment out
+  # - config/logging.yaml  # <- Comment out
 ```
 
 **2. Restart services** (if running):
@@ -141,7 +141,7 @@ include:
 paracle api restart
 ```
 
-## ✅ Best Practices
+## Best Practices
 
 ### Start Minimal
 - Don't include any config files initially
@@ -159,7 +159,7 @@ paracle api restart
 - Enable/disable without affecting others
 - Comment out unused sections
 
-## 🛠️ Troubleshooting
+## Troubleshooting
 
 ### "Config file not found"
 
@@ -168,11 +168,11 @@ paracle api restart
 **Solution**: File is included but doesn't exist
 ```bash
 # Option 1: Create from template
-cp templates/.parac-template-advanced/config/logging.yaml .parac/config/
+cp content/templates/.parac-template-advanced/config/logging.yaml .parac/config/
 
 # Option 2: Comment out in project.yaml
 # include:
-#   - config/logging.yaml  # ← Commented out
+#   - config/logging.yaml  # <- Commented out
 ```
 
 ### "Configuration not taking effect"
@@ -207,14 +207,14 @@ defaults:
 # No includes = use defaults
 ```
 
-## 📚 Documentation
+## Documentation
 
-- **Complete Guide**: [docs/configuration-guide.md](../../docs/configuration-guide.md)
-- **Logging**: [docs/log-management.md](../../docs/log-management.md)
-- **Cost Tracking**: [docs/cost-management.md](../../docs/cost-management.md)
-- **CLI Reference**: [docs/cli-reference.md](../../docs/cli-reference.md)
+- **Complete Guide**: [content/docs/configuration-guide.md](../../content/docs/configuration-guide.md)
+- **Logging**: [content/docs/log-management.md](../../content/docs/log-management.md)
+- **Cost Tracking**: [content/docs/cost-management.md](../../content/docs/cost-management.md)
+- **CLI Reference**: [content/docs/cli-reference.md](../../content/docs/cli-reference.md)
 
-## 🎓 Examples
+## Examples
 
 ### Example 1: Minimal (Beginner)
 ```yaml
@@ -256,4 +256,4 @@ include:
 
 ---
 
-**Remember**: You can always start simple and add configuration files later as your needs grow! 🚀
+**Remember**: You can always start simple and add configuration files later as your needs grow!

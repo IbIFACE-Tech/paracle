@@ -60,6 +60,15 @@ content/docs/
 | [Packages Reference](technical/modules/packages.md) | All 20+ packages |
 | [Agents Guide](technical/agents-guide.md) | Agent system deep dive |
 
+### MCP & Tools Documentation
+
+| Guide | Description |
+|-------|-------------|
+| [MCP Quick Reference](mcp-quick-reference.md) | 66 MCP tools overview |
+| [MCP Full Coverage](mcp-full-coverage.md) | Complete MCP implementation guide |
+| [IDE Tools](tools/ide-tools.md) | VS Code, Cursor, Windsurf integration |
+| [GitHub CLI Tool](tools/github-cli-tool.md) | GitHub operations via MCP |
+
 ### Paracle Meta Engine
 
 | Guide | Description |

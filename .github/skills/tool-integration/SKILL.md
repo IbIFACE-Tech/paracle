@@ -26,6 +26,7 @@ allowed-tools: Read Write Bash(python:*)
 ## When to use this skill
 
 Use when:
+
 - Creating custom tools for agents
 - Integrating external APIs
 - Adding MCP (Model Context Protocol) servers
@@ -40,19 +41,19 @@ from pydantic import BaseModel, Field
 from paracle_tools import Tool, ToolResult
 
 class WeatherInput(BaseModel):
-    \"\"\"Input for weather tool.\"\"\"
-    location: str = Field(..., description=\"City name\")
-    units: str = Field(default=\"metric\", description=\"Temperature units\")
+    """Input for weather tool."""
+    location: str = Field(..., description="City name")
+    units: str = Field(default="metric", description="Temperature units")
 
 class WeatherTool(Tool):
-    \"\"\"Get current weather for a location.\"\"\"
+    """Get current weather for a location."""
 
-    name = \"get-weather\"
-    description = \"Get current weather conditions for a location\"
+    name = "get-weather"
+    description = "Get current weather conditions for a location"
     input_schema = WeatherInput
 
     async def execute(self, input_data: WeatherInput) -> ToolResult:
-        \"\"\"Execute weather lookup.\"\"\"
+        """Execute weather lookup."""
         # Call external API
         weather_data = await fetch_weather_api(
             location=input_data.location,
@@ -61,7 +62,7 @@ class WeatherTool(Tool):
 
         return ToolResult(
             success=True,
-            output=f\"Temperature in {input_data.location}: {weather_data['temp']}°\",
+            output=f"Temperature in {input_data.location}: {weather_data['temp']}",
             metadata=weather_data,
         )
 ```
@@ -87,15 +88,15 @@ tools:
 ```json
 // .parac/mcp-servers.json
 {
-  \"mcpServers\": {
-    \"filesystem\": {
-      \"command\": \"npx\",
-      \"args\": [\"-y\", \"@modelcontextprotocol/server-filesystem\", \"/workspace\"]
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/workspace"]
     },
-    \"github\": {
-      \"command\": \"mcp-server-github\",
-      \"env\": {
-        \"GITHUB_TOKEN\": \"${GITHUB_TOKEN}\"
+    "github": {
+      "command": "mcp-server-github",
+      "env": {
+        "GITHUB_TOKEN": "${GITHUB_TOKEN}"
       }
     }
   }
@@ -114,4 +115,4 @@ tools:
 
 - Built-in Tools: `packages/paracle_tools/builtin/`
 - MCP Integration: `packages/paracle_mcp/`
-- Tool Examples: `examples/*_tools.py`
+- Tool Examples: `content/examples/*_tools.py`

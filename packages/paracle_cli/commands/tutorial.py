@@ -795,7 +795,7 @@ outputs:
         "  ✅ Build workflows\n\n"
         "[bold cyan]Next Steps:[/bold cyan]\n"
         "  📚 Read docs: content/docs/getting-started.md\n"
-        "  🎯 Try examples: examples/ directory\n"
+        "  🎯 Try examples: content/examples/ directory\n"
         "  💬 Join Discord: (Phase 7 deliverable)\n"
         "  📦 Browse templates: (Phase 7 deliverable)\n\n"
         "[dim]Run 'paracle --help' to see all available commands[/dim]",

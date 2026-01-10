@@ -128,7 +128,7 @@ steps:
     inputs:
       feature_name: "{{ inputs.feature_name }}"
       feature_description: "{{ inputs.feature_description }}"
-      current_architecture: "docs/architecture.md"
+      current_architecture: "content/docs/architecture.md"
       code_style_policy: ".parac/policies/CODE_STYLE.md"
       existing_modules: "packages/"
     outputs:
@@ -316,7 +316,7 @@ steps:
       source_files: "{{ steps.code_implementation.outputs.source_files }}"
       architecture_design: "{{ steps.architecture_design.outputs.architecture_design }}"
       implementation_summary: "{{ steps.code_implementation.outputs.implementation_summary }}"
-      existing_docs: "docs/"
+      existing_docs: "content/docs/"
     outputs:
       - documentation_files # List of doc files created/updated
       - api_reference # API documentation
@@ -607,7 +607,7 @@ references:
   governance: .parac/GOVERNANCE.md
   pre_flight: .parac/PRE_FLIGHT_CHECKLIST.md
   roadmap: .parac/roadmap/roadmap.yaml
-  architecture: docs/architecture.md
+  architecture: content/docs/architecture.md
   policies:
     - .parac/policies/CODE_STYLE.md
     - .parac/policies/TESTING.md

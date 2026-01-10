@@ -87,35 +87,17 @@ This workflow orchestrates:
 
 ## Skills
 
-- testing-qa
-- security-hardening
-- performance-optimization
-- paracle-development
 - cicd-devops
 - git-management
-- release-automation
-- workflow-orchestration
-- paracle-development
-- security-hardening
-- testing-qa
 - paracle-development
 - performance-optimization
-- paracle-development
-- cicd-devops
-- git-management
+- provider-integration
 - release-automation
-- testing-qa
-- security-hardening
-- performance-optimization
 - security-hardening
 - technical-documentation
-- tool-integration
-- provider-integration
-- workflow-orchestration
-- paracle-development
 - testing-qa
-- security-hardening
-- performance-optimization
+- tool-integration
+- workflow-orchestration
 
 ## After Completing Work
 

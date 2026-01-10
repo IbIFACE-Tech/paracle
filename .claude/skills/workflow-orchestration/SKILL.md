@@ -210,5 +210,5 @@ step3 = Step(id="s3", depends_on=["s2"])
 
 - Orchestration Engine: `packages/paracle_orchestration/`
 - DAG Implementation: `packages/paracle_orchestration/dag.py`
-- Workflow Examples: `examples/workflows/`
-- Engine Documentation: `docs/workflow-orchestration.md`
+- Workflow Examples: `content/examples/workflows/`
+- Engine Documentation: `content/docs/technical/workflow-orchestration.md`

@@ -10,7 +10,7 @@ Scenario: A code analysis agent that:
 4. Fetches documentation from APIs
 5. Generates a report
 
-Run: uv run python examples/04_agent_with_tools.py
+Run: uv run python content/examples/agents/04_agent_with_tools.py
 """
 
 import asyncio
@@ -277,7 +277,7 @@ async def registry_example():
     print("\n🔧 Executing tools through registry:")
 
     # Filesystem tool
-    result = await registry.execute_tool("list_directory", path="examples")
+    result = await registry.execute_tool("list_directory", path="content/examples")
     if result.success:
         print(f"\n  ✓ list_directory: found {result.output['count']} items")
 

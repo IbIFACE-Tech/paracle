@@ -140,7 +140,7 @@ python scripts/bump_version.py patch --pre beta   # 0.1.0 → 0.1.1-beta.1
 
 - `pyproject.toml` - Project version
 - `packages/paracle_core/__version__.py` - Runtime version
-- `docs/VERSION` - Documentation version
+- `content/docs/VERSION` - Documentation version
 
 ### Manual Version Update
 
@@ -545,7 +545,7 @@ pip install dist/paracle-0.2.0-py3-none-any.whl
 # Run smoke tests
 paracle --version
 paracle agent list
-paracle workflow run examples/hello_world_agent.py
+paracle workflow run content/examples/hello_world_agent.py
 
 # Test Docker images
 docker build -f docker/Dockerfile.api -t paracle/api:test .

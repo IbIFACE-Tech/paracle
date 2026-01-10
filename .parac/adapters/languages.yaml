@@ -12,8 +12,8 @@ python:
   structure:
     source: packages/
     tests: tests/
-    docs: docs/
-    examples: examples/
+    docs: content/docs/
+    examples: content/examples/
 
   # Dependency Management
   dependencies:

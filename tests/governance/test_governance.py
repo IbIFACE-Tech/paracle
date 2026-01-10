@@ -116,10 +116,12 @@ class TestGovernanceStructure:
 
     def test_yaml_files_valid(self, parac_path):
         """Ensure all YAML files have valid syntax."""
-        yaml_files = list(parac_path.rglob("*.yaml")) + list(parac_path.rglob("*.yml"))
+        yaml_files = list(parac_path.rglob("*.yaml")) + list(
+            parac_path.rglob("*.yml")
+        )
 
-        # Skip templates, assets, definitions, and cache files
-        # These may contain placeholders that aren't valid YAML
+        # Skip templates, assets, definitions, cache files, and IDE integration
+        # files (some IDE files use .yaml extension for markdown-like content)
         skip_patterns = [
             "snapshots",
             "__pycache__",
@@ -127,6 +129,7 @@ class TestGovernanceStructure:
             "assets",
             "templates",
             "skills",
+            "integrations",  # IDE integration files may be markdown with .yaml
         ]
 
         for yaml_path in yaml_files:
@@ -137,7 +140,9 @@ class TestGovernanceStructure:
                 with open(yaml_path, encoding="utf-8") as f:
                     yaml.safe_load(f)
             except yaml.YAMLError as e:
-                pytest.fail(f"Invalid YAML in {yaml_path.relative_to(parac_path)}: {e}")
+                pytest.fail(
+                    f"Invalid YAML in {yaml_path.relative_to(parac_path)}: {e}"
+                )
 
 
 class TestRoadmapConsistency:
@@ -292,6 +297,6 @@ class TestAgents:
             assert spec_file.exists(), f"Missing spec file for agent: {agent_id}"
 
             # Check spec has required sections
-            content = spec_file.read_text()
+            content = spec_file.read_text(encoding="utf-8")
             assert "## Role" in content or "**Role**" in content
             assert "## Responsibilities" in content or "Responsibilities" in content
