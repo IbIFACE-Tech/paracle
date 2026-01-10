@@ -5,17 +5,46 @@ import json
 from pathlib import Path
 
 import click
-from paracle_sandbox import SandboxConfig, SandboxExecutor, SandboxManager
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
 console = Console()
 
+# Check if sandbox dependencies are available
+try:
+    from paracle_sandbox import SandboxConfig, SandboxExecutor, SandboxManager
+    SANDBOX_AVAILABLE = True
+except ImportError as e:
+    SANDBOX_AVAILABLE = False
+    SANDBOX_IMPORT_ERROR = str(e)
+
+
+def require_sandbox(func):
+    """Decorator to check sandbox availability."""
+    def wrapper(*args, **kwargs):
+        if not SANDBOX_AVAILABLE:
+            console.print("[red]❌ Sandbox features not available[/red]\n")
+            console.print(
+                "[yellow]Sandbox requires Docker. To enable sandbox support:[/yellow]\n")
+            console.print(
+                "1. Install Docker Desktop: https://www.docker.com/products/docker-desktop")
+            console.print(
+                "2. Start Docker Desktop (or Docker daemon on Linux)")
+            console.print("3. Install Python dependencies:")
+            console.print("   [cyan]pip install paracle[sandbox][/cyan]")
+            console.print("   or")
+            console.print("   [cyan]pip install docker psutil[/cyan]\n")
+            console.print(
+                "[dim]Note: Sandbox features are optional. Core Paracle functionality works without Docker.[/dim]")
+            raise SystemExit(1)
+        return func(*args, **kwargs)
+    return wrapper
+
 
 @click.group("sandbox")
 def sandbox_group():
-    """Sandbox management commands for isolated execution."""
+    """Sandbox management commands for isolated execution (requires Docker)."""
     pass
 
 
@@ -34,6 +63,7 @@ def sandbox_group():
 @click.option("--monitor/--no-monitor", default=True, help="Enable resource monitoring")
 @click.option("--output", type=click.Path(), help="Save results to JSON file")
 @click.option("--verbose", "-v", is_flag=True, help="Verbose output")
+@require_sandbox
 def execute(
     code_file: str,
     cpu: float,

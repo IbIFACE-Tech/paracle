@@ -214,8 +214,8 @@ class GoRunner(ExtensionRunner):
             if existing_hash == source_hash:
                 return binary_path
 
-        # Build
-        build_cmd = manifest.build_command or f"go build -o {binary_path}"
+        # Build - always use the full binary path
+        build_cmd = f"go build -o \"{binary_path}\""
 
         proc = await asyncio.create_subprocess_shell(
             build_cmd,
@@ -1329,6 +1329,7 @@ function sendError(error{': string' if is_ts else ''}) {{
 
         if operation not in operations:
             return CapabilityResult(
+                capability=self.name,
                 success=False,
                 output={"error": f"Unknown operation: {operation}"},
                 error=f"Supported: {list(operations.keys())}",
@@ -1336,9 +1337,10 @@ function sendError(error{': string' if is_ts else ''}) {{
 
         try:
             result = await operations[operation](**kwargs)
-            return CapabilityResult(success=True, output=result)
+            return CapabilityResult(capability=self.name, success=True, output=result)
         except Exception as e:
             return CapabilityResult(
+                capability=self.name,
                 success=False,
                 output={"error": str(e)},
                 error=str(e),

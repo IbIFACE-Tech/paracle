@@ -3,13 +3,17 @@
 import asyncio
 import logging
 from contextlib import asynccontextmanager
-from typing import Any
+from typing import Any, Optional
 
 from paracle_core.ids import generate_ulid
 
 from paracle_sandbox.config import SandboxConfig
-from paracle_sandbox.docker_sandbox import DockerSandbox
 from paracle_sandbox.exceptions import SandboxError
+
+try:
+    from paracle_sandbox.docker_sandbox import DockerSandbox
+except ImportError:
+    DockerSandbox = None  # type: ignore
 
 logger = logging.getLogger(__name__)
 
@@ -52,11 +56,18 @@ class SandboxManager:
         Raises:
             SandboxError: If max concurrent limit reached
         """
+        if DockerSandbox is None:
+            raise SandboxError(
+                "DockerSandbox not available. "
+                "Install with: pip install docker psutil"
+            )
+
         async with self._lock:
             # Check concurrent limit
             if len(self.active_sandboxes) >= self.max_concurrent:
                 raise SandboxError(
-                    f"Maximum concurrent sandboxes reached: {self.max_concurrent}"
+                    f"Maximum concurrent sandboxes reached: "
+                    f"{self.max_concurrent}"
                 )
 
             # Generate ID if not provided
@@ -71,12 +82,15 @@ class SandboxManager:
             self.active_sandboxes[sandbox_id] = sandbox
 
             logger.info(
-                f"Created sandbox {sandbox_id} ({len(self.active_sandboxes)}/{self.max_concurrent})"
+                "Created sandbox %s (%d/%d)",
+                sandbox_id,
+                len(self.active_sandboxes),
+                self.max_concurrent,
             )
 
             return sandbox
 
-    async def get(self, sandbox_id: str) -> DockerSandbox | None:
+    async def get(self, sandbox_id: str) -> Optional["DockerSandbox"]:
         """Get active sandbox by ID.
 
         Args:
@@ -98,7 +112,10 @@ class SandboxManager:
             if sandbox:
                 await sandbox.stop()
                 logger.info(
-                    f"Destroyed sandbox {sandbox_id} ({len(self.active_sandboxes)}/{self.max_concurrent})"
+                    "Destroyed sandbox %s (%d/%d)",
+                    sandbox_id,
+                    len(self.active_sandboxes),
+                    self.max_concurrent,
                 )
 
     async def destroy_all(self) -> None:
@@ -109,7 +126,9 @@ class SandboxManager:
                 sandbox = self.active_sandboxes.pop(sandbox_id)
                 await sandbox.stop()
 
-            logger.info(f"Destroyed all sandboxes ({len(sandbox_ids)} total)")
+            logger.info(
+                "Destroyed all sandboxes (%d total)", len(sandbox_ids)
+            )
 
     async def get_stats(self) -> dict[str, Any]:
         """Get statistics for all active sandboxes.
@@ -128,8 +147,10 @@ class SandboxManager:
             try:
                 sandbox_stats = await sandbox.get_stats()
                 stats["sandboxes"][sandbox_id] = sandbox_stats
-            except Exception as e:
-                logger.error(f"Failed to get stats for {sandbox_id}: {e}")
+            except Exception as e:  # noqa: BLE001
+                logger.error(
+                    "Failed to get stats for %s: %s", sandbox_id, e
+                )
                 stats["sandboxes"][sandbox_id] = {"error": str(e)}
 
         return stats

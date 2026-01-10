@@ -1,6 +1,6 @@
 [project]
 name = "paracle"
-version = "1.0.1"
+version = "1.0.3"
 description = "User-driven multi-agent framework for AI-native applications"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -60,6 +60,7 @@ dependencies = [
     "a2a-sdk>=0.3.0",  # Official A2A types and utilities
     "anthropic>=0.75.0",
     "sqlalchemy>=2.0.45",
+    "twine>=6.2.0",
 ]
 
 [project.optional-dependencies]
@@ -97,6 +98,8 @@ meta = [
     # Core meta engine dependencies
     "sqlalchemy>=2.0.23",
     "aiosqlite>=0.19.0",  # Async SQLite support
+    # Integration with paracle_observability for ObservabilityCapability
+    "prometheus-client>=0.19.0",  # Required by paracle_observability
 ]
 
 # PostgreSQL + pgvector support for production (paracle_meta)
@@ -397,3 +400,4 @@ exclude_lines = [
 
 [tool.coverage.html]
 directory = "htmlcov"
+

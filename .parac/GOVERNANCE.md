@@ -214,17 +214,17 @@ Quand un deliverable majeur est complété:
 
 Chaque fichier a une place spécifique dans `.parac/`:
 
-| Type de Fichier         | Emplacement Correct            | ❌ Erreur Commune        |
-| ----------------------- | ------------------------------ | ----------------------- |
-| **Operational Data**    | `.parac/memory/data/*.db`      | `.parac/*.db` (root)    |
-| **Logs**                | `.parac/memory/logs/*.log`     | `packages/*/logs/`      |
-| **Knowledge**           | `.parac/memory/knowledge/*.md` | `.parac/*.md`           |
-| **Decisions (ADRs)**    | `.parac/roadmap/decisions.md`  | `.parac/decisions.md`   |
-| **Agent Specs**         | `.parac/agents/specs/*.md`     | `.parac/agents/*.md`    |
-| **Execution Artifacts** | `.parac/runs/` (gitignored)    | `packages/*/artifacts/` |
-| **User Documentation**  | `content/docs/` (NOT in .parac)| `.parac/docs/`          |
-| **Examples**            | `content/examples/` (NOT in .parac) | `examples/` (root) |
-| **Templates**           | `content/templates/` (NOT in .parac) | `templates/` (root) |
+| Type de Fichier         | Emplacement Correct                  | ❌ Erreur Commune        |
+| ----------------------- | ------------------------------------ | ----------------------- |
+| **Operational Data**    | `.parac/memory/data/*.db`            | `.parac/*.db` (root)    |
+| **Logs**                | `.parac/memory/logs/*.log`           | `packages/*/logs/`      |
+| **Knowledge**           | `.parac/memory/knowledge/*.md`       | `.parac/*.md`           |
+| **Decisions (ADRs)**    | `.parac/roadmap/decisions.md`        | `.parac/decisions.md`   |
+| **Agent Specs**         | `.parac/agents/specs/*.md`           | `.parac/agents/*.md`    |
+| **Execution Artifacts** | `.parac/runs/` (gitignored)          | `packages/*/artifacts/` |
+| **User Documentation**  | `content/docs/` (NOT in .parac)      | `.parac/docs/`          |
+| **Examples**            | `content/examples/` (NOT in .parac)  | `examples/` (root)      |
+| **Templates**           | `content/templates/` (NOT in .parac) | `templates/` (root)     |
 
 **Before creating any new file in .parac/, consult [STRUCTURE.md](STRUCTURE.md) first.**
 

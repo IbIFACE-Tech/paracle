@@ -216,6 +216,13 @@ test-tutorial/
 test-tutorial/*
 .benchmarks/
 content/docs/technical/*
+
+# Paracle log archives (auto-generated, keep out of git)
+.parac/memory/logs/archives/
+.parac/memory/logs/*.log.1
+.parac/memory/logs/*.log.2
+.parac/memory/logs/*.log.*
+
 # Private documentation (internal workflows, credentials, etc.)
 .docs-private/
 private-docs/

@@ -8,9 +8,11 @@ Provides production-grade monitoring and observability:
 - Jaeger trace visualization
 - Centralized error registry and analytics
 - Error dashboard and automated reporting
+- Business metrics (cost, usage, performance, quality)
 
 Phase 7 - Production Observability deliverables.
 Phase 8 - Error Management Enhancement.
+Phase 10 - Business Metrics (v1.1.0).
 """
 
 from paracle_observability.alerting import (
@@ -20,6 +22,15 @@ from paracle_observability.alerting import (
     AlertSeverity,
     NotificationChannel,
     get_alert_manager,
+)
+from paracle_observability.business_metrics import (
+    BusinessMetrics,
+    BusinessMetricsSummary,
+    CostMetrics,
+    PerformanceMetrics,
+    QualityMetrics,
+    UsageMetrics,
+    get_business_metrics,
 )
 from paracle_observability.error_dashboard import ErrorDashboard
 from paracle_observability.error_registry import (
@@ -75,6 +86,14 @@ __all__ = [
     "metric_counter",
     "metric_gauge",
     "metric_histogram",
+    # Business Metrics (Phase 10)
+    "BusinessMetrics",
+    "BusinessMetricsSummary",
+    "CostMetrics",
+    "UsageMetrics",
+    "PerformanceMetrics",
+    "QualityMetrics",
+    "get_business_metrics",
     # Tracing
     "TracingProvider",
     "get_tracer",

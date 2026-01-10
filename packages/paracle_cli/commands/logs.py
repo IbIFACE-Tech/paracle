@@ -206,7 +206,8 @@ def _list_direct() -> None:
     for name, path in sorted(log_files.items()):
         stat = path.stat()
         size = f"{stat.st_size:,} bytes"
-        modified = datetime.fromtimestamp(stat.st_mtime).strftime("%Y-%m-%d %H:%M")
+        modified = datetime.fromtimestamp(
+            stat.st_mtime).strftime("%Y-%m-%d %H:%M")
         table.add_row(name, str(path.relative_to(parac_root)), size, modified)
 
     console.print(table)
@@ -233,12 +234,14 @@ def _show_via_api(
 ) -> None:
     """Show logs via API."""
     if follow:
-        console.print("[yellow]Warning:[/yellow] Follow mode not supported via API.")
+        console.print(
+            "[yellow]Warning:[/yellow] Follow mode not supported via API.")
         console.print("[dim]Falling back to direct access...[/dim]")
         _show_direct(log_name, tail, follow, as_json, grep_pattern)
         return
 
-    result = client.logs_show(log_name=log_name, tail=tail, pattern=grep_pattern)
+    result = client.logs_show(
+        log_name=log_name, tail=tail, pattern=grep_pattern)
     lines = result.get("lines", [])
 
     if not lines:
@@ -258,7 +261,8 @@ def _show_via_api(
     else:
         # Pretty print with formatting
         for line in lines:
-            _print_log_line(line.strip() if isinstance(line, str) else str(line))
+            _print_log_line(line.strip() if isinstance(
+                line, str) else str(line))
 
 
 def _show_direct(
@@ -335,7 +339,8 @@ def _follow_log(log_path: Path, pattern: str | None):
     """Follow log file in real-time."""
     import time
 
-    console.print(f"[cyan]Following {log_path.name}... (Ctrl+C to stop)[/cyan]")
+    console.print(
+        f"[cyan]Following {log_path.name}... (Ctrl+C to stop)[/cyan]")
     console.print()
 
     # Get current file size
@@ -523,7 +528,8 @@ def _export_direct(
                 writer.writeheader()
                 writer.writerows(entries)
 
-    console.print(f"[green]OK[/green] Exported {len(entries)} entries to {output_path}")
+    console.print(
+        f"[green]OK[/green] Exported {len(entries)} entries to {output_path}")
 
 
 @logs.command("export")
@@ -681,3 +687,248 @@ def show_audit(tail: int, category: str | None, severity: str | None):
     Note: This command always runs locally (audit logs are sensitive).
     """
     _audit_direct(tail, category, severity)
+
+
+# =============================================================================
+# ANALYZE Command - Log health check and rotation warnings
+# =============================================================================
+
+
+def _analyze_direct() -> None:
+    """Analyze log health via direct file access."""
+    parac_root = get_parac_root_or_exit()
+    actions_log = parac_root / "memory" / "logs" / "agent_actions.log"
+    archives_dir = parac_root / "memory" / "logs" / "archives"
+
+    MAX_LOG_LINES = 10_000
+    MAX_LOG_SIZE_MB = 1.0
+
+    if not actions_log.exists():
+        console.print("[yellow]No agent_actions.log found[/yellow]")
+        return
+
+    # Read log file stats
+    with open(actions_log, encoding="utf-8") as f:
+        lines = f.readlines()
+
+    line_count = len(lines)
+    file_size = actions_log.stat().st_size
+    size_mb = file_size / (1024 * 1024)
+    size_kb = file_size / 1024
+
+    # Calculate percentages
+    line_percent = (line_count / MAX_LOG_LINES) * 100
+    size_percent = (size_mb / MAX_LOG_SIZE_MB) * 100
+
+    # Count archives
+    archive_count = 0
+    if archives_dir.exists():
+        archive_count = len(list(archives_dir.glob("agent_actions.*.log")))
+
+    # Display statistics
+    console.print("\n📊 Agent Actions Log Statistics")
+    console.print("=" * 50)
+    console.print(f"📄 File: {actions_log.relative_to(parac_root)}")
+    console.print(f"📏 Lines: {line_count:,}")
+    console.print(f"💾 Size: {size_mb:.2f} MB ({size_kb:.2f} KB)")
+    console.print()
+
+    # Status with color coding
+    if line_percent >= 100 or size_percent >= 100:
+        console.print("[bold red]🚨 Log rotation needed![/bold red]")
+        console.print(
+            f"   Lines: {line_count:,} / {MAX_LOG_LINES:,} ({line_percent:.0f}%)")
+        console.print(
+            f"   Size: {size_mb:.2f} / {MAX_LOG_SIZE_MB:.1f} MB ({size_percent:.0f}%)")
+        console.print("\n[yellow]Run:[/yellow] paracle logs rotate")
+    elif line_percent >= 80 or size_percent >= 80:
+        console.print("[bold yellow]⚠️  Log approaching limit[/bold yellow]")
+        console.print(
+            f"   Lines: {line_count:,} / {MAX_LOG_LINES:,} ({line_percent:.0f}%)")
+        console.print(
+            f"   Size: {size_mb:.2f} / {MAX_LOG_SIZE_MB:.1f} MB ({size_percent:.0f}%)")
+        console.print(
+            "\n[dim]Consider rotating soon:[/dim] paracle logs rotate")
+    else:
+        console.print("[green]✅ Log size is within acceptable limits[/green]")
+        console.print(
+            f"   Lines: {line_count:,} / {MAX_LOG_LINES:,} ({line_percent:.0f}%)")
+        console.print(
+            f"   Size: {size_mb:.2f} / {MAX_LOG_SIZE_MB:.1f} MB ({size_percent:.0f}%)")
+
+    # Archives info
+    console.print(
+        f"\n📦 Archives: {archive_count if archive_count > 0 else 'None'}")
+    console.print()
+
+
+@logs.command("analyze")
+def analyze_logs():
+    """Analyze log file health and check rotation status.
+
+    Shows:
+    - Current line count and file size
+    - Percentage of limits used
+    - Rotation warnings (80%+) and alerts (100%+)
+    - Archive count
+
+    Examples:
+        paracle logs analyze
+    """
+    _analyze_direct()
+
+
+# =============================================================================
+# ROTATE Command - Manual log rotation
+# =============================================================================
+
+
+def _rotate_direct(force: bool) -> None:
+    """Rotate logs via direct file access."""
+    parac_root = get_parac_root_or_exit()
+    actions_log = parac_root / "memory" / "logs" / "agent_actions.log"
+    archives_dir = parac_root / "memory" / "logs" / "archives"
+
+    KEEP_RECENT_LINES = 1_000
+
+    if not actions_log.exists():
+        console.print("[yellow]No agent_actions.log found[/yellow]")
+        return
+
+    # Read all lines
+    with open(actions_log, encoding="utf-8") as f:
+        lines = f.readlines()
+
+    if not force:
+        console.print(f"\n📊 Current log has {len(lines):,} lines")
+        console.print(
+            f"📦 Will archive all lines, keep last {KEEP_RECENT_LINES:,}")
+        if not click.confirm("\nProceed with rotation?"):
+            console.print("[yellow]Cancelled[/yellow]")
+            return
+
+    # Create archive directory
+    archives_dir.mkdir(parents=True, exist_ok=True)
+
+    # Create timestamped archive
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    archive_path = archives_dir / f"agent_actions.{timestamp}.log"
+
+    # Archive all current lines
+    with open(archive_path, "w", encoding="utf-8") as f:
+        f.writelines(lines)
+
+    # Keep only recent lines
+    recent_lines = lines[-KEEP_RECENT_LINES:]
+    with open(actions_log, "w", encoding="utf-8") as f:
+        f.writelines(recent_lines)
+
+    console.print("\n[green]✓ Log rotated successfully[/green]")
+    console.print(f"  📦 Archived: {len(lines):,} lines → {archive_path.name}")
+    console.print(f"  📝 Kept: {len(recent_lines):,} recent lines")
+    console.print()
+
+
+@logs.command("rotate")
+@click.option("--force", "-f", is_flag=True, help="Skip confirmation")
+def rotate_logs(force: bool):
+    """Manually rotate the agent actions log.
+
+    Archives the current log file with a timestamp and keeps
+    only the last 1,000 lines for continuity.
+
+    Rotation is automatic at 10,000 lines, but you can force it
+    manually for maintenance or before major operations.
+
+    Examples:
+        paracle logs rotate           # Interactive confirmation
+        paracle logs rotate --force   # Skip confirmation
+    """
+    _rotate_direct(force)
+
+
+# =============================================================================
+# CLEANUP Command - Remove old archives
+# =============================================================================
+
+
+def _cleanup_direct(days: int, dry_run: bool, force: bool) -> None:
+    """Cleanup old archives via direct file access."""
+    parac_root = get_parac_root_or_exit()
+    archives_dir = parac_root / "memory" / "logs" / "archives"
+
+    if not archives_dir.exists():
+        console.print("[yellow]No archives directory found[/yellow]")
+        return
+
+    # Find archives older than specified days
+    cutoff_time = datetime.now().timestamp() - (days * 24 * 60 * 60)
+    old_archives = []
+
+    for archive_file in archives_dir.glob("agent_actions.*.log"):
+        if archive_file.stat().st_mtime < cutoff_time:
+            old_archives.append(archive_file)
+
+    if not old_archives:
+        console.print(
+            f"[green]No archives older than {days} days found[/green]")
+        return
+
+    # Calculate total size
+    total_size = sum(f.stat().st_size for f in old_archives)
+    size_mb = total_size / (1024 * 1024)
+
+    console.print(
+        f"\n📦 Found {len(old_archives)} archive(s) older than {days} days")
+    console.print(f"💾 Total size: {size_mb:.2f} MB")
+
+    if dry_run:
+        console.print("\n[dim]Dry run - files to be deleted:[/dim]")
+        for archive in sorted(old_archives):
+            age_days = (datetime.now().timestamp() -
+                        archive.stat().st_mtime) / (24 * 60 * 60)
+            console.print(
+                f"  • {archive.name} ([dim]{age_days:.0f} days old[/dim])")
+        console.print("\n[yellow]Use --force to actually delete[/yellow]")
+        return
+
+    if not force:
+        if not click.confirm(f"\nDelete {len(old_archives)} archive(s)?"):
+            console.print("[yellow]Cancelled[/yellow]")
+            return
+
+    # Delete archives
+    deleted_count = 0
+    for archive in old_archives:
+        try:
+            archive.unlink()
+            deleted_count += 1
+        except Exception as e:
+            console.print(f"[red]Error deleting {archive.name}: {e}[/red]")
+
+    console.print("\n[green]✓ Cleanup completed[/green]")
+    console.print(f"  🗑️  Deleted: {deleted_count} archive(s)")
+    console.print(f"  💾 Freed: {size_mb:.2f} MB")
+
+    # Show remaining archives
+    remaining = len(list(archives_dir.glob("agent_actions.*.log")))
+    console.print(f"  📦 Remaining: {remaining} archive(s)")
+    console.print()
+
+
+@logs.command("cleanup")
+@click.option("--days", "-d", default=365, help="Delete archives older than N days (default: 365)")
+@click.option("--dry-run", is_flag=True, help="Show what would be deleted")
+@click.option("--force", "-f", is_flag=True, help="Skip confirmation")
+def cleanup_logs(days: int, dry_run: bool, force: bool):
+    """Clean up old log archives.
+
+    Removes archived log files older than the specified number of days.
+    Default retention: 365 days (1 year).
+
+    Examples:
+        paracle logs cleanup --dry-run    # Preview what would be deleted
+        paracle logs cleanup              # Interactive cleanup (365 days)
+        paracle logs cleanup -d 90 -f     # Delete archives > 90 days, no confirm
+    """
+    _cleanup_direct(days, dry_run, force)

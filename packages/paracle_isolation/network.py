@@ -5,9 +5,18 @@ from typing import Any
 
 from paracle_core.ids import generate_ulid
 
-import docker
-from docker.errors import APIError
-from docker.models.networks import Network
+# Docker is optional for network isolation
+try:
+    import docker
+    from docker.errors import APIError
+    from docker.models.networks import Network
+    DOCKER_AVAILABLE = True
+except ImportError:
+    docker = None  # type: ignore
+    APIError = Exception  # type: ignore
+    Network = None  # type: ignore
+    DOCKER_AVAILABLE = False
+
 from paracle_isolation.config import NetworkConfig, NetworkPolicy
 from paracle_isolation.exceptions import NetworkIsolationError
 
@@ -25,7 +34,21 @@ class NetworkIsolator:
     """
 
     def __init__(self):
-        """Initialize network isolator."""
+        """Initialize network isolator.
+
+        Raises:
+            ImportError: If docker package is not installed
+        """
+        if not DOCKER_AVAILABLE:
+            raise ImportError(
+                "Docker SDK for Python is not installed.\n\n"
+                "Network isolation requires Docker. To enable:\n\n"
+                "  pip install paracle[sandbox]\n"
+                "  or\n"
+                "  pip install docker\n\n"
+                "Note: Network isolation is optional."
+            )
+
         self.networks: dict[str, Network] = {}
         self._client: docker.DockerClient | None = None
 
@@ -86,7 +109,8 @@ class NetworkIsolator:
             labels = config.labels.copy()
             if policy:
                 labels["paracle.policy.internet"] = str(policy.allow_internet)
-                labels["paracle.policy.intra_network"] = str(policy.allow_intra_network)
+                labels["paracle.policy.intra_network"] = str(
+                    policy.allow_intra_network)
 
             # Create network
             network = client.networks.create(
@@ -111,7 +135,8 @@ class NetworkIsolator:
             return network
 
         except APIError as e:
-            raise NetworkIsolationError(f"Failed to create network: {e}") from e
+            raise NetworkIsolationError(
+                f"Failed to create network: {e}") from e
 
     async def attach_container(
         self,

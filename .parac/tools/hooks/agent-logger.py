@@ -9,6 +9,10 @@ from datetime import datetime
 from pathlib import Path
 from typing import Literal
 
+# Rotation configuration
+MAX_LOG_LINES = 10_000
+KEEP_RECENT_LINES = 1_000
+
 ActionType = Literal[
     "IMPLEMENTATION",
     "TEST",
@@ -51,9 +55,44 @@ class AgentLogger:
         self.logs_dir = parac_dir / "memory" / "logs"
         self.actions_log = self.logs_dir / "agent_actions.log"
         self.decisions_log = self.logs_dir / "decisions.log"
+        self.archive_dir = self.logs_dir / "archives"
 
         # Créer les dossiers si nécessaire
         self.logs_dir.mkdir(parents=True, exist_ok=True)
+        self.archive_dir.mkdir(parents=True, exist_ok=True)
+
+    def _rotate_if_needed(self) -> None:
+        """
+        Rotate log file if it exceeds MAX_LOG_LINES.
+
+        Archives old logs and keeps only KEEP_RECENT_LINES for continuity.
+        """
+        if not self.actions_log.exists():
+            return
+
+        # Read all lines
+        with open(self.actions_log, encoding="utf-8") as f:
+            lines = f.readlines()
+
+        # Check if rotation needed
+        if len(lines) < MAX_LOG_LINES:
+            return
+
+        # Create archive filename with timestamp
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        archive_path = self.archive_dir / f"agent_actions.{timestamp}.log"
+
+        # Archive all current lines
+        with open(archive_path, "w", encoding="utf-8") as f:
+            f.writelines(lines)
+
+        # Keep only recent lines for continuity
+        recent_lines = lines[-KEEP_RECENT_LINES:]
+        with open(self.actions_log, "w", encoding="utf-8") as f:
+            f.writelines(recent_lines)
+
+        print(f"✓ Log rotated: {len(lines):,} → {len(recent_lines):,} lines")
+        print(f"  Archived to: {archive_path.name}")
 
     def log_action(
         self,
@@ -73,6 +112,9 @@ class AgentLogger:
         """
         if timestamp is None:
             timestamp = datetime.now()
+
+        # Check if rotation needed before logging
+        self._rotate_if_needed()
 
         timestamp_str = timestamp.strftime("%Y-%m-%d %H:%M:%S")
         log_entry = f"[{timestamp_str}] [{agent}] [{action}] {description}\n"
@@ -161,6 +203,7 @@ if __name__ == "__main__":
         if not args.rationale or not args.impact:
             print("Error: --decision requires --rationale and --impact")
             exit(1)
-        logger.log_decision(args.agent, args.description, args.rationale, args.impact)
+        logger.log_decision(args.agent, args.description,
+                            args.rationale, args.impact)
     else:
         logger.log_action(args.agent, args.action, args.description)

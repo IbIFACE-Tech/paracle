@@ -2,7 +2,7 @@
 # Paracle AI Instructions for GitHub Copilot
 # Auto-generated from .parac/ - DO NOT EDIT MANUALLY
 # Regenerate with: paracle ide sync --copy
-# Generated: 2026-01-08T16:50:16.019275
+# Generated: 2026-01-10T12:37:41.716808
 #
 # 📖 Read First: .parac/UNIVERSAL_AI_INSTRUCTIONS.md (works with ANY IDE)
 
@@ -65,7 +65,7 @@ This checklist ensures:
 
 ## Current Project State
 
-- **Project**: paracle-lite v1.0.0
+- **Project**: paracle-lite v1.0.2
 - **Phase**: phase_10 - Governance & v1.0 Release (0%)
 - **Status**: in_progress
 

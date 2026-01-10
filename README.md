@@ -349,6 +349,8 @@ workflow = Workflow(
 - [🔧 Built-in Tools](content/docs/builtin-tools.md)
 - [📡 MCP Integration](content/docs/mcp-integration.md)
 - [🔒 Security Audit](content/docs/security-audit-report.md)
+- [📊 Log Management](content/docs/logs-management.md)
+- [🏗️ Logging Architecture](content/docs/logging-architecture.md)
 
 </td>
 </tr>
@@ -421,7 +423,7 @@ make format
 
 <div align="center">
 
-**Paracle v1.0.1** is production-ready! 🎉
+**Paracle v1.0.2** is production-ready! 🎉
 
 Current Phase: **Phase 10 - Governance & v1.0 Release** (95% complete)
 

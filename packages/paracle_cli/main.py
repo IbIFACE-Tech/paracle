@@ -24,6 +24,7 @@ from paracle_cli.commands.inventory import inventory
 from paracle_cli.commands.logs import logs
 from paracle_cli.commands.mcp import mcp
 from paracle_cli.commands.meta import meta
+from paracle_cli.commands.metrics import metrics
 from paracle_cli.commands.parac import init, parac, session, status, sync
 from paracle_cli.commands.parac import validate as parac_validate
 from paracle_cli.commands.pool import pool
@@ -46,7 +47,7 @@ console = Console()
 
 
 @click.group()
-@click.version_option(version="1.0.0")
+@click.version_option(version="1.0.3")
 def cli() -> None:
     """Paracle - User-driven multi-agent framework.
 
@@ -98,6 +99,9 @@ cli.add_command(providers)
 
 # Cost tracking
 cli.add_command(cost)
+
+# Business metrics
+cli.add_command(metrics)
 
 # Error management and monitoring
 cli.add_command(errors)
@@ -160,7 +164,7 @@ cli.add_command(parac)
 @cli.command()
 def hello() -> None:
     """Verify Paracle installation."""
-    console.print("[bold green]Paracle v1.0.0[/bold green]")
+    console.print("[bold green]Paracle v1.0.3[/bold green]")
     console.print("\n[cyan]Framework successfully installed![/cyan]")
     console.print("\nGet started:")
     console.print("  paracle init              - Initialize a project")

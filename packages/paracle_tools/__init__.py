@@ -67,6 +67,12 @@ from paracle_tools.documenter_tools import (
     markdown_generation,
 )
 
+# Diagnostics tools
+from paracle_tools.mcp_diagnose_tool import (
+    mcp_diagnose,
+    TOOL_METADATA as MCP_DIAGNOSE_METADATA,
+)
+
 # Tool exceptions (import with alias to avoid conflict with builtin.ToolError)
 from paracle_tools.exceptions import (
     ToolConfigurationError,
@@ -279,6 +285,9 @@ __all__ = [
     "markdown_generation",
     "api_doc_generation",
     "diagram_creation",
+    # Diagnostics tools
+    "mcp_diagnose",
+    "MCP_DIAGNOSE_METADATA",
     # Release Manager tools
     "VersionManagementTool",
     "ChangelogGenerationTool",

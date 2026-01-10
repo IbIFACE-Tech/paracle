@@ -136,6 +136,13 @@ class CircuitBreaker:
         self.half_open_calls = 0
         self._lock = asyncio.Lock()
 
+        # Metrics tracking
+        self.total_calls = 0
+        self.total_failures = 0
+        self.total_successes = 0
+        self.total_rejected = 0  # Calls rejected when circuit is open
+        self.total_timeouts = 0  # Times circuit stayed open full duration
+
     @property
     def name(self) -> str:
         """Circuit breaker name."""
@@ -154,6 +161,7 @@ class CircuitBreaker:
 
     def _record_success(self):
         """Record successful call."""
+        self.total_successes += 1
         if self.state == CircuitBreakerState.HALF_OPEN:
             self.success_count += 1
             if self.success_count >= self.config.success_threshold:
@@ -163,6 +171,7 @@ class CircuitBreaker:
 
     def _record_failure(self):
         """Record failed call."""
+        self.total_failures += 1
         self.last_failure_time = datetime.now()
 
         if self.state == CircuitBreakerState.HALF_OPEN:
@@ -212,11 +221,14 @@ class CircuitBreaker:
 
         # Check state
         if self.state == CircuitBreakerState.OPEN:
+            self.total_rejected += 1
             retry_after = (
-                self.config.timeout - (datetime.now() - self.opened_at).total_seconds()
+                self.config.timeout -
+                (datetime.now() - self.opened_at).total_seconds()
             )
             raise CircuitOpenError(self.name, max(0, retry_after))
 
+        self.total_calls += 1
         if self.state == CircuitBreakerState.HALF_OPEN:
             if self.half_open_calls >= self.config.half_open_max_calls:
                 raise CircuitOpenError(self.name, 1.0)
@@ -285,10 +297,44 @@ class CircuitBreaker:
         self.half_open_calls = 0
 
     def get_state(self) -> dict:
-        """Get current circuit breaker state.
+        """Get current circuit breaker state with comprehensive metrics.
+
+        Returns detailed information about the circuit breaker's current state,
+        configuration, and accumulated metrics for monitoring and debugging.
 
         Returns:
-            Dictionary with state information
+            Dictionary containing:
+                - name (str): Circuit breaker identifier
+                - state (str): Current state (closed/open/half_open)
+                - failure_count (int): Consecutive failures in current state
+                - success_count (int): Consecutive successes in half-open state
+                - opened_at (str|None): ISO timestamp when circuit opened
+                - last_failure (str|None): ISO timestamp of last failure
+                - config (dict): Circuit configuration
+                    - failure_threshold (int): Failures before opening
+                    - success_threshold (int): Successes to close from half-open
+                    - timeout (float): Seconds before attempting reset
+                - metrics (dict): Accumulated metrics
+                    - total_calls (int): Total attempted calls
+                    - total_successes (int): Total successful calls
+                    - total_failures (int): Total failed calls
+                    - total_rejected (int): Calls rejected while open
+                    - success_rate (float): Successes / total_calls (0.0-1.0)
+                    - failure_rate (float): Failures / total_calls (0.0-1.0)
+                    - rejection_rate (float): Rejected / (calls + rejected)
+
+        Example:
+            >>> circuit = CircuitBreaker("api_service", failure_threshold=5)
+            >>> # ... execute some calls ...
+            >>> state = circuit.get_state()
+            >>> print(f"State: {state['state']}")
+            >>> print(f"Success Rate: {state['metrics']['success_rate']:.2%}")
+            >>> print(f"Total Calls: {state['metrics']['total_calls']}")
+
+        Note:
+            Rates are calculated as ratios (0.0 to 1.0). Multiply by 100
+            for percentage values. All metrics accumulate across the circuit's
+            lifetime and persist through state transitions.
         """
         return {
             "name": self.name,
@@ -304,6 +350,29 @@ class CircuitBreaker:
                 "success_threshold": self.config.success_threshold,
                 "timeout": self.config.timeout,
             },
+            # NEW: Metrics tracking
+            "metrics": {
+                "total_calls": self.total_calls,
+                "total_successes": self.total_successes,
+                "total_failures": self.total_failures,
+                "total_rejected": self.total_rejected,
+                "success_rate": (
+                    self.total_successes / self.total_calls
+                    if self.total_calls > 0
+                    else 0.0
+                ),
+                "failure_rate": (
+                    self.total_failures / self.total_calls
+                    if self.total_calls > 0
+                    else 0.0
+                ),
+                "rejection_rate": (
+                    self.total_rejected /
+                    (self.total_calls + self.total_rejected)
+                    if (self.total_calls + self.total_rejected) > 0
+                    else 0.0
+                ),
+            },
         }
 
     def __enter__(self):
@@ -313,7 +382,8 @@ class CircuitBreaker:
 
         if self.state == CircuitBreakerState.OPEN:
             retry_after = (
-                self.config.timeout - (datetime.now() - self.opened_at).total_seconds()
+                self.config.timeout -
+                (datetime.now() - self.opened_at).total_seconds()
             )
             raise CircuitOpenError(self.name, max(0, retry_after))
 
