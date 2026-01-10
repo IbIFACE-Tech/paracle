@@ -34,6 +34,7 @@ from paracle_cli.commands.retry import retry
 from paracle_cli.commands.reviews import reviews
 from paracle_cli.commands.roadmap import roadmap
 from paracle_cli.commands.runs import runs_group
+from paracle_cli.commands.sandbox import sandbox_group
 from paracle_cli.commands.serve import serve
 from paracle_cli.commands.task import task
 from paracle_cli.commands.tools import tools
@@ -148,6 +149,9 @@ cli.add_command(logs)
 
 # Services inventory management
 cli.add_command(inventory)
+
+# Sandbox management
+cli.add_command(sandbox_group, name="sandbox")
 
 # Legacy commands (hidden)
 cli.add_command(parac)

@@ -127,7 +127,7 @@ paracle meta health --json
 ```json
 {
   "status": "healthy",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "uptime_seconds": 15795.5,
   "components": {
     "database": {

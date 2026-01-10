@@ -4855,6 +4855,10 @@ store = [
     { name = "alembic" },
     { name = "sqlalchemy" },
 ]
+transport = [
+    { name = "asyncssh" },
+    { name = "websockets" },
+]
 
 [package.metadata]
 requires-dist = [
@@ -4868,6 +4872,7 @@ requires-dist = [
     { name = "argon2-cffi", specifier = ">=25.1.0" },
     { name = "asyncpg", marker = "extra == 'postgres'", specifier = ">=0.29.0" },
     { name = "asyncssh", specifier = ">=2.14.0" },
+    { name = "asyncssh", marker = "extra == 'transport'", specifier = ">=2.14.0" },
     { name = "autogen-agentchat", marker = "extra == 'autogen'", specifier = ">=0.4.0" },
     { name = "autogen-ext", marker = "extra == 'autogen'", specifier = ">=0.4.0" },
     { name = "azure-ai-projects", marker = "extra == 'msaf-azure'", specifier = ">=1.0.0b3" },
@@ -4939,8 +4944,9 @@ requires-dist = [
     { name = "uvicorn", extras = ["standard"], marker = "extra == 'api'", specifier = ">=0.24.0" },
     { name = "watchdog", specifier = ">=3.0.0" },
     { name = "websockets", specifier = ">=12.0" },
+    { name = "websockets", marker = "extra == 'transport'", specifier = ">=12.0" },
 ]
-provides-extras = ["api", "store", "events", "sandbox", "meta", "postgres", "meta-full", "providers", "providers-extended", "azure", "aws", "gcp", "cloud", "langchain", "llamaindex", "crewai", "autogen", "msaf", "msaf-azure", "adapters", "observability", "dev", "docs", "all"]
+provides-extras = ["api", "store", "events", "sandbox", "transport", "meta", "postgres", "meta-full", "providers", "providers-extended", "azure", "aws", "gcp", "cloud", "langchain", "llamaindex", "crewai", "autogen", "msaf", "msaf-azure", "adapters", "observability", "dev", "docs", "all"]
 
 [[package]]
 name = "passlib"

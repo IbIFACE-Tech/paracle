@@ -65,7 +65,7 @@ class HealthCheck(BaseModel):
 
     status: HealthStatus
     timestamp: datetime = Field(default_factory=datetime.utcnow)
-    version: str = "1.0.0"
+    version: str = "1.8.0"
     uptime_seconds: float = Field(default_factory=lambda: time.time() - _start_time)
 
     # Component statuses

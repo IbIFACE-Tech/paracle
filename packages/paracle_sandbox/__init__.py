@@ -34,12 +34,15 @@ Example:
 from paracle_sandbox.config import SandboxConfig
 from paracle_sandbox.docker_sandbox import DockerSandbox
 from paracle_sandbox.exceptions import (
+    DockerConnectionError,
     ResourceLimitError,
+    SandboxCleanupError,
     SandboxCreationError,
     SandboxError,
     SandboxExecutionError,
     SandboxTimeoutError,
 )
+from paracle_sandbox.executor import SandboxExecutor
 from paracle_sandbox.manager import SandboxManager
 from paracle_sandbox.monitor import SandboxMonitor
 
@@ -48,11 +51,14 @@ __all__ = [
     "DockerSandbox",
     "SandboxConfig",
     "SandboxMonitor",
+    "SandboxExecutor",
     "SandboxError",
     "SandboxCreationError",
     "SandboxExecutionError",
     "ResourceLimitError",
     "SandboxTimeoutError",
+    "SandboxCleanupError",
+    "DockerConnectionError",
 ]
 
 __version__ = "1.0.1"

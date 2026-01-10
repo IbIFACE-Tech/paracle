@@ -10,6 +10,11 @@ NEW in v1.5.0: Plan and Edit modes are now accessible from Chat mode:
 - Use edit_file tool for structured code editing with diff preview
 - Use apply_edits tool to apply pending edits
 
+NEW in v1.6.0: Paracle integration for API, tools, and MCP:
+- Use paracle_* tools to access Paracle REST API
+- Use git_*, code_*, test_* tools for development workflows
+- Use mcp_* tools for Model Context Protocol integration
+
 Example:
     >>> from paracle_meta.sessions import ChatSession, ChatConfig
     >>> from paracle_meta.capabilities.providers import AnthropicProvider
@@ -103,6 +108,14 @@ When using tools:
 - Ask for clarification if needed
 - For complex tasks, consider creating a plan first
 
+**Paracle Integration** (API, tools, MCP):
+- Use `paracle_list_agents` to list agents from the API
+- Use `paracle_list_workflows` to list workflows
+- Use `git_status`, `git_diff`, `git_log` for git operations
+- Use `code_analysis` to analyze code structure
+- Use `run_tests` to execute tests
+- Use `mcp_list_tools` and `mcp_call` for MCP tools
+
 Be helpful, concise, and professional."""
 
 
@@ -112,7 +125,7 @@ class ChatConfig(SessionConfig):
 
     Attributes:
         enabled_capabilities: List of capabilities to enable as tools.
-            Available: filesystem, memory, shell, code_creation, planning, editing
+            Available: filesystem, memory, shell, code_creation, planning, editing, paracle
         auto_approve_reads: Whether to auto-approve read operations.
         auto_approve_writes: Whether to auto-approve write operations.
         show_tool_calls: Whether to show tool call details.
@@ -121,10 +134,14 @@ class ChatConfig(SessionConfig):
         plan_require_approval: Whether to require approval for each plan step.
         edit_auto_apply: Whether to auto-apply edits (default: False for review).
         edit_create_backups: Whether to create backup files before editing.
+        paracle_api_url: Base URL for Paracle REST API.
+        paracle_api_token: JWT token for API authentication.
+        paracle_allowed_paths: Allowed filesystem paths for Paracle tools.
+        paracle_enable_mcp: Whether to enable MCP integration.
     """
 
     enabled_capabilities: list[str] = field(
-        default_factory=lambda: ["filesystem", "memory", "planning", "editing"]
+        default_factory=lambda: ["filesystem", "memory", "planning", "editing", "paracle"]
     )
     auto_approve_reads: bool = True
     auto_approve_writes: bool = False
@@ -136,6 +153,11 @@ class ChatConfig(SessionConfig):
     # Editing options
     edit_auto_apply: bool = False
     edit_create_backups: bool = True
+    # Paracle integration options
+    paracle_api_url: str = "http://localhost:8000/v1"
+    paracle_api_token: str | None = None
+    paracle_allowed_paths: list[str] = field(default_factory=lambda: ["."])
+    paracle_enable_mcp: bool = True
 
     def __post_init__(self) -> None:
         """Set default system prompt if not provided."""
@@ -564,6 +586,216 @@ CAPABILITY_TOOLS: dict[str, list[ToolDefinitionSchema]] = {
             },
         ),
     ],
+    # Paracle integration tools - API, tools, and MCP
+    "paracle": [
+        # API tools
+        ToolDefinitionSchema(
+            name="paracle_list_agents",
+            description="List all agents from Paracle API.",
+            input_schema={
+                "type": "object",
+                "properties": {},
+            },
+        ),
+        ToolDefinitionSchema(
+            name="paracle_get_agent",
+            description="Get agent details by ID from Paracle API.",
+            input_schema={
+                "type": "object",
+                "properties": {
+                    "agent_id": {
+                        "type": "string",
+                        "description": "Agent ID",
+                    },
+                },
+                "required": ["agent_id"],
+            },
+        ),
+        ToolDefinitionSchema(
+            name="paracle_list_workflows",
+            description="List all workflows from Paracle API.",
+            input_schema={
+                "type": "object",
+                "properties": {},
+            },
+        ),
+        ToolDefinitionSchema(
+            name="paracle_execute_workflow",
+            description="Execute a workflow via Paracle API.",
+            input_schema={
+                "type": "object",
+                "properties": {
+                    "workflow_id": {
+                        "type": "string",
+                        "description": "Workflow ID to execute",
+                    },
+                    "inputs": {
+                        "type": "object",
+                        "description": "Workflow input parameters",
+                    },
+                },
+                "required": ["workflow_id"],
+            },
+        ),
+        ToolDefinitionSchema(
+            name="paracle_health",
+            description="Check Paracle API health status.",
+            input_schema={
+                "type": "object",
+                "properties": {},
+            },
+        ),
+        # Git tools
+        ToolDefinitionSchema(
+            name="git_status",
+            description="Get git repository status.",
+            input_schema={
+                "type": "object",
+                "properties": {
+                    "cwd": {
+                        "type": "string",
+                        "description": "Working directory (default: current)",
+                    },
+                },
+            },
+        ),
+        ToolDefinitionSchema(
+            name="git_diff",
+            description="Show git diff of changes.",
+            input_schema={
+                "type": "object",
+                "properties": {
+                    "cwd": {
+                        "type": "string",
+                        "description": "Working directory",
+                    },
+                    "staged": {
+                        "type": "boolean",
+                        "description": "Show staged changes only",
+                    },
+                },
+            },
+        ),
+        ToolDefinitionSchema(
+            name="git_log",
+            description="Show git commit history.",
+            input_schema={
+                "type": "object",
+                "properties": {
+                    "cwd": {
+                        "type": "string",
+                        "description": "Working directory",
+                    },
+                    "count": {
+                        "type": "integer",
+                        "description": "Number of commits to show",
+                    },
+                },
+            },
+        ),
+        # Code analysis tools
+        ToolDefinitionSchema(
+            name="code_analysis",
+            description="Analyze code structure, dependencies, and complexity.",
+            input_schema={
+                "type": "object",
+                "properties": {
+                    "path": {
+                        "type": "string",
+                        "description": "File or directory path to analyze",
+                    },
+                },
+                "required": ["path"],
+            },
+        ),
+        ToolDefinitionSchema(
+            name="static_analysis",
+            description="Run static analysis with ruff, mypy, or pylint.",
+            input_schema={
+                "type": "object",
+                "properties": {
+                    "path": {
+                        "type": "string",
+                        "description": "File or directory to analyze",
+                    },
+                    "tool": {
+                        "type": "string",
+                        "enum": ["ruff", "mypy", "pylint"],
+                        "description": "Analysis tool to use",
+                    },
+                },
+                "required": ["path"],
+            },
+        ),
+        # Testing tools
+        ToolDefinitionSchema(
+            name="run_tests",
+            description="Run pytest tests.",
+            input_schema={
+                "type": "object",
+                "properties": {
+                    "path": {
+                        "type": "string",
+                        "description": "Path to test file or directory",
+                    },
+                    "markers": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "Test markers to filter",
+                    },
+                },
+            },
+        ),
+        ToolDefinitionSchema(
+            name="coverage_analysis",
+            description="Analyze test coverage.",
+            input_schema={
+                "type": "object",
+                "properties": {
+                    "path": {
+                        "type": "string",
+                        "description": "Path to analyze",
+                    },
+                },
+            },
+        ),
+        # MCP tools
+        ToolDefinitionSchema(
+            name="mcp_list_tools",
+            description="List available MCP tools from connected server.",
+            input_schema={
+                "type": "object",
+                "properties": {},
+            },
+        ),
+        ToolDefinitionSchema(
+            name="mcp_call",
+            description="Call an MCP tool with arguments.",
+            input_schema={
+                "type": "object",
+                "properties": {
+                    "tool_name": {
+                        "type": "string",
+                        "description": "Name of the MCP tool to call",
+                    },
+                    "arguments": {
+                        "type": "object",
+                        "description": "Tool arguments",
+                    },
+                },
+                "required": ["tool_name"],
+            },
+        ),
+        # Utility tools
+        ToolDefinitionSchema(
+            name="paracle_list_tools",
+            description="List all available Paracle tools (builtin, agent, MCP).",
+            input_schema={
+                "type": "object",
+                "properties": {},
+            },
+        ),
+    ],
 }
 
 
@@ -576,11 +808,15 @@ class ChatSession(Session):
     NEW in v1.5.0: Integrates PlanSession and EditSession for seamless
     access to planning and editing capabilities from within chat mode.
 
+    NEW in v1.6.0: Integrates ParacleCapability for unified access to
+    Paracle API, tools, and MCP integration.
+
     Attributes:
         config: Chat configuration.
         tools: Available tools based on enabled capabilities.
         plan_session: Embedded planning session for task decomposition.
         edit_session: Embedded editing session for structured code changes.
+        paracle: Paracle integration capability.
     """
 
     def __init__(
@@ -604,6 +840,9 @@ class ChatSession(Session):
         # Embedded sessions for planning and editing (initialized lazily)
         self._plan_session: PlanSession | None = None
         self._edit_session: EditSession | None = None
+
+        # Paracle integration capability (initialized lazily)
+        self._paracle: Any = None  # ParacleCapability
 
     @property
     def tools(self) -> list[ToolDefinitionSchema]:
@@ -638,6 +877,11 @@ class ChatSession(Session):
             return self._edit_session.pending_edits
         return []
 
+    @property
+    def paracle(self) -> Any:
+        """Get the Paracle integration capability."""
+        return self._paracle
+
     async def initialize(self) -> None:
         """Initialize the chat session and load tools."""
         # Build tool list from enabled capabilities
@@ -669,7 +913,37 @@ class ChatSession(Session):
             self._edit_session = EditSession(self.provider, self.registry, edit_config)
             await self._edit_session.initialize()
 
+        # Initialize Paracle integration if enabled
+        if "paracle" in self.config.enabled_capabilities:
+            await self._init_paracle()
+
         self.status = SessionStatus.ACTIVE
+
+    async def _init_paracle(self) -> None:
+        """Initialize Paracle integration capability."""
+        try:
+            from paracle_meta.capabilities.paracle_integration import (
+                ParacleCapability,
+                ParacleConfig,
+            )
+
+            paracle_config = ParacleConfig(
+                api_base_url=self.config.paracle_api_url,
+                api_token=self.config.paracle_api_token,
+                enable_api=True,
+                enable_tools=True,
+                allowed_paths=self.config.paracle_allowed_paths,
+                enable_mcp=self.config.paracle_enable_mcp,
+            )
+            self._paracle = ParacleCapability(paracle_config)
+            await self._paracle.initialize()
+
+        except ImportError:
+            # Paracle integration not available
+            pass
+        except Exception:
+            # Failed to initialize, continue without Paracle
+            pass
 
     async def send(self, message: str) -> SessionMessage:
         """Send a message and get response.
@@ -839,6 +1113,10 @@ class ChatSession(Session):
         # Handle editing tools
         if cap_name == "editing":
             return await self._execute_editing_tool(tool_name, tool_input)
+
+        # Handle Paracle integration tools
+        if cap_name == "paracle":
+            return await self._execute_paracle_tool(tool_name, tool_input)
 
         # Handle other capabilities
         capability = await self.registry.get(cap_name)
@@ -1194,6 +1472,156 @@ class ChatSession(Session):
             return self._format_edit_summary(summary)
 
         return f"Unknown editing tool: {tool_name}"
+
+    # =========================================================================
+    # Paracle Integration Tools Implementation
+    # =========================================================================
+
+    async def _execute_paracle_tool(
+        self,
+        tool_name: str,
+        tool_input: dict[str, Any],
+    ) -> str:
+        """Execute a Paracle integration tool.
+
+        Args:
+            tool_name: Name of the Paracle tool.
+            tool_input: Tool input parameters.
+
+        Returns:
+            Tool result as string.
+        """
+        if self._paracle is None:
+            return "Paracle integration not enabled. Add 'paracle' to enabled_capabilities."
+
+        # API tools
+        if tool_name == "paracle_list_agents":
+            result = await self._paracle.api_list_agents()
+            return self._format_paracle_result(result, "Agents")
+
+        elif tool_name == "paracle_get_agent":
+            agent_id = tool_input["agent_id"]
+            result = await self._paracle.api_get_agent(agent_id)
+            return self._format_paracle_result(result, f"Agent: {agent_id}")
+
+        elif tool_name == "paracle_list_workflows":
+            result = await self._paracle.api_list_workflows()
+            return self._format_paracle_result(result, "Workflows")
+
+        elif tool_name == "paracle_execute_workflow":
+            workflow_id = tool_input["workflow_id"]
+            inputs = tool_input.get("inputs", {})
+            result = await self._paracle.api_execute_workflow(workflow_id, inputs)
+            return self._format_paracle_result(result, f"Workflow Execution: {workflow_id}")
+
+        elif tool_name == "paracle_health":
+            result = await self._paracle.api_health()
+            return self._format_paracle_result(result, "API Health")
+
+        # Git tools
+        elif tool_name == "git_status":
+            cwd = tool_input.get("cwd", ".")
+            result = await self._paracle.git_status(cwd)
+            return self._format_paracle_result(result, "Git Status")
+
+        elif tool_name == "git_diff":
+            cwd = tool_input.get("cwd", ".")
+            result = await self._paracle.git_diff(cwd)
+            return self._format_paracle_result(result, "Git Diff")
+
+        elif tool_name == "git_log":
+            cwd = tool_input.get("cwd", ".")
+            result = await self._paracle.execute_tool(
+                "git_log",
+                cwd=cwd,
+                count=tool_input.get("count", 10),
+            )
+            return self._format_paracle_result(result, "Git Log")
+
+        # Code analysis tools
+        elif tool_name == "code_analysis":
+            path = tool_input["path"]
+            result = await self._paracle.analyze_code(path)
+            return self._format_paracle_result(result, f"Code Analysis: {path}")
+
+        elif tool_name == "static_analysis":
+            path = tool_input["path"]
+            tool = tool_input.get("tool", "ruff")
+            result = await self._paracle.execute_tool(
+                "static_analysis",
+                path=path,
+                tool=tool,
+            )
+            return self._format_paracle_result(result, f"Static Analysis ({tool}): {path}")
+
+        # Testing tools
+        elif tool_name == "run_tests":
+            path = tool_input.get("path")
+            result = await self._paracle.run_tests(path)
+            return self._format_paracle_result(result, "Test Results")
+
+        elif tool_name == "coverage_analysis":
+            path = tool_input.get("path")
+            result = await self._paracle.execute_tool(
+                "coverage_analysis",
+                path=path,
+            )
+            return self._format_paracle_result(result, "Coverage Analysis")
+
+        # MCP tools
+        elif tool_name == "mcp_list_tools":
+            result = await self._paracle.mcp_list_tools()
+            return self._format_paracle_result(result, "MCP Tools")
+
+        elif tool_name == "mcp_call":
+            mcp_tool_name = tool_input["tool_name"]
+            arguments = tool_input.get("arguments", {})
+            result = await self._paracle.mcp_call(mcp_tool_name, arguments)
+            return self._format_paracle_result(result, f"MCP Tool: {mcp_tool_name}")
+
+        # Utility tools
+        elif tool_name == "paracle_list_tools":
+            result = await self._paracle.execute(action="list_tools")
+            return self._format_paracle_result(result, "Available Tools")
+
+        return f"Unknown Paracle tool: {tool_name}"
+
+    def _format_paracle_result(self, result: Any, title: str) -> str:
+        """Format a Paracle capability result for display."""
+        if hasattr(result, "success"):
+            if result.success:
+                output = result.output
+                if isinstance(output, dict):
+                    lines = [f"## {title}", ""]
+                    for key, value in output.items():
+                        if isinstance(value, list):
+                            lines.append(f"**{key}** ({len(value)} items):")
+                            for item in value[:10]:  # Limit to 10 items
+                                if isinstance(item, dict):
+                                    item_str = ", ".join(
+                                        f"{k}: {v}" for k, v in list(item.items())[:3]
+                                    )
+                                    lines.append(f"  - {item_str}")
+                                else:
+                                    lines.append(f"  - {item}")
+                            if len(value) > 10:
+                                lines.append(f"  ... and {len(value) - 10} more")
+                        else:
+                            lines.append(f"**{key}**: {value}")
+                    return "\n".join(lines)
+                elif isinstance(output, list):
+                    lines = [f"## {title}", ""]
+                    for item in output[:20]:
+                        lines.append(f"- {item}")
+                    if len(output) > 20:
+                        lines.append(f"... and {len(output) - 20} more")
+                    return "\n".join(lines)
+                else:
+                    return f"## {title}\n\n{output}"
+            else:
+                return f"## {title} - Error\n\n{result.error}"
+        else:
+            return f"## {title}\n\n{result}"
 
     def _format_edit_preview(self, edit: EditOperation) -> str:
         """Format a single edit preview."""

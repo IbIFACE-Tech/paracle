@@ -85,6 +85,12 @@ sandbox = [
     "psutil>=5.9.0",
 ]
 
+# Remote Development & SSH Transport (v1.3.0)
+transport = [
+    "asyncssh>=2.14.0",  # SSH transport for remote connections
+    "websockets>=12.0",   # WebSocket MCP transport
+]
+
 # AI-powered generation features (optional - requires AI provider)
 # paracle_meta is the recommended internal AI engine
 meta = [
