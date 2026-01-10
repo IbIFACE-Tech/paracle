@@ -826,6 +826,7 @@ class PolyglotCapability(BaseCapability):
 
         if extension_name not in self._extensions:
             return CapabilityResult(
+                capability=self.name,
                 success=False,
                 output={"error": f"Extension not found: {extension_name}"},
                 error=f"Extension not found: {extension_name}",
@@ -839,6 +840,7 @@ class PolyglotCapability(BaseCapability):
                 await self.start_extension(extension_name)
             except Exception as e:
                 return CapabilityResult(
+                    capability=self.name,
                     success=False,
                     output={"error": str(e)},
                     error=str(e),
@@ -847,6 +849,7 @@ class PolyglotCapability(BaseCapability):
         runner = self._runners.get(ext.manifest.language)
         if not runner:
             return CapabilityResult(
+                capability=self.name,
                 success=False,
                 output={"error": f"No runner for {ext.manifest.language}"},
                 error=f"No runner for {ext.manifest.language}",
@@ -857,6 +860,7 @@ class PolyglotCapability(BaseCapability):
             result = await runner.call(ext, method, params or {})
 
             return CapabilityResult(
+                capability=self.name,
                 success=True,
                 output=result,
             )
@@ -871,6 +875,7 @@ class PolyglotCapability(BaseCapability):
                 await self.start_extension(extension_name)
 
             return CapabilityResult(
+                capability=self.name,
                 success=False,
                 output={"error": str(e)},
                 error=str(e),

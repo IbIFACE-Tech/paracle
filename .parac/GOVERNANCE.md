@@ -222,7 +222,9 @@ Chaque fichier a une place spécifique dans `.parac/`:
 | **Decisions (ADRs)**    | `.parac/roadmap/decisions.md`  | `.parac/decisions.md`   |
 | **Agent Specs**         | `.parac/agents/specs/*.md`     | `.parac/agents/*.md`    |
 | **Execution Artifacts** | `.parac/runs/` (gitignored)    | `packages/*/artifacts/` |
-| **User Documentation**  | `docs/` (NOT in .parac)        | `.parac/docs/`          |
+| **User Documentation**  | `content/docs/` (NOT in .parac)| `.parac/docs/`          |
+| **Examples**            | `content/examples/` (NOT in .parac) | `examples/` (root) |
+| **Templates**           | `content/templates/` (NOT in .parac) | `templates/` (root) |
 
 **Before creating any new file in .parac/, consult [STRUCTURE.md](STRUCTURE.md) first.**
 
@@ -274,9 +276,10 @@ paracle phase complete phase_1
 L'agent IA (Claude, GitHub Copilot, etc.) DOIT:
 
 **IMPORTANT**: Les agents Paracle sont des **programmes exécutables**, pas des personas à adopter.
+
 - ✅ **Dire**: "Je vais exécuter CoderAgent..." ou "Suivant les standards CoderAgent..."
 - ❌ **Ne PAS dire**: "J'adopte le persona CoderAgent..."
-- 📖 **Voir**: `docs/agent-execution-model.md` pour explication complète
+- 📖 **Voir**: `content/docs/agent-execution-model.md` pour explication complète
 
 1. **Lire `.parac/` au début de chaque session**
    ```

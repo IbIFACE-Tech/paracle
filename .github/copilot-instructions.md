@@ -49,6 +49,9 @@
 - Agent specs -> `.parac/agents/specs/*.md`
 - Config -> `.parac/project.yaml` or `.parac/config/`
 - Execution artifacts -> `.parac/runs/` (gitignored)
+- User documentation -> `content/docs/` (NOT in .parac)
+- Examples -> `content/examples/` (NOT in .parac)
+- Templates -> `content/templates/` (NOT in .parac)
 
 **See [.parac/STRUCTURE.md](.parac/STRUCTURE.md) for complete structure and validation rules.**
 
