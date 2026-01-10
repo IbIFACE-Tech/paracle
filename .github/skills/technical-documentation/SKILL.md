@@ -40,26 +40,26 @@ Use this skill when:
 ## Paracle Documentation Structure
 
 ```
-docs/
-├── index.md                    # Documentation home
-├── getting-started.md          # Quick start guide
-├── user-guide/                 # User documentation
-│   ├── installation.md
-│   ├── configuration.md
-│   ├── agents.md
-│   ├── workflows.md
-│   └── tools.md
-├── api-reference/              # API documentation
-│   ├── agents.md
-│   ├── workflows.md
-│   └── providers.md
-├── architecture/               # Architecture docs
-│   ├── overview.md
-│   ├── design-patterns.md
-│   └── decisions.md
-└── examples/                   # Code examples
-    ├── hello-world.md
-    └── advanced-workflows.md
+content/docs/
++-- index.md                    # Documentation home
++-- getting-started.md          # Quick start guide
++-- user-guide/                 # User documentation
+|   +-- installation.md
+|   +-- configuration.md
+|   +-- agents.md
+|   +-- workflows.md
+|   +-- tools.md
++-- api-reference/              # API documentation
+|   +-- agents.md
+|   +-- workflows.md
+|   +-- providers.md
++-- architecture/               # Architecture docs
+|   +-- overview.md
+|   +-- design-patterns.md
+|   +-- decisions.md
++-- examples/                   # Code examples
+    +-- hello-world.md
+    +-- advanced-workflows.md
 ```
 
 ## Documentation Patterns
@@ -93,9 +93,9 @@ paracle agents create my-agent
 
 ## Features
 
-- ✨ Feature 1 - Brief description
-- 🚀 Feature 2 - Brief description
-- 🔧 Feature 3 - Brief description
+- Feature 1 - Brief description
+- Feature 2 - Brief description
+- Feature 3 - Brief description
 
 ## Installation
 
@@ -160,10 +160,10 @@ This creates:
 
 \`\`\`
 .parac/
-├── project.yaml
-├── agents/
-│   └── specs/
-└── workflows/
++-- project.yaml
++-- agents/
+|   +-- specs/
++-- workflows/
 \`\`\`
 
 ## Step 2: Define Your Agent
@@ -324,22 +324,22 @@ Paracle is a multi-agent orchestration framework that enables users to:
 ## High-Level Architecture
 
 \`\`\`
-┌─────────────────────────────────────────┐
-│         User Configuration              │
-│            (.parac/)                    │
-├─────────────────────────────────────────┤
-│        Application Layer                │
-│      (CLI, API, Orchestrator)          │
-├─────────────────────────────────────────┤
-│          Domain Layer                   │
-│  (Agents, Workflows, Tools, Skills)    │
-├─────────────────────────────────────────┤
-│       Infrastructure Layer              │
-│  (Events, Storage, Providers)          │
-├─────────────────────────────────────────┤
-│          Adapters Layer                 │
-│  (OpenAI, Anthropic, Azure, MCP)       │
-└─────────────────────────────────────────┘
++------------------------------------------+
+|         User Configuration              |
+|            (.parac/)                    |
++------------------------------------------+
+|        Application Layer                |
+|      (CLI, API, Orchestrator)          |
++------------------------------------------+
+|          Domain Layer                   |
+|  (Agents, Workflows, Tools, Skills)    |
++------------------------------------------+
+|       Infrastructure Layer              |
+|  (Events, Storage, Providers)          |
++------------------------------------------+
+|          Adapters Layer                 |
+|  (OpenAI, Anthropic, Azure, MCP)       |
++------------------------------------------+
 \`\`\`
 
 ## Key Components
@@ -382,22 +382,22 @@ Paracle is a multi-agent orchestration framework that enables users to:
 ### Hexagonal Architecture (Ports & Adapters)
 
 \`\`\`
-     ┌──────────────┐
-     │   Domain     │
-     │    Core      │
-     └──────┬───────┘
-            │
-    ┌───────┴───────┐
-    │               │
-┌───▼────┐     ┌───▼────┐
-│  Port  │     │  Port  │
-│Provider│     │Storage │
-└───┬────┘     └───┬────┘
-    │              │
-┌───▼────┐     ┌───▼────┐
-│Adapter │     │Adapter │
-│OpenAI  │     │ SQLite │
-└────────┘     └────────┘
+     +----------------+
+     |   Domain     |
+     |    Core      |
+     +-------+------+
+            |
+    +-------+-------+
+    |               |
++---v----+     +---v----+
+|  Port  |     |  Port  |
+|Provider|     |Storage |
++---+----+     +---+----+
+    |              |
++---v----+     +---v----+
+|Adapter |     |Adapter |
+|OpenAI  |     | SQLite |
++--------+     +--------+
 \`\`\`
 
 **Benefits**:
@@ -409,28 +409,28 @@ Paracle is a multi-agent orchestration framework that enables users to:
 
 \`\`\`
 User Request
-    │
-    ▼
-┌─────────────┐
-│  CLI/API    │ Validate input
-└─────┬───────┘
-      │
-      ▼
-┌─────────────┐
-│ Application │ Business logic
-└─────┬───────┘
-      │
-      ▼
-┌─────────────┐
-│   Domain    │ Execute agent
-└─────┬───────┘
-      │
-      ▼
-┌─────────────┐
-│  Adapter    │ Call LLM provider
-└─────┬───────┘
-      │
-      ▼
+    |
+    v
++--------------+
+|  CLI/API    | Validate input
++------+------+
+      |
+      v
++--------------+
+| Application | Business logic
++------+------+
+      |
+      v
++--------------+
+|   Domain    | Execute agent
++------+------+
+      |
+      v
++--------------+
+|  Adapter    | Call LLM provider
++------+------+
+      |
+      v
 Response
 \`\`\`
 
@@ -559,10 +559,10 @@ Inheritance allows you to:
 ### 3. Show, Don't Just Tell
 
 ```markdown
-# ❌ Bad: Just telling
+# Bad: Just telling
 Temperature controls randomness in agent responses.
 
-# ✅ Good: Showing
+# Good: Showing
 \`\`\`yaml
 # Low temperature (0.1) = deterministic
 name: sql-generator
@@ -615,7 +615,7 @@ skills:
 
 ### Google Style (Paracle Standard)
 
-\`\`\`python
+```python
 def resolve_inheritance(
     spec: AgentSpec,
     registry: AgentRegistry,
@@ -643,18 +643,18 @@ def resolve_inheritance(
         >>> resolved.temperature
         0.7
     """
-\`\`\`
+```
 
 ## Common Pitfalls
 
-❌ **Don't:**
+**Don't:**
 - Assume user knowledge
 - Use jargon without explanation
 - Write outdated examples
 - Skip error scenarios
 - Forget prerequisites
 
-✅ **Do:**
+**Do:**
 - Explain concepts clearly
 - Provide working code examples
 - Update with code changes
@@ -666,4 +666,4 @@ def resolve_inheritance(
 - [Write the Docs](https://www.writethedocs.org/)
 - [Google Developer Docs Style Guide](https://developers.google.com/style)
 - [Markdown Guide](https://www.markdownguide.org/)
-- Paracle Docs: `docs/`
+- Paracle Docs: `content/docs/`

@@ -23,7 +23,8 @@
       "Bash(then)",
       "Bash(echo:*)",
       "Bash(fi)",
-      "Bash(dir \"c:\\\\Projets\\\\paracle\\\\paracle-lite\\\\content\\\\docs\\\\*.md\")"
+      "Bash(dir \"c:\\\\Projets\\\\paracle\\\\paracle-lite\\\\content\\\\docs\\\\*.md\")",
+      "Bash(dir:*)"
     ]
   }
 }

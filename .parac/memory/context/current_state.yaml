@@ -1364,7 +1364,7 @@ completed_actions:
     tool registry)
   - Created examples/README.md with full documentation
   - Created Docker setup (8 files - Dockerfiles, compose files, documentation)
-  - Getting started tutorial exists in docs/getting-started.md
+  - Getting started tutorial exists in content/docs/users/getting-started/getting-started.md
   - Human-in-the-Loop approval system (ISO 42001 compliance)
   - ApprovalManager with full lifecycle management (create, approve, reject, cancel)
   - Approval REST API endpoints (/approvals/pending, approve, reject, stats)

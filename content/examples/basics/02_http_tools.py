@@ -6,7 +6,7 @@ This example demonstrates how to use the HTTP tools:
 - http_put: Make PUT requests
 - http_delete: Make DELETE requests
 
-Run: uv run python examples/02_http_tools.py
+Run: uv run python content/examples/basics/02_http_tools.py
 
 Note: Requires httpx to be installed (uv add httpx)
 """

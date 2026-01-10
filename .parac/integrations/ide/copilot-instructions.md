@@ -284,7 +284,7 @@ This detects:
 - Missing/extra deliverables
 - Metric inconsistencies
 
-**See [docs/roadmap-state-sync.md](../docs/roadmap-state-sync.md) for details.**
+**See [content/docs/roadmap-state-sync.md](../content/docs/roadmap-state-sync.md) for details.**
 
 ### Governance Validation
 
@@ -319,7 +319,7 @@ paracle session end
 2. Add keys to `.env`: `OPENAI_API_KEY=sk-...`
 3. Never commit `.env` to git!
 
-**See [docs/api-keys.md](../docs/api-keys.md) for:**
+**See [content/docs/api-keys.md](../content/docs/api-keys.md) for:**
 - 12+ provider setup guides
 - Security best practices
 - Docker/production deployment
@@ -351,8 +351,8 @@ paracle session end
 | **`.parac/policies/CODE_STYLE.md`** | Code style guide | Before coding |
 | **`.parac/policies/TESTING.md`** | Testing policy | Before writing tests |
 | **`.parac/policies/SECURITY.md`** | Security policy | Security-sensitive code |
-| **`docs/api-keys.md`** | **NEW: API key management guide** | **Setting up LLM providers** |
-| **`docs/roadmap-state-sync.md`** | **NEW: Roadmap sync guide** | **Understanding governance automation** |
+| **`content/docs/api-keys.md`** | **NEW: API key management guide** | **Setting up LLM providers** |
+| **`content/docs/roadmap-state-sync.md`** | **NEW: Roadmap sync guide** | **Understanding governance automation** |
 
 
 
@@ -418,7 +418,7 @@ paracle session end
 ```
 @workspace .parac/policies/CODE_STYLE.md - What's the code style?
 @workspace .parac/policies/TESTING.md - What's the testing policy?
-@workspace docs/architecture.md - Show me the architecture
+@workspace content/docs/architecture.md - Show me the architecture
 ```
 
 **After actions - MANDATORY logging:**
@@ -472,7 +472,7 @@ Then show me the full spec from .parac/agents/specs/{agent}.md"
 User: "Implement [feature] following:
 - Agent standards from @workspace .parac/agents/specs/coder.md
 - Code style from @workspace .parac/policies/CODE_STYLE.md
-- Architecture from @workspace docs/architecture.md"
+- Architecture from @workspace content/docs/architecture.md"
 ```
 
 **Step 4: Testing**
@@ -526,7 +526,7 @@ class MyModel(BaseModel):
 | Security policy | `@workspace .parac/policies/SECURITY.md` |
 | Action log | `@workspace .parac/memory/logs/agent_actions.log` |
 | Open questions | `@workspace .parac/memory/context/open_questions.md` |
-| Architecture | `@workspace docs/architecture.md` |
+| Architecture | `@workspace content/docs/architecture.md` |
 | Config files explained | `@workspace .parac/CONFIG_FILES.md` |
 
 ### Multi-Turn Conversation Pattern
@@ -631,7 +631,7 @@ After action (MANDATORY):
 - **[.parac/GOVERNANCE.md](../.parac/GOVERNANCE.md)** - Governance rules
 - **[.parac/STRUCTURE.md](../.parac/STRUCTURE.md)** - Complete structure
 - **[.parac/agents/SKILL_ASSIGNMENTS.md](../.parac/agents/SKILL_ASSIGNMENTS.md)** - Skills per agent
-- **[docs/architecture.md](../docs/architecture.md)** - Technical architecture
+- **[content/docs/architecture.md](../content/docs/architecture.md)** - Technical architecture
 
 ---
 

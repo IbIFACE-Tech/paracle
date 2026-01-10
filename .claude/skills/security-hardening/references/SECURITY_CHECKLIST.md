@@ -290,4 +290,4 @@ Comprehensive security checklist for Paracle applications.
 - [OWASP Top 10](https://owasp.org/www-project-top-ten/)
 - [OWASP ASVS](https://owasp.org/www-project-application-security-verification-standard/)
 - [CIS Benchmarks](https://www.cisecurity.org/cis-benchmarks/)
-- `docs/security-audit-report.md` in project root
+- `content/docs/technical/security-audit-report.md` in project root

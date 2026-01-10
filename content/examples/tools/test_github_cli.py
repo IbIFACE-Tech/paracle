@@ -3,7 +3,7 @@
 This script demonstrates the new GitHub CLI integration capabilities.
 
 Usage:
-    python examples/tools/test_github_cli.py
+    python content/examples/tools/test_github_cli.py
 """
 
 import asyncio

@@ -7,7 +7,7 @@ This example demonstrates advanced features of BuiltinToolRegistry:
 - Tool metadata and introspection
 - Error handling patterns
 
-Run: uv run python examples/05_tool_registry.py
+Run: uv run python content/examples/tools/05_tool_registry.py
 """
 
 import asyncio
@@ -75,7 +75,7 @@ async def security_configuration():
     # Create registry with strict security settings
     registry = BuiltinToolRegistry(
         # Restrict filesystem access
-        filesystem_paths=["./examples", "./tests"],
+        filesystem_paths=["./content/examples", "./tests"],
         # Whitelist only safe commands
         allowed_commands=["echo", "git", "ls", "dir", "python"],
         # Set conservative timeouts
@@ -84,7 +84,7 @@ async def security_configuration():
     )
 
     print("\n🔒 Security settings applied:")
-    print("   Filesystem paths: ./examples, ./tests")
+    print("   Filesystem paths: ./content/examples, ./tests")
     print("   Allowed commands: echo, git, ls, dir, python")
     print("   HTTP timeout: 10.0s")
     print("   Command timeout: 5.0s")
@@ -100,7 +100,7 @@ async def security_configuration():
 
     # Allowed path
     result = await registry.execute_tool(
-        "read_file", path="examples/01_filesystem_tools.py"
+        "read_file", path="content/examples/basics/01_filesystem_tools.py"
     )
     print(f"   Read allowed path: {result.success}")
 
@@ -213,7 +213,7 @@ async def batch_operations():
     # Define multiple operations
     operations = [
         ("read_file", {"path": "pyproject.toml"}),
-        ("list_directory", {"path": "examples"}),
+        ("list_directory", {"path": "content/examples"}),
         ("run_command", {"command": "git log -1 --oneline"}),
     ]
 
@@ -259,8 +259,8 @@ async def runtime_reconfiguration():
 
     # Reconfigure filesystem paths
     print("\n🔄 Reconfiguring filesystem paths...")
-    registry.configure_filesystem_paths(["./examples", "./tests"])
-    print("   Filesystem paths: ./examples, ./tests")
+    registry.configure_filesystem_paths(["./content/examples", "./tests"])
+    print("   Filesystem paths: ./content/examples, ./tests")
 
     # Test access again
     result = await registry.execute_tool("read_file", path="/etc/hosts")

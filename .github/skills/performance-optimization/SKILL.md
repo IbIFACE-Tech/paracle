@@ -26,6 +26,7 @@ allowed-tools: Read Write Bash(python:*)
 ## When to use this skill
 
 Use when:
+
 - API responses exceed 500ms p95
 - Database queries are slow
 - Memory usage is high
@@ -233,5 +234,5 @@ async def add_timing_header(request: Request, call_next):
 ## Resources
 
 - FastAPI Performance: https://fastapi.tiangolo.com/advanced/performance/
-- SQLAlchemy Optimization: `docs/performance-guide.md`
+- SQLAlchemy Optimization: `content/docs/performance-guide.md`
 - Monitoring: `packages/paracle_core/logging/metrics.py`

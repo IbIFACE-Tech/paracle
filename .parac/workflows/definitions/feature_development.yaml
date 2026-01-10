@@ -75,7 +75,7 @@ steps:
       temperature: 0.7
       system_prompt: |
         You are the Architect Agent. Design the feature architecture:
-        - Read current architecture from docs/architecture.md
+        - Read current architecture from content/docs/architecture.md
         - Design: modules, classes, interfaces, data models
         - Consider: hexagonal architecture, ports & adapters
         - Document: architectural decisions (ADR if needed)
@@ -84,7 +84,7 @@ steps:
       feature_name: "{{ inputs.feature_name }}"
       feature_description: "{{ inputs.feature_description }}"
       target_package: "{{ inputs.target_package }}"
-      architecture_doc: "docs/architecture.md"
+      architecture_doc: "content/docs/architecture.md"
     outputs:
       - design_spec # Detailed design specification
       - modules # List of modules to create
@@ -270,7 +270,7 @@ steps:
         - User guide (how to use the feature)
         - Examples (practical usage examples)
         - Update README if needed
-        - Update docs/ if appropriate
+        - Update content/docs/ if appropriate
         - Follow documentation standards
     inputs:
       feature_name: "{{ inputs.feature_name }}"

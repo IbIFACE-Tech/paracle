@@ -8,26 +8,26 @@
 
 #
 
-# 📖 Read First: .parac/UNIVERSAL_AI_INSTRUCTIONS.md (works with ANY IDE)
+# Read First: .parac/UNIVERSAL_AI_INSTRUCTIONS.md (works with ANY IDE)
 
-## 🚨 MANDATORY PRE-FLIGHT CHECKLIST
+## MANDATORY PRE-FLIGHT CHECKLIST
 
 **Before ANY implementation task**, complete the checklist:
 
-👉 **READ THIS FIRST: [.parac/PRE_FLIGHT_CHECKLIST.md](../.parac/PRE_FLIGHT_CHECKLIST.md)**
+**READ THIS FIRST: [.parac/PRE_FLIGHT_CHECKLIST.md](../.parac/PRE_FLIGHT_CHECKLIST.md)**
 
 **Quick version (4 minutes):**
 
 ```
-✅ 1. Read GOVERNANCE.md
-✅ 2. Check current_state.yaml (phase, progress, in_progress)
-✅ 3. Consult roadmap.yaml (phase focus, deliverables, priorities)
-✅ 4. Check open_questions.md (blockers, related questions)
-✅ 5. VALIDATE: Task in roadmap? Current phase? Priority? Dependencies?
-✅ 6. Select agent to run (see specs/{agent}.md for capabilities)
-✅ 7. Check policies (CODE_STYLE, TESTING, SECURITY)
-✅ 8. AFTER: Log to agent_actions.log
-✅ 9. AFTER: Update current_state.yaml if milestone reached
+1. Read GOVERNANCE.md
+2. Check current_state.yaml (phase, progress, in_progress)
+3. Consult roadmap.yaml (phase focus, deliverables, priorities)
+4. Check open_questions.md (blockers, related questions)
+5. VALIDATE: Task in roadmap? Current phase? Priority? Dependencies?
+6. Select agent to run (see specs/{agent}.md for capabilities)
+7. Check policies (CODE_STYLE, TESTING, SECURITY)
+8. AFTER: Log to agent_actions.log
+9. AFTER: Update current_state.yaml if milestone reached
 ```
 
 **This ensures you work on THE RIGHT THING at the RIGHT TIME.**
@@ -36,27 +36,27 @@
 
 > **`.parac/` is the single source of truth. Read it. Follow it. Log to it.**
 
-## � File Organization
+## File Organization
 
 > **Before creating ANY file in `.parac/`, consult [.parac/STRUCTURE.md](.parac/STRUCTURE.md) for correct placement.**
 
 **Key Rules**:
 
-- Operational data (databases) → `.parac/memory/data/*.db`
-- Logs → `.parac/memory/logs/*.log`
-- Knowledge → `.parac/memory/knowledge/*.md`
-- Decisions (ADRs) → `.parac/roadmap/decisions.md`
-- Agent specs → `.parac/agents/specs/*.md`
-- Config → `.parac/project.yaml` or `.parac/config/`
-- Execution artifacts → `.parac/runs/` (gitignored)
+- Operational data (databases) -> `.parac/memory/data/*.db`
+- Logs -> `.parac/memory/logs/*.log`
+- Knowledge -> `.parac/memory/knowledge/*.md`
+- Decisions (ADRs) -> `.parac/roadmap/decisions.md`
+- Agent specs -> `.parac/agents/specs/*.md`
+- Config -> `.parac/project.yaml` or `.parac/config/`
+- Execution artifacts -> `.parac/runs/` (gitignored)
 
 **See [.parac/STRUCTURE.md](.parac/STRUCTURE.md) for complete structure and validation rules.**
 
-## �🚨 MANDATORY: Pre-Flight Checklist
+## MANDATORY: Pre-Flight Checklist
 
 **Before ANY implementation task:**
 
-📋 **Complete [.parac/PRE_FLIGHT_CHECKLIST.md](.parac/PRE_FLIGHT_CHECKLIST.md)** (~4 minutes)
+**Complete [.parac/PRE_FLIGHT_CHECKLIST.md](.parac/PRE_FLIGHT_CHECKLIST.md)** (~4 minutes)
 
 This checklist ensures:
 
@@ -139,51 +139,51 @@ This checklist ensures:
 
 ## Governance Rules
 
-## Contexte : Paracle conçoit Paracle
+## Contexte : Paracle concoit Paracle
 
-Ce projet utilise une approche **méta** : nous utilisons le framework Paracle pour concevoir Paracle lui-même.
+Ce projet utilise une approche **meta** : nous utilisons le framework Paracle pour concevoir Paracle lui-meme.
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    PARACLE FRAMEWORK                        │
-│                      packages/                              │
-│                                                             │
-│   Le PRODUIT que nous développons                          │
-│   - Code source du framework                                │
-│   - Génère les .parac/ pour les utilisateurs              │
-└─────────────────────────────────────────────────────────────┘
-                          ↓ génère
-┌─────────────────────────────────────────────────────────────┐
-│                   .parac/ WORKSPACE                         │
-│                  (Côté utilisateur)                         │
-│                                                             │
-│   Ici : Notre propre utilisation du framework              │
-│   - Gouvernance de notre développement                     │
-│   - Source de vérité pour le projet Paracle lui-même      │
-└─────────────────────────────────────────────────────────────┘
++-------------------------------------------------------------+
+|                    PARACLE FRAMEWORK                        |
+|                      packages/                              |
+|                                                             |
+|   Le PRODUIT que nous developpons                          |
+|   - Code source du framework                                |
+|   - Genere les .parac/ pour les utilisateurs              |
++-------------------------------------------------------------+
+                          v genere
++-------------------------------------------------------------+
+|                   .parac/ WORKSPACE                         |
+|                  (Cote utilisateur)                         |
+|                                                             |
+|   Ici : Notre propre utilisation du framework              |
+|   - Gouvernance de notre developpement                     |
+|   - Source de verite pour le projet Paracle lui-meme      |
++-------------------------------------------------------------+
 ```
 
-**Nous sommes à la fois développeurs ET utilisateurs du framework.**
+**Nous sommes a la fois developpeurs ET utilisateurs du framework.**
 
 ---
 
 ## Principe Fondamental
 
-> **Le répertoire `.parac/` est la source unique et immuable de vérité pour le projet.**
+> **Le repertoire `.parac/` est la source unique et immuable de verite pour le projet.**
 
-Ce `.parac/` est notre **dogfooding** - il représente ce qu'un utilisateur du framework aurait pour gérer son projet.
+Ce `.parac/` est notre **dogfooding** - il represente ce qu'un utilisateur du framework aurait pour gerer son projet.
 
-Toute information concernant l'état du projet, les décisions, les politiques, et la mémoire du projet DOIT être reflétée dans `.parac/`. Aucune information critique ne doit exister uniquement dans la mémoire d'un agent IA ou dans des conversations.
+Toute information concernant l'etat du projet, les decisions, les politiques, et la memoire du projet DOIT etre refletee dans `.parac/`. Aucune information critique ne doit exister uniquement dans la memoire d'un agent IA ou dans des conversations.
 
 ---
 
-## Règles de Gouvernance
+## Regles de Gouvernance
 
-### Règle 1: Traçabilité Totale
+### Regle 1: Tracabilite Totale
 
-Toute décision architecturale, tout changement de scope, toute modification de roadmap DOIT être documentée dans `.parac/`.
+Toute decision architecturale, tout changement de scope, toute modification de roadmap DOIT etre documentee dans `.parac/`.
 
-| Type de Changement | Fichier à Mettre à Jour |
+| Type de Changement | Fichier a Mettre a Jour |
 
 ## Open Questions
 
@@ -236,12 +236,12 @@ with agent_context("CoderAgent"):
 2. **Check current_state.yaml**: Get current phase, status, progress
 3. **Read roadmap.yaml**: Understand current phase priorities
 4. **Identify Agent**: Select agent for task type
-   - New feature → `coder` (+ `architect` if design needed)
-   - Bug fix → `coder` (+ `tester` for validation)
-   - Documentation → `documenter`
-   - Architecture → `architect`
-   - Planning → `pm`
-   - Review → `reviewer`
+   - New feature -> `coder` (+ `architect` if design needed)
+   - Bug fix -> `coder` (+ `tester` for validation)
+   - Documentation -> `documenter`
+   - Architecture -> `architect`
+   - Planning -> `pm`
+   - Review -> `reviewer`
 5. **Read Agent Spec**: Load full spec from `.parac/agents/specs/{agent_id}.md`
 6. **Check Assigned Skills**: See `.parac/agents/SKILL_ASSIGNMENTS.md`
 7. **Run Agent**: Use `paracle agent run {agent} --task "description"` command
@@ -302,7 +302,7 @@ paracle agent run --help
 - `--mode sandbox`: Isolated execution environment
 - `--mode review`: Mandatory human approval
 
-**See**: [docs/agent-run-quickref.md](../docs/agent-run-quickref.md) for complete guide
+**See**: [content/docs/agent-run-quickref.md](../content/docs/agent-run-quickref.md) for complete guide
 
 ### Option 2: Manual Implementation Following Agent Standards
 
@@ -354,7 +354,7 @@ This detects:
 - Missing/extra deliverables
 - Metric inconsistencies
 
-**See [docs/roadmap-state-sync.md](../docs/roadmap-state-sync.md) for details.**
+**See [content/docs/roadmap-state-sync.md](../content/docs/roadmap-state-sync.md) for details.**
 
 ### Governance Validation
 
@@ -393,7 +393,7 @@ paracle session end
 2. Add keys to `.env`: `OPENAI_API_KEY=sk-...`
 3. Never commit `.env` to git!
 
-**See [docs/api-keys.md](../docs/api-keys.md) for:**
+**See [content/docs/api-keys.md](../content/docs/api-keys.md) for:**
 
 - 12+ provider setup guides
 - Security best practices
@@ -424,38 +424,38 @@ paracle session end
 | **`.parac/policies/CODE_STYLE.md`**            | Code style guide                     | Before coding                           |
 | **`.parac/policies/TESTING.md`**               | Testing policy                       | Before writing tests                    |
 | **`.parac/policies/SECURITY.md`**              | Security policy                      | Security-sensitive code                 |
-| **`docs/api-keys.md`**                         | **NEW: API key management guide**    | **Setting up LLM providers**            |
-| **`docs/roadmap-state-sync.md`**               | **NEW: Roadmap sync guide**          | **Understanding governance automation** |
+| **`content/docs/api-keys.md`**                 | **NEW: API key management guide**    | **Setting up LLM providers**            |
+| **`content/docs/roadmap-state-sync.md`**       | **NEW: Roadmap sync guide**          | **Understanding governance automation** |
 
 ## Rules
 
 **DO:**
 
-✅ **ALWAYS read `.parac/GOVERNANCE.md` first** - Understand dogfooding context
-✅ **Check `.parac/memory/context/current_state.yaml`** - Know current state
-✅ **Read agent spec** to understand capabilities (`.parac/agents/specs/{agent}.md`)
-✅ **Run agent via CLI**: `paracle agent run {agent} --task "..."`
-✅ **Understand agent's skills** (see `.parac/agents/SKILL_ASSIGNMENTS.md`)
-✅ **Log EVERY significant action** to `.parac/memory/logs/agent_actions.log`
-✅ **Include file paths** in log entries for code changes
-✅ **Respect policies** in `.parac/policies/` (code style, testing, security)
-✅ **Update current_state.yaml** after significant progress
-✅ **Log decisions** to `.parac/memory/logs/decisions.log` for important choices
-✅ **Track questions** in `.parac/memory/context/open_questions.md` when blocked
-✅ **Edit project.yaml** for manual configuration changes
-✅ **Use `paracle sync`** to regenerate manifest.yaml (never edit directly)
+- **ALWAYS read `.parac/GOVERNANCE.md` first** - Understand dogfooding context
+- **Check `.parac/memory/context/current_state.yaml`** - Know current state
+- **Read agent spec** to understand capabilities (`.parac/agents/specs/{agent}.md`)
+- **Run agent via CLI**: `paracle agent run {agent} --task "..."`
+- **Understand agent's skills** (see `.parac/agents/SKILL_ASSIGNMENTS.md`)
+- **Log EVERY significant action** to `.parac/memory/logs/agent_actions.log`
+- **Include file paths** in log entries for code changes
+- **Respect policies** in `.parac/policies/` (code style, testing, security)
+- **Update current_state.yaml** after significant progress
+- **Log decisions** to `.parac/memory/logs/decisions.log` for important choices
+- **Track questions** in `.parac/memory/context/open_questions.md` when blocked
+- **Edit project.yaml** for manual configuration changes
+- **Use `paracle sync`** to regenerate manifest.yaml (never edit directly)
 
 **DON'T:**
 
-❌ **Never skip reading GOVERNANCE.md** - It's the foundation
-❌ **Never edit manifest.yaml manually** - Use `paracle sync` instead
-❌ **Never duplicate agent definitions** - Agents are defined in `.parac/agents/`
-❌ **Never ignore current_state.yaml** - It's the source of truth for project status
-❌ **Never skip logging actions** - Traceability is mandatory
-❌ **Never create custom governance rules** - Follow existing governance
-❌ **Never assume context** - Always read .parac/ files first
-❌ **Never work on wrong phase** - Check roadmap.yaml for current priorities
-❌ **Never roleplay as agents** - Agents are executable programs, not personas to adopt
+- **Never skip reading GOVERNANCE.md** - It's the foundation
+- **Never edit manifest.yaml manually** - Use `paracle sync` instead
+- **Never duplicate agent definitions** - Agents are defined in `.parac/agents/`
+- **Never ignore current_state.yaml** - It's the source of truth for project status
+- **Never skip logging actions** - Traceability is mandatory
+- **Never create custom governance rules** - Follow existing governance
+- **Never assume context** - Always read .parac/ files first
+- **Never work on wrong phase** - Check roadmap.yaml for current priorities
+- **Never roleplay as agents** - Agents are executable programs, not personas to adopt
 
 ## GitHub Copilot Features for .parac/ Integration
 
@@ -492,7 +492,7 @@ paracle session end
 ```
 @workspace .parac/policies/CODE_STYLE.md - What's the code style?
 @workspace .parac/policies/TESTING.md - What's the testing policy?
-@workspace docs/architecture.md - Show me the architecture
+@workspace content/docs/architecture.md - Show me the architecture
 ```
 
 **After actions - MANDATORY logging:**
@@ -555,7 +555,7 @@ paracle agent run coder --task 'Implement [feature]'
 
 Or help me implement following:
 - @workspace .parac/policies/CODE_STYLE.md
-- @workspace docs/architecture.md"
+- @workspace content/docs/architecture.md"
 ```
 
 **Step 4: Testing**
@@ -613,7 +613,7 @@ class MyModel(BaseModel):
 | Security policy          | `@workspace .parac/policies/SECURITY.md`              |
 | Action log               | `@workspace .parac/memory/logs/agent_actions.log`     |
 | Open questions           | `@workspace .parac/memory/context/open_questions.md`  |
-| Architecture             | `@workspace docs/architecture.md`                     |
+| Architecture             | `@workspace content/docs/architecture.md`             |
 | Config files explained   | `@workspace .parac/CONFIG_FILES.md`                   |
 
 ### Multi-Turn Conversation Pattern
@@ -704,13 +704,13 @@ After action (MANDATORY):
 
 ## Common Errors to Avoid
 
-1. **Not reading GOVERNANCE.md first** → You miss the dogfooding context
-2. **Skipping current_state.yaml** → You work on wrong phase/outdated info
-3. **Not logging actions** → No traceability, breaks governance
-4. **Editing manifest.yaml manually** → It's auto-generated! Use `paracle sync`
-5. **Confusing AI assistant with agents** → Agents are programs to RUN, not roles to play
-6. **Ignoring roadmap.yaml** → You work on wrong priorities
-7. **Not checking open_questions.md** → You duplicate questions or miss blockers
+1. **Not reading GOVERNANCE.md first** -> You miss the dogfooding context
+2. **Skipping current_state.yaml** -> You work on wrong phase/outdated info
+3. **Not logging actions** -> No traceability, breaks governance
+4. **Editing manifest.yaml manually** -> It's auto-generated! Use `paracle sync`
+5. **Confusing AI assistant with agents** -> Agents are programs to RUN, not roles to play
+6. **Ignoring roadmap.yaml** -> You work on wrong priorities
+7. **Not checking open_questions.md** -> You duplicate questions or miss blockers
 
 ---
 
@@ -722,8 +722,8 @@ After action (MANDATORY):
 - **[.parac/GOVERNANCE.md](../.parac/GOVERNANCE.md)** - Governance rules
 - **[.parac/STRUCTURE.md](../.parac/STRUCTURE.md)** - Complete structure
 - **[.parac/agents/SKILL_ASSIGNMENTS.md](../.parac/agents/SKILL_ASSIGNMENTS.md)** - Skills per agent
-- **[docs/architecture.md](../docs/architecture.md)** - Technical architecture
+- **[content/docs/architecture.md](../content/docs/architecture.md)** - Technical architecture
 
 ---
 
-**Remember**: `.parac/` is your single source of truth. Always read it first. 🎯
+**Remember**: `.parac/` is your single source of truth. Always read it first.

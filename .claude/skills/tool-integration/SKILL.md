@@ -114,4 +114,4 @@ tools:
 
 - Built-in Tools: `packages/paracle_tools/builtin/`
 - MCP Integration: `packages/paracle_mcp/`
-- Tool Examples: `examples/*_tools.py`
+- Tool Examples: `content/examples/*_tools.py`

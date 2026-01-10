@@ -8,7 +8,7 @@ collaboration in Paracle. It shows:
 3. Processing results and consensus
 4. Persisting sessions to SQLite
 
-See docs/agent-groups-guide.md for full documentation.
+See content/docs/technical/agent-groups-guide.md for full documentation.
 """
 
 import asyncio

@@ -66,10 +66,10 @@ class ParacMaintainer:
             all_changes = set(staged + unstaged + untracked)
 
             return {
-                "templates": {f for f in all_changes if f.startswith("templates/")},
+                "templates": {f for f in all_changes if f.startswith("content/templates/")},
                 "packages": {f for f in all_changes if f.startswith("packages/")},
-                "docs": {f for f in all_changes if f.startswith("docs/")},
-                "examples": {f for f in all_changes if f.startswith("examples/")},
+                "docs": {f for f in all_changes if f.startswith("content/docs/")},
+                "examples": {f for f in all_changes if f.startswith("content/examples/")},
                 "tests": {f for f in all_changes if f.startswith("tests/")},
                 "roadmap": {f for f in all_changes if ".roadmap/" in f},
                 "all": all_changes,

@@ -7,7 +7,7 @@ This file contains helpful prompts for common development tasks on Paracle.
 ### Understanding the Project
 ```
 I'm working on Paracle, a multi-agent AI framework. Can you help me understand:
-- The current architecture (see docs/architecture.md)
+- The current architecture (see content/docs/technical/architecture/overview.md)
 - The roadmap and current phase (see .parac/roadmap/)
 - Key domain models (see packages/paracle_domain/models.py)
 ```

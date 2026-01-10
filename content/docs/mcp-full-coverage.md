@@ -167,7 +167,28 @@ def _load_api_tools(self):
        return {"packages_count": len(packages)}
    ```
 
-### Phase 4: Testing & Documentation ✅
+### Phase 4: IDE Tools Integration ✅
+
+**File**: `packages/paracle_tools/ide_tools.py`
+
+**10 IDE Tools** for VS Code-compatible IDEs:
+
+- `ide_info` - Detect available IDEs
+- `ide_open_file` - Open file (with line/column)
+- `ide_open_folder` - Open folder
+- `ide_diff` - Show diff between files
+- `ide_merge` - 3-way merge (VS Code/Codium only)
+- `ide_new_window` - New IDE window
+- `ide_list_extensions` - List extensions
+- `ide_install_extension` - Install extension
+- `ide_uninstall_extension` - Uninstall extension
+- `ide_version` - IDE version info
+
+**Supported IDEs**: Cursor, VS Code, Windsurf, VSCodium
+
+📖 [Full IDE Tools Guide](tools/ide-tools.md)
+
+### Phase 5: Testing & Documentation ✅
 
 **Tests**: `tests/unit/test_mcp_api_bridge.py`
 
@@ -259,7 +280,8 @@ User → IDE → MCP → paracle_feature_action → REST API → Core
 | **Workflows** | 3            | 6             | 6         | ✅ 100%   |
 | **Parac**     | 4            | 5             | 5         | ✅ 100%   |
 | **Inventory** | 2            | 0             | 1         | ✅ 100%   |
-| **Total**     | **40**       | **55**        | **56**    | ✅ 100%   |
+| **IDE**       | 0            | 0             | 10        | ✅ 100%   |
+| **Total**     | **40**       | **55**        | **66**    | ✅ 100%   |
 
 ## Performance
 

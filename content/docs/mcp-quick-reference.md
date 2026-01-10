@@ -30,9 +30,26 @@
 
 ---
 
-## 📋 Available Tools (56 total)
+## 📋 Available Tools (66 total)
+
+### IDE Tools (10 tools) 🆕
+
+- `ide_info` - Detect available IDEs
+- `ide_open_file` - Open file (with line/column)
+- `ide_open_folder` - Open folder
+- `ide_diff` - Show diff between files
+- `ide_merge` - 3-way merge (VS Code/Codium)
+- `ide_new_window` - New IDE window
+- `ide_list_extensions` - List extensions
+- `ide_install_extension` - Install extension
+- `ide_uninstall_extension` - Uninstall extension
+- `ide_version` - IDE version info
+
+**Supported IDEs**: Cursor, VS Code, Windsurf, VSCodium
+📖 [Full IDE Tools Guide](tools/ide-tools.md)
 
 ### Kanban/Board (13 tools)
+
 - `paracle_board_list` - List all boards
 - `paracle_board_create` - Create new board
 - `paracle_board_show` - Show board with tasks
@@ -48,6 +65,7 @@
 - `paracle_task_delete` - Delete task
 
 ### Observability (10 tools)
+
 - `paracle_errors_list` - List errors ⚡
 - `paracle_errors_stats` - Error statistics ⚡ (offline)
 - `paracle_errors_clear` - Clear errors
@@ -58,25 +76,30 @@
 - `paracle_log_decision` - Log decision
 
 ### Parac Management (5 tools)
+
 - `paracle_parac_status` - .parac status
 - `paracle_parac_sync` - Sync .parac state
 - `paracle_inventory_check` - Package inventory ⚡ (offline)
 
 ### Context Tools (4 tools)
+
 - `context_current_state` - Current project state
 - `context_roadmap` - Project roadmap
 - `context_decisions` - ADRs
 - `context_policies` - Policies
 
 ### Workflow Tools (2 tools)
+
 - `workflow_list` - List workflows
 - `workflow_run` - Execute workflow
 
 ### Agent Tools (8 tools)
+
 - Agent-specific tools from registry
 - `set_active_agent` - Set active agent context
 
 ### Memory Tools (1 tool)
+
 - `memory_log_action` - Log to agent_actions.log
 
 ⚡ = **Offline critical** (works even when API down)
@@ -92,6 +115,7 @@ MCP Tool → MCPAPIBridge → REST API → Core
 ```
 
 ### Three Fallback Layers
+
 1. **Offline Critical** (<5ms): board_list, errors_stats, inventory_check
 2. **API Bridge** (<50ms): Primary path through REST API
 3. **Direct Core** (<10ms): Fallback when API unavailable
@@ -136,6 +160,14 @@ tool_call("paracle_log_action", {
     "agent": "coder",
     "action": "IMPLEMENTATION",
     "description": "Implemented auth in api/auth.py"
+})
+```
+
+### Open File in IDE
+```python
+tool_call("ide_open_file", {
+    "path": "src/main.py",
+    "line": 42
 })
 ```
 
@@ -224,19 +256,20 @@ bridge = MCPAPIBridge(
 
 ## 📚 Documentation
 
-- **Full Guide**: [docs/mcp-full-coverage.md](mcp-full-coverage.md)
-- **Implementation**: [.parac/memory/summaries/ADR-022-implementation-summary.md](../.parac/memory/summaries/ADR-022-implementation-summary.md)
-- **ADR-022**: [.parac/roadmap/decisions.md](../.parac/roadmap/decisions.md#adr-022)
-- **Tests**: [tests/unit/test_mcp_api_bridge.py](../tests/unit/test_mcp_api_bridge.py)
+- **Full Guide**: [mcp-full-coverage.md](mcp-full-coverage.md)
+- **IDE Tools**: [tools/ide-tools.md](tools/ide-tools.md)
+- **Implementation**: [.parac/memory/summaries/ADR-022-implementation-summary.md](../../.parac/memory/summaries/ADR-022-implementation-summary.md)
+- **ADR-022**: [.parac/roadmap/decisions.md](../../.parac/roadmap/decisions.md#adr-022)
+- **Tests**: [tests/unit/test_mcp_api_bridge.py](../../tests/unit/test_mcp_api_bridge.py)
 
 ---
 
 ## ✅ Status
 
-**Implementation**: COMPLETE ✅  
-**Coverage**: 100% (56/56 tools)  
-**Performance**: <50ms overhead ✅  
-**Tests**: 3/3 passing ✅  
+**Implementation**: COMPLETE ✅
+**Coverage**: 100% (66/66 tools)
+**Performance**: <50ms overhead ✅
+**Tests**: All passing ✅
 **Production**: Ready ✅
 
 ---

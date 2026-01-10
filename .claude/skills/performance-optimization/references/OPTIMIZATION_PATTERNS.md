@@ -372,4 +372,4 @@ def memory_intensive_function():
 
 - `SKILL.md` for quick optimization patterns
 - `scripts/profile_api.py` for endpoint profiling
-- `docs/performance-guide.md` for detailed guidelines
+- `content/docs/technical/performance-guide.md` for detailed guidelines

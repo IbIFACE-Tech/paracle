@@ -6,7 +6,7 @@ This example demonstrates how to use the filesystem tools:
 - list_directory: List directory contents
 - delete_file: Delete files
 
-Run: uv run python examples/01_filesystem_tools.py
+Run: uv run python content/examples/basics/01_filesystem_tools.py
 """
 
 import asyncio

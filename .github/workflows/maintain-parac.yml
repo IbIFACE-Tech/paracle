@@ -5,9 +5,9 @@ on:
     branches: [main, develop]
     paths:
       - "packages/**"
-      - "templates/**"
-      - "docs/**"
-      - "examples/**"
+      - "content/templates/**"
+      - "content/docs/**"
+      - "content/examples/**"
       - ".roadmap/**"
   pull_request:
     branches: [main, develop]

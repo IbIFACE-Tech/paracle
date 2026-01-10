@@ -179,9 +179,11 @@ def resolve_inheritance(
 
 | Type          | Location                              | Format         |
 | ------------- | ------------------------------------- | -------------- |
-| User guides   | `docs/`                               | Markdown       |
-| API reference | `docs/api/`                           | Generated + MD |
-| Architecture  | `docs/architecture.md`                | Markdown       |
+| User guides   | `content/docs/users/`                 | Markdown       |
+| Technical docs| `content/docs/technical/`             | Markdown       |
+| API reference | `content/docs/api/`                   | Generated + MD |
+| Architecture  | `content/docs/architecture.md`        | Markdown       |
+| MCP/Tools     | `content/docs/tools/`                 | Markdown       |
 | ADRs          | `.parac/roadmap/decisions.md`         | Markdown       |
 | Glossary      | `.parac/memory/knowledge/glossary.md` | Markdown       |
 | README        | `README.md`                           | Markdown       |

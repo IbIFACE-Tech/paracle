@@ -6,7 +6,7 @@ This example demonstrates how to use the run_command tool:
 - Handle command timeouts
 - Use command whitelists for security
 
-Run: uv run python examples/03_shell_tools.py
+Run: uv run python content/examples/basics/03_shell_tools.py
 """
 
 import asyncio
