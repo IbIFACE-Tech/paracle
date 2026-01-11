@@ -33,6 +33,10 @@ Provides powerful integrated capabilities for the MetaAgent:
 - GitHub Enhanced (PR review, multi-repo sync, automation)
 - Observability (unified metrics, cost tracking, performance monitoring)
 - Rate limiting (token bucket algorithm, burst control, quota management)
+- Caching (LLM call deduplication, TTL-based, LRU eviction)
+- Audit (ISO 42001 compliant audit trail with tamper-evident hash chain)
+- Resilience (circuit breaker, retry with backoff, fallback, timeout, bulkhead)
+- Streaming (SSE, WebSocket, real-time streaming with backpressure handling)
 
 These capabilities allow the MetaAgent to autonomously perform
 complex tasks beyond simple artifact generation.
@@ -177,6 +181,30 @@ from paracle_meta.capabilities.observability import (
 from paracle_meta.capabilities.rate_limit import (
     RateLimitCapability,
     RateLimitConfig,
+)
+from paracle_meta.capabilities.caching import (
+    CachingCapability,
+    CachingConfig,
+)
+from paracle_meta.capabilities.audit import (
+    ActionType,
+    AuditCapability,
+    AuditConfig,
+)
+from paracle_meta.capabilities.resilience import (
+    CircuitBreaker,
+    CircuitState,
+    ResilienceCapability,
+    ResilienceConfig,
+    RetryStrategy,
+)
+from paracle_meta.capabilities.streaming import (
+    ChunkType,
+    StreamBuffer,
+    StreamChunk,
+    StreamingCapability,
+    StreamingConfig,
+    StreamProtocol,
 )
 
 from paracle_meta.capabilities.task_management import (
@@ -345,4 +373,24 @@ __all__ = [
     # Rate Limiting (v1.9.2)
     "RateLimitCapability",
     "RateLimitConfig",
+    # Caching (v1.9.2)
+    "CachingCapability",
+    "CachingConfig",
+    # Audit (v1.9.3)
+    "AuditCapability",
+    "AuditConfig",
+    "ActionType",
+    # Resilience (v1.9.4)
+    "ResilienceCapability",
+    "ResilienceConfig",
+    "CircuitBreaker",
+    "CircuitState",
+    "RetryStrategy",
+    # Streaming (v1.9.5)
+    "StreamingCapability",
+    "StreamingConfig",
+    "StreamChunk",
+    "StreamBuffer",
+    "StreamProtocol",
+    "ChunkType",
 ]

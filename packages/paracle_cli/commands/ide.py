@@ -10,6 +10,7 @@ Architecture: CLI -> API -> Core (API-first design)
 Falls back to direct core access if API is unavailable.
 """
 
+import time
 from pathlib import Path
 
 import click
@@ -190,17 +191,20 @@ def _status_via_api(client: APIClient, as_json: bool) -> None:
         if project_path != "-":
             project_path = Path(project_path).name
 
-        table.add_row(ide_item["name"].title(), generated, copied, project_path)
+        table.add_row(ide_item["name"].title(),
+                      generated, copied, project_path)
 
     console.print(table)
 
     # Summary
     console.print()
-    console.print(f"Generated: {result['generated_count']}/{len(result['ides'])}")
+    console.print(
+        f"Generated: {result['generated_count']}/{len(result['ides'])}")
     console.print(f"Copied: {result['copied_count']}/{len(result['ides'])}")
 
     if result["generated_count"] == 0:
-        console.print("\n[dim]Run 'paracle ide init' to generate configs[/dim]")
+        console.print(
+            "\n[dim]Run 'paracle ide init' to generate configs[/dim]")
 
 
 def _status_direct(as_json: bool) -> None:
@@ -260,7 +264,8 @@ def _status_direct(as_json: bool) -> None:
     console.print(f"Copied: {copied_count}/{len(status['ides'])}")
 
     if generated_count == 0:
-        console.print("\n[dim]Run 'paracle ide init' to generate configs[/dim]")
+        console.print(
+            "\n[dim]Run 'paracle ide init' to generate configs[/dim]")
 
 
 @ide.command("status")
@@ -305,7 +310,8 @@ def _init_via_api(
         if item["generated"]:
             console.print(f"  [green]OK[/green] Generated: {item['ide']}")
             if item["copied"]:
-                console.print(f"    [blue]->[/blue] Copied to: {item['project_path']}")
+                console.print(
+                    f"    [blue]->[/blue] Copied to: {item['project_path']}")
         elif item.get("error"):
             console.print(f"  [red]FAIL[/red] {item['ide']}: {item['error']}")
 
@@ -324,7 +330,8 @@ def _init_via_api(
             f"[blue]->[/blue] Copied {result['copied_count']} config(s) to project root"
         )
     if result["failed_count"] > 0:
-        console.print(f"[red]FAIL[/red] {result['failed_count']} config(s) failed")
+        console.print(
+            f"[red]FAIL[/red] {result['failed_count']} config(s) failed")
 
 
 def _init_direct(
@@ -411,7 +418,8 @@ def _init_direct(
         manifest_path = generator.generate_manifest()
         console.print(f"\n  [dim]Manifest: {manifest_path}[/dim]")
     except Exception as e:
-        console.print(f"\n  [yellow]Warning:[/yellow] Could not generate manifest: {e}")
+        console.print(
+            f"\n  [yellow]Warning:[/yellow] Could not generate manifest: {e}")
 
     # Summary
     console.print()
@@ -425,7 +433,8 @@ def _init_direct(
             f"[blue]->[/blue] Copied {len(results['copied'])} config(s) to project root"
         )
     if results["failed"]:
-        console.print(f"[red]FAIL[/red] {len(results['failed'])} config(s) failed")
+        console.print(
+            f"[red]FAIL[/red] {len(results['failed'])} config(s) failed")
 
 
 @ide.command("init")
@@ -491,17 +500,215 @@ def ide_init(
 # =============================================================================
 
 
+def _watch_and_sync_api(
+    client: APIClient, copy: bool, with_skills: bool
+) -> None:
+    """Watch .parac/ for changes and sync continuously (API mode)."""
+    try:
+        from watchdog.events import FileSystemEventHandler
+        from watchdog.observers import Observer
+    except ImportError:
+        console.print(
+            "[red]Error:[/red] watchdog package not installed\n"
+            "Install with: pip install watchdog"
+        )
+        raise SystemExit(1)
+
+    parac_root = get_parac_root_or_exit()
+    console.print(
+        f"[bold cyan]👁️  Watching {parac_root} for changes...[/bold cyan]"
+    )
+    console.print("[dim]Press Ctrl+C to stop[/dim]\n")
+
+    class ParacWatchHandler(FileSystemEventHandler):
+        """Handle .parac/ file changes."""
+
+        def __init__(self):
+            self.last_sync = time.time()
+            self.sync_cooldown = 2.0  # Seconds between syncs
+
+        def on_any_event(self, event):
+            """Handle any file system event."""
+            if event.is_directory:
+                return
+
+            # Ignore certain files
+            ignore_patterns = [
+                "manifest.yaml",  # Auto-generated
+                ".log",
+                ".db",
+                "__pycache__",
+                ".pyc",
+            ]
+
+            path_str = str(event.src_path)
+            if any(pattern in path_str for pattern in ignore_patterns):
+                return
+
+            # Debounce rapid changes
+            now = time.time()
+            if now - self.last_sync < self.sync_cooldown:
+                return
+
+            self.last_sync = now
+
+            console.print(
+                f"[yellow]🔄 Change detected:[/yellow] {Path(event.src_path).name}"
+            )
+
+            try:
+                result = client.ide_sync(copy=copy)
+                console.print(
+                    f"  [green]✅ Synced {len(result['synced'])} IDE(s)[/green]"
+                )
+            except Exception as e:
+                console.print(f"  [red]❌ Sync failed:[/red] {e}")
+
+    handler = ParacWatchHandler()
+    observer = Observer()
+
+    # Watch key directories
+    watch_dirs = [
+        parac_root / "agents",
+        parac_root / "workflows",
+        parac_root / "memory" / "context",
+        parac_root / "roadmap",
+        parac_root / "policies",
+    ]
+
+    for watch_dir in watch_dirs:
+        if watch_dir.exists():
+            observer.schedule(handler, str(watch_dir), recursive=True)
+
+    observer.start()
+
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        console.print("\n[yellow]⏹️  Stopping watch mode...[/yellow]")
+        observer.stop()
+
+    observer.join()
+    console.print("[green]✅ Watch mode stopped[/green]")
+
+
+def _watch_and_sync_direct(
+    copy: bool,
+    with_skills: bool,
+    no_format: bool = False,
+    strict: bool = False,
+) -> None:
+    """Watch .parac/ for changes and sync continuously (direct mode)."""
+    try:
+        from watchdog.events import FileSystemEventHandler
+        from watchdog.observers import Observer
+    except ImportError:
+        console.print(
+            "[red]Error:[/red] watchdog package not installed\n"
+            "Install with: pip install watchdog"
+        )
+        raise SystemExit(1)
+
+    parac_root = get_parac_root_or_exit()
+
+    try:
+        from paracle_core.parac.ide_generator import IDEConfigGenerator
+    except ImportError as e:
+        console.print(f"[red]Error:[/red] {e}")
+        raise SystemExit(1)
+
+    generator = IDEConfigGenerator(parac_root)
+
+    console.print(
+        f"[bold cyan]👁️  Watching {parac_root} for changes...[/bold cyan]"
+    )
+    console.print("[dim]Press Ctrl+C to stop[/dim]\n")
+
+    class ParacWatchHandler(FileSystemEventHandler):
+        """Handle .parac/ file changes."""
+
+        def __init__(self):
+            self.last_sync = time.time()
+            self.sync_cooldown = 2.0  # Seconds between syncs
+
+        def on_any_event(self, event):
+            """Handle any file system event."""
+            if event.is_directory:
+                return
+
+            # Ignore certain files
+            ignore_patterns = [
+                "manifest.yaml",  # Auto-generated
+                ".log",
+                ".db",
+                "__pycache__",
+                ".pyc",
+            ]
+
+            path_str = str(event.src_path)
+            if any(pattern in path_str for pattern in ignore_patterns):
+                return
+
+            # Debounce rapid changes
+            now = time.time()
+            if now - self.last_sync < self.sync_cooldown:
+                return
+
+            self.last_sync = now
+
+            console.print(
+                f"[yellow]🔄 Change detected:[/yellow] {Path(event.src_path).name}"
+            )
+
+            try:
+                generated = generator.sync_all(
+                    copy_to_project=copy, force=False
+                )
+                console.print(
+                    f"  [green]✅ Synced {len(generated)} IDE(s)[/green]"
+                )
+            except Exception as e:
+                console.print(f"  [red]❌ Sync failed:[/red] {e}")
+
+    handler = ParacWatchHandler()
+    observer = Observer()
+
+    # Watch key directories
+    watch_dirs = [
+        parac_root / "agents",
+        parac_root / "workflows",
+        parac_root / "memory" / "context",
+        parac_root / "roadmap",
+        parac_root / "policies",
+    ]
+
+    for watch_dir in watch_dirs:
+        if watch_dir.exists():
+            observer.schedule(handler, str(watch_dir), recursive=True)
+
+    observer.start()
+
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        console.print("\n[yellow]⏹️  Stopping watch mode...[/yellow]")
+        observer.stop()
+
+    observer.join()
+    console.print("[green]✅ Watch mode stopped[/green]")
+
+
 def _sync_via_api(
-    client: APIClient, copy: bool, watch: bool, with_skills: bool
+    client: APIClient, copy: bool, watch: bool, with_skills: bool, name: str | None = None
 ) -> None:
     """Sync IDEs via API."""
     if watch:
-        console.print(
-            "[yellow]Warning:[/yellow] Watch mode not yet implemented. "
-            "Will run single sync."
-        )
+        _watch_and_sync_api(client, copy, with_skills)
+        return
 
-    result = client.ide_sync(copy=copy)
+    result = client.ide_sync(copy=copy, name=name)
 
     console.print("\n[bold]Syncing IDE configurations...[/bold]\n")
 
@@ -517,7 +724,8 @@ def _sync_via_api(
         console.print(f"  [red]Error:[/red] {error}")
 
     console.print(
-        f"\n[green]OK[/green] Synced {len(result['synced'])} IDE configuration(s)"
+        f"\n[green]OK[/green] Synced {len(result['synced'])} "
+        "IDE configuration(s)"
     )
 
     # Export skills if requested (API doesn't support this yet, fall back)
@@ -531,13 +739,12 @@ def _sync_direct(
     with_skills: bool,
     no_format: bool = False,
     strict: bool = False,
+    name: str | None = None,
 ) -> None:
     """Sync IDEs via direct core access."""
     if watch:
-        console.print(
-            "[yellow]Warning:[/yellow] Watch mode not yet implemented. "
-            "Will run single sync."
-        )
+        _watch_and_sync_direct(copy, with_skills, no_format, strict)
+        return
 
     parac_root = get_parac_root_or_exit()
 
@@ -549,20 +756,44 @@ def _sync_direct(
 
     generator = IDEConfigGenerator(parac_root)
 
+    # Validate IDE name if provided
+    if name:
+        ide_lower = name.lower()
+        if ide_lower not in generator.SUPPORTED_IDES:
+            available = ", ".join(sorted(generator.SUPPORTED_IDES.keys()))
+            console.print(
+                f"[red]Error:[/red] Unknown IDE '{name}'. "
+                f"Available: {available}"
+            )
+            raise SystemExit(1)
+
     console.print("\n[bold]Syncing IDE configurations...[/bold]\n")
 
-    # Generate all configs
-    generated = generator.generate_all(skip_format=no_format, strict=strict)
-
-    for _ide_name, path in generated.items():
+    # Generate configs (all or specific IDE)
+    if name:
+        ide_lower = name.lower()
+        path = generator.generate_to_file(ide_lower, skip_format=no_format,
+                                          strict=strict)
+        generated = {ide_lower: path}
         console.print(f"  [green]OK[/green] Synced: {path.name}")
+    else:
+        generated = generator.generate_all(skip_format=no_format,
+                                           strict=strict)
+        for _ide_name, path in generated.items():
+            console.print(f"  [green]OK[/green] Synced: {path.name}")
 
     # Copy to project root if requested
     if copy:
-        copied = generator.copy_all_to_project()
-        console.print()
-        for _ide_name, path in copied.items():
-            console.print(f"  [blue]->[/blue] Copied: {path}")
+        if name:
+            ide_lower = name.lower()
+            copied_path = generator.copy_to_project(ide_lower)
+            console.print()
+            console.print(f"  [blue]->[/blue] Copied: {copied_path}")
+        else:
+            copied = generator.copy_all_to_project()
+            console.print()
+            for _ide_name, path in copied.items():
+                console.print(f"  [blue]->[/blue] Copied: {path}")
 
     # Update manifest
     try:
@@ -570,7 +801,9 @@ def _sync_direct(
     except Exception:
         pass
 
-    console.print(f"\n[green]OK[/green] Synced {len(generated)} IDE configuration(s)")
+    console.print(
+        f"\n[green]OK[/green] Synced {len(generated)} "
+        "IDE configuration(s)")
 
     # Export skills to IDE platforms if requested
     if with_skills:
@@ -601,28 +834,32 @@ def _export_skills_to_platforms() -> None:
     try:
         skills = loader.load_all()
     except Exception as e:
-        console.print(f"\n[yellow]Warning:[/yellow] Failed to load skills: {e}")
+        console.print(
+            f"\n[yellow]Warning:[/yellow] Failed to load skills: {e}")
         return
 
     if not skills:
         console.print("\n[dim]No skills found to export.[/dim]")
         return
 
-    console.print(f"\n[bold]Exporting {len(skills)} skill(s) to platforms...[/bold]\n")
+    console.print(
+        f"\n[bold]Exporting {len(skills)} skill(s) to platforms...[/bold]\n")
 
     # Export to Agent Skills platforms (copilot, cursor, claude, codex)
     exporter = SkillExporter(skills)
     project_root = parac_root.parent
 
     try:
-        results = exporter.export_all(project_root, AGENT_SKILLS_PLATFORMS, True)
+        results = exporter.export_all(
+            project_root, AGENT_SKILLS_PLATFORMS, True)
 
         # Count successes per platform
         platform_counts: dict[str, int] = {}
         for result in results:
             for platform, export_result in result.results.items():
                 if export_result.success:
-                    platform_counts[platform] = platform_counts.get(platform, 0) + 1
+                    platform_counts[platform] = platform_counts.get(
+                        platform, 0) + 1
 
         for platform, count in platform_counts.items():
             platform_dirs = {
@@ -632,7 +869,8 @@ def _export_skills_to_platforms() -> None:
                 "codex": ".codex/skills/",
             }
             dest = platform_dirs.get(platform, f".{platform}/skills/")
-            console.print(f"  [green]OK[/green] {platform}: {count} skill(s) -> {dest}")
+            console.print(
+                f"  [green]OK[/green] {platform}: {count} skill(s) -> {dest}")
 
     except Exception as e:
         console.print(f"  [red]Error:[/red] Skills export failed: {e}")
@@ -640,7 +878,7 @@ def _export_skills_to_platforms() -> None:
 
 @ide.command("sync")
 @click.option("--copy/--no-copy", default=True, help="Copy to project root")
-@click.option("--watch", is_flag=True, help="Watch for changes (not implemented)")
+@click.option("--watch", is_flag=True, help="Watch for changes and auto-sync")
 @click.option(
     "--with-skills/--no-skills",
     default=True,
@@ -656,12 +894,17 @@ def _export_skills_to_platforms() -> None:
     is_flag=True,
     help="Treat validation warnings as errors",
 )
+@click.option(
+    "--name",
+    type=str,
+    help="Sync only a specific IDE (e.g., 'vscode', 'cursor', 'claude')",
+)
 def ide_sync(
-    copy: bool, watch: bool, with_skills: bool, no_format: bool, strict: bool
+    copy: bool, watch: bool, with_skills: bool, no_format: bool, strict: bool, name: str | None
 ) -> None:
     """Synchronize IDE configs with .parac/ state.
 
-    Regenerates all IDE configuration files from current .parac/ context.
+    Regenerates IDE configuration files from current .parac/ context.
     Also exports skills to platform-specific directories when available.
 
     Validation:
@@ -670,10 +913,12 @@ def ide_sync(
     - Use --strict to treat warnings as errors
 
     Examples:
-        paracle ide sync
-        paracle ide sync --no-copy
-        paracle ide sync --no-skills
-        paracle ide sync --strict
+        paracle ide sync                    - Sync all IDEs
+        paracle ide sync --name vscode      - Sync only VS Code
+        paracle ide sync --name cursor      - Sync only Cursor
+        paracle ide sync --no-copy          - Generate without copying
+        paracle ide sync --no-skills        - Skip skills export
+        paracle ide sync --strict           - Strict validation
     """
     use_api_or_fallback(
         _sync_via_api,
@@ -683,6 +928,7 @@ def ide_sync(
         with_skills,
         no_format,
         strict,
+        name,
     )
 
 
@@ -887,7 +1133,8 @@ def ide_setup(ide_name: str | None, setup_all: bool, force: bool) -> None:
         console.print(f"  {len(detected) + 1}. All")
         console.print(f"  {len(detected) + 2}. Cancel")
 
-        choice = click.prompt("Enter choice", type=int, default=len(detected) + 1)
+        choice = click.prompt("Enter choice", type=int,
+                              default=len(detected) + 1)
         if choice == len(detected) + 2:
             console.print("[dim]Cancelled.[/dim]")
             return
@@ -923,7 +1170,8 @@ def ide_setup(ide_name: str | None, setup_all: bool, force: bool) -> None:
             # IDE-specific MCP setup hints
             mcp_ides = ["cursor", "claude", "windsurf", "zed", "vscode"]
             if ide in mcp_ides:
-                console.print(f"  [dim]MCP: Add paracle server to {ide} settings[/dim]")
+                console.print(
+                    f"  [dim]MCP: Add paracle server to {ide} settings[/dim]")
 
         except Exception as e:
             console.print(f"  [red]FAIL[/red] {ide}: {e}")
@@ -998,7 +1246,8 @@ def ide_instructions(ide_name: str) -> None:
     else:
         console.print("This IDE uses file-based configuration.\n")
         console.print("[bold]Steps:[/bold]")
-        console.print(f"1. Run: paracle ide init --ide={ide_name.lower()} --copy")
+        console.print(
+            f"1. Run: paracle ide init --ide={ide_name.lower()} --copy")
         console.print(f"2. Config copied to: {config.destination_dir}/")
 
         # MCP setup hint
@@ -1093,7 +1342,8 @@ def _mcp_status_direct(as_json: bool) -> None:
     console.print(f"Installed: {inst_count}/{len(status['configs'])}")
 
     if gen_count == 0:
-        console.print("\n[dim]Run 'paracle ide mcp --generate' to create configs[/dim]")
+        console.print(
+            "\n[dim]Run 'paracle ide mcp --generate' to create configs[/dim]")
 
 
 def _mcp_generate_direct(
@@ -1182,7 +1432,8 @@ def _mcp_generate_direct(
             f"[dim]Skipped {len(results['skipped'])} home-directory config(s)[/dim]"
         )
     if results["failed"]:
-        console.print(f"[red]FAIL[/red] {len(results['failed'])} config(s) failed")
+        console.print(
+            f"[red]FAIL[/red] {len(results['failed'])} config(s) failed")
 
     # MCP server hint
     console.print("\n[dim]Start MCP server: paracle mcp serve --stdio[/dim]")
@@ -1284,8 +1535,10 @@ def _skills_list_direct(output_format: str, verbose: bool) -> None:
         raise SystemExit(1)
 
     if not skill_list:
-        console.print("[yellow]No skills found in .parac/agents/skills/[/yellow]")
-        console.print("\nCreate a skill with: paracle ide skills create my-skill")
+        console.print(
+            "[yellow]No skills found in .parac/agents/skills/[/yellow]")
+        console.print(
+            "\nCreate a skill with: paracle ide skills create my-skill")
         return
 
     if output_format == "json":
@@ -1472,7 +1725,8 @@ def _skills_export_direct(
         all_skills = [s for s in all_skills if s.name in skill_name_set]
         not_found = skill_name_set - {s.name for s in all_skills}
         if not_found:
-            console.print(f"[yellow]Skills not found:[/yellow] {', '.join(not_found)}")
+            console.print(
+                f"[yellow]Skills not found:[/yellow] {', '.join(not_found)}")
 
     if not all_skills:
         console.print("[yellow]No skills to export.[/yellow]")
@@ -1486,7 +1740,8 @@ def _skills_export_direct(
         )
     )
 
-    console.print(f"\n[bold]Skills:[/bold] {', '.join(s.name for s in all_skills)}")
+    console.print(
+        f"\n[bold]Skills:[/bold] {', '.join(s.name for s in all_skills)}")
     console.print(f"[bold]Platforms:[/bold] {', '.join(platform_list)}")
     console.print(f"[bold]Output:[/bold] {project_root}")
 

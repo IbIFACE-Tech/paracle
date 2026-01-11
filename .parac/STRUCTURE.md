@@ -202,20 +202,47 @@ templates/                               # Should be in content/templates/
 
 ## Validation Checklist
 
-Use this checklist when adding new files:
+⚠️ **CRITICAL: Check this BEFORE creating ANY file**
 
-- [ ] **Is it operational data?** → `.parac/memory/data/`
-- [ ] **Is it a log file?** → `.parac/memory/logs/`
-- [ ] **Is it project knowledge?** → `.parac/memory/knowledge/`
-- [ ] **Is it a decision record?** → `.parac/roadmap/decisions.md`
-- [ ] **Is it user-facing documentation?** → `content/docs/`
-- [ ] **Is it a code example?** → `content/examples/`
-- [ ] **Is it a project template?** → `content/templates/`
-- [ ] **Is it an agent definition?** → `.parac/agents/specs/`
-- [ ] **Is it a workflow?** → `.parac/workflows/`
-- [ ] **Is it a policy?** → `.parac/policies/`
-- [ ] **Is it configuration?** → `.parac/config/`
-- [ ] **Is it execution output?** → `.parac/runs/` (+ .gitignore)
+### Step 1: Is it a standard root file?
+
+- [ ] README.md, CHANGELOG.md, CONTRIBUTING.md, CODE_OF_CONDUCT.md, or SECURITY.md?
+  - ✅ YES → Project root
+  - ❌ NO → Continue to Step 2
+
+### Step 2: Where does it belong?
+
+**Project Governance (.parac/)**:
+
+- [ ] **Phase completion report?** → `.parac/memory/summaries/phase_*.md`
+- [ ] **Implementation summary?** → `.parac/memory/summaries/*.md`
+- [ ] **Testing/metrics report?** → `.parac/memory/summaries/*.md`
+- [ ] **Analysis/knowledge?** → `.parac/memory/knowledge/*.md`
+- [ ] **Operational data (DB)?** → `.parac/memory/data/*.db`
+- [ ] **Log file?** → `.parac/memory/logs/*.log`
+- [ ] **Decision record (ADR)?** → `.parac/roadmap/decisions.md`
+- [ ] **Agent definition?** → `.parac/agents/specs/*.md`
+- [ ] **Workflow?** → `.parac/workflows/*.yaml`
+- [ ] **Policy?** → `.parac/policies/*.md`
+- [ ] **Configuration?** → `.parac/config/*.yaml`
+- [ ] **Execution output?** → `.parac/runs/` (gitignored)
+
+**User-Facing Content (content/)**:
+
+- [ ] **User documentation?** → `content/docs/`
+  - [ ] Troubleshooting? → `content/docs/troubleshooting/`
+  - [ ] Feature docs? → `content/docs/features/`
+  - [ ] Technical docs? → `content/docs/technical/`
+- [ ] **Code example?** → `content/examples/`
+- [ ] **Project template?** → `content/templates/`
+
+### Step 3: Final Check
+
+- [ ] **File is NOT in project root** (unless Step 1 = YES)
+- [ ] **Path follows STRUCTURE.md** conventions
+- [ ] **Location makes logical sense**
+
+❌ **If placing in root: STOP. Review Steps 1-2 again.**
 
 ## Common Mistakes
 

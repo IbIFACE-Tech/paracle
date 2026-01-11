@@ -130,38 +130,58 @@ Each agent has been assigned relevant skills from the `.parac/agents/skills/` di
 
 ---
 
+### 🎯 QA Agent (Senior QA Architect)
+
+**Role**: Quality assurance architecture, test strategy design, quality metrics tracking, and comprehensive quality validation.
+
+**Skills**:
+
+- `testing-qa` - Primary expertise in test strategies, frameworks, and quality validation
+- `security-hardening` - Security testing and compliance validation
+- `performance-optimization` - Performance testing and benchmarking
+- `paracle-development` - Framework-specific testing patterns and standards
+- `api-development` - API testing strategies and contract testing
+- `cicd-devops` - Test automation in CI/CD pipelines
+- `workflow-orchestration` - Test workflow coordination and quality gates
+
+**Rationale**: Senior QA Architects need comprehensive expertise across all quality dimensions - functional testing, security validation, performance benchmarking, and process automation. They orchestrate quality across the entire SDLC, establish quality gates, mentor teams on testing practices, and ensure delivery of high-quality software. This role bridges testing implementation (Tester Agent) with quality strategy and architecture.
+
+---
+
 ## Skill Distribution Matrix
 
-| Skill                    | Architect | Coder | Documenter | PM  | Reviewer | Tester | ReleaseManager | Security |
-| ------------------------ | --------- | ----- | ---------- | --- | -------- | ------ | -------------- | -------- |
-| framework-architecture   | ✅         |       |            |     |          |        |                |          |
-| api-development          | ✅         | ✅     | ✅          |     |          |        |                |          |
-| performance-optimization | ✅         |       |            |     | ✅        | ✅      |                | ✅        |
-| security-hardening       | ✅         |       |            |     | ✅        | ✅      |                | ✅        |
-| paracle-development      | ✅         | ✅     | ✅          | ✅   | ✅        | ✅      | ✅              | ✅        |
-| tool-integration         |           | ✅     |            |     |          |        |                |          |
-| provider-integration     |           | ✅     |            |     |          |        |                |          |
-| testing-qa               |           | ✅     |            |     | ✅        | ✅      |                | ✅        |
-| technical-documentation  |           |       | ✅          |     |          |        |                |          |
-| workflow-orchestration   |           |       |            | ✅   |          |        | ✅              |          |
-| agent-configuration      |           |       |            | ✅   |          |        |                |          |
-| cicd-devops              |           |       |            | ✅   |          |        | ✅              |          |
-| git-management           |           |       |            |     |          |        | ✅              |          |
-| release-automation       |           |       |            |     |          |        | ✅              |          |
+| Skill                    | Architect | Coder | Documenter | PM  | Reviewer | Tester | ReleaseManager | Security | QA  |
+| ------------------------ | --------- | ----- | ---------- | --- | -------- | ------ | -------------- | -------- | --- |
+| framework-architecture   | ✅         |       |            |     |          |        |                |          |     |
+| api-development          | ✅         | ✅     | ✅          |     |          |        |                |          | ✅   |
+| performance-optimization | ✅         |       |            |     | ✅        | ✅      |                | ✅        | ✅   |
+| security-hardening       | ✅         |       |            |     | ✅        | ✅      |                | ✅        | ✅   |
+| paracle-development      | ✅         | ✅     | ✅          | ✅   | ✅        | ✅      | ✅              | ✅        | ✅   |
+| tool-integration         |           | ✅     |            |     |          |        |                |          |     |
+| provider-integration     |           | ✅     |            |     |          |        |                |          |     |
+| testing-qa               |           | ✅     |            |     | ✅        | ✅      |                | ✅        | ✅   |
+| technical-documentation  |           |       | ✅          |     |          |        |                |          |     |
+| workflow-orchestration   |           |       |            | ✅   |          |        | ✅              |          | ✅   |
+| agent-configuration      |           |       |            | ✅   |          |        |                |          |     |
+| cicd-devops              |           |       |            | ✅   |          |        | ✅              |          | ✅   |
+| git-management           |           |       |            |     |          |        | ✅              |          |     |
+| release-automation       |           |       |            |     |          |        | ✅              |          |     |
 
 ## Skill Coverage
 
-- **Most Shared**: `paracle-development` (8 agents) - Core framework knowledge
+- **Most Shared**: `paracle-development` (9 agents) - Core framework knowledge
+- **Quality Focus**: `testing-qa` (5 agents), `security-hardening` (5 agents), `performance-optimization` (5 agents) - Comprehensive quality coverage
 - **DevOps Focus**: `cicd-devops`, `git-management`, `release-automation` specialized for Release Manager
-- **Quality Focus**: `testing-qa`, `security-hardening`, `performance-optimization` shared across quality-focused agents
-- **Security Focus**: `security-hardening` is primary for Security agent, shared with Architect, Reviewer, and Tester
-- **Specialized**: `technical-documentation`, `tool-integration`, `provider-integration`, `workflow-orchestration` assigned to specific agents
+- **QA Leadership**: QA Agent has the broadest skill set (7 skills) for comprehensive quality architecture
+- **Specialized**: `technical-documentation`, `tool-integration`, `provider-integration`, `framework-architecture` assigned to specific agents
 
 ## Notes
 
 - All agents have `paracle-development` as it provides core framework understanding
-- Quality-related skills (`testing-qa`, `security-hardening`, `performance-optimization`) are shared across Architect, Reviewer, Tester, and Security
+- Quality-related skills (`testing-qa`, `security-hardening`, `performance-optimization`) are shared across Architect, Reviewer, Tester, Security, and QA agents
+- QA Agent has the broadest skill set (7 skills) encompassing quality architecture, testing, security, performance, API testing, CI/CD, and workflow orchestration
 - Security agent is the primary owner of security-hardening skill with deepest expertise
+- Tester Agent focuses on test implementation while QA Agent provides strategic oversight and quality architecture
 - Specialized skills are assigned to agents with direct responsibilities in those areas
 - Skills can be discovered, activated, and executed following the progressive disclosure pattern
 

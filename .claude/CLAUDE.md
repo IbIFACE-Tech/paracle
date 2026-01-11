@@ -2,18 +2,12 @@
 # Paracle AI Instructions for Claude Code
 # Auto-generated from .parac/ - DO NOT EDIT MANUALLY
 # Regenerate with: paracle ide sync --copy
-# Generated: 2026-01-05T14:09:10.601245
+# Generated: 2026-01-11T04:05:33.642207
 
 
 ## Core Principle
 
 > **`.parac/` is the single source of truth. Read it. Follow it. Log to it.**
-
-> **⚠️ IMPORTANT: Agents are EXECUTABLE PROGRAMS, not personas to adopt.**
->
-> - ✅ **Say**: "I'll run CoderAgent..." or "Following CoderAgent standards..."
-> - ❌ **DON'T say**: "I adopt the CoderAgent persona..."
-> - 📖 **See**: `content/docs/technical/agent-execution-model.md` for complete explanation
 
 ## 🚨 MANDATORY: Pre-Flight Checklist
 
@@ -33,7 +27,7 @@ This checklist ensures:
 3. Consult `.parac/roadmap/roadmap.yaml` - Phase & priorities
 4. Verify `.parac/memory/context/open_questions.md` - Blockers
 5. **VALIDATE**: Task in roadmap? Correct phase? Priority? Dependencies?
-6. Select which agent to run (see `.parac/agents/specs/{agent}.md`)
+6. Adopt agent persona from `.parac/agents/specs/{agent}.md`
 7. Check policies (CODE_STYLE, TESTING, SECURITY)
 
 **Before ANY action**, you MUST:
@@ -42,16 +36,15 @@ This checklist ensures:
 3. `.parac/memory/context/current_state.yaml` - Current project state
 4. `.parac/roadmap/roadmap.yaml` - Phases and priorities
 5. `.parac/PRE_FLIGHT_CHECKLIST.md` - Mandatory task validation
-6. Determine which agent to run (see `.parac/agents/specs/{agent_id}.md`)
+6. Adopt agent persona from `.parac/agents/specs/{agent_id}.md`
 
 
 
 ## Current Project State
 
-- **Project**: paracle-lite v0.0.1
-- **Phase**: phase_4 - API Server & CLI Enhancement (75%)
+- **Project**: paracle-lite v1.0.3
+- **Phase**: phase_10 - Governance & v1.0 Release (0%)
 - **Status**: in_progress
-- **Focus**: REST API server with uvicorn, Workflow execution endpoints (async/sync), CLI command enhancements, MCP tool integration, Command-line workflow management, IDE integration and templates
 
 
 
@@ -81,11 +74,41 @@ This checklist ensures:
 - **Capabilities**: project planning, progress tracking, risk management, team coordination
 - **Description**: Project coordination, roadmap management, progress tracking, and stakeholder communication.
 
+### QA Agent (Senior QA Architect) (`qa`)
+
+- **Role**: Quality Assurance architecture, test strategy design, quality metrics tracking, and comprehensive quality validation across the entire software development lifecycle.
+- **Capabilities**: quality strategy & architecture, test planning & design, quality assurance & validation, process improvement, team leadership & mentoring
+- **Description**: Quality Assurance architecture, test strategy design, quality metrics tracking, and comprehensive quality validation across the entire software development lifecycle.
+
+### Release Manager Agent (`releasemanager`)
+
+- **Role**: Manages git workflows, semantic versioning, releases, changelogs, and deployment automation for the Paracle project.
+- **Capabilities**: version management, git workflow, release process, bug/feature tracking
+- **Description**: Manages git workflows, semantic versioning, releases, changelogs, and deployment automation for the Paracle project.
+
 ### Reviewer Agent (`reviewer`)
 
 - **Role**: Code review, quality assurance, and ensuring adherence to project standards and best practices.
 - **Capabilities**: code review, quality assurance, knowledge transfer
 - **Description**: Code review, quality assurance, and ensuring adherence to project standards and best practices.
+
+### Agent Specification Schema (`SCHEMA`)
+
+- **Role**: One-paragraph description of what this agent does.
+- **Capabilities**: category name
+- **Description**: One-paragraph description of what this agent does.
+
+### Security Agent (`security`)
+
+- **Role**: Security auditing, vulnerability detection, threat modeling, compliance enforcement, and security standards implementation for Paracle framework and AI applications.
+- **Capabilities**: core security, compliance, application security, supply chain security, secret management
+- **Description**: Security auditing, vulnerability detection, threat modeling, compliance enforcement, and security standards implementation for Paracle framework and AI applications.
+
+### Agent Specification Template (`TEMPLATE`)
+
+- **Role**: [Describe the agent's primary function in 1-2 sentences]
+- **Capabilities**: [primary category], [secondary category]
+- **Description**: [Describe the agent's primary function in 1-2 sentences]
 
 ### Tester Agent (`tester`)
 
@@ -96,6 +119,8 @@ This checklist ensures:
 
 
 ## Governance Rules
+
+> **📖 Quick Reference**: See [STRUCTURE.md](STRUCTURE.md) for canonical `.parac/` folder structure and file placement rules.
 
 ## Contexte : Paracle conçoit Paracle
 
@@ -141,8 +166,6 @@ Toute information concernant l'état du projet, les décisions, les politiques, 
 
 Toute décision architecturale, tout changement de scope, toute modification de roadmap DOIT être documentée dans `.parac/`.
 
-| Type de Changement      | Fichier à Mettre à Jour                                      |
-
 
 
 
@@ -151,8 +174,8 @@ Toute décision architecturale, tout changement de scope, toute modification de 
 - Q1: Agent Inheritance Depth Limit
 - Q2: Event Store Implementation
 - Q3: API Versioning Strategy
-- Q4: Tool Calling Interface
-- Q5: Memory Management Strategy
+- Q13: Complexity vs Accessibility
+- Q14: Learning Curve Reduction
 
 
 
@@ -227,65 +250,7 @@ with agent_context("CoderAgent"):
 - **manifest.yaml** (AUTO-GENERATED): Workspace state - CLI generates, DON'T edit
 - See `.parac/CONFIG_FILES.md` for complete explanation
 
-## Agent Execution Options
 
-### Option 1: Run Agent via CLI (Recommended)
-
-**When to use**:
-- Complex, multi-step tasks
-- Need consistent agent behavior
-- Automated workflows (CI/CD)
-- Want agent's specialized skills executed
-
-**How**:
-```bash
-# Run agent with task
-paracle agent run coder --task "Implement user authentication"
-
-# With options
-paracle agent run coder --task "Fix bug #123" --mode safe --verbose
-
-# See all options
-paracle agent run --help
-```
-
-**Available modes**:
-- `--mode safe` (default): Manual approvals, production-ready
-- `--mode yolo`: Auto-approve all gates, CI/CD friendly
-- `--mode sandbox`: Isolated execution environment
-- `--mode review`: Mandatory human approval
-
-**See**: [content/docs/technical/agent-run-quickref.md](../content/docs/technical/agent-run-quickref.md) for complete guide
-
-### Option 2: Manual Implementation Following Agent Standards
-
-**When to use**:
-- Simple, straightforward tasks
-- Agent execution not available
-- Real-time AI assistant help
-- Rapid prototyping
-
-**How**:
-1. Read agent spec: `.parac/agents/specs/{agent}.md`
-2. Understand agent's responsibilities
-3. Follow agent's assigned skills
-4. Implement according to standards
-5. Log action as that agent
-
-**Example**:
-```python
-# Read .parac/agents/specs/coder.md first
-# Then implement following CoderAgent standards:
-# - Python 3.10+ with type hints
-# - Pydantic v2 for models
-# - Google-style docstrings
-# - pytest for testing
-
-# After implementation, log:
-# [2026-01-06 10:30:00] [CoderAgent] [IMPLEMENTATION] Implemented auth in packages/paracle_api/auth.py
-```
-
-**Key**: Even when implementing manually, **follow agent standards** from `.parac/agents/specs/{agent}.md`
 
 ## Governance Tools & Commands
 
@@ -302,7 +267,7 @@ This detects:
 - Missing/extra deliverables
 - Metric inconsistencies
 
-**See [content/docs/technical/roadmap-state-sync.md](../content/docs/technical/roadmap-state-sync.md) for details.**
+**See [content/docs/roadmap-state-sync.md](../content/docs/roadmap-state-sync.md) for details.**
 
 ### Governance Validation
 
@@ -337,7 +302,7 @@ paracle session end
 2. Add keys to `.env`: `OPENAI_API_KEY=sk-...`
 3. Never commit `.env` to git!
 
-**See [content/docs/users/reference/api-keys.md](../content/docs/users/reference/api-keys.md) for:**
+**See [content/docs/api-keys.md](../content/docs/api-keys.md) for:**
 - 12+ provider setup guides
 - Security best practices
 - Docker/production deployment
@@ -347,30 +312,30 @@ paracle session end
 
 ## Essential .parac/ Files
 
-| File                                           | Purpose                              | When to Read                            |
-| ---------------------------------------------- | ------------------------------------ | --------------------------------------- |
-| **`.parac/GOVERNANCE.md`**                     | Governance rules, dogfooding context | ALWAYS first                            |
-| **`.parac/PRE_FLIGHT_CHECKLIST.md`**           | **NEW: Mandatory task validation**   | **Before ANY implementation**           |
-| **`.parac/UNIVERSAL_AI_INSTRUCTIONS.md`**      | Universal instructions (any IDE)     | Setup / reference                       |
-| **`.parac/USING_PARAC.md`**                    | Complete 20+ section guide           | Deep understanding                      |
-| **`.parac/CONFIG_FILES.md`**                   | project.yaml vs manifest.yaml        | When confused about config              |
-| **`.parac/STRUCTURE.md`**                      | Complete .parac/ structure           | Understanding organization              |
-| **`.parac/agents/manifest.yaml`**              | Agent registry                       | Before selecting agent                  |
-| **`.parac/agents/specs/{agent}.md`**           | Agent detailed specs                 | After selecting agent                   |
-| **`.parac/agents/SKILL_ASSIGNMENTS.md`**       | Skills per agent                     | Understanding capabilities              |
-| **`.parac/memory/context/current_state.yaml`** | Project state                        | ALWAYS (before action)                  |
-| **`.parac/memory/context/open_questions.md`**  | Open questions                       | When blocked                            |
-| **`.parac/memory/knowledge/architecture.md`**  | Architecture knowledge               | Design decisions                        |
-| **`.parac/memory/knowledge/glossary.md`**      | Project glossary                     | Term clarification                      |
-| **`.parac/memory/logs/agent_actions.log`**     | Action history                       | Understanding changes                   |
-| **`.parac/memory/logs/decisions.log`**         | Important decisions                  | Context for choices                     |
-| **`.parac/roadmap/roadmap.yaml`**              | Roadmap and phases                   | Understanding priorities                |
-| **`.parac/roadmap/decisions.md`**              | ADRs (Architecture Decision Records) | Design rationale                        |
-| **`.parac/policies/CODE_STYLE.md`**            | Code style guide                     | Before coding                           |
-| **`.parac/policies/TESTING.md`**               | Testing policy                       | Before writing tests                    |
-| **`.parac/policies/SECURITY.md`**              | Security policy                      | Security-sensitive code                 |
-| **`content/docs/users/reference/api-keys.md`**         | **NEW: API key management guide**    | **Setting up LLM providers**            |
-| **`content/docs/technical/roadmap-state-sync.md`**     | **NEW: Roadmap sync guide**          | **Understanding governance automation** |
+| File | Purpose | When to Read |
+| --- | --- | --- |
+| **`.parac/GOVERNANCE.md`** | Governance rules, dogfooding context | ALWAYS first |
+| **`.parac/PRE_FLIGHT_CHECKLIST.md`** | **NEW: Mandatory task validation** | **Before ANY implementation** |
+| **`.parac/UNIVERSAL_AI_INSTRUCTIONS.md`** | Universal instructions (any IDE) | Setup / reference |
+| **`.parac/USING_PARAC.md`** | Complete 20+ section guide | Deep understanding |
+| **`.parac/CONFIG_FILES.md`** | project.yaml vs manifest.yaml | When confused about config |
+| **`.parac/STRUCTURE.md`** | Complete .parac/ structure | Understanding organization |
+| **`.parac/agents/manifest.yaml`** | Agent registry | Before selecting agent |
+| **`.parac/agents/specs/{agent}.md`** | Agent detailed specs | After selecting agent |
+| **`.parac/agents/SKILL_ASSIGNMENTS.md`** | Skills per agent | Understanding capabilities |
+| **`.parac/memory/context/current_state.yaml`** | Project state | ALWAYS (before action) |
+| **`.parac/memory/context/open_questions.md`** | Open questions | When blocked |
+| **`.parac/memory/knowledge/architecture.md`** | Architecture knowledge | Design decisions |
+| **`.parac/memory/knowledge/glossary.md`** | Project glossary | Term clarification |
+| **`.parac/memory/logs/agent_actions.log`** | Action history | Understanding changes |
+| **`.parac/memory/logs/decisions.log`** | Important decisions | Context for choices |
+| **`.parac/roadmap/roadmap.yaml`** | Roadmap and phases | Understanding priorities |
+| **`.parac/roadmap/decisions.md`** | ADRs (Architecture Decision Records) | Design rationale |
+| **`.parac/policies/CODE_STYLE.md`** | Code style guide | Before coding |
+| **`.parac/policies/TESTING.md`** | Testing policy | Before writing tests |
+| **`.parac/policies/SECURITY.md`** | Security policy | Security-sensitive code |
+| **`content/docs/api-keys.md`** | **NEW: API key management guide** | **Setting up LLM providers** |
+| **`content/docs/roadmap-state-sync.md`** | **NEW: Roadmap sync guide** | **Understanding governance automation** |
 
 
 
@@ -493,7 +458,7 @@ After action (MANDATORY):
 - **[.parac/GOVERNANCE.md](../.parac/GOVERNANCE.md)** - Governance rules
 - **[.parac/STRUCTURE.md](../.parac/STRUCTURE.md)** - Complete structure
 - **[.parac/agents/SKILL_ASSIGNMENTS.md](../.parac/agents/SKILL_ASSIGNMENTS.md)** - Skills per agent
-- **[content/docs/technical/architecture/overview.md](../content/docs/technical/architecture/overview.md)** - Technical architecture
+- **[content/docs/architecture.md](../content/docs/architecture.md)** - Technical architecture
 
 ---
 

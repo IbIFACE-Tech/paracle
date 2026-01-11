@@ -208,25 +208,73 @@ Quand un deliverable majeur est complété:
 
 ---
 
-## Règle 4: File Placement (NEW)
+## Règle 4: File Placement - MANDATORY
 
-> **Toujours respecter la structure canonique définie dans `STRUCTURE.md`**
+> **⚠️ CRITICAL: NEVER create files in project root. Always use proper locations.**
 
-Chaque fichier a une place spécifique dans `.parac/`:
+### Allowed Root Files (5 ONLY)
 
-| Type de Fichier         | Emplacement Correct                  | ❌ Erreur Commune        |
-| ----------------------- | ------------------------------------ | ----------------------- |
-| **Operational Data**    | `.parac/memory/data/*.db`            | `.parac/*.db` (root)    |
-| **Logs**                | `.parac/memory/logs/*.log`           | `packages/*/logs/`      |
-| **Knowledge**           | `.parac/memory/knowledge/*.md`       | `.parac/*.md`           |
-| **Decisions (ADRs)**    | `.parac/roadmap/decisions.md`        | `.parac/decisions.md`   |
-| **Agent Specs**         | `.parac/agents/specs/*.md`           | `.parac/agents/*.md`    |
-| **Execution Artifacts** | `.parac/runs/` (gitignored)          | `packages/*/artifacts/` |
-| **User Documentation**  | `content/docs/` (NOT in .parac)      | `.parac/docs/`          |
-| **Examples**            | `content/examples/` (NOT in .parac)  | `examples/` (root)      |
-| **Templates**           | `content/templates/` (NOT in .parac) | `templates/` (root)     |
+```
+README.md          # Project overview
+CHANGELOG.md       # Version history
+CONTRIBUTING.md    # Contribution guide
+CODE_OF_CONDUCT.md # Code of conduct
+SECURITY.md        # Security policy
+```
 
-**Before creating any new file in .parac/, consult [STRUCTURE.md](STRUCTURE.md) first.**
+**ANY OTHER FILE IN ROOT IS A VIOLATION.**
+
+### File Placement Rules
+
+| Type de Fichier              | Emplacement OBLIGATOIRE              | ❌ INTERDIT           |
+| ---------------------------- | ------------------------------------ | -------------------- |
+| **Phase reports**            | `.parac/memory/summaries/phase_*.md` | Root `*_COMPLETE.md` |
+| **Implementation summaries** | `.parac/memory/summaries/*.md`       | Root `*_SUMMARY.md`  |
+| **Testing reports**          | `.parac/memory/summaries/*.md`       | Root `*_TESTS*.md`   |
+| **Analysis reports**         | `.parac/memory/knowledge/*.md`       | Root `*_REPORT.md`   |
+| **Bug fix docs**             | `content/docs/troubleshooting/*.md`  | Root `*_ERROR*.md`   |
+| **Feature docs**             | `content/docs/features/*.md`         | Root `*_FEATURE.md`  |
+| **User guides**              | `content/docs/*.md`                  | Root `*_GUIDE.md`    |
+| **Code examples**            | `content/examples/*.py`              | Root `example_*.py`  |
+| **Templates**                | `content/templates/`                 | Root `template_*`    |
+| **Operational Data**         | `.parac/memory/data/*.db`            | Root `*.db`          |
+| **Logs**                     | `.parac/memory/logs/*.log`           | Root `*.log`         |
+| **Decisions (ADRs)**         | `.parac/roadmap/decisions.md`        | Root `decisions.md`  |
+| **Agent Specs**              | `.parac/agents/specs/*.md`           | Root `*_agent.md`    |
+| **Execution Artifacts**      | `.parac/runs/` (gitignored)          | Root `artifacts/`    |
+
+### Decision Tree for File Creation
+
+```
+Creating a new file?
+    ↓
+    Is it README/CHANGELOG/CONTRIBUTING/CODE_OF_CONDUCT/SECURITY?
+    ├─ YES → Project root
+    └─ NO  → Continue
+           ↓
+           Is it project governance/memory/decisions?
+           ├─ YES → .parac/
+           │        ├─ Summary → .parac/memory/summaries/
+           │        ├─ Knowledge → .parac/memory/knowledge/
+           │        ├─ Decision → .parac/roadmap/decisions.md
+           │        ├─ Agent spec → .parac/agents/specs/
+           │        └─ Data → .parac/memory/data/
+           │
+           └─ NO  → Is it user-facing?
+                  ├─ Documentation → content/docs/
+                  ├─ Examples → content/examples/
+                  └─ Templates → content/templates/
+```
+
+**Before creating ANY new file, consult [STRUCTURE.md](STRUCTURE.md) first.**
+
+### Enforcement
+
+All AI agents MUST:
+1. ✅ Check file placement rules before creating files
+2. ✅ Use proper directories (`.parac/` or `content/`)
+3. ❌ NEVER create markdown/docs in project root
+4. ✅ Move misplaced files to correct locations immediately
 
 ---
 

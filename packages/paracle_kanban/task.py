@@ -88,6 +88,17 @@ class Task(BaseModel):
         metadata: Additional metadata
         depends_on: List of task IDs this task depends on
         blocked_by: Optional reason for BLOCKED status
+        swimlane: Swimlane grouping (project, team, feature, etc.)
+        due_date: Optional due date
+        estimated_hours: Estimated time to complete (hours)
+        actual_hours: Actual time spent (hours)
+        labels: Visual labels with colors for categorization
+        custom_fields: Structured custom fields with validation
+        sprint_id: Sprint/milestone this task belongs to
+        story_points: Story points for estimation
+        parent_task_id: Parent task for sub-tasks
+        recurrence: Recurrence pattern (daily, weekly, monthly)
+        template_id: Template this task was created from
 
     Assignment Convention:
         - Agents: plain ID (e.g., "coder", "reviewer", "security")
@@ -111,6 +122,20 @@ class Task(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
     depends_on: list[str] = Field(default_factory=list)
     blocked_by: str | None = None
+
+    # New advanced features
+    swimlane: str | None = None
+    due_date: datetime | None = None
+    estimated_hours: float | None = None
+    actual_hours: float = 0.0
+    # [{"name": "urgent", "color": "#ff0000"}]
+    labels: list[dict[str, str]] = Field(default_factory=list)
+    custom_fields: dict[str, Any] = Field(default_factory=dict)
+    sprint_id: str | None = None
+    story_points: int | None = None
+    parent_task_id: str | None = None
+    recurrence: str | None = None  # "daily", "weekly", "monthly", "cron:*/15 * * * *"
+    template_id: str | None = None
 
     class Config:
         """Pydantic configuration."""

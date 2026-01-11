@@ -67,12 +67,6 @@ from paracle_tools.documenter_tools import (
     markdown_generation,
 )
 
-# Diagnostics tools
-from paracle_tools.mcp_diagnose_tool import (
-    mcp_diagnose,
-    TOOL_METADATA as MCP_DIAGNOSE_METADATA,
-)
-
 # Tool exceptions (import with alias to avoid conflict with builtin.ToolError)
 from paracle_tools.exceptions import (
     ToolConfigurationError,
@@ -117,6 +111,14 @@ from paracle_tools.git_tools import (
     git_status,
     git_tag,
 )
+from paracle_tools.mcp_diagnose_tool import (
+    TOOL_METADATA as MCP_DIAGNOSE_METADATA,
+)
+
+# Diagnostics tools
+from paracle_tools.mcp_diagnose_tool import (
+    mcp_diagnose,
+)
 from paracle_tools.pm_tools import (
     MilestoneManagementTool,
     TaskTrackingTool,
@@ -124,6 +126,26 @@ from paracle_tools.pm_tools import (
     milestone_management,
     task_tracking,
     team_coordination,
+)
+from paracle_tools.qa_tools import (
+    BatsTestingTool,
+    DreddTestingTool,
+    LoadTestingTool,
+    NewmanTestingTool,
+    PerformanceProfilingTool,
+    PlaywrightTestingTool,
+    QualityMetricsTool,
+    SchemathesisTestingTool,
+    TestAutomationTool,
+    bats_testing,
+    dredd_testing,
+    load_testing,
+    newman_testing,
+    performance_profiling,
+    playwright_testing,
+    quality_metrics,
+    schemathesis_testing,
+    test_automation,
 )
 from paracle_tools.release_tools import (
     ChangelogGenerationTool,
@@ -297,4 +319,23 @@ __all__ = [
     "changelog_generation",
     "cicd_integration",
     "package_publishing",
+    # QA tools
+    "PerformanceProfilingTool",
+    "LoadTestingTool",
+    "QualityMetricsTool",
+    "TestAutomationTool",
+    "BatsTestingTool",
+    "DreddTestingTool",
+    "SchemathesisTestingTool",
+    "NewmanTestingTool",
+    "PlaywrightTestingTool",
+    "performance_profiling",
+    "load_testing",
+    "quality_metrics",
+    "test_automation",
+    "bats_testing",
+    "dredd_testing",
+    "schemathesis_testing",
+    "newman_testing",
+    "playwright_testing",
 ]

@@ -60,9 +60,9 @@ paracle-lite/
 │   ├── unit/
 │   ├── integration/
 │   └── conftest.py
-├── content/docs/             # Documentation
-├── content/examples/         # Usage examples
-├── content/templates/        # User templates
+├── docs/                     # Documentation
+├── examples/                 # Usage examples
+├── templates/                # User templates
 │   └── .parac-template/
 ├── pyproject.toml            # Project config
 ├── Makefile                  # Common tasks
@@ -449,7 +449,7 @@ from .web_search import WebSearchTool
 ToolRegistry.register(WebSearchTool())
 
 # 3. Add to template
-# content/templates/.parac-template/tools/registry.yaml
+# templates/.parac-template/tools/registry.yaml
 - name: web_search
   display_name: "Web Search"
   description: "Search the web for information"

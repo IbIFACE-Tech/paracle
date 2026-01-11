@@ -330,6 +330,8 @@ workflow = Workflow(
 - [⚡ Getting Started Guide](content/docs/getting-started.md)
 - [🔑 API Keys Configuration](content/docs/api-keys.md)
 - [🔌 Providers Guide](content/docs/providers.md)
+- [🔄 Migration Guide](content/docs/migration-guide.md)
+- [🏥 Health Check (paracle doctor)](content/docs/dx-metrics.md#monitoring--reporting)
 
 </td>
 <td width="33%">
@@ -361,7 +363,8 @@ workflow = Workflow(
 
 [🗺️ Roadmap](.parac/roadmap/roadmap.yaml) •
 [📝 Architecture Decisions](.parac/roadmap/decisions.md) •
-[💡 Examples](content/examples/)
+[💡 Examples](content/examples/) •
+[📊 DX Metrics](content/docs/dx-metrics.md)
 
 </td>
 </tr>
@@ -423,7 +426,7 @@ make format
 
 <div align="center">
 
-**Paracle v1.0.2** is production-ready! 🎉
+**Paracle v1.0.3** is production-ready! 🎉
 
 Current Phase: **Phase 10 - Governance & v1.0 Release** (95% complete)
 

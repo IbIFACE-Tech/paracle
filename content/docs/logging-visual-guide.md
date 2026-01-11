@@ -31,13 +31,13 @@ YOUR PROJECT                    SYSTEM INSTALLATION
 
 project-folder/                 Windows:
 └── .parac/                     C:\Users\<user>\AppData\Local\Paracle\logs\
-    └── memory/                 
+    └── memory/
         └── logs/               Linux:
             ├── agent_actions.log      ~/.local/share/paracle/logs/
-            ├── decisions.log          
+            ├── decisions.log
             ├── archives/              macOS:
             │   └── *.log              ~/Library/Logs/Paracle/
-            └── runtime/               
+            └── runtime/
                                 Docker:
                                 /var/log/paracle/
 ```
@@ -148,10 +148,10 @@ logger = get_logger(__name__)
 with correlation_id() as cid:
     # Framework: debug internal execution
     logger.info("Starting task execution")
-    
+
     try:
         result = execute_task()
-        
+
         # User: log project progress
         log_action(
             action="IMPLEMENTATION",
@@ -161,7 +161,7 @@ with correlation_id() as cid:
     except Exception as e:
         # Framework: log error details
         logger.error("Task failed", exc_info=True)
-        
+
         # User: log project incident
         log_action(
             action="BUGFIX",
@@ -294,7 +294,8 @@ Configuring user logs in          Configure in
 
 ---
 
-**🎯 Remember**: 
+**🎯 Remember**:
+
 - `.parac/` = Your project logs (CLI managed)
 - System paths = Framework logs (auto-managed)
 - Use the right tool for the right job!

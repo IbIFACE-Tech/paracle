@@ -65,6 +65,14 @@ from paracle_core.storage import (
     set_storage_config,
 )
 
+# Version information (single source of truth)
+from paracle_core.version import (
+    __version__,
+    __version_info__,
+    get_version,
+    get_version_info,
+)
+
 __version__ = "1.0.1"
 
 __all__ = [

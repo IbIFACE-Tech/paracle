@@ -2,7 +2,7 @@
 # Paracle AI Instructions for GitHub Copilot
 # Auto-generated from .parac/ - DO NOT EDIT MANUALLY
 # Regenerate with: paracle ide sync --copy
-# Generated: 2026-01-10T12:37:41.716808
+# Generated: 2026-01-11T04:05:34.693918
 #
 # 📖 Read First: .parac/UNIVERSAL_AI_INSTRUCTIONS.md (works with ANY IDE)
 
@@ -65,7 +65,7 @@ This checklist ensures:
 
 ## Current Project State
 
-- **Project**: paracle-lite v1.0.2
+- **Project**: paracle-lite v1.0.3
 - **Phase**: phase_10 - Governance & v1.0 Release (0%)
 - **Status**: in_progress
 
@@ -96,6 +96,12 @@ This checklist ensures:
 - **Role**: Project coordination, roadmap management, progress tracking, and stakeholder communication.
 - **Capabilities**: project planning, progress tracking, risk management, team coordination
 - **Description**: Project coordination, roadmap management, progress tracking, and stakeholder communication.
+
+### QA Agent (Senior QA Architect) (`qa`)
+
+- **Role**: Quality Assurance architecture, test strategy design, quality metrics tracking, and comprehensive quality validation across the entire software development lifecycle.
+- **Capabilities**: quality strategy & architecture, test planning & design, quality assurance & validation, process improvement, team leadership & mentoring
+- **Description**: Quality Assurance architecture, test strategy design, quality metrics tracking, and comprehensive quality validation across the entire software development lifecycle.
 
 ### Release Manager Agent (`releasemanager`)
 

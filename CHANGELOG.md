@@ -9,6 +9,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Centralized Version Management** (`paracle_core.version`)
+  - Single source of truth for version number
+  - All modules import from `paracle_core.version`
+  - Version metadata: major, minor, patch components
+  - Release information: date, name, codename
+  - Feature flags based on version
+  - Utility functions: `get_version()`, `get_version_info()`, `format_version()`
+- **Migration Guide** (`content/docs/migration-guide.md`)
+  - 600+ lines comprehensive upgrade documentation
+  - Version compatibility matrix
+  - Breaking changes documentation
+  - Automated migration scripts
+  - Common issues and solutions
+  - Rollback procedures
+- **Health Check Command** (`paracle doctor`)
+  - 7 comprehensive health checks
+  - Validates Python environment, installation, workspace, config
+  - Checks optional dependencies (Docker, SSH, AI providers)
+  - System resource monitoring
+  - Auto-fix suggestions with `--fix` flag
+  - Verbose mode with `--verbose` flag
+- **Watch Mode for IDE Sync** (`paracle ide sync --watch`)
+  - Real-time file watching for `.parac/` changes
+  - Auto-sync IDE configs on agent/workflow/policy updates
+  - Debounced syncs (2s cooldown)
+  - Watches agents, workflows, memory, roadmap, policies
+  - Graceful shutdown with Ctrl+C
+- **Developer Experience Metrics** (`content/docs/dx-metrics.md`)
+  - 500+ lines DX measurement framework
+  - 7 core metrics with baselines
+  - Time to First Value: 3-4 min target
+  - API Surface: 45 symbols
+  - Error Clarity: 7.5/10 current score
+  - Measurement methods and improvement targets
+  - ICE prioritization framework
 - **MCP Diagnostics Tool** (`mcp_diagnose`) for agents
   - Automatic detection of MCP server and UV issues
   - Self-healing capabilities with `auto_fix=True`
@@ -32,12 +67,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Prevents rebuilds on every MCP server start
   - Eliminates file lock issues on `paracle.exe`
   - Works across all platforms without hardcoded paths
+- **Version Management Centralized**
+  - All files now import from `paracle_core.version`
+  - CLI dynamically reads version
+  - `hello` command uses `format_version()`
+  - Eliminates version drift across files
 
 ### Fixed
 
 - MCP server startup failures caused by `uv run` rebuilds
 - File lock issues on `paracle.exe` (Windows)
 - Process conflicts during UV operations
+
+### Documentation
+
+- Added migration guide to README
+- Added DX metrics to README
+- Updated version references across all documentation
 
 ---
 

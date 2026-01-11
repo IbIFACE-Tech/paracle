@@ -37,6 +37,10 @@ MANIFEST
 pip-log.txt
 pip-delete-this-directory.txt
 
+# Paracle operational databases
+*.db
+.paracle*.db
+
 # Unit test / coverage reports
 htmlcov/
 .tox/
@@ -48,6 +52,9 @@ nosetests.xml
 coverage.xml
 *.cover
 *.py.cover
+test-results.xml
+bandit_report.json
+*_report.json
 .hypothesis/
 .pytest_cache/
 cover/

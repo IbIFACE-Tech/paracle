@@ -233,5 +233,5 @@ async def add_timing_header(request: Request, call_next):
 ## Resources
 
 - FastAPI Performance: https://fastapi.tiangolo.com/advanced/performance/
-- SQLAlchemy Optimization: `content/docs/technical/performance-guide.md`
+- SQLAlchemy Optimization: `docs/performance-guide.md`
 - Monitoring: `packages/paracle_core/logging/metrics.py`

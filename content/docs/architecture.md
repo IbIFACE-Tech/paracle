@@ -42,6 +42,7 @@ System design and architectural patterns for the Paracle multi-agent framework.
 ### 1. Hexagonal Architecture (Ports & Adapters)
 
 Paracle follows hexagonal architecture to ensure:
+
 - **Testability**: Core logic is isolated from external dependencies
 - **Flexibility**: Swap implementations without changing business logic
 - **Maintainability**: Clear boundaries between layers
@@ -69,6 +70,7 @@ Paracle follows hexagonal architecture to ensure:
 ### 2. API-First Design
 
 All functionality is exposed through REST APIs first:
+
 - CLI commands call API endpoints
 - IDE integrations use the same APIs
 - Consistent behavior across interfaces
@@ -76,6 +78,7 @@ All functionality is exposed through REST APIs first:
 ### 3. Event-Driven Communication
 
 Components communicate through domain events:
+
 - Loose coupling between modules
 - Audit trail built-in
 - Easy extension points

@@ -106,7 +106,7 @@ recent_updates:
         rotation: "10,000 lines max, keeps 1,000 recent"
         purpose: "Project governance, traceability, decisions"
       framework_logs:
-        location: "Platform-specific (Windows: %LOCALAPPDATA%\Paracle\logs\, Linux: ~/.local/share/paracle/logs/, macOS: ~/Library/Logs/Paracle/)"
+        location: "Platform-specific (Windows: %LOCALAPPDATA%\\Paracle\\logs\\, Linux: ~/.local/share/paracle/logs/, macOS: ~/Library/Logs/Paracle/)"
         api: "paracle_core.logging (get_logger, configure_logging, LogConfig)"
         handlers: "ParacleFileHandler, AuditFileHandler, ParacleStreamHandler"
         format: "JSON structured with correlation_id, context"
@@ -120,7 +120,7 @@ recent_updates:
       command_length_reduction: "63% (50 chars → 23 chars)"
       cross_platform: "100% (same command Windows/Linux/macOS)"
       discoverability: "100% (via --help)"
-      before: "python .\.parac\tools\hooks\analyze-logs.py"
+      before: "python .\\.parac\\tools\\hooks\\analyze-logs.py"
       after: "paracle logs analyze"
     documentation:
       total_lines: "1,100+ lines across 4 major documents"

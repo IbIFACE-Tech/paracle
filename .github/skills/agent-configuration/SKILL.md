@@ -27,7 +27,6 @@ allowed-tools: Read Write
 ## When to use this skill
 
 Use when:
-
 - Creating new agent specifications
 - Setting up agent inheritance
 - Configuring agent skills and tools
@@ -98,4 +97,4 @@ system_prompt: |
 ## Resources
 
 - Agent Specs: `.parac/agents/specs/`
-- Template: `content/templates/.parac-template/agents/specs/`
+- Template: `templates/.parac-template/agents/specs/`

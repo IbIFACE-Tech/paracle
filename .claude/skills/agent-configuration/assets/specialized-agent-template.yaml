@@ -18,13 +18,13 @@ system_prompt: |
 
 # Add more skills
 skills:
-  - { { parent.skills } } # Include parent skills
+  - "{{parent.skills}}"  # Include parent skills (Jinja2 template)
   - specialized-skill-1
   - specialized-skill-2
 
 # Add more tools
 tools:
-  - { { parent.tools } } # Include parent tools
+  - "{{parent.tools}}"  # Include parent tools (Jinja2 template)
   - specialized-tool
 
 metadata:

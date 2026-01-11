@@ -1,5 +1,17 @@
 # 🔧 mcp_diagnose Quick Reference for Agents
 
+## ⚠️ CRITICAL: Always Use `--no-sync`
+
+**When running ANY `uv run` command**, use `--no-sync` to prevent file locks:
+
+```bash
+# ❌ WRONG - Will cause file locks
+uv run python -c "from mcp_diagnose_tool import mcp_diagnose; ..."
+
+# ✅ CORRECT - Prevents rebuilds
+uv run --no-sync python -c "from mcp_diagnose_tool import mcp_diagnose; ..."
+```
+
 ## When to Use
 
 Use `mcp_diagnose` when you encounter:
