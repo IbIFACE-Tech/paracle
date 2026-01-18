@@ -263,9 +263,9 @@ echo "OPENAI_API_KEY=your-key" >> .env
 
 ## Need Help?
 
-- **Issues**: [GitHub Issues](https://github.com/IbIFACE-Tech/paracle-lite/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/IbIFACE-Tech/paracle-lite/discussions)
-- **Documentation**: [Full Docs](https://github.com/IbIFACE-Tech/paracle-lite/docs)
+- **Issues**: [GitHub Issues](https://github.com/IbIFACE-Tech/paracle/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/IbIFACE-Tech/paracle/discussions)
+- **Documentation**: [Full Docs](https://github.com/IbIFACE-Tech/paracle/docs)
 
 ---
 

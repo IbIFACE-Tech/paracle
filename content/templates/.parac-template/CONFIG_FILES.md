@@ -21,14 +21,14 @@ Le `.parac/` utilise **deux fichiers de configuration distincts** avec des respo
 ### Contenu
 
 ```yaml
-name: paracle-lite
+name: paracle
 version: 0.0.1
 description: Framework multi-agent...
 
 # IDENTITY - Qui possède ce projet?
 identity:
   organization: IbIFACE-Tech
-  repository: paracle-lite
+  repository: paracle
   license: Apache-2.0
   homepage: https://github.com/...
 
@@ -108,7 +108,7 @@ schema_version: '1.0'
 generated_at: '2026-01-04T15:30:00.123456'  # ← Timestamp auto
 
 workspace:
-  name: paracle-lite                        # ← Repris de project.yaml
+  name: paracle                        # ← Repris de project.yaml
   version: 0.0.1
   parac_version: 0.0.1
   root: /path/to/.parac
@@ -316,12 +316,12 @@ $ paracle validate --fix
 
 ```yaml
 # project.yaml
-name: paracle-lite
+name: paracle
 version: 0.0.1
 
 # manifest.yaml (généré)
 workspace:
-  name: paracle-lite-old  # ← Incohérent!
+  name: paracle-old  # ← Incohérent!
   version: 0.0.1
 ```
 

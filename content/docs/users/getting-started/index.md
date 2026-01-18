@@ -4,69 +4,69 @@
 
 <div class="grid cards" markdown>
 
--   :material-robot:{ .lg .middle } **Agent-First Design**
+- :material-robot:{ .lg .middle } **Agent-First Design**
 
-    ---
+  ***
 
-    Build autonomous agents with inheritance, tools, skills, and multi-provider support.
+  Build autonomous agents with inheritance, tools, skills, and multi-provider support.
 
-    [:octicons-arrow-right-24: Core Concepts](concepts/overview.md)
+  [:octicons-arrow-right-24: Core Concepts](concepts/overview.md)
 
--   :material-workflow:{ .lg .middle } **Workflow Orchestration**
+- :material-workflow:{ .lg .middle } **Workflow Orchestration**
 
-    ---
+  ***
 
-    DAG-based workflows with parallel execution, conditional logic, and error handling.
+  DAG-based workflows with parallel execution, conditional logic, and error handling.
 
-    [:octicons-arrow-right-24: Workflow Guide](workflow-guide.md)
+  [:octicons-arrow-right-24: Workflow Guide](workflow-guide.md)
 
--   :material-tools:{ .lg .middle } **30+ Modules**
+- :material-tools:{ .lg .middle } **30+ Modules**
 
-    ---
+  ***
 
-    Modular architecture: orchestration, sandbox, memory, caching, vector store, and more.
+  Modular architecture: orchestration, sandbox, memory, caching, vector store, and more.
 
-    [:octicons-arrow-right-24: Module Overview](architecture/modules.md)
+  [:octicons-arrow-right-24: Module Overview](architecture/modules.md)
 
--   :material-cloud:{ .lg .middle } **14+ LLM Providers**
+- :material-cloud:{ .lg .middle } **14+ LLM Providers**
 
-    ---
+  ***
 
-    OpenAI, Anthropic, Google, xAI, DeepSeek, Groq + self-hosted (Ollama, LM Studio).
+  OpenAI, Anthropic, Google, xAI, DeepSeek, Groq + self-hosted (Ollama, LM Studio).
 
-    [:octicons-arrow-right-24: Providers](providers.md)
+  [:octicons-arrow-right-24: Providers](providers.md)
 
--   :material-shield-check:{ .lg .middle } **Safety & Isolation**
+- :material-shield-check:{ .lg .middle } **Safety & Isolation**
 
-    ---
+  ***
 
-    Docker sandbox, network isolation, automatic rollback, artifact review workflows.
+  Docker sandbox, network isolation, automatic rollback, artifact review workflows.
 
-    [:octicons-arrow-right-24: Security Features](phase5-guide.md)
+  [:octicons-arrow-right-24: Security Features](phase5-guide.md)
 
--   :material-api:{ .lg .middle } **REST API + CLI**
+- :material-api:{ .lg .middle } **REST API + CLI**
 
-    ---
+  ***
 
-    Full-featured CLI and FastAPI server. Start with `paracle tutorial`.
+  Full-featured CLI and FastAPI server. Start with `paracle tutorial`.
 
-    [:octicons-arrow-right-24: CLI Reference](cli-reference.md)
+  [:octicons-arrow-right-24: CLI Reference](cli-reference.md)
 
--   :material-school:{ .lg .middle } **Interactive Tutorial**
+- :material-school:{ .lg .middle } **Interactive Tutorial**
 
-    ---
+  ***
 
-    30-minute guided tutorial: create agents, add tools, build workflows.
+  30-minute guided tutorial: create agents, add tools, build workflows.
 
-    [:octicons-arrow-right-24: Quick Start](quickstart.md)
+  [:octicons-arrow-right-24: Quick Start](quickstart.md)
 
--   :material-connection:{ .lg .middle } **Integration Ready**
+- :material-connection:{ .lg .middle } **Integration Ready**
 
-    ---
+  ***
 
-    MCP protocol, A2A agent communication, LangChain/LlamaIndex adapters.
+  MCP protocol, A2A agent communication, LangChain/LlamaIndex adapters.
 
-    [:octicons-arrow-right-24: Integrations](mcp-integration.md)
+  [:octicons-arrow-right-24: Integrations](mcp-integration.md)
 
 </div>
 
@@ -103,13 +103,13 @@ Built for enterprise with modular design:
 
 Everything you need for AI applications:
 
-| Category          | Features                                          |
-| ----------------- | ------------------------------------------------- |
-| **Orchestration** | DAG workflows, parallel execution, conditionals   |
-| **Execution**     | Docker sandbox, network isolation, auto-rollback  |
-| **Data**          | Memory, cache, vector store, knowledge engine     |
-| **Operations**    | Audit logs, profiling, events, governance         |
-| **Collaboration** | Kanban board, Git workflows, agent communication  |
+| Category          | Features                                         |
+| ----------------- | ------------------------------------------------ |
+| **Orchestration** | DAG workflows, parallel execution, conditionals  |
+| **Execution**     | Docker sandbox, network isolation, auto-rollback |
+| **Data**          | Memory, cache, vector store, knowledge engine    |
+| **Operations**    | Audit logs, profiling, events, governance        |
+| **Collaboration** | Kanban board, Git workflows, agent communication |
 | **Integration**   | MCP protocol, A2A, LangChain, LlamaIndex         |
 
 ### 🔧 Developer Experience
@@ -330,8 +330,8 @@ Paracle follows a **modular monolith** architecture with clear boundaries:
 - [Audit Trail Guide](audit-guide.md) - Tamper-evident logging
 - [Compliance Guide](compliance-guide.md) - Compliance reports
 - [Performance Profiling Guide](performance-profiling-guide.md)
-- [GitHub Discussions](https://github.com/IbIFACE-Tech/paracle-lite/discussions)
-- [Issue Tracker](https://github.com/IbIFACE-Tech/paracle-lite/issues)
+- [GitHub Discussions](https://github.com/IbIFACE-Tech/paracle/discussions)
+- [Issue Tracker](https://github.com/IbIFACE-Tech/paracle/issues)
 - Email: [team@ibiface-tech.com](mailto:team@ibiface-tech.com)
 
 ## Contributing

@@ -374,7 +374,7 @@ Having issues with API keys?
 1. Check provider status pages
 2. Verify key format and permissions
 3. Review logs: `.parac/logs/paracle.log`
-4. File issue: https://github.com/IbIFACE-Tech/paracle-lite/issues
+4. File issue: https://github.com/IbIFACE-Tech/paracle/issues
 
 ---
 

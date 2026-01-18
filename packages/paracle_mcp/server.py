@@ -943,7 +943,8 @@ class ParacleMCPServer:
                 if "folder" in result:
                     text_parts.append(f"Folder: {result['folder']}")
                 if "extensions" in result:
-                    text_parts.append(f"Extensions ({result.get('count', 0)}):")
+                    text_parts.append(
+                        f"Extensions ({result.get('count', 0)}):")
                     for ext in result["extensions"][:20]:  # Limit to first 20
                         text_parts.append(f"  - {ext}")
                 if "version_info" in result:
@@ -1138,7 +1139,7 @@ class ParacleMCPServer:
                         "serverInfo": {
                             "name": "paracle-mcp",
                             "version": "1.0.1",
-                            "icon": "https://raw.githubusercontent.com/IbIFACE-Tech/paracle-lite/main/assets/paracle_icon.png",
+                            "icon": "https://raw.githubusercontent.com/IbIFACE-Tech/paracle/main/assets/paracle_icon.png",
                         },
                     }
                 else:
@@ -1197,7 +1198,7 @@ class ParacleMCPServer:
                     "serverInfo": {
                         "name": "paracle-mcp",
                         "version": "1.0.1",
-                        "icon": "https://raw.githubusercontent.com/IbIFACE-Tech/paracle-lite/main/assets/paracle_icon.png",
+                        "icon": "https://raw.githubusercontent.com/IbIFACE-Tech/paracle/main/assets/paracle_icon.png",
                     },
                 }
             else:

@@ -64,8 +64,8 @@ This guide provides step-by-step instructions for deploying Paracle v1.0+ to pro
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/IbIFACE-Tech/paracle-lite.git
-cd paracle-lite
+git clone https://github.com/IbIFACE-Tech/paracle.git
+cd paracle
 
 # 2. Set up environment
 cp .env.example .env
@@ -417,8 +417,8 @@ sudo useradd -m -s /bin/bash paracle
 sudo su - paracle
 
 # Clone repository
-git clone https://github.com/IbIFACE-Tech/paracle-lite.git
-cd paracle-lite
+git clone https://github.com/IbIFACE-Tech/paracle.git
+cd paracle
 
 # Create virtual environment
 python3.13 -m venv venv
@@ -450,10 +450,10 @@ After=network.target postgresql.service redis.service
 [Service]
 Type=simple
 User=paracle
-WorkingDirectory=/home/paracle/paracle-lite
-Environment="PATH=/home/paracle/paracle-lite/venv/bin"
-EnvironmentFile=/home/paracle/paracle-lite/.env
-ExecStart=/home/paracle/paracle-lite/venv/bin/uvicorn paracle_api.main:app --host 0.0.0.0 --port 8000 --workers 4
+WorkingDirectory=/home/paracle/paracle
+Environment="PATH=/home/paracle/paracle/venv/bin"
+EnvironmentFile=/home/paracle/paracle/.env
+ExecStart=/home/paracle/paracle/venv/bin/uvicorn paracle_api.main:app --host 0.0.0.0 --port 8000 --workers 4
 Restart=always
 RestartSec=10
 
@@ -606,5 +606,5 @@ See [troubleshooting.md](troubleshooting.md) for common issues:
 ## Support
 
 - **Documentation**: <https://docs.paracles.com/>/>
-- **Issues**: <https://github.com/IbIFACE-Tech/paracle-lite/issues>s>
+- **Issues**: <https://github.com/IbIFACE-Tech/paracle/issues>s>
 - **Email**: <support@ibiface.com>m>

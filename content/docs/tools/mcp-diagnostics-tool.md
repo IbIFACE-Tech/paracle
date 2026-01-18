@@ -58,7 +58,7 @@ if result['summary']['has_errors']:
     "venv_exists": {
       "status": "healthy",
       "issue": null,
-      "details": {"venv_path": "C:\\...\\paracle-lite\\.venv"}
+      "details": {"venv_path": "C:\\...\\paracle\\.venv"}
     },
     "stuck_processes": {
       "status": "warning",

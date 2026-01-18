@@ -219,11 +219,11 @@ all = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/IbIFACE-Tech/paracle-lite"
+Homepage = "https://github.com/IbIFACE-Tech/paracle"
 Documentation = "https://paracle.readthedocs.io"
-Repository = "https://github.com/IbIFACE-Tech/paracle-lite"
-Issues = "https://github.com/IbIFACE-Tech/paracle-lite/issues"
-Changelog = "https://github.com/IbIFACE-Tech/paracle-lite/blob/main/CHANGELOG.md"
+Repository = "https://github.com/IbIFACE-Tech/paracle"
+Issues = "https://github.com/IbIFACE-Tech/paracle/issues"
+Changelog = "https://github.com/IbIFACE-Tech/paracle/blob/main/CHANGELOG.md"
 PyPI = "https://pypi.org/project/paracle/"
 
 [project.scripts]

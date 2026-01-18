@@ -76,6 +76,7 @@ This document describes the implementation of **ADR-022: MCP Full Coverage via A
 4. **MCPAPIBridge**: Main bridge class
 
 **Usage**:
+
 ```python
 from paracle_mcp.api_bridge import MCPAPIBridge
 
@@ -96,6 +97,7 @@ result = await bridge.call_api_tool(
 ```
 
 **Offline Wrappers**:
+
 ```python
 # These tools bypass API for reliability:
 - paracle_board_list      → BoardRepository()
@@ -108,12 +110,14 @@ result = await bridge.call_api_tool(
 **File**: `packages/paracle_mcp/server.py`
 
 **Changes**:
+
 1. Added `MCPAPIBridge` to server initialization
 2. Implemented `_load_api_tools()` method
 3. Auto-generates MCP tool schemas from `/openapi.json`
 4. Integrated API bridge into `handle_call_tool()`
 
 **OpenAPI → MCP Conversion**:
+
 ```python
 def _load_api_tools(self):
     """Generate MCP tools from OpenAPI spec."""
@@ -144,6 +148,7 @@ def _load_api_tools(self):
 **Critical Tools** (always work, even offline):
 
 1. **paracle_board_list**
+
    ```python
    async def _offline_board_list(self, args):
        repo = BoardRepository()  # Direct DB access
@@ -152,6 +157,7 @@ def _load_api_tools(self):
    ```
 
 2. **paracle_errors_stats**
+
    ```python
    async def _offline_errors_stats(self, args):
        registry = ErrorRegistry()  # Direct registry access
@@ -193,6 +199,7 @@ def _load_api_tools(self):
 **Tests**: `tests/unit/test_mcp_api_bridge.py`
 
 **Test Coverage**:
+
 - ✅ API endpoint mappings (25+ tools)
 - ✅ Offline critical tools (3 tools)
 - ✅ API bridge routing (GET/POST/PUT/DELETE)
@@ -203,6 +210,7 @@ def _load_api_tools(self):
 - ✅ Mapping coverage validation
 
 **Run Tests**:
+
 ```bash
 # All tests
 uv run pytest tests/unit/test_mcp_api_bridge.py -v
@@ -219,6 +227,7 @@ uv run pytest tests/unit/test_mcp_api_bridge.py --cov=paracle_mcp.api_bridge
 ### For Users (IDE Configuration)
 
 **VS Code** (`.vscode/settings.json`):
+
 ```json
 {
   "mcp.servers": {
@@ -231,6 +240,7 @@ uv run pytest tests/unit/test_mcp_api_bridge.py --cov=paracle_mcp.api_bridge
 ```
 
 **Claude Desktop** (`claude_desktop_config.json`):
+
 ```json
 {
   "mcpServers": {
@@ -245,6 +255,7 @@ uv run pytest tests/unit/test_mcp_api_bridge.py --cov=paracle_mcp.api_bridge
 ### For Developers (Extending Coverage)
 
 **Adding New API Endpoint**:
+
 ```python
 # 1. Add route to API (e.g., packages/paracle_api/routers/new_feature.py)
 @router.post("/api/feature/action", operation_id="featureAction")
@@ -263,6 +274,7 @@ TOOL_API_MAPPINGS["paracle_feature_action"] = APIEndpointMapping(
 ```
 
 **Tool immediately accessible**:
+
 ```
 User → IDE → MCP → paracle_feature_action → REST API → Core
 ```
@@ -306,11 +318,13 @@ MCP Tool Call → API Bridge → REST API → Core
 ### Issue: "API not available"
 
 **Symptoms**:
+
 ```
 Warning: REST API not available, skipping OpenAPI tool generation
 ```
 
 **Solutions**:
+
 1. Start API server: `uv run uvicorn paracle_api.main:app`
 2. Check health: `curl http://localhost:8000/health`
 3. Verify port: Ensure API running on expected port
@@ -319,11 +333,13 @@ Warning: REST API not available, skipping OpenAPI tool generation
 ### Issue: "Tool not found"
 
 **Symptoms**:
+
 ```
 Error: Unknown tool: paracle_some_tool
 ```
 
 **Solutions**:
+
 1. Check tool name spelling
 2. Verify API server running (for API tools)
 3. Check `TOOL_API_MAPPINGS` if manually defined
@@ -332,11 +348,13 @@ Error: Unknown tool: paracle_some_tool
 ### Issue: "Connection timeout"
 
 **Symptoms**:
+
 ```
 API call failed: Connection timeout
 ```
 
 **Solutions**:
+
 1. Increase timeout: `MCPAPIBridge(timeout=60.0)`
 2. Check network latency
 3. Verify API server not overloaded
@@ -347,6 +365,7 @@ API call failed: Connection timeout
 ### From Manual Wrappers to API Bridge
 
 **Before** (Manual wrapper):
+
 ```python
 async def handle_call_tool(name, args):
     if name == "paracle_board_list":
@@ -357,6 +376,7 @@ async def handle_call_tool(name, args):
 ```
 
 **After** (API Bridge):
+
 ```python
 async def handle_call_tool(name, args):
     # All tools routed through API bridge
@@ -364,6 +384,7 @@ async def handle_call_tool(name, args):
 ```
 
 **Benefits**:
+
 - ✅ Zero duplication
 - ✅ Auto-coverage of new endpoints
 - ✅ Consistent error handling
@@ -400,8 +421,8 @@ async def handle_call_tool(name, args):
 
 ## Support
 
-- **Issues**: https://github.com/IbIFACE-Tech/paracle-lite/issues
-- **Discussions**: https://github.com/IbIFACE-Tech/paracle-lite/discussions
+- **Issues**: https://github.com/IbIFACE-Tech/paracle/issues
+- **Discussions**: https://github.com/IbIFACE-Tech/paracle/discussions
 - **Slack**: #paracle-mcp
 
 ---

@@ -582,8 +582,8 @@ paracle migrate --status
 
 ### Community Support
 
-- **GitHub Issues**: [github.com/IbIFACE-Tech/paracle-lite/issues](https://github.com/IbIFACE-Tech/paracle-lite/issues)
-- **Discussions**: [github.com/IbIFACE-Tech/paracle-lite/discussions](https://github.com/IbIFACE-Tech/paracle-lite/discussions)
+- **GitHub Issues**: [github.com/IbIFACE-Tech/paracle/issues](https://github.com/IbIFACE-Tech/paracle/issues)
+- **Discussions**: [github.com/IbIFACE-Tech/paracle/discussions](https://github.com/IbIFACE-Tech/paracle/discussions)
 - **Discord**: [discord.gg/paracle](https://discord.gg/paracle) (coming soon)
 
 ### Professional Support

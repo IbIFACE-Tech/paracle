@@ -184,7 +184,7 @@ We welcome contributions! See:
 
 - [Contributing Guide](../../CONTRIBUTING.md)
 - [Code Style](../../.parac/policies/CODE_STYLE.md)
-- [GitHub Issues](https://github.com/IbIFACE-Tech/paracle-lite/issues)
+- [GitHub Issues](https://github.com/IbIFACE-Tech/paracle/issues)
 
 ## License
 

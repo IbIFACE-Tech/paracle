@@ -2,10 +2,10 @@
 
 ## Supported Versions
 
-| Version | Supported          | Status                     |
-| ------- | ------------------ | -------------------------- |
-| 1.0.x   | :white_check_mark: | Active development         |
-| 0.x     | :x:                | No longer supported        |
+| Version | Supported          | Status              |
+| ------- | ------------------ | ------------------- |
+| 1.0.x   | :white_check_mark: | Active development  |
+| 0.x     | :x:                | No longer supported |
 
 ## Reporting a Vulnerability
 
@@ -17,7 +17,7 @@ Security vulnerabilities should be reported privately to avoid exploitation.
 
 ### 2. Report via GitHub Security Advisories
 
-1. Go to https://github.com/IbIFACE-Tech/paracle-lite/security/advisories
+1. Go to https://github.com/IbIFACE-Tech/paracle/security/advisories
 2. Click "Report a vulnerability"
 3. Provide detailed information:
    - Description of the vulnerability
@@ -30,6 +30,7 @@ Security vulnerabilities should be reported privately to avoid exploitation.
 If you prefer email, send details to: **security@ibiface.com**
 
 **Please include**:
+
 - Subject: `[SECURITY] Paracle Vulnerability Report`
 - Clear description of the issue
 - Proof of concept (if applicable)
@@ -44,12 +45,12 @@ If you prefer email, send details to: **security@ibiface.com**
 
 ## Severity Classification
 
-| Severity | Response Time | Fix Target    | Example                           |
-| -------- | ------------- | ------------- | --------------------------------- |
-| Critical | < 24 hours    | < 7 days      | RCE, SQL injection, auth bypass   |
-| High     | < 48 hours    | < 14 days     | XSS, CSRF, data exposure          |
-| Medium   | < 5 days      | < 30 days     | DoS, information disclosure       |
-| Low      | < 10 days     | Next release  | Minor information leaks           |
+| Severity | Response Time | Fix Target   | Example                         |
+| -------- | ------------- | ------------ | ------------------------------- |
+| Critical | < 24 hours    | < 7 days     | RCE, SQL injection, auth bypass |
+| High     | < 48 hours    | < 14 days    | XSS, CSRF, data exposure        |
+| Medium   | < 5 days      | < 30 days    | DoS, information disclosure     |
+| Low      | < 10 days     | Next release | Minor information leaks         |
 
 ## Security Update Process
 
@@ -64,6 +65,7 @@ If you prefer email, send details to: **security@ibiface.com**
 ### Current Open Issues
 
 #### 1. ecdsa Timing Attack (CVE-2024-23342)
+
 - **Status**: NO FIX AVAILABLE
 - **Severity**: HIGH (7.4 CVSS)
 - **Impact**: Minerva timing attack on P-256 curve
@@ -111,6 +113,7 @@ If you prefer email, send details to: **security@ibiface.com**
 ### Dependency Management
 
 We regularly scan dependencies for vulnerabilities using:
+
 - `bandit` - Python security linter
 - `safety` - Dependency vulnerability scanner
 - `pip-audit` - Python package audit
@@ -132,12 +135,14 @@ We regularly scan dependencies for vulnerabilities using:
 Before submitting code:
 
 1. Run security linters locally:
+
    ```bash
    bandit -r packages/
    safety check
    ```
 
 2. Ensure no secrets are committed:
+
    ```bash
    detect-secrets scan
    ```

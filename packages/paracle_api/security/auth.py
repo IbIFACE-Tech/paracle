@@ -59,10 +59,10 @@ def _check_auth_dependencies() -> None:
 
 
 # Password hashing context - created lazily
-_pwd_context: "CryptContext | None" = None
+_pwd_context: CryptContext | None = None
 
 
-def _get_pwd_context() -> "CryptContext":
+def _get_pwd_context() -> CryptContext:
     """Get password context, creating it if needed."""
     global _pwd_context
     if _pwd_context is None:
@@ -70,8 +70,10 @@ def _get_pwd_context() -> "CryptContext":
         _pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
     return _pwd_context
 
+
 # OAuth2 scheme for token extraction
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/token", auto_error=False)
+oauth2_scheme = OAuth2PasswordBearer(
+    tokenUrl="api/auth/token", auto_error=False)
 
 # API Key header scheme
 api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
@@ -490,5 +492,6 @@ def init_default_users() -> None:
             password="admin",  # CHANGE IN PRODUCTION
             email="admin@paracle.local",
             full_name="Admin User",
-            scopes=["admin:read", "admin:write", "agents:read", "agents:write"],
+            scopes=["admin:read", "admin:write",
+                    "agents:read", "agents:write"],
         )

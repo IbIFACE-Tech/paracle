@@ -85,24 +85,24 @@ Avoid cluttering root with:
 
 ## File Placement Matrix
 
-| File Type | Correct Location | Examples |
-|-----------|------------------|----------|
-| **User Documentation** | `content/docs/` | User guides, tutorials, API docs |
-| **Technical Documentation** | `content/docs/technical/` | Architecture, design docs |
-| **Feature Documentation** | `content/docs/features/` | Feature specifications |
-| **Troubleshooting** | `content/docs/troubleshooting/` | Common issues, FAQs |
-| **Code Examples** | `content/examples/` | Sample code, demos |
-| **Project Templates** | `content/templates/` | Starter templates |
-| **Agent Specs** | `.parac/agents/specs/` | Agent definitions |
-| **Agent Skills** | `.parac/agents/skills/` | Skill definitions |
-| **Workflows** | `.parac/workflows/` | Workflow YAML files |
-| **Policies** | `.parac/policies/` | Governance policies |
-| **Knowledge Base** | `.parac/memory/knowledge/` | Architecture, patterns, glossary |
-| **Summaries** | `.parac/memory/summaries/` | Weekly/phase summaries |
-| **Decisions (ADRs)** | `.parac/roadmap/decisions.md` | Architecture decisions |
-| **Operational Data** | `.parac/memory/data/` | Databases, metrics |
-| **Logs** | `.parac/memory/logs/` | All log files |
-| **Execution Artifacts** | `.parac/runs/` | Runtime outputs (gitignored) |
+| File Type                   | Correct Location                | Examples                         |
+| --------------------------- | ------------------------------- | -------------------------------- |
+| **User Documentation**      | `content/docs/`                 | User guides, tutorials, API docs |
+| **Technical Documentation** | `content/docs/technical/`       | Architecture, design docs        |
+| **Feature Documentation**   | `content/docs/features/`        | Feature specifications           |
+| **Troubleshooting**         | `content/docs/troubleshooting/` | Common issues, FAQs              |
+| **Code Examples**           | `content/examples/`             | Sample code, demos               |
+| **Project Templates**       | `content/templates/`            | Starter templates                |
+| **Agent Specs**             | `.parac/agents/specs/`          | Agent definitions                |
+| **Agent Skills**            | `.parac/agents/skills/`         | Skill definitions                |
+| **Workflows**               | `.parac/workflows/`             | Workflow YAML files              |
+| **Policies**                | `.parac/policies/`              | Governance policies              |
+| **Knowledge Base**          | `.parac/memory/knowledge/`      | Architecture, patterns, glossary |
+| **Summaries**               | `.parac/memory/summaries/`      | Weekly/phase summaries           |
+| **Decisions (ADRs)**        | `.parac/roadmap/decisions.md`   | Architecture decisions           |
+| **Operational Data**        | `.parac/memory/data/`           | Databases, metrics               |
+| **Logs**                    | `.parac/memory/logs/`           | All log files                    |
+| **Execution Artifacts**     | `.parac/runs/`                  | Runtime outputs (gitignored)     |
 
 ---
 
@@ -655,6 +655,7 @@ paracle-lite/
 4. ⚠️ **Automated cleanup** (files may be moved automatically)
 
 **The policy is automatically enforced**:
+
 - ✅ Pre-commit hooks
 - ✅ CI/CD validation
 - ✅ Code review checklist

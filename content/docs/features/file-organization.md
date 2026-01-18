@@ -14,7 +14,7 @@
 ## 📁 Structure
 
 ```
-paracle-lite/
+paracle/
 │
 ├── packages/              # PRODUIT (publié sur PyPI)
 │   ├── paracle_core/     # Code du framework

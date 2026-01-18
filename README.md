@@ -16,11 +16,11 @@
   <a href="https://www.python.org/downloads/">
     <img src="https://img.shields.io/badge/python-3.10+-3776AB.svg?style=flat-square" alt="Python">
   </a>
-  <a href="https://github.com/IbIFACE-Tech/paracle-lite/actions">
-    <img src="https://img.shields.io/github/actions/workflow/status/IbIFACE-Tech/paracle-lite/ci.yml?style=flat-square&label=build" alt="CI">
+  <a href="https://github.com/IbIFACE-Tech/paracle/actions">
+    <img src="https://img.shields.io/github/actions/workflow/status/IbIFACE-Tech/paracle/ci.yml?style=flat-square&label=build" alt="CI">
   </a>
-  <a href="https://github.com/IbIFACE-Tech/paracle-lite">
-    <img src="https://img.shields.io/github/stars/IbIFACE-Tech/paracle-lite?style=flat-square&color=FFB000" alt="Stars">
+  <a href="https://github.com/IbIFACE-Tech/paracle">
+    <img src="https://img.shields.io/github/stars/IbIFACE-Tech/paracle?style=flat-square&color=FFB000" alt="Stars">
   </a>
   <a href="#">
     <img src="https://img.shields.io/badge/security-95%2F100-success?style=flat-square" alt="Security">
@@ -28,7 +28,7 @@
   <a href=".parac/policies/OWASP_COMPLIANCE.md">
     <img src="https://img.shields.io/badge/OWASP-Compliant-success?style=flat-square&logo=owasp" alt="OWASP">
   </a>
-  <a href="https://github.com/IbIFACE-Tech/paracle-lite/actions/workflows/security.yml">
+  <a href="https://github.com/IbIFACE-Tech/paracle/actions/workflows/security.yml">
     <img src="https://img.shields.io/badge/scans-daily-blue?style=flat-square" alt="Security Scans">
   </a>
 </p>
@@ -179,6 +179,7 @@ pip install 'paracle[all]'
 ```
 
 **💡 Tip**: For production deployments, use Docker:
+
 ```bash
 docker-compose up  # Includes all dependencies
 ```
@@ -272,7 +273,7 @@ print(f"✅ Agent created: {agent.id}")
 ## 📦 Project Structure
 
 ```
-paracle-lite/
+paracle/
 ├── .parac/              # Project workspace (config, memory, runs)
 ├── packages/            # Modular packages
 │   ├── paracle_core/           # Core utilities
@@ -434,8 +435,8 @@ workflow = Workflow(
 
 ```bash
 # Clone repository
-git clone https://github.com/IbIFACE-Tech/paracle-lite.git
-cd paracle-lite
+git clone https://github.com/IbIFACE-Tech/paracle.git
+cd paracle
 
 # Install with dev dependencies
 make install-dev
@@ -501,7 +502,7 @@ We welcome contributions from the community.
 <tr>
 <td align="center" width="20%">
 <b>1. Fork</b><br>
-<a href="https://github.com/IbIFACE-Tech/paracle-lite/fork">Fork Repository</a>
+<a href="https://github.com/IbIFACE-Tech/paracle/fork">Fork Repository</a>
 </td>
 <td align="center" width="20%">
 <b>2. Branch</b><br>
@@ -517,7 +518,7 @@ Validate Quality
 </td>
 <td align="center" width="20%">
 <b>5. Submit</b><br>
-<a href="https://github.com/IbIFACE-Tech/paracle-lite/pulls">Pull Request</a>
+<a href="https://github.com/IbIFACE-Tech/paracle/pulls">Pull Request</a>
 </td>
 </tr>
 </table>
@@ -545,12 +546,12 @@ Licensed under [Apache License 2.0](LICENSE)
 <table>
 <tr>
 <td align="center">
-<a href="https://github.com/IbIFACE-Tech/paracle-lite/issues">
+<a href="https://github.com/IbIFACE-Tech/paracle/issues">
 <img src="https://img.shields.io/badge/GitHub-Issues-red?style=for-the-badge&logo=github" alt="Issues">
 </a>
 </td>
 <td align="center">
-<a href="https://github.com/IbIFACE-Tech/paracle-lite/discussions">
+<a href="https://github.com/IbIFACE-Tech/paracle/discussions">
 <img src="https://img.shields.io/badge/GitHub-Discussions-blue?style=for-the-badge&logo=github" alt="Discussions">
 </a>
 </td>
@@ -561,7 +562,7 @@ Licensed under [Apache License 2.0](LICENSE)
 
 **🐛 Bug Reports** • **✨ Feature Requests** • **❓ Questions** • **💡 Ideas**
 
-All welcome on [GitHub Issues](https://github.com/IbIFACE-Tech/paracle-lite/issues) and [Discussions](https://github.com/IbIFACE-Tech/paracle-lite/discussions)
+All welcome on [GitHub Issues](https://github.com/IbIFACE-Tech/paracle/issues) and [Discussions](https://github.com/IbIFACE-Tech/paracle/discussions)
 
 </div>
 

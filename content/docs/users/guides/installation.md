@@ -41,8 +41,8 @@ uv pip install paracle
 
 ```bash
 # Clone repository
-git clone https://github.com/IbIFACE-Tech/paracle-lite.git
-cd paracle-lite
+git clone https://github.com/IbIFACE-Tech/paracle.git
+cd paracle
 
 # Install in editable mode
 pip install -e ".[dev]"

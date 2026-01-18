@@ -58,12 +58,12 @@ uv run --no-sync python -c "from mcp_diagnose_tool import mcp_diagnose; import j
 
 ### Stop Stuck Processes (PowerShell)
 ```powershell
-Get-Process | Where-Object {$_.ProcessName -like "*python*" -and $_.Path -like "C:\Projets\paracle\paracle-lite*"} | Stop-Process -Force
+Get-Process | Where-Object {$_.ProcessName -like "*python*" -and $_.Path -like "C:\Projets\paracle\paracle*"} | Stop-Process -Force
 ```
 
 ### Stop Stuck Processes (Bash)
 ```bash
-ps aux | grep "paracle-lite.*python" | grep -v grep | awk '{print $2}' | xargs kill -9
+ps aux | grep "paracle.*python" | grep -v grep | awk '{print $2}' | xargs kill -9
 ```
 
 ## Prevention Checklist

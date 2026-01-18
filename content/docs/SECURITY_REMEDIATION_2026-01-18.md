@@ -1,7 +1,7 @@
 # Security Vulnerability Remediation Report - ACTUAL GitHub Alerts
 
 **Date**: 2026-01-18
-**Repository**: IbIFACE-Tech/paracle-lite
+**Repository**: IbIFACE-Tech/paracle
 **Branch**: develop
 **GitHub Dependabot Alerts**: 4 open vulnerabilities (2 high, 2 moderate)
 
@@ -19,7 +19,7 @@ GitHub Dependabot detected **4 security vulnerabilities** in transitive dependen
 
 ## Actual Vulnerability Analysis (from GitHub API)
 
-Retrieved via `gh api /repos/IbIFACE-Tech/paracle-lite/dependabot/alerts` on 2026-01-18.
+Retrieved via `gh api /repos/IbIFACE-Tech/paracle/dependabot/alerts` on 2026-01-18.
 
 ### 🔴 High Severity (2 vulnerabilities)
 
@@ -35,7 +35,7 @@ Retrieved via `gh api /repos/IbIFACE-Tech/paracle-lite/dependabot/alerts` on 202
 - **Fix**: Upgrade to pyasn1>=0.6.2
 - **Published**: 2026-01-16T19:19:25Z
 - **Location**: `uv.lock` (transitive dependency)
-- **PR**: [#9](https://github.com/IbIFACE-Tech/paracle-lite/pull/9) - Dependabot PR ready
+- **PR**: [#9](https://github.com/IbIFACE-Tech/paracle/pull/9) - Dependabot PR ready
 
 #### Alert #5: azure-core CVE-2026-21226 (GHSA-jm66-cg57-jjv5)
 
@@ -49,7 +49,7 @@ Retrieved via `gh api /repos/IbIFACE-Tech/paracle-lite/dependabot/alerts` on 202
 - **Fix**: Upgrade to azure-core>=1.38.0
 - **Published**: 2026-01-13T21:31:44Z
 - **Location**: `uv.lock` (transitive dependency)
-- **PR**: [#8](https://github.com/IbIFACE-Tech/paracle-lite/pull/8) - Dependabot PR ready
+- **PR**: [#8](https://github.com/IbIFACE-Tech/paracle/pull/8) - Dependabot PR ready
 
 ### 🟡 Moderate Severity (2 vulnerabilities)
 
@@ -65,7 +65,7 @@ Retrieved via `gh api /repos/IbIFACE-Tech/paracle-lite/dependabot/alerts` on 202
 - **Fix**: Upgrade to filelock>=3.20.3
 - **Published**: 2026-01-13T18:44:55Z
 - **Location**: `uv.lock` (transitive dependency)
-- **PR**: [#7](https://github.com/IbIFACE-Tech/paracle-lite/pull/7) - Dependabot PR ready
+- **PR**: [#7](https://github.com/IbIFACE-Tech/paracle/pull/7) - Dependabot PR ready
 
 #### Alert #3: virtualenv CVE-2026-22702 (GHSA-597g-3phw-6986)
 
@@ -79,7 +79,7 @@ Retrieved via `gh api /repos/IbIFACE-Tech/paracle-lite/dependabot/alerts` on 202
 - **Fix**: Upgrade to virtualenv>=20.36.1
 - **Published**: 2026-01-13T18:45:57Z
 - **Location**: `uv.lock` (transitive dependency)
-- **PR**: [#6](https://github.com/IbIFACE-Tech/paracle-lite/pull/6) - Dependabot PR ready
+- **PR**: [#6](https://github.com/IbIFACE-Tech/paracle/pull/6) - Dependabot PR ready
 
 ### ✅ Fixed Vulnerabilities (2 low severity)
 
@@ -109,13 +109,13 @@ GitHub has automatically created PRs to fix all 4 vulnerabilities:
 
 ```bash
 # Review and merge all 4 Dependabot PRs
-gh pr list --author "app/dependabot" --state open --repo IbIFACE-Tech/paracle-lite
+gh pr list --author "app/dependabot" --state open --repo IbIFACE-Tech/paracle
 
 # Merge each PR (after review):
-gh pr merge 9 --squash --delete-branch --repo IbIFACE-Tech/paracle-lite  # pyasn1
-gh pr merge 8 --squash --delete-branch --repo IbIFACE-Tech/paracle-lite  # azure-core
-gh pr merge 7 --squash --delete-branch --repo IbIFACE-Tech/paracle-lite  # filelock
-gh pr merge 6 --squash --delete-branch --repo IbIFACE-Tech/paracle-lite  # virtualenv
+gh pr merge 9 --squash --delete-branch --repo IbIFACE-Tech/paracle  # pyasn1
+gh pr merge 8 --squash --delete-branch --repo IbIFACE-Tech/paracle  # azure-core
+gh pr merge 7 --squash --delete-branch --repo IbIFACE-Tech/paracle  # filelock
+gh pr merge 6 --squash --delete-branch --repo IbIFACE-Tech/paracle  # virtualenv
 ```
 
 **Timeline**: 5-10 minutes (review + merge + CI)
@@ -179,11 +179,11 @@ gh pr merge 6 --squash --delete-branch  # virtualenv TOCTOU (4.5 CVSS)
 
 ```bash
 # After all PRs merged, verify 0 open alerts
-gh api /repos/IbIFACE-Tech/paracle-lite/dependabot/alerts --jq 'length'
+gh api /repos/IbIFACE-Tech/paracle/dependabot/alerts --jq 'length'
 # Expected output: 0
 
 # Alternative: Check via web
-gh browse --repo IbIFACE-Tech/paracle-lite https://github.com/IbIFACE-Tech/paracle-lite/security
+gh browse --repo IbIFACE-Tech/paracle https://github.com/IbIFACE-Tech/paracle/security
 
 # Run security scans locally
 pip install safety pip-audit

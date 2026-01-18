@@ -103,8 +103,8 @@ paracle serve --host 0.0.0.0 --port 8000 --workers 4
 
 ```bash
 # Clone the repository
-git clone https://github.com/IbIFACE-Tech/paracle-lite.git
-cd paracle-lite
+git clone https://github.com/IbIFACE-Tech/paracle.git
+cd paracle
 
 # Start with Docker Compose
 docker-compose up -d

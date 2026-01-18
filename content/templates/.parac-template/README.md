@@ -275,8 +275,8 @@ printenv | grep API_KEY
 
 1. **Read the docs**: [Paracle Documentation](../docs/)
 2. **Explore examples**: [Example Projects](../examples/)
-3. **Join community**: [GitHub Discussions](https://github.com/IbIFACE-Tech/paracle-lite/discussions)
-4. **Report issues**: [GitHub Issues](https://github.com/IbIFACE-Tech/paracle-lite/issues)
+3. **Join community**: [GitHub Discussions](https://github.com/IbIFACE-Tech/paracle/discussions)
+4. **Report issues**: [GitHub Issues](https://github.com/IbIFACE-Tech/paracle/issues)
 
 ## 🤝 Contributing
 

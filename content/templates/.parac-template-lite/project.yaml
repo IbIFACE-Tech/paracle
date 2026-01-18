@@ -9,7 +9,7 @@
 # ESSENTIAL CONFIGURATION
 # ============================================
 
-name: paracle-lite
+name: paracle
 version: 0.1.0
 description: Framework multi-agent user-driven pour applications IA natives
 schema_version: "1.0"
@@ -17,9 +17,9 @@ schema_version: "1.0"
 # Identity
 identity:
   organization: IbIFACE-Tech
-  repository: paracle-lite
+  repository: paracle
   license: Apache-2.0
-  homepage: https://github.com/IbIFACE-Tech/paracle-lite
+  homepage: https://github.com/IbIFACE-Tech/paracle
 
 # Team
 team:

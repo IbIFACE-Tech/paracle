@@ -426,10 +426,10 @@ for snap_id in rollback_manager.list_snapshots():
 - **Documentation**: [docs/phase5-guide.md](../docs/phase5-guide.md)
 - **API Reference**: [docs/api-reference.md](../docs/api-reference.md)
 - **Security**: [docs/security-audit-report.md](../docs/security-audit-report.md)
-- **Issues**: <https://github.com/IbIFACE-Tech/paracle-lite/issues>
+- **Issues**: <https://github.com/IbIFACE-Tech/paracle/issues>
 
 ---
 
 **Last Updated**: 2026-01-05
-**Version**: paracle-lite v0.0.1
+**Version**: paracle v0.0.1
 **Status**: Production Ready
