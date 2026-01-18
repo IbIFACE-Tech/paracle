@@ -15,7 +15,8 @@ from pydantic import BaseModel, Field
 
 # Optional dependencies - checked at runtime when actually used
 try:
-    from jose import JWTError, jwt
+    import jwt
+    from jwt.exceptions import InvalidTokenError as JWTError
 
     JWT_AVAILABLE = True
 except ImportError:
@@ -32,7 +33,8 @@ except ImportError:
     PASSLIB_AVAILABLE = False
 
 if TYPE_CHECKING:
-    from jose import jwt
+    import jwt
+    from jwt.exceptions import InvalidTokenError as JWTError
     from passlib.context import CryptContext
 
 from paracle_api.security.config import SecurityConfig, get_security_config
@@ -46,8 +48,8 @@ def _check_auth_dependencies() -> None:
     """
     if not JWT_AVAILABLE:
         raise ImportError(
-            "python-jose is required for authentication. "
-            "Install with: pip install python-jose[cryptography]"
+            "PyJWT is required for authentication. "
+            "Install with: pip install pyjwt[crypto]"
         )
     if not PASSLIB_AVAILABLE:
         raise ImportError(
