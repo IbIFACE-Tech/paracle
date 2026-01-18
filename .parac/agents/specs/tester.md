@@ -88,6 +88,26 @@ Before creating ANY file:
 
 **See [.parac/STRUCTURE.md](../.parac/STRUCTURE.md) for complete reference.**
 
+### File Organization Policy
+
+📋 **Comprehensive Policy**: [.parac/policies/FILE_ORGANIZATION.md](../../.parac/policies/FILE_ORGANIZATION.md)
+
+**Tester-Specific Guidelines**:
+
+- Unit tests → `tests/unit/` (isolated function/class tests)
+- Integration tests → `tests/integration/` (component interaction tests)
+- E2E tests → `tests/e2e/` (full workflow tests)
+- Test reports → `.parac/memory/summaries/` (coverage, quality reports)
+- Test fixtures → Stay with tests (exception to the rule)
+
+**Key Points for Tester**:
+
+- Test code always goes in `tests/` - NEVER in root
+- Test reports/summaries go in `.parac/memory/summaries/`
+- Coverage data goes in `.parac/memory/data/`
+- Test fixtures can live with tests (special exception)
+- Testing best practices go in `content/docs/technical/testing/`
+
 ## Skills
 
 - testing-qa

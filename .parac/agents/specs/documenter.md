@@ -88,6 +88,26 @@ Before creating ANY file:
 
 **See [.parac/STRUCTURE.md](../.parac/STRUCTURE.md) for complete reference.**
 
+### File Organization Policy
+
+📋 **Comprehensive Policy**: [.parac/policies/FILE_ORGANIZATION.md](../../.parac/policies/FILE_ORGANIZATION.md)
+
+**Documenter-Specific Guidelines**:
+
+- User guides → `content/docs/users/` (getting started, tutorials, how-tos)
+- Technical documentation → `content/docs/technical/` (architecture, internals)
+- API reference → `content/docs/api/` (generated docs + manual)
+- Architecture docs → `.parac/memory/knowledge/architecture.md` (internal decisions)
+- Examples with code → `content/examples/` (runnable demonstrations)
+
+**Key Points for Documenter**:
+
+- Standard docs (README, CHANGELOG, etc.) are the ONLY files in root
+- User-facing docs go in `content/docs/` - NOT root
+- Internal knowledge/analysis goes in `.parac/memory/knowledge/`
+- Phase summaries/reports go in `.parac/memory/summaries/`
+- Code examples belong in `content/examples/` - NOT root
+
 ## Skills
 
 - technical-documentation

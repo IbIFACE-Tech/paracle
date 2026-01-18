@@ -1,11 +1,27 @@
 # Include package data
 recursive-include packages *.jinja2
+recursive-include packages *.j2
 recursive-include packages py.typed
+
+# Include package resources (templates, skills, etc.)
+recursive-include packages/paracle_core/templates *.jinja2 *.j2 *.md
+recursive-include packages/paracle_core/parac/templates *.jinja2 *.j2 *.md
+recursive-include packages/paracle_meta/skills *.md *.yaml *.yml
+
+# Include user templates for `paracle init`
+prune content/templates/.parac-template
+prune content/templates/.ai-instructions
+
+recursive-include content/templates .env.example .gitignore
+recursive-include content/templates *.yaml *.yml *.md *.toml *.json
 
 # Include documentation
 include README.md
 include LICENSE
 include CHANGELOG.md
+include CONTRIBUTING.md
+include CODE_OF_CONDUCT.md
+include SECURITY.md
 
 # Include configuration
 include pyproject.toml
@@ -15,10 +31,32 @@ global-exclude __pycache__
 global-exclude *.py[cod]
 global-exclude .DS_Store
 global-exclude *.egg-info
+global-exclude *.so
+global-exclude *.dylib
+global-exclude *.dll
+
+# Exclude build artifacts
+prune build
+prune dist
+exclude .coverage
+exclude coverage.xml
+
+# Exclude development directories
 prune tests
 prune .github
 prune .parac
 prune docker
+prune scripts
+prune content/examples
 prune docs
 prune examples
-prune templates
+
+# Exclude IDE and editor files
+prune .vscode
+prune .idea
+prune .cursor
+prune .codex
+
+# NOTE: content/docs is INCLUDED (user documentation)
+# We include it via recursive-include in lines 7-13 above
+# Do NOT prune content/docs!

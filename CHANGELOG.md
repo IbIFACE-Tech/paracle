@@ -153,6 +153,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed type hints compatibility (replaced `Type | None` with `Optional[Type]`)
 
 ### Documentation
+
 - Moved all documentation from root `docs/` to `content/docs/`
 - Removed empty root directories (`docs/`, `examples/`, `templates/`)
 - All documentation paths now consistent across the project
@@ -162,6 +163,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.1] - 2026-01-09
 
 ### Added
+
 - Performance benchmarking guide and examples
 - Agent groups and A2A protocol documentation
 - Agent CLI enhancements (inspect, validate, test commands)
@@ -172,11 +174,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enhanced IDE integration and tooling
 
 ### Changed
+
 - Phase 10 completion increased to 98%
 - Enhanced security improvements and compliance updates
+
 - Improved CI/CD pipelines with benchmark workflow
 
 ### Fixed
+
 - Various security vulnerabilities (2 low-severity identified by Dependabot)
 - Code style and linting issues across multiple packages
 - Test coverage improvements (88% overall coverage)
@@ -186,16 +191,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - 2026-01-08
 
 ### Added
+
 - Complete Phase 10 features
 - Production-ready release
 - 5-layer governance system
 - Security audit complete (95/100 score)
 - ISO 27001/42001 compliance
+
 - SOC2 compliance preparation
 - GitHub Actions CI/CD workflows
 - Comprehensive test suite (613+ tests)
 
 ### Security
+
 - Achieved 95/100 security score
 - OWASP Top 10 compliance
 - Secret detection and management
@@ -208,8 +216,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - 2026-01-06
 
 ### Added
+
 - Initial beta release
 - Core framework functionality
+
 - Basic agent execution
 - Tool integration
 - MCP server support
@@ -217,6 +227,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - API server
 
 ### Changed
+
 - Project structure finalized
 - Documentation improvements
 

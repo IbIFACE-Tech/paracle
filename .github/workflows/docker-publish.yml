@@ -1,0 +1,179 @@
+name: Publish Docker Images
+
+on:
+  push:
+    tags:
+      - 'v*'  # Trigger on version tags (v1.0.3, v1.0.4, etc.)
+  release:
+    types: [published]
+  workflow_dispatch:  # Allow manual trigger
+    inputs:
+      version:
+        description: 'Version to publish (leave empty for auto-detect)'
+        required: false
+        type: string
+
+env:
+  DOCKER_USERNAME: ibiface
+
+jobs:
+  publish:
+    name: Build and Push ${{ matrix.image.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        image:
+          - name: paracle
+            dockerfile: Dockerfile.api
+            description: Paracle API Server
+          - name: paracle-worker
+            dockerfile: Dockerfile.worker
+            description: Paracle Background Worker
+          - name: paracle-mcp
+            dockerfile: Dockerfile.mcp
+            description: Paracle MCP Server
+          - name: paracle-sandbox
+            dockerfile: Dockerfile.sandbox
+            description: Paracle Sandbox Executor
+          - name: paracle-dev
+            dockerfile: Dockerfile.dev
+            description: Paracle Development Environment
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ env.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Extract version
+        id: version
+        run: |
+          if [[ "${{ github.event.inputs.version }}" != "" ]]; then
+            VERSION="${{ github.event.inputs.version }}"
+          elif [[ $GITHUB_REF == refs/tags/v* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/v}
+          else
+            VERSION=$(grep "^version" pyproject.toml | cut -d'"' -f2)
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Publishing version: $VERSION"
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.DOCKER_USERNAME }}/${{ matrix.image.name }}
+          tags: |
+            type=semver,pattern={{version}},value=${{ steps.version.outputs.version }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ steps.version.outputs.version }}
+            type=semver,pattern={{major}},value=${{ steps.version.outputs.version }}
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/${{ matrix.image.dockerfile }}
+          push: true
+          tags: |
+            ${{ env.DOCKER_USERNAME }}/${{ matrix.image.name }}:${{ steps.version.outputs.version }}
+            ${{ env.DOCKER_USERNAME }}/${{ matrix.image.name }}:latest
+          labels: |
+            org.opencontainers.image.title=${{ matrix.image.description }}
+            org.opencontainers.image.version=${{ steps.version.outputs.version }}
+            org.opencontainers.image.description=${{ matrix.image.description }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64
+
+      - name: Image digest
+        run: |
+          echo "✅ Published ${{ matrix.image.name }}:${{ steps.version.outputs.version }}"
+          echo "Docker Hub: https://hub.docker.com/r/${{ env.DOCKER_USERNAME }}/${{ matrix.image.name }}"
+
+  verify:
+    name: Verify Published Images
+    needs: publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pull and test images
+        run: |
+          VERSION=$(grep "^version" pyproject.toml | cut -d'"' -f2)
+
+          echo "Testing paracle:$VERSION"
+          docker pull ibiface/paracle:$VERSION
+          docker run --rm ibiface/paracle:$VERSION paracle --version
+
+          echo "Testing paracle-worker:$VERSION"
+          docker pull ibiface/paracle-worker:$VERSION
+          docker run --rm ibiface/paracle-worker:$VERSION paracle --version
+
+          echo "Testing paracle-mcp:$VERSION"
+          docker pull ibiface/paracle-mcp:$VERSION
+
+          echo "✅ All images verified!"
+
+  summary:
+    name: Publish Summary
+    needs: [publish, verify]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Extract version
+        id: version
+        run: |
+          if [[ $GITHUB_REF == refs/tags/v* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/v}
+          else
+            VERSION=$(grep "^version" pyproject.toml | cut -d'"' -f2)
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create summary
+        run: |
+          cat >> $GITHUB_STEP_SUMMARY << EOF
+          ## 🐳 Docker Images Published - v${{ steps.version.outputs.version }}
+
+          | Image | Tags | Size | Status |
+          |-------|------|------|--------|
+          | \`ibiface/paracle\` | \`${{ steps.version.outputs.version }}\`, \`latest\` | ~400MB | ${{ needs.publish.result == 'success' && '✅' || '❌' }} |
+          | \`ibiface/paracle-worker\` | \`${{ steps.version.outputs.version }}\`, \`latest\` | ~350MB | ${{ needs.publish.result == 'success' && '✅' || '❌' }} |
+          | \`ibiface/paracle-mcp\` | \`${{ steps.version.outputs.version }}\`, \`latest\` | ~300MB | ${{ needs.publish.result == 'success' && '✅' || '❌' }} |
+          | \`ibiface/paracle-sandbox\` | \`${{ steps.version.outputs.version }}\`, \`latest\` | ~500MB | ${{ needs.publish.result == 'success' && '✅' || '❌' }} |
+          | \`ibiface/paracle-dev\` | \`${{ steps.version.outputs.version }}\`, \`latest\` | ~600MB | ${{ needs.publish.result == 'success' && '✅' || '❌' }} |
+
+          ### 📦 Pull Commands
+
+          \`\`\`bash
+          # Main API server
+          docker pull ibiface/paracle:${{ steps.version.outputs.version }}
+
+          # Worker
+          docker pull ibiface/paracle-worker:${{ steps.version.outputs.version }}
+
+          # MCP server
+          docker pull ibiface/paracle-mcp:${{ steps.version.outputs.version }}
+
+          # Sandbox
+          docker pull ibiface/paracle-sandbox:${{ steps.version.outputs.version }}
+
+          # Development
+          docker pull ibiface/paracle-dev:${{ steps.version.outputs.version }}
+          \`\`\`
+
+          ### 🔗 Links
+
+          - [Docker Hub](https://hub.docker.com/u/${{ env.DOCKER_USERNAME }})
+          - [Release Notes](https://github.com/${{ github.repository }}/releases/tag/v${{ steps.version.outputs.version }})
+          EOF

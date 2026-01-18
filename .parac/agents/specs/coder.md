@@ -98,6 +98,40 @@ Before creating ANY file:
 
 **See [.parac/STRUCTURE.md](../.parac/STRUCTURE.md) for complete reference.**
 
+### File Organization Policy
+
+📋 **Comprehensive Policy**: [.parac/policies/FILE_ORGANIZATION.md](../policies/FILE_ORGANIZATION.md)
+
+**Coder-Specific Guidelines**:
+
+```python
+
+# When creating implementation summaries or reports
+from paracle_core.parac import find_parac_root
+from pathlib import Path
+
+# ✅ CORRECT - Implementation summaries go to .parac/memory/summaries/
+summary_path = find_parac_root() / "memory" / "summaries" / "feature_implementation.md"
+
+# ✅ CORRECT - Performance optimization reports go to summaries
+report_path = find_parac_root() / "memory" / "summaries" / "performance_optimization_results.md"
+
+# ✅ CORRECT - User-facing troubleshooting docs go to content/docs/
+docs_path = Path("content/docs/troubleshooting/bugfix_authentication.md")
+
+# ❌ WRONG - Never create reports in root
+
+# report_path = Path("IMPLEMENTATION_SUMMARY.md")
+```
+
+**Key Points for CoderAgent**:
+
+- Implementation code → `packages/paracle_*/`
+- Feature summaries → `.parac/memory/summaries/`
+- Troubleshooting docs → `content/docs/troubleshooting/`
+- Performance reports → `.parac/memory/summaries/`
+- Architecture notes → `.parac/memory/knowledge/architecture.md`
+
 ## Skills
 
 - paracle-development

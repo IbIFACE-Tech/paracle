@@ -1,4 +1,24 @@
 configs:
+- destination: ./.cursorrules
+  exists: true
+  file: .cursorrules
+  ide: cursor
+- destination: .claude/CLAUDE.md
+  exists: true
+  file: CLAUDE.md
+  ide: claude
+- destination: ./.windsurfrules
+  exists: true
+  file: .windsurfrules
+  ide: windsurf
+- destination: .zed/ai_rules.json
+  exists: true
+  file: ai_rules.json
+  ide: zed
+- destination: ./.clinerules
+  exists: true
+  file: .clinerules
+  ide: cline
 - destination: .github/copilot-instructions.md
   exists: true
   file: copilot-instructions.md
@@ -7,6 +27,42 @@ configs:
   exists: true
   file: copilot-instructions.md
   ide: vscode
-generated_at: '2026-01-11T03:34:20.178178'
+- destination: .warp/ai-rules.yaml
+  exists: true
+  file: ai-rules.yaml
+  ide: warp
+- destination: .gemini/instructions.md
+  exists: true
+  file: instructions.md
+  ide: gemini
+- destination: .opencode/rules.yaml
+  exists: true
+  file: rules.yaml
+  ide: opencode
+- destination: .rovodev/config.yml
+  exists: true
+  file: config.yml
+  ide: rovodev
+- destination: ./CLAUDE_INSTRUCTIONS.md
+  exists: true
+  file: CLAUDE_INSTRUCTIONS.md
+  ide: claude_desktop
+- destination: ./CHATGPT_INSTRUCTIONS.md
+  exists: true
+  file: CHATGPT_INSTRUCTIONS.md
+  ide: chatgpt
+- destination: ./raycast-ai-instructions.md
+  exists: true
+  file: raycast-ai-instructions.md
+  ide: raycast
+- destination: .github/workflows/claude-code.yml
+  exists: true
+  file: claude-code.yml
+  ide: claude_action
+- destination: .github/copilot-coding-agent.yml
+  exists: true
+  file: copilot-coding-agent.yml
+  ide: copilot_agent
+generated_at: '2026-01-11T05:37:53.464994'
 generator_version: 0.0.1
 parac_root: C:\Projets\paracle\paracle-lite\.parac

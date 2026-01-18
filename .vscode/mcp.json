@@ -15,6 +15,10 @@
     "github": {
       "type": "http",
       "url": "https://api.githubcopilot.com/mcp/"
+    },
+    "mermaid-mcp": {
+      "url": "https://mcp.mermaidchart.com/mcp",
+      "type": "http"
     }
   }
 }

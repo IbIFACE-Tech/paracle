@@ -88,6 +88,26 @@ Before creating ANY file:
 
 **See [.parac/STRUCTURE.md](../.parac/STRUCTURE.md) for complete reference.**
 
+### File Organization Policy
+
+📋 **Comprehensive Policy**: [.parac/policies/FILE_ORGANIZATION.md](../../.parac/policies/FILE_ORGANIZATION.md)
+
+**PM-Specific Guidelines**:
+
+- Phase summaries → `.parac/memory/summaries/phase_*.md` (completion reports)
+- Weekly reports → `.parac/memory/summaries/week_*.md` (status updates)
+- Progress data → `.parac/memory/data/` (metrics, tracking)
+- Roadmap updates → `.parac/roadmap/roadmap.yaml` (official roadmap)
+- Project status → `.parac/memory/context/current_state.yaml` (current snapshot)
+
+**Key Points for PM**:
+
+- Status reports go in `.parac/memory/summaries/` - NOT root
+- Roadmap changes update `.parac/roadmap/roadmap.yaml`
+- Current state tracked in `.parac/memory/context/current_state.yaml`
+- Metrics/data go in `.parac/memory/data/`
+- NEVER create status/report files in project root
+
 ## Skills
 
 - workflow-orchestration

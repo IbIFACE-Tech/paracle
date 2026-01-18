@@ -208,13 +208,38 @@ Quand un deliverable majeur est complété:
 
 ---
 
-## Règle 4: File Placement - MANDATORY
+## Règle 4: File Placement - Two-Tier Governance
 
-> **⚠️ CRITICAL: NEVER create files in project root. Always use proper locations.**
+> **⚠️ CRITICAL: `.parac/` structure is IMMUTABLE. Root folder is USER-CONFIGURABLE.**
+>
+> **📋 Comprehensive Policy**: [policies/FILE_ORGANIZATION.md](policies/FILE_ORGANIZATION.md)
 
-### Allowed Root Files (5 ONLY)
+### The Golden Rule
 
+```text
+┌─────────────────────────────────────────────────────────┐
+│  .parac/ Structure = IMMUTABLE                          │
+│  ✅ MANDATORY - Framework depends on this exact layout  │
+│                                                         │
+│  Project Root = CONFIGURABLE                            │
+│  💡 RECOMMENDED - Users can customize as needed         │
+└─────────────────────────────────────────────────────────┘
 ```
+
+**Why `.parac/` MUST Be Respected**:
+
+1. **Framework Integrity**: Paracle CLI/API/tools expect exact paths
+2. **Governance Traceability**: Consistent locations ensure auditability
+3. **Tool Integration**: IDE sync, MCP, validation rely on this structure
+4. **Cross-Project Consistency**: All Paracle projects share same `.parac/` layout
+
+**Result**: `.parac/` file placement is **NON-NEGOTIABLE**.
+
+**Users MAY customize project root** (add docs, config files, etc.) based on their needs, but `.parac/` structure is sacred.
+
+### Recommended Root Files (Not Enforced)
+
+```text
 README.md          # Project overview
 CHANGELOG.md       # Version history
 CONTRIBUTING.md    # Contribution guide
@@ -222,7 +247,7 @@ CODE_OF_CONDUCT.md # Code of conduct
 SECURITY.md        # Security policy
 ```
 
-**ANY OTHER FILE IN ROOT IS A VIOLATION.**
+**Strong recommendation**: Keep root clean by placing technical docs in `docs/` or `content/docs/` and examples in `examples/` or `content/examples/`.
 
 ### File Placement Rules
 

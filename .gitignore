@@ -217,6 +217,7 @@ __marimo__/
 
 #paracle framework
 #.parac/
+.roadmap/
 .roadmap/*
 temp_example/
 test-tutorial/

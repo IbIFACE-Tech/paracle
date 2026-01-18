@@ -88,6 +88,26 @@ Before creating ANY file:
 
 **See [.parac/STRUCTURE.md](../.parac/STRUCTURE.md) for complete reference.**
 
+### File Organization Policy
+
+📋 **Comprehensive Policy**: [.parac/policies/FILE_ORGANIZATION.md](../../.parac/policies/FILE_ORGANIZATION.md)
+
+**Security-Specific Guidelines**:
+
+- Security audit reports → `.parac/memory/summaries/security_audit_*.md` (findings)
+- Security policies → `.parac/policies/` (SECURITY.md, security standards)
+- Threat models → `.parac/memory/knowledge/threat_models.md` (internal analysis)
+- Vulnerability reports → `.parac/memory/summaries/vulnerability_*.md` (scan results)
+- Security guidelines → `content/docs/security/` (user-facing best practices)
+
+**Key Points for Security**:
+
+- Audit reports go in `.parac/memory/summaries/` - NOT root
+- Security policies in `.parac/policies/SECURITY.md`
+- Threat models/analysis in `.parac/memory/knowledge/`
+- User-facing security docs in `content/docs/security/`
+- NEVER create security reports in root (risk of exposure)
+
 ## Skills
 
 - security-hardening

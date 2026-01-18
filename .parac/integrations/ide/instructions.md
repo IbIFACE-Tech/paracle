@@ -2,7 +2,7 @@
 # Gemini CLI Instructions for Paracle
 # Auto-generated from .parac/ - DO NOT EDIT MANUALLY
 # Regenerate with: paracle ide sync --copy
-# Generated: 2026-01-11T04:05:35.097418
+# Generated: 2026-01-11T05:37:52.195827
 #
 # Place this file in .gemini/instructions.md
 

@@ -2,7 +2,7 @@
 # Paracle AI Instructions for Claude Code
 # Auto-generated from .parac/ - DO NOT EDIT MANUALLY
 # Regenerate with: paracle ide sync --copy
-# Generated: 2026-01-11T04:05:33.642207
+# Generated: 2026-01-11T05:37:51.208112
 
 
 ## Core Principle

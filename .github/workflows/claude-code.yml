@@ -1,7 +1,7 @@
 # Claude Code GitHub Action for Paracle
 # Auto-generated from .parac/ - DO NOT EDIT MANUALLY
 # Regenerate with: paracle ide sync --copy
-# Generated: 2026-01-11T04:05:36.412970
+# Generated: 2026-01-11T05:37:53.005484
 #
 # This workflow enables Claude Code to work on your repository.
 # Documentation: https://docs.anthropic.com/claude-code/github-action

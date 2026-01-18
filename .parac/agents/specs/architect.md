@@ -111,6 +111,26 @@ Before creating ANY file:
 
 **See [.parac/STRUCTURE.md](../.parac/STRUCTURE.md) for complete reference.**
 
+### File Organization Policy
+
+📋 **Comprehensive Policy**: [.parac/policies/FILE_ORGANIZATION.md](../../.parac/policies/FILE_ORGANIZATION.md)
+
+**Architect-Specific Guidelines**:
+
+- ADRs (Architecture Decision Records) → `.parac/roadmap/decisions.md` (all decisions)
+- Architecture diagrams → `content/docs/architecture/` or `.parac/memory/knowledge/` (depending on audience)
+- Design documents → `.parac/memory/knowledge/` (internal analysis)
+- Migration plans → `content/docs/migration/` (user-facing guides)
+- Technical specs → `content/docs/technical/` (public documentation)
+
+**Key Points for Architect**:
+
+- All ADRs go in `.parac/roadmap/decisions.md` - centralized
+- Internal design docs in `.parac/memory/knowledge/`
+- User-facing architecture docs in `content/docs/`
+- Diagrams with docs (not standalone in root)
+- NEVER create design/spec files in root
+
 ## Skills
 
 - framework-architecture

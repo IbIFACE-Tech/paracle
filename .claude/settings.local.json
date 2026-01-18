@@ -25,7 +25,8 @@
       "Bash(fi)",
       "Bash(dir \"c:\\\\Projets\\\\paracle\\\\paracle-lite\\\\content\\\\docs\\\\*.md\")",
       "Bash(dir:*)",
-      "Bash(go version:*)"
+      "Bash(go version:*)",
+      "Bash(chmod:*)"
     ]
   }
 }

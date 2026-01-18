@@ -88,6 +88,26 @@ Before creating ANY file:
 
 **See [.parac/STRUCTURE.md](../.parac/STRUCTURE.md) for complete reference.**
 
+### File Organization Policy
+
+📋 **Comprehensive Policy**: [.parac/policies/FILE_ORGANIZATION.md](../../.parac/policies/FILE_ORGANIZATION.md)
+
+**Reviewer-Specific Guidelines**:
+
+- Review notes → PR comments (NOT files - ephemeral)
+- Quality reports → `.parac/memory/summaries/` (periodic assessments)
+- Review checklists → `.parac/memory/knowledge/` (reusable templates)
+- Best practices → `content/docs/` (share with users)
+- Code quality metrics → `.parac/memory/data/` (tracked over time)
+
+**Key Points for Reviewer**:
+
+- Reviews happen in PR comments - don't create review files
+- Quality reports/metrics go in `.parac/memory/summaries/`
+- Reusable checklists in `.parac/memory/knowledge/`
+- Best practices documentation in `content/docs/`
+- NEVER create review files in root
+
 ## Skills
 
 - security-hardening

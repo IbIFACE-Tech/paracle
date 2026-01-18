@@ -107,26 +107,83 @@ Bring Your Own (BYO) architecture: models, frameworks, tools, infrastructure. No
 
 <table>
 <tr>
-<td>
+<td width="50%">
 
-**Using uv (Recommended)**
+**Core Installation (CLI only)**
 
 ```bash
+# Using pip
+pip install paracle
+
+# Using uv (recommended)
 uv pip install paracle
 ```
 
 </td>
-<td>
+<td width="50%">
 
-**Using pip**
+**With API Server**
 
 ```bash
-pip install paracle
+# API server support
+pip install 'paracle[api]'
+
+# All features
+pip install 'paracle[all]'
 ```
 
 </td>
 </tr>
 </table>
+
+<details>
+<summary><b>📦 Optional Dependencies</b></summary>
+
+Paracle uses optional dependencies to keep the core lightweight:
+
+```bash
+# API Server (FastAPI + uvicorn)
+pip install 'paracle[api]'
+
+# Database support (SQLAlchemy + PostgreSQL)
+pip install 'paracle[store]'
+
+# Event streaming (Redis)
+pip install 'paracle[events]'
+
+# Docker sandbox execution
+pip install 'paracle[sandbox]'
+
+# LLM providers
+pip install 'paracle[providers]'        # OpenAI, Anthropic, Cohere
+pip install 'paracle[providers-extended]'  # + Google, Groq
+
+# Cloud providers
+pip install 'paracle[azure]'  # Azure OpenAI
+pip install 'paracle[aws]'    # AWS Bedrock
+pip install 'paracle[gcp]'    # Google Vertex AI
+pip install 'paracle[cloud]'  # All cloud providers
+
+# Framework adapters
+pip install 'paracle[langchain]'   # LangChain integration
+pip install 'paracle[llamaindex]'  # LlamaIndex integration
+pip install 'paracle[crewai]'      # CrewAI integration
+pip install 'paracle[autogen]'     # AutoGen integration
+
+# Meta AI engine (AI-powered generation)
+pip install 'paracle[meta]'         # SQLite backend
+pip install 'paracle[meta-full]'    # PostgreSQL + pgvector
+
+# Everything
+pip install 'paracle[all]'
+```
+
+**💡 Tip**: For production deployments, use Docker:
+```bash
+docker-compose up  # Includes all dependencies
+```
+
+</details>
 
 ### Configuration
 

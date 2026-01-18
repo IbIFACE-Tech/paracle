@@ -98,8 +98,20 @@ def serve(
             import uvicorn
         except ImportError:
             console.print(
-                "[red]Error:[/red] uvicorn is not installed.\n"
-                "Install with: [cyan]pip install uvicorn[/cyan]"
+                "\n[red]✗ Error:[/red] API server dependencies not installed.\n"
+            )
+            console.print(
+                "[yellow]The API server requires FastAPI and uvicorn.[/yellow]\n"
+            )
+            console.print("[bold]Quick Install:[/bold]")
+            console.print(
+                "  [cyan]pip install 'paracle[api]'[/cyan]         # API server only\n"
+                "  [cyan]pip install 'paracle[all]'[/cyan]         # All features\n"
+            )
+            console.print("[bold]Or install dependencies directly:[/bold]")
+            console.print("  [cyan]pip install fastapi uvicorn[standard][/cyan]\n")
+            console.print(
+                "[dim]ℹ️  For production deployments, use Docker: docker-compose up[/dim]"
             )
             sys.exit(1)
 
