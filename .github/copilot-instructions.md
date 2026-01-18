@@ -53,6 +53,12 @@ This checklist ensures:
 6. Adopt agent persona from `.parac/agents/specs/{agent}.md`
 7. Check policies (CODE_STYLE, TESTING, SECURITY)
 
+**If Task NOT in Roadmap**:
+- ❌ **STOP** - Add to roadmap first (PM Agent)
+- Document reason in `.parac/roadmap/roadmap.yaml`
+- Get approval before proceeding
+- Never work on undocumented tasks
+
 **Before ANY action**, you MUST:
 1. `.parac/GOVERNANCE.md` - Governance rules and dogfooding context
 2. `.parac/agents/manifest.yaml` - Available agents
