@@ -35,10 +35,9 @@ class MixedLoadUser(HttpUser):
         """Initialize user session."""
         self.headers = {
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {API_KEY}"
+            "Authorization": f"Bearer {API_KEY}",
         }
-        self.agent_ids = ["coder", "architect",
-                          "reviewer", "tester", "documenter"]
+        self.agent_ids = ["coder", "architect", "reviewer", "tester", "documenter"]
         self.workflow_ids = ["feature_development", "code_review", "bugfix"]
 
     @task(40)
@@ -48,11 +47,12 @@ class MixedLoadUser(HttpUser):
             "/api/v1/agents",
             headers=self.headers,
             catch_response=True,
-            name="API - List Agents"
+            name="API - List Agents",
         ) as response:
             if response.elapsed.total_seconds() > 0.5:
                 response.failure(
-                    f"Response too slow: {response.elapsed.total_seconds():.2f}s")
+                    f"Response too slow: {response.elapsed.total_seconds():.2f}s"
+                )
             elif response.status_code == 200:
                 response.success()
             else:
@@ -66,11 +66,12 @@ class MixedLoadUser(HttpUser):
             f"/api/v1/agents/{agent_id}",
             headers=self.headers,
             catch_response=True,
-            name="API - Get Agent Details"
+            name="API - Get Agent Details",
         ) as response:
             if response.elapsed.total_seconds() > 1.0:
                 response.failure(
-                    f"Response too slow: {response.elapsed.total_seconds():.2f}s")
+                    f"Response too slow: {response.elapsed.total_seconds():.2f}s"
+                )
             elif response.status_code == 200:
                 response.success()
             else:
@@ -84,14 +85,14 @@ class MixedLoadUser(HttpUser):
             "Explain what a decorator is in Python",
             "Write a function to calculate factorial",
             "Create a simple REST API endpoint",
-            "Explain list comprehension with example"
+            "Explain list comprehension with example",
         ]
 
         payload = {
             "agent_id": agent_id,
             "task": random.choice(tasks),
             "model": "gpt-4-turbo-preview",
-            "temperature": 0.7
+            "temperature": 0.7,
         }
 
         with self.client.post(
@@ -99,11 +100,12 @@ class MixedLoadUser(HttpUser):
             json=payload,
             headers=self.headers,
             catch_response=True,
-            name="Agent - Quick Task"
+            name="Agent - Quick Task",
         ) as response:
             if response.elapsed.total_seconds() > 5.0:
                 response.failure(
-                    f"Response too slow: {response.elapsed.total_seconds():.2f}s")
+                    f"Response too slow: {response.elapsed.total_seconds():.2f}s"
+                )
             elif response.status_code == 200:
                 response.success()
             else:
@@ -119,23 +121,23 @@ class MixedLoadUser(HttpUser):
                 "workflow_id": "feature_development",
                 "inputs": {
                     "feature_description": "Add JWT authentication to API",
-                    "priority": "high"
-                }
+                    "priority": "high",
+                },
             },
             "code_review": {
                 "workflow_id": "code_review",
                 "inputs": {
                     "pr_url": "https://github.com/test/repo/pull/123",
-                    "focus_areas": ["security", "performance"]
-                }
+                    "focus_areas": ["security", "performance"],
+                },
             },
             "bugfix": {
                 "workflow_id": "bugfix",
                 "inputs": {
                     "bug_description": "API returns 500 on /agents endpoint",
-                    "severity": "high"
-                }
-            }
+                    "severity": "high",
+                },
+            },
         }
 
         payload = payloads[workflow_id]
@@ -145,11 +147,12 @@ class MixedLoadUser(HttpUser):
             json=payload,
             headers=self.headers,
             catch_response=True,
-            name=f"Workflow - {workflow_id}"
+            name=f"Workflow - {workflow_id}",
         ) as response:
             if response.elapsed.total_seconds() > 30.0:
                 response.failure(
-                    f"Workflow too slow: {response.elapsed.total_seconds():.2f}s")
+                    f"Workflow too slow: {response.elapsed.total_seconds():.2f}s"
+                )
             elif response.status_code == 200:
                 response.success()
             else:
@@ -162,16 +165,16 @@ class MixedLoadUser(HttpUser):
             "/health",
             headers=self.headers,
             catch_response=True,
-            name="System - Health Check"
+            name="System - Health Check",
         ) as response:
             if response.elapsed.total_seconds() > 0.2:
                 response.failure(
-                    f"Health check too slow: {response.elapsed.total_seconds():.2f}s")
+                    f"Health check too slow: {response.elapsed.total_seconds():.2f}s"
+                )
             elif response.status_code == 200:
                 response.success()
             else:
-                response.failure(
-                    f"Health check failed: {response.status_code}")
+                response.failure(f"Health check failed: {response.status_code}")
 
 
 # Event handlers for distributed testing
@@ -183,7 +186,8 @@ def on_locust_init(environment, **kwargs):
         print(f"   Target: {environment.host}")
     elif isinstance(environment.runner, WorkerRunner):
         print(
-            f"🔧 Locust Worker initialized (Master: {environment.runner.master_host})")
+            f"🔧 Locust Worker initialized (Master: {environment.runner.master_host})"
+        )
 
 
 @events.test_start.add_listener
@@ -205,32 +209,33 @@ def on_test_stop(environment, **kwargs):
         print(f"   Total requests: {stats.total.num_requests}")
         print(f"   Total failures: {stats.total.num_failures}")
         print(f"   Average RPS: {stats.total.total_rps:.2f}")
-        print(
-            f"   p50 latency: {stats.total.get_response_time_percentile(0.50):.0f}ms")
-        print(
-            f"   p95 latency: {stats.total.get_response_time_percentile(0.95):.0f}ms")
-        print(
-            f"   p99 latency: {stats.total.get_response_time_percentile(0.99):.0f}ms")
+        print(f"   p50 latency: {stats.total.get_response_time_percentile(0.50):.0f}ms")
+        print(f"   p95 latency: {stats.total.get_response_time_percentile(0.95):.0f}ms")
+        print(f"   p99 latency: {stats.total.get_response_time_percentile(0.99):.0f}ms")
 
         # Check SLA compliance
         p50 = stats.total.get_response_time_percentile(0.50)
         p95 = stats.total.get_response_time_percentile(0.95)
         p99 = stats.total.get_response_time_percentile(0.99)
-        error_rate = (stats.total.num_failures / stats.total.num_requests *
-                      100) if stats.total.num_requests > 0 else 0
+        error_rate = (
+            (stats.total.num_failures / stats.total.num_requests * 100)
+            if stats.total.num_requests > 0
+            else 0
+        )
 
         print("\n✅ SLA Compliance Check:")
+        print(f"   p50 < 200ms: {'✅ PASS' if p50 < 200 else '❌ FAIL'} ({p50:.0f}ms)")
+        print(f"   p95 < 500ms: {'✅ PASS' if p95 < 500 else '❌ FAIL'} ({p95:.0f}ms)")
         print(
-            f"   p50 < 200ms: {'✅ PASS' if p50 < 200 else '❌ FAIL'} ({p50:.0f}ms)")
+            f"   p99 < 1000ms: {'✅ PASS' if p99 < 1000 else '❌ FAIL'} ({p99:.0f}ms)"
+        )
         print(
-            f"   p95 < 500ms: {'✅ PASS' if p95 < 500 else '❌ FAIL'} ({p95:.0f}ms)")
-        print(
-            f"   p99 < 1000ms: {'✅ PASS' if p99 < 1000 else '❌ FAIL'} ({p99:.0f}ms)")
-        print(
-            f"   Error rate < 0.1%: {'✅ PASS' if error_rate < 0.1 else '❌ FAIL'} ({error_rate:.4f}%)")
+            f"   Error rate < 0.1%: {'✅ PASS' if error_rate < 0.1 else '❌ FAIL'} ({error_rate:.4f}%)"
+        )
 
 
 if __name__ == "__main__":
     # For standalone testing
     import os
+
     os.system("locust -f locustfile.py --host http://localhost:8000")

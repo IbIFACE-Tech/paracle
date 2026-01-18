@@ -10,6 +10,7 @@ try:
     import docker
     from docker.errors import APIError, ImageNotFound
     from docker.models.containers import Container
+
     DOCKER_AVAILABLE = True
 except ImportError:
     docker = None  # type: ignore
@@ -204,12 +205,10 @@ class DockerSandbox:
             # Decode output
             stdout_bytes, stderr_bytes = exec_result.output or (b"", b"")
             stdout = (
-                stdout_bytes.decode(
-                    "utf-8", errors="replace") if stdout_bytes else ""
+                stdout_bytes.decode("utf-8", errors="replace") if stdout_bytes else ""
             )
             stderr = (
-                stderr_bytes.decode(
-                    "utf-8", errors="replace") if stderr_bytes else ""
+                stderr_bytes.decode("utf-8", errors="replace") if stderr_bytes else ""
             )
 
             result = {

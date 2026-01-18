@@ -206,8 +206,7 @@ def _list_direct() -> None:
     for name, path in sorted(log_files.items()):
         stat = path.stat()
         size = f"{stat.st_size:,} bytes"
-        modified = datetime.fromtimestamp(
-            stat.st_mtime).strftime("%Y-%m-%d %H:%M")
+        modified = datetime.fromtimestamp(stat.st_mtime).strftime("%Y-%m-%d %H:%M")
         table.add_row(name, str(path.relative_to(parac_root)), size, modified)
 
     console.print(table)
@@ -234,14 +233,12 @@ def _show_via_api(
 ) -> None:
     """Show logs via API."""
     if follow:
-        console.print(
-            "[yellow]Warning:[/yellow] Follow mode not supported via API.")
+        console.print("[yellow]Warning:[/yellow] Follow mode not supported via API.")
         console.print("[dim]Falling back to direct access...[/dim]")
         _show_direct(log_name, tail, follow, as_json, grep_pattern)
         return
 
-    result = client.logs_show(
-        log_name=log_name, tail=tail, pattern=grep_pattern)
+    result = client.logs_show(log_name=log_name, tail=tail, pattern=grep_pattern)
     lines = result.get("lines", [])
 
     if not lines:
@@ -261,8 +258,7 @@ def _show_via_api(
     else:
         # Pretty print with formatting
         for line in lines:
-            _print_log_line(line.strip() if isinstance(
-                line, str) else str(line))
+            _print_log_line(line.strip() if isinstance(line, str) else str(line))
 
 
 def _show_direct(
@@ -339,8 +335,7 @@ def _follow_log(log_path: Path, pattern: str | None):
     """Follow log file in real-time."""
     import time
 
-    console.print(
-        f"[cyan]Following {log_path.name}... (Ctrl+C to stop)[/cyan]")
+    console.print(f"[cyan]Following {log_path.name}... (Ctrl+C to stop)[/cyan]")
     console.print()
 
     # Get current file size
@@ -528,8 +523,7 @@ def _export_direct(
                 writer.writeheader()
                 writer.writerows(entries)
 
-    console.print(
-        f"[green]OK[/green] Exported {len(entries)} entries to {output_path}")
+    console.print(f"[green]OK[/green] Exported {len(entries)} entries to {output_path}")
 
 
 @logs.command("export")
@@ -737,28 +731,32 @@ def _analyze_direct() -> None:
     if line_percent >= 100 or size_percent >= 100:
         console.print("[bold red]🚨 Log rotation needed![/bold red]")
         console.print(
-            f"   Lines: {line_count:,} / {MAX_LOG_LINES:,} ({line_percent:.0f}%)")
+            f"   Lines: {line_count:,} / {MAX_LOG_LINES:,} ({line_percent:.0f}%)"
+        )
         console.print(
-            f"   Size: {size_mb:.2f} / {MAX_LOG_SIZE_MB:.1f} MB ({size_percent:.0f}%)")
+            f"   Size: {size_mb:.2f} / {MAX_LOG_SIZE_MB:.1f} MB ({size_percent:.0f}%)"
+        )
         console.print("\n[yellow]Run:[/yellow] paracle logs rotate")
     elif line_percent >= 80 or size_percent >= 80:
         console.print("[bold yellow]⚠️  Log approaching limit[/bold yellow]")
         console.print(
-            f"   Lines: {line_count:,} / {MAX_LOG_LINES:,} ({line_percent:.0f}%)")
+            f"   Lines: {line_count:,} / {MAX_LOG_LINES:,} ({line_percent:.0f}%)"
+        )
         console.print(
-            f"   Size: {size_mb:.2f} / {MAX_LOG_SIZE_MB:.1f} MB ({size_percent:.0f}%)")
-        console.print(
-            "\n[dim]Consider rotating soon:[/dim] paracle logs rotate")
+            f"   Size: {size_mb:.2f} / {MAX_LOG_SIZE_MB:.1f} MB ({size_percent:.0f}%)"
+        )
+        console.print("\n[dim]Consider rotating soon:[/dim] paracle logs rotate")
     else:
         console.print("[green]✅ Log size is within acceptable limits[/green]")
         console.print(
-            f"   Lines: {line_count:,} / {MAX_LOG_LINES:,} ({line_percent:.0f}%)")
+            f"   Lines: {line_count:,} / {MAX_LOG_LINES:,} ({line_percent:.0f}%)"
+        )
         console.print(
-            f"   Size: {size_mb:.2f} / {MAX_LOG_SIZE_MB:.1f} MB ({size_percent:.0f}%)")
+            f"   Size: {size_mb:.2f} / {MAX_LOG_SIZE_MB:.1f} MB ({size_percent:.0f}%)"
+        )
 
     # Archives info
-    console.print(
-        f"\n📦 Archives: {archive_count if archive_count > 0 else 'None'}")
+    console.print(f"\n📦 Archives: {archive_count if archive_count > 0 else 'None'}")
     console.print()
 
 
@@ -801,8 +799,7 @@ def _rotate_direct(force: bool) -> None:
 
     if not force:
         console.print(f"\n📊 Current log has {len(lines):,} lines")
-        console.print(
-            f"📦 Will archive all lines, keep last {KEEP_RECENT_LINES:,}")
+        console.print(f"📦 Will archive all lines, keep last {KEEP_RECENT_LINES:,}")
         if not click.confirm("\nProceed with rotation?"):
             console.print("[yellow]Cancelled[/yellow]")
             return
@@ -870,25 +867,23 @@ def _cleanup_direct(days: int, dry_run: bool, force: bool) -> None:
             old_archives.append(archive_file)
 
     if not old_archives:
-        console.print(
-            f"[green]No archives older than {days} days found[/green]")
+        console.print(f"[green]No archives older than {days} days found[/green]")
         return
 
     # Calculate total size
     total_size = sum(f.stat().st_size for f in old_archives)
     size_mb = total_size / (1024 * 1024)
 
-    console.print(
-        f"\n📦 Found {len(old_archives)} archive(s) older than {days} days")
+    console.print(f"\n📦 Found {len(old_archives)} archive(s) older than {days} days")
     console.print(f"💾 Total size: {size_mb:.2f} MB")
 
     if dry_run:
         console.print("\n[dim]Dry run - files to be deleted:[/dim]")
         for archive in sorted(old_archives):
-            age_days = (datetime.now().timestamp() -
-                        archive.stat().st_mtime) / (24 * 60 * 60)
-            console.print(
-                f"  • {archive.name} ([dim]{age_days:.0f} days old[/dim])")
+            age_days = (datetime.now().timestamp() - archive.stat().st_mtime) / (
+                24 * 60 * 60
+            )
+            console.print(f"  • {archive.name} ([dim]{age_days:.0f} days old[/dim])")
         console.print("\n[yellow]Use --force to actually delete[/yellow]")
         return
 
@@ -917,7 +912,9 @@ def _cleanup_direct(days: int, dry_run: bool, force: bool) -> None:
 
 
 @logs.command("cleanup")
-@click.option("--days", "-d", default=365, help="Delete archives older than N days (default: 365)")
+@click.option(
+    "--days", "-d", default=365, help="Delete archives older than N days (default: 365)"
+)
 @click.option("--dry-run", is_flag=True, help="Show what would be deleted")
 @click.option("--force", "-f", is_flag=True, help="Skip confirmation")
 def cleanup_logs(days: int, dry_run: bool, force: bool):

@@ -127,7 +127,9 @@ class HiveTask:
             "created_at": self.created_at.isoformat(),
             "assigned_at": self.assigned_at.isoformat() if self.assigned_at else None,
             "started_at": self.started_at.isoformat() if self.started_at else None,
-            "completed_at": self.completed_at.isoformat() if self.completed_at else None,
+            "completed_at": (
+                self.completed_at.isoformat() if self.completed_at else None
+            ),
             "result": self.result,
             "error": self.error,
             "metadata": self.metadata,
@@ -400,7 +402,10 @@ class HiveMindCapability(BaseCapability):
 
         # Cancel any assigned tasks
         for task in self._tasks.values():
-            if task.assigned_to == agent_id and task.status in (TaskStatus.ASSIGNED, TaskStatus.IN_PROGRESS):
+            if task.assigned_to == agent_id and task.status in (
+                TaskStatus.ASSIGNED,
+                TaskStatus.IN_PROGRESS,
+            ):
                 task.status = TaskStatus.PENDING
                 task.assigned_to = None
 
@@ -491,7 +496,9 @@ class HiveMindCapability(BaseCapability):
             expertise_score = agent.expertise.get(task.task_type, 0.5)
 
             # Penalize by current load (completed tasks)
-            load_penalty = agent.completed_tasks / (agent.completed_tasks + agent.failed_tasks + 1)
+            load_penalty = agent.completed_tasks / (
+                agent.completed_tasks + agent.failed_tasks + 1
+            )
             score = expertise_score * (1 - 0.3 * load_penalty)
 
             if score > best_score:
@@ -696,7 +703,9 @@ class HiveMindCapability(BaseCapability):
         request = self._consensus_requests[consensus_id]
 
         if vote not in request.options:
-            raise ValueError(f"Invalid option: {vote}. Must be one of {request.options}")
+            raise ValueError(
+                f"Invalid option: {vote}. Must be one of {request.options}"
+            )
 
         # Record vote
         request.votes[agent_id] = vote

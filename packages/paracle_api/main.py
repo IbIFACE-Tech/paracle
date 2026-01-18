@@ -158,8 +158,7 @@ def create_app(config: SecurityConfig | None = None) -> FastAPI:
     app.add_middleware(
         ResponseCacheMiddleware,
         default_ttl=60,  # 1 minute default TTL
-        cache_paths=["/api/agents", "/api/specs",
-                     "/api/workflows", "/api/tools"],
+        cache_paths=["/api/agents", "/api/specs", "/api/workflows", "/api/tools"],
         exclude_paths=[
             "/health",
             "/docs",
@@ -187,8 +186,7 @@ def create_app(config: SecurityConfig | None = None) -> FastAPI:
     async def provider_exception_handler(request: Request, exc: LLMProviderError):
         """Handle LLM provider errors with Problem Details."""
         logger.error(f"Provider error: {exc}", exc_info=True)
-        problem = provider_error_to_problem(
-            request, exc, config.is_production())
+        problem = provider_error_to_problem(request, exc, config.is_production())
         return problem.to_response()
 
     @app.exception_handler(OrchestrationError)
@@ -197,24 +195,21 @@ def create_app(config: SecurityConfig | None = None) -> FastAPI:
     ):
         """Handle orchestration errors with Problem Details."""
         logger.error(f"Orchestration error: {exc}", exc_info=True)
-        problem = orchestration_error_to_problem(
-            request, exc, config.is_production())
+        problem = orchestration_error_to_problem(request, exc, config.is_production())
         return problem.to_response()
 
     @app.exception_handler(InheritanceError)
     async def inheritance_exception_handler(request: Request, exc: InheritanceError):
         """Handle inheritance errors with Problem Details."""
         logger.error(f"Inheritance error: {exc}", exc_info=True)
-        problem = inheritance_error_to_problem(
-            request, exc, config.is_production())
+        problem = inheritance_error_to_problem(request, exc, config.is_production())
         return problem.to_response()
 
     @app.exception_handler(Exception)
     async def global_exception_handler(request: Request, exc: Exception):
         """Handle uncaught exceptions with Problem Details."""
         logger.exception(f"Unhandled exception: {exc}")
-        problem = internal_error_to_problem(
-            request, exc, config.is_production())
+        problem = internal_error_to_problem(request, exc, config.is_production())
         return problem.to_response()
 
     # =========================================================================

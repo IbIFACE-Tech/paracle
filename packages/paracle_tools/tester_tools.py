@@ -374,8 +374,7 @@ class TestExecutionTool(BaseTool):
             tree = ET.parse(xml_path)
             root = tree.getroot()
 
-            testsuite = root if root.tag == "testsuite" else root.find(
-                "testsuite")
+            testsuite = root if root.tag == "testsuite" else root.find("testsuite")
             if testsuite is None:
                 return {"error": "Invalid JUnit XML format"}
 

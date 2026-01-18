@@ -92,8 +92,11 @@ def list_errors(
                 error.component,
                 error.error_type,
                 f"[{severity_style}]{error.severity.value}[/{severity_style}]",
-                error.message[:50] +
-                "..." if len(error.message) > 50 else error.message,
+                (
+                    error.message[:50] + "..."
+                    if len(error.message) > 50
+                    else error.message
+                ),
                 str(error.count) if error.count > 1 else "-",
             )
 
@@ -124,11 +127,8 @@ def error_stats(as_json: bool) -> None:
         console.print("\n[bold cyan]Error Registry Statistics[/bold cyan]\n")
         console.print(f"  Total errors: {stats['total_count']}")
         console.print(f"  Unique errors: {stats['unique_errors']}")
-        console.print(
-            f"  Error rate: {stats['error_rate_per_minute']:.2f} errors/min")
-        console.print(
-            f"  Recent (1h): {stats['recent_errors_1h']}"
-        )
+        console.print(f"  Error rate: {stats['error_rate_per_minute']:.2f} errors/min")
+        console.print(f"  Recent (1h): {stats['recent_errors_1h']}")
         console.print(f"  Uptime: {stats['uptime_seconds'] / 3600:.1f} hours")
         console.print(f"  Patterns detected: {stats['patterns_detected']}")
 
@@ -200,8 +200,7 @@ def error_patterns(as_json: bool) -> None:
         console.print("\n[bold cyan]Detected Error Patterns[/bold cyan]\n")
 
         for i, pattern in enumerate(patterns, 1):
-            console.print(
-                f"[bold]{i}. Pattern Type: {pattern['pattern_type']}[/bold]")
+            console.print(f"[bold]{i}. Pattern Type: {pattern['pattern_type']}[/bold]")
 
             if "error_type" in pattern:
                 console.print(f"   Error type: {pattern['error_type']}")

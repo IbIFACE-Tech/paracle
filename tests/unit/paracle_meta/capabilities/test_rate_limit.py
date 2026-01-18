@@ -243,9 +243,7 @@ async def test_consume_updates_metrics(rate_limiter):
 @pytest.mark.asyncio
 async def test_check_and_consume_allowed(rate_limiter):
     """Test check_and_consume when allowed."""
-    result = await rate_limiter.check_and_consume(
-        resource="test-resource", tokens=5
-    )
+    result = await rate_limiter.check_and_consume(resource="test-resource", tokens=5)
 
     assert result.success is True
     assert result.output["allowed"] is True
@@ -259,9 +257,7 @@ async def test_check_and_consume_denied(rate_limiter):
     # Consume all tokens
     await rate_limiter.consume(resource="test-resource", tokens=10)
 
-    result = await rate_limiter.check_and_consume(
-        resource="test-resource", tokens=5
-    )
+    result = await rate_limiter.check_and_consume(resource="test-resource", tokens=5)
 
     assert result.success is True
     assert result.output["allowed"] is False
@@ -486,9 +482,7 @@ async def test_concurrent_requests(rate_limiter):
     """Test that concurrent requests are handled correctly."""
 
     async def make_request():
-        return await rate_limiter.check_and_consume(
-            resource="test-resource", tokens=1
-        )
+        return await rate_limiter.check_and_consume(resource="test-resource", tokens=1)
 
     # Make 15 concurrent requests (burst_size=10, so 5 should be denied)
     results = await asyncio.gather(*[make_request() for _ in range(15)])
@@ -513,9 +507,7 @@ async def test_rate_limiting_with_wait(rate_limiter):
     await rate_limiter.consume(resource="test-resource", tokens=10)
 
     # Try to consume more (should be denied)
-    result1 = await rate_limiter.check_and_consume(
-        resource="test-resource", tokens=1
-    )
+    result1 = await rate_limiter.check_and_consume(resource="test-resource", tokens=1)
     assert result1.output["allowed"] is False
 
     # Wait for refill
@@ -523,9 +515,7 @@ async def test_rate_limiting_with_wait(rate_limiter):
     await asyncio.sleep(retry_after + 0.1)  # Add buffer
 
     # Retry (should succeed now)
-    result2 = await rate_limiter.check_and_consume(
-        resource="test-resource", tokens=1
-    )
+    result2 = await rate_limiter.check_and_consume(resource="test-resource", tokens=1)
     assert result2.output["allowed"] is True
 
 

@@ -10,6 +10,7 @@ try:
     import docker
     from docker.errors import APIError
     from docker.models.networks import Network
+
     DOCKER_AVAILABLE = True
 except ImportError:
     docker = None  # type: ignore
@@ -109,8 +110,7 @@ class NetworkIsolator:
             labels = config.labels.copy()
             if policy:
                 labels["paracle.policy.internet"] = str(policy.allow_internet)
-                labels["paracle.policy.intra_network"] = str(
-                    policy.allow_intra_network)
+                labels["paracle.policy.intra_network"] = str(policy.allow_intra_network)
 
             # Create network
             network = client.networks.create(
@@ -135,8 +135,7 @@ class NetworkIsolator:
             return network
 
         except APIError as e:
-            raise NetworkIsolationError(
-                f"Failed to create network: {e}") from e
+            raise NetworkIsolationError(f"Failed to create network: {e}") from e
 
     async def attach_container(
         self,

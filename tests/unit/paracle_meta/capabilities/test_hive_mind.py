@@ -43,7 +43,7 @@ async def test_register_worker_agent(hive_mind):
         name="worker1",
         role=AgentRole.WORKER,
         capabilities=["coding", "testing"],
-        expertise={"python": 0.9, "testing": 0.8}
+        expertise={"python": 0.9, "testing": 0.8},
     )
 
     assert result.success is True
@@ -57,7 +57,7 @@ async def test_register_queen_agent(hive_mind):
     result = await hive_mind.register_agent(
         name="queen",
         role=AgentRole.QUEEN,
-        capabilities=["coordination", "decision_making"]
+        capabilities=["coordination", "decision_making"],
     )
 
     assert result.success is True
@@ -68,9 +68,7 @@ async def test_register_queen_agent(hive_mind):
 async def test_register_observer_agent(hive_mind):
     """Test registering an observer agent."""
     result = await hive_mind.register_agent(
-        name="observer",
-        role=AgentRole.OBSERVER,
-        capabilities=["monitoring"]
+        name="observer", role=AgentRole.OBSERVER, capabilities=["monitoring"]
     )
 
     assert result.success is True
@@ -81,17 +79,11 @@ async def test_register_observer_agent(hive_mind):
 async def test_only_one_queen_allowed(hive_mind):
     """Test that only one queen can be registered."""
     # Register first queen
-    await hive_mind.register_agent(
-        name="queen1",
-        role=AgentRole.QUEEN,
-        capabilities=[]
-    )
+    await hive_mind.register_agent(name="queen1", role=AgentRole.QUEEN, capabilities=[])
 
     # Try to register second queen (should fail)
     result = await hive_mind.register_agent(
-        name="queen2",
-        role=AgentRole.QUEEN,
-        capabilities=[]
+        name="queen2", role=AgentRole.QUEEN, capabilities=[]
     )
 
     assert result.success is False
@@ -102,10 +94,7 @@ async def test_only_one_queen_allowed(hive_mind):
 async def test_submit_task(hive_mind):
     """Test submitting a task."""
     result = await hive_mind.submit_task(
-        name="task1",
-        task_type="coding",
-        description="Implement feature X",
-        priority=50
+        name="task1", task_type="coding", description="Implement feature X", priority=50
     )
 
     assert result.success is True
@@ -121,14 +110,14 @@ async def test_auto_assign_task(hive_mind):
         name="python_expert",
         role=AgentRole.WORKER,
         capabilities=["coding"],
-        expertise={"python": 0.9, "javascript": 0.3}
+        expertise={"python": 0.9, "javascript": 0.3},
     )
 
     await hive_mind.register_agent(
         name="js_expert",
         role=AgentRole.WORKER,
         capabilities=["coding"],
-        expertise={"python": 0.3, "javascript": 0.9}
+        expertise={"python": 0.3, "javascript": 0.9},
     )
 
     # Submit Python task with auto-assign
@@ -136,7 +125,7 @@ async def test_auto_assign_task(hive_mind):
         name="python_task",
         task_type="python",
         description="Fix Python bug",
-        auto_assign=True
+        auto_assign=True,
     )
 
     assert result.success is True
@@ -150,24 +139,16 @@ async def test_assign_task_manually(hive_mind):
     """Test manually assigning task to agent."""
     # Register agent
     await hive_mind.register_agent(
-        name="worker1",
-        role=AgentRole.WORKER,
-        capabilities=["coding"]
+        name="worker1", role=AgentRole.WORKER, capabilities=["coding"]
     )
 
     # Submit task
     await hive_mind.submit_task(
-        name="task1",
-        task_type="coding",
-        description="Test task",
-        auto_assign=False
+        name="task1", task_type="coding", description="Test task", auto_assign=False
     )
 
     # Assign manually
-    result = await hive_mind.assign_task(
-        task_name="task1",
-        agent_name="worker1"
-    )
+    result = await hive_mind.assign_task(task_name="task1", agent_name="worker1")
 
     assert result.success is True
     assert result.output["assigned_to"] == "worker1"
@@ -178,22 +159,16 @@ async def test_complete_task(hive_mind):
     """Test completing a task."""
     # Register agent and submit task
     await hive_mind.register_agent(
-        name="worker1",
-        role=AgentRole.WORKER,
-        capabilities=["coding"]
+        name="worker1", role=AgentRole.WORKER, capabilities=["coding"]
     )
 
     await hive_mind.submit_task(
-        name="task1",
-        task_type="coding",
-        description="Test",
-        auto_assign=True
+        name="task1", task_type="coding", description="Test", auto_assign=True
     )
 
     # Complete task
     result = await hive_mind.complete_task(
-        task_name="task1",
-        result={"status": "success", "output": "Done"}
+        task_name="task1", result={"status": "success", "output": "Done"}
     )
 
     assert result.success is True
@@ -204,11 +179,7 @@ async def test_complete_task(hive_mind):
 async def test_get_task_status(hive_mind):
     """Test getting task status."""
     # Submit task
-    await hive_mind.submit_task(
-        name="task1",
-        task_type="test",
-        description="Test task"
-    )
+    await hive_mind.submit_task(name="task1", task_type="test", description="Test task")
 
     # Get status
     result = await hive_mind.get_task_status(task_name="task1")
@@ -223,15 +194,11 @@ async def test_list_agents(hive_mind):
     """Test listing all agents."""
     # Register multiple agents
     await hive_mind.register_agent(
-        name="worker1",
-        role=AgentRole.WORKER,
-        capabilities=["coding"]
+        name="worker1", role=AgentRole.WORKER, capabilities=["coding"]
     )
 
     await hive_mind.register_agent(
-        name="worker2",
-        role=AgentRole.WORKER,
-        capabilities=["testing"]
+        name="worker2", role=AgentRole.WORKER, capabilities=["testing"]
     )
 
     result = await hive_mind.list_agents()
@@ -244,17 +211,9 @@ async def test_list_agents(hive_mind):
 async def test_list_tasks(hive_mind):
     """Test listing all tasks."""
     # Submit multiple tasks
-    await hive_mind.submit_task(
-        name="task1",
-        task_type="coding",
-        description="Task 1"
-    )
+    await hive_mind.submit_task(name="task1", task_type="coding", description="Task 1")
 
-    await hive_mind.submit_task(
-        name="task2",
-        task_type="testing",
-        description="Task 2"
-    )
+    await hive_mind.submit_task(name="task2", task_type="testing", description="Task 2")
 
     result = await hive_mind.list_tasks()
 
@@ -267,29 +226,17 @@ async def test_list_tasks_by_status(hive_mind):
     """Test listing tasks filtered by status."""
     # Submit and complete one task
     await hive_mind.register_agent(
-        name="worker1",
-        role=AgentRole.WORKER,
-        capabilities=[]
+        name="worker1", role=AgentRole.WORKER, capabilities=[]
     )
 
     await hive_mind.submit_task(
-        name="task1",
-        task_type="test",
-        description="Task 1",
-        auto_assign=True
+        name="task1", task_type="test", description="Task 1", auto_assign=True
     )
 
-    await hive_mind.complete_task(
-        task_name="task1",
-        result={}
-    )
+    await hive_mind.complete_task(task_name="task1", result={})
 
     # Submit another pending task
-    await hive_mind.submit_task(
-        name="task2",
-        task_type="test",
-        description="Task 2"
-    )
+    await hive_mind.submit_task(name="task2", task_type="test", description="Task 2")
 
     # List only pending tasks
     result = await hive_mind.list_tasks(status="pending")
@@ -305,16 +252,14 @@ async def test_consensus_majority(hive_mind):
     # Register agents
     for i in range(5):
         await hive_mind.register_agent(
-            name=f"agent{i}",
-            role=AgentRole.WORKER,
-            capabilities=[]
+            name=f"agent{i}", role=AgentRole.WORKER, capabilities=[]
         )
 
     # Request consensus
     result = await hive_mind.request_consensus(
         question="Should we deploy?",
         options=["yes", "no"],
-        method=ConsensusMethod.MAJORITY
+        method=ConsensusMethod.MAJORITY,
     )
 
     assert result.success is True
@@ -327,15 +272,13 @@ async def test_consensus_unanimous(hive_mind):
     # Register agents
     for i in range(3):
         await hive_mind.register_agent(
-            name=f"agent{i}",
-            role=AgentRole.WORKER,
-            capabilities=[]
+            name=f"agent{i}", role=AgentRole.WORKER, capabilities=[]
         )
 
     result = await hive_mind.request_consensus(
         question="Critical decision?",
         options=["approve", "reject"],
-        method=ConsensusMethod.UNANIMOUS
+        method=ConsensusMethod.UNANIMOUS,
     )
 
     assert result.success is True
@@ -345,23 +288,17 @@ async def test_consensus_unanimous(hive_mind):
 async def test_consensus_queen_decision(hive_mind):
     """Test consensus with queen making final decision."""
     # Register queen and workers
-    await hive_mind.register_agent(
-        name="queen",
-        role=AgentRole.QUEEN,
-        capabilities=[]
-    )
+    await hive_mind.register_agent(name="queen", role=AgentRole.QUEEN, capabilities=[])
 
     for i in range(3):
         await hive_mind.register_agent(
-            name=f"worker{i}",
-            role=AgentRole.WORKER,
-            capabilities=[]
+            name=f"worker{i}", role=AgentRole.WORKER, capabilities=[]
         )
 
     result = await hive_mind.request_consensus(
         question="Architecture decision?",
         options=["option_a", "option_b"],
-        method=ConsensusMethod.QUEEN_DECISION
+        method=ConsensusMethod.QUEEN_DECISION,
     )
 
     assert result.success is True
@@ -372,9 +309,7 @@ async def test_get_agent_workload(hive_mind):
     """Test getting agent workload."""
     # Register agent
     await hive_mind.register_agent(
-        name="worker1",
-        role=AgentRole.WORKER,
-        capabilities=["coding"]
+        name="worker1", role=AgentRole.WORKER, capabilities=["coding"]
     )
 
     # Assign tasks
@@ -383,7 +318,7 @@ async def test_get_agent_workload(hive_mind):
             name=f"task{i}",
             task_type="coding",
             description=f"Task {i}",
-            auto_assign=True
+            auto_assign=True,
         )
 
     result = await hive_mind.get_agent_workload(agent_name="worker1")
@@ -398,14 +333,11 @@ async def test_broadcast_message(hive_mind):
     # Register agents
     for i in range(3):
         await hive_mind.register_agent(
-            name=f"agent{i}",
-            role=AgentRole.WORKER,
-            capabilities=[]
+            name=f"agent{i}", role=AgentRole.WORKER, capabilities=[]
         )
 
     result = await hive_mind.broadcast(
-        message="System update available",
-        sender="system"
+        message="System update available", sender="system"
     )
 
     assert result.success is True
@@ -417,15 +349,11 @@ async def test_send_direct_message(hive_mind):
     """Test sending direct message to specific agent."""
     # Register agent
     await hive_mind.register_agent(
-        name="worker1",
-        role=AgentRole.WORKER,
-        capabilities=[]
+        name="worker1", role=AgentRole.WORKER, capabilities=[]
     )
 
     result = await hive_mind.send_message(
-        to_agent="worker1",
-        message="Task assigned",
-        sender="queen"
+        to_agent="worker1", message="Task assigned", sender="queen"
     )
 
     assert result.success is True
@@ -436,16 +364,10 @@ async def test_get_hive_stats(hive_mind):
     """Test getting hive statistics."""
     # Register agents and submit tasks
     await hive_mind.register_agent(
-        name="worker1",
-        role=AgentRole.WORKER,
-        capabilities=[]
+        name="worker1", role=AgentRole.WORKER, capabilities=[]
     )
 
-    await hive_mind.submit_task(
-        name="task1",
-        task_type="test",
-        description="Test"
-    )
+    await hive_mind.submit_task(name="task1", task_type="test", description="Test")
 
     result = await hive_mind.get_stats()
 
@@ -461,9 +383,7 @@ async def test_unregister_agent(hive_mind):
     """Test unregistering an agent."""
     # Register agent
     await hive_mind.register_agent(
-        name="worker1",
-        role=AgentRole.WORKER,
-        capabilities=[]
+        name="worker1", role=AgentRole.WORKER, capabilities=[]
     )
 
     # Unregister
@@ -483,15 +403,11 @@ async def test_persistence(temp_db):
     hive1 = HiveMindCapability(config1)
 
     await hive1.register_agent(
-        name="worker1",
-        role=AgentRole.WORKER,
-        capabilities=["coding"]
+        name="worker1", role=AgentRole.WORKER, capabilities=["coding"]
     )
 
     await hive1.submit_task(
-        name="task1",
-        task_type="coding",
-        description="Persistent task"
+        name="task1", task_type="coding", description="Persistent task"
     )
 
     # Second instance - should load existing state

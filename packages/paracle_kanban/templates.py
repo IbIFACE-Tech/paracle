@@ -83,9 +83,7 @@ class TaskTemplate(BaseModel):
 
         for var_name, var_value in variables.items():
             title = title.replace(f"{{{var_name}}}", var_value)
-            description = description.replace(
-                f"{{{var_name}}}", var_value
-            )
+            description = description.replace(f"{{{var_name}}}", var_value)
 
         # Create task
         task = Task(
@@ -104,8 +102,7 @@ class TaskTemplate(BaseModel):
         # Add checklist to metadata
         if self.checklist:
             task.metadata["checklist"] = [
-                {"item": item, "completed": False}
-                for item in self.checklist
+                {"item": item, "completed": False} for item in self.checklist
             ]
 
         return task
@@ -273,9 +270,7 @@ class TemplateManager:
         """
         return self.templates.get(template_id)
 
-    def list_templates(
-        self, category: str | None = None
-    ) -> list[TaskTemplate]:
+    def list_templates(self, category: str | None = None) -> list[TaskTemplate]:
         """List templates.
 
         Args:
@@ -286,9 +281,7 @@ class TemplateManager:
         """
         templates = list(self.templates.values())
         if category:
-            templates = [
-                t for t in templates if t.category == category
-            ]
+            templates = [t for t in templates if t.category == category]
         return templates
 
     def remove_template(self, template_id: str) -> None:

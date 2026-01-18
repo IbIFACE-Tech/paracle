@@ -93,9 +93,7 @@ class Board(BaseModel):
     wip_limits: dict[str, int] = Field(
         default_factory=dict
     )  # {"in_progress": 3, "review": 5}
-    custom_field_definitions: dict[str, dict[str, Any]] = Field(
-        default_factory=dict
-    )
+    custom_field_definitions: dict[str, dict[str, Any]] = Field(default_factory=dict)
     default_view: str = "kanban"  # kanban, list, calendar, timeline
     sprint_config: dict[str, Any] = Field(default_factory=dict)
 
@@ -263,8 +261,7 @@ class BoardRepository:
         with sqlite3.connect(self.db_path) as conn:
             conn.row_factory = sqlite3.Row
             if include_archived:
-                cursor = conn.execute(
-                    "SELECT * FROM boards ORDER BY created_at DESC")
+                cursor = conn.execute("SELECT * FROM boards ORDER BY created_at DESC")
             else:
                 cursor = conn.execute(
                     "SELECT * FROM boards WHERE archived = 0 ORDER BY created_at DESC"
@@ -352,8 +349,7 @@ class BoardRepository:
                     task.board_id,
                     task.title,
                     task.description,
-                    task.status if isinstance(
-                        task.status, str) else task.status.value,
+                    task.status if isinstance(task.status, str) else task.status.value,
                     (
                         task.priority
                         if isinstance(task.priority, str)
@@ -471,8 +467,7 @@ class BoardRepository:
                 (
                     task.title,
                     task.description,
-                    task.status if isinstance(
-                        task.status, str) else task.status.value,
+                    task.status if isinstance(task.status, str) else task.status.value,
                     (
                         task.priority
                         if isinstance(task.priority, str)
@@ -585,8 +580,7 @@ class BoardRepository:
             created_at=datetime.fromisoformat(row["created_at"]),
             updated_at=datetime.fromisoformat(row["updated_at"]),
             started_at=(
-                datetime.fromisoformat(
-                    row["started_at"]) if row["started_at"] else None
+                datetime.fromisoformat(row["started_at"]) if row["started_at"] else None
             ),
             completed_at=(
                 datetime.fromisoformat(row["completed_at"])
@@ -595,7 +589,6 @@ class BoardRepository:
             ),
             tags=json.loads(row["tags"]) if row["tags"] else [],
             metadata=json.loads(row["metadata"]) if row["metadata"] else {},
-            depends_on=json.loads(
-                row["depends_on"]) if row["depends_on"] else [],
+            depends_on=json.loads(row["depends_on"]) if row["depends_on"] else [],
             blocked_by=row["blocked_by"],
         )

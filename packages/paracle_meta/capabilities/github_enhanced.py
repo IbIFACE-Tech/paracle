@@ -234,8 +234,12 @@ class GitHubEnhancedCapability(BaseCapability):
         super().__init__(config or GitHubEnhancedConfig())
         self.config: GitHubEnhancedConfig = self.config
         self._repositories: dict[str, Repository] = {}
-        self._prs: dict[str, dict[int, PullRequest]] = {}  # repo_name -> pr_number -> PR
-        self._reviews: dict[str, dict[int, CodeReview]] = {}  # repo_name -> pr_number -> Review
+        self._prs: dict[str, dict[int, PullRequest]] = (
+            {}
+        )  # repo_name -> pr_number -> PR
+        self._reviews: dict[str, dict[int, CodeReview]] = (
+            {}
+        )  # repo_name -> pr_number -> Review
 
     async def execute(self, **kwargs) -> CapabilityResult:
         """Execute GitHub Enhanced operation.
@@ -591,7 +595,9 @@ class GitHubEnhancedCapability(BaseCapability):
             # Check approvals
             approvals = sum(1 for r in pr.reviews if r.get("status") == "approved")
             if approvals < self.config.min_approvals:
-                raise ValueError(f"Insufficient approvals: {approvals}/{self.config.min_approvals}")
+                raise ValueError(
+                    f"Insufficient approvals: {approvals}/{self.config.min_approvals}"
+                )
 
         # In production, would merge via GitHub API
         pr.status = PRStatus.MERGED
@@ -637,11 +643,13 @@ class GitHubEnhancedCapability(BaseCapability):
 
         synced = []
         for target in targets:
-            synced.append({
-                "target": target,
-                "files": files,
-                "status": "synced",
-            })
+            synced.append(
+                {
+                    "target": target,
+                    "files": files,
+                    "status": "synced",
+                }
+            )
 
         return {
             "source": source,

@@ -113,14 +113,14 @@ def check_mcp_server_processes() -> MCPDiagnosticResult:
             # Unix: ps command
             cmd = ["ps", "aux"]
 
-        result = subprocess.run(
-            cmd, capture_output=True, text=True, timeout=10)
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
 
         if result.returncode == 0:
             output = result.stdout.strip()
             if output and ("python" in output.lower() or "paracle" in output.lower()):
                 process_count = len(
-                    [line for line in output.split("\n") if "python" in line.lower()])
+                    [line for line in output.split("\n") if "python" in line.lower()]
+                )
                 return MCPDiagnosticResult(
                     status="warning",
                     issue=f"Found {process_count} potentially stuck processes",
@@ -201,8 +201,7 @@ def stop_mcp_processes(auto_fix: bool = False) -> MCPDiagnosticResult:
             script = project_root / "scripts" / "stop-mcp-processes.ps1"
             if script.exists():
                 result = subprocess.run(
-                    ["powershell", "-ExecutionPolicy",
-                        "Bypass", "-File", str(script)],
+                    ["powershell", "-ExecutionPolicy", "Bypass", "-File", str(script)],
                     capture_output=True,
                     text=True,
                     timeout=30,

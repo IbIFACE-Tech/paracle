@@ -412,7 +412,9 @@ class HookSystemCapability(BaseCapability):
                     "enabled": h.enabled,
                     "execution_count": h.execution_count,
                     "avg_duration_ms": (
-                        h.total_duration_ms / h.execution_count if h.execution_count > 0 else 0
+                        h.total_duration_ms / h.execution_count
+                        if h.execution_count > 0
+                        else 0
                     ),
                 }
                 for h in hooks
@@ -563,7 +565,9 @@ class HookSystemCapability(BaseCapability):
                         "hook_id": hook.id,
                         "hook_name": hook.name,
                         "success": True,
-                        "duration_ms": duration_ms if self.config.enable_metrics else None,
+                        "duration_ms": (
+                            duration_ms if self.config.enable_metrics else None
+                        ),
                     }
                 )
 

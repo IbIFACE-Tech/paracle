@@ -31,10 +31,7 @@ async def test_optimize_text_light(token_optimizer):
     """Test light optimization."""
     text = "This is a very, very long text with lots of repetition and redundant information."
 
-    result = await token_optimizer.optimize(
-        text=text,
-        level=OptimizationLevel.LIGHT
-    )
+    result = await token_optimizer.optimize(text=text, level=OptimizationLevel.LIGHT)
 
     assert result.success is True
     assert len(result.output["optimized_text"]) <= len(text)
@@ -53,10 +50,7 @@ async def test_optimize_text_medium(token_optimizer):
     The medium level should provide good compression.
     """
 
-    result = await token_optimizer.optimize(
-        text=text,
-        level=OptimizationLevel.MEDIUM
-    )
+    result = await token_optimizer.optimize(text=text, level=OptimizationLevel.MEDIUM)
 
     assert result.success is True
     # Medium should compress more than light
@@ -76,8 +70,7 @@ async def test_optimize_text_aggressive(token_optimizer):
     """
 
     result = await token_optimizer.optimize(
-        text=text,
-        level=OptimizationLevel.AGGRESSIVE
+        text=text, level=OptimizationLevel.AGGRESSIVE
     )
 
     assert result.success is True
@@ -101,10 +94,7 @@ result = calculate_sum([1, 2, 3, 4, 5])
 print(f"The result is: {result}")
 """
 
-    result = await token_optimizer.optimize(
-        text=code,
-        content_type=ContentType.CODE
-    )
+    result = await token_optimizer.optimize(text=code, content_type=ContentType.CODE)
 
     assert result.success is True
     # Should preserve code structure
@@ -116,16 +106,24 @@ async def test_optimize_conversation(token_optimizer):
     """Test optimizing conversation history."""
     messages = [
         {"role": "user", "content": "Hello, how are you today?"},
-        {"role": "assistant", "content": "I'm doing well, thank you! How can I help you?"},
+        {
+            "role": "assistant",
+            "content": "I'm doing well, thank you! How can I help you?",
+        },
         {"role": "user", "content": "I need help with Python programming"},
-        {"role": "assistant", "content": "Of course! I'd be happy to help with Python. What specifically would you like to know?"},
+        {
+            "role": "assistant",
+            "content": "Of course! I'd be happy to help with Python. What specifically would you like to know?",
+        },
         {"role": "user", "content": "How do I read a file?"},
-        {"role": "assistant", "content": "You can read a file using open() function..."},
+        {
+            "role": "assistant",
+            "content": "You can read a file using open() function...",
+        },
     ]
 
     result = await token_optimizer.optimize_conversation(
-        messages=messages,
-        preserve_recent=2  # Keep last 2 messages
+        messages=messages, preserve_recent=2  # Keep last 2 messages
     )
 
     assert result.success is True
@@ -136,13 +134,10 @@ async def test_optimize_conversation(token_optimizer):
 @pytest.mark.asyncio
 async def test_optimize_conversation_with_max_tokens(token_optimizer):
     """Test conversation optimization with token limit."""
-    messages = [
-        {"role": "user", "content": "Message " * 100} for _ in range(10)
-    ]
+    messages = [{"role": "user", "content": "Message " * 100} for _ in range(10)]
 
     result = await token_optimizer.optimize_conversation(
-        messages=messages,
-        max_tokens=200
+        messages=messages, max_tokens=200
     )
 
     assert result.success is True
@@ -152,13 +147,10 @@ async def test_optimize_conversation_with_max_tokens(token_optimizer):
 @pytest.mark.asyncio
 async def test_preserve_recent_messages(token_optimizer):
     """Test preserving recent messages in conversation."""
-    messages = [
-        {"role": "user", "content": f"Message {i}"} for i in range(10)
-    ]
+    messages = [{"role": "user", "content": f"Message {i}"} for i in range(10)]
 
     result = await token_optimizer.optimize_conversation(
-        messages=messages,
-        preserve_recent=3
+        messages=messages, preserve_recent=3
     )
 
     assert result.success is True
@@ -192,8 +184,7 @@ Here's how to use the application...
 """
 
     result = await token_optimizer.optimize(
-        text=doc,
-        content_type=ContentType.DOCUMENTATION
+        text=doc, content_type=ContentType.DOCUMENTATION
     )
 
     assert result.success is True
@@ -219,12 +210,11 @@ async def test_batch_optimize(token_optimizer):
     texts = [
         "First text to optimize",
         "Second text to optimize",
-        "Third text to optimize"
+        "Third text to optimize",
     ]
 
     result = await token_optimizer.batch_optimize(
-        texts=texts,
-        level=OptimizationLevel.MEDIUM
+        texts=texts, level=OptimizationLevel.MEDIUM
     )
 
     assert result.success is True
@@ -289,14 +279,11 @@ async def test_different_content_types(token_optimizer):
         ContentType.TEXT: "This is plain text content.",
         ContentType.CODE: "def foo(): return 42",
         ContentType.DOCUMENTATION: "# API Reference\n\nDetails here...",
-        ContentType.CONVERSATION: "User: Hello\nAssistant: Hi there!"
+        ContentType.CONVERSATION: "User: Hello\nAssistant: Hi there!",
     }
 
     for content_type, sample in content_samples.items():
-        result = await token_optimizer.optimize(
-            text=sample,
-            content_type=content_type
-        )
+        result = await token_optimizer.optimize(text=sample, content_type=content_type)
 
         assert result.success is True
         assert result.output["content_type"] == content_type
@@ -308,8 +295,7 @@ async def test_optimize_with_custom_rules(token_optimizer):
     text = "IMPORTANT: Do not remove this critical information about PROJECT_NAME."
 
     result = await token_optimizer.optimize(
-        text=text,
-        preserve_patterns=["IMPORTANT", "PROJECT_NAME"]
+        text=text, preserve_patterns=["IMPORTANT", "PROJECT_NAME"]
     )
 
     assert result.success is True

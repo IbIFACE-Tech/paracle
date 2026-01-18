@@ -33,10 +33,7 @@ async def test_rl_training_initialization(rl_trainer):
 async def test_create_training_session(rl_trainer):
     """Test creating a training session."""
     result = await rl_trainer.create_session(
-        name="test-session",
-        algorithm=RLAlgorithm.Q_LEARNING,
-        state_dim=4,
-        action_dim=2
+        name="test-session", algorithm=RLAlgorithm.Q_LEARNING, state_dim=4, action_dim=2
     )
 
     assert result.success is True
@@ -49,10 +46,7 @@ async def test_record_experience(rl_trainer):
     """Test recording an experience."""
     # Create session first
     await rl_trainer.create_session(
-        name="test-session",
-        algorithm=RLAlgorithm.Q_LEARNING,
-        state_dim=4,
-        action_dim=2
+        name="test-session", algorithm=RLAlgorithm.Q_LEARNING, state_dim=4, action_dim=2
     )
 
     # Record experience
@@ -62,7 +56,7 @@ async def test_record_experience(rl_trainer):
         action_taken=0,
         reward=1.0,
         next_state=[1.0, 0.6, 0.1, 0.4],
-        done=False
+        done=False,
     )
 
     assert result.success is True
@@ -74,10 +68,7 @@ async def test_train_step(rl_trainer):
     """Test performing a training step."""
     # Create session and add experiences
     await rl_trainer.create_session(
-        name="test-session",
-        algorithm=RLAlgorithm.Q_LEARNING,
-        state_dim=2,
-        action_dim=2
+        name="test-session", algorithm=RLAlgorithm.Q_LEARNING, state_dim=2, action_dim=2
     )
 
     # Add multiple experiences
@@ -88,7 +79,7 @@ async def test_train_step(rl_trainer):
             action_taken=i % 2,
             reward=1.0 if i % 2 == 0 else -1.0,
             next_state=[0.1 * (i + 1), 0.2 * (i + 1)],
-            done=False
+            done=False,
         )
 
     # Train
@@ -103,17 +94,12 @@ async def test_get_action(rl_trainer):
     """Test getting action from trained model."""
     # Create session
     await rl_trainer.create_session(
-        name="test-session",
-        algorithm=RLAlgorithm.Q_LEARNING,
-        state_dim=2,
-        action_dim=2
+        name="test-session", algorithm=RLAlgorithm.Q_LEARNING, state_dim=2, action_dim=2
     )
 
     # Get action
     result = await rl_trainer.get_action(
-        session_id="test-session",
-        state=[0.5, 0.3],
-        explore=True
+        session_id="test-session", state=[0.5, 0.3], explore=True
     )
 
     assert result.success is True
@@ -125,25 +111,18 @@ async def test_get_action(rl_trainer):
 async def test_exploration_vs_exploitation(rl_trainer):
     """Test exploration vs exploitation."""
     await rl_trainer.create_session(
-        name="test-session",
-        algorithm=RLAlgorithm.Q_LEARNING,
-        state_dim=2,
-        action_dim=2
+        name="test-session", algorithm=RLAlgorithm.Q_LEARNING, state_dim=2, action_dim=2
     )
 
     # Exploration mode
     explore_result = await rl_trainer.get_action(
-        session_id="test-session",
-        state=[0.5, 0.3],
-        explore=True
+        session_id="test-session", state=[0.5, 0.3], explore=True
     )
     assert explore_result.success is True
 
     # Exploitation mode
     exploit_result = await rl_trainer.get_action(
-        session_id="test-session",
-        state=[0.5, 0.3],
-        explore=False
+        session_id="test-session", state=[0.5, 0.3], explore=False
     )
     assert exploit_result.success is True
 
@@ -165,10 +144,7 @@ async def test_different_algorithms():
         trainer = RLTrainingCapability(config)
 
         result = await trainer.create_session(
-            name=f"session-{algo}",
-            algorithm=algo,
-            state_dim=4,
-            action_dim=2
+            name=f"session-{algo}", algorithm=algo, state_dim=4, action_dim=2
         )
 
         assert result.success is True
@@ -180,10 +156,7 @@ async def test_save_and_load_model(rl_trainer):
     """Test saving and loading trained model."""
     # Create session and train
     await rl_trainer.create_session(
-        name="test-session",
-        algorithm=RLAlgorithm.Q_LEARNING,
-        state_dim=2,
-        action_dim=2
+        name="test-session", algorithm=RLAlgorithm.Q_LEARNING, state_dim=2, action_dim=2
     )
 
     for i in range(5):
@@ -193,22 +166,20 @@ async def test_save_and_load_model(rl_trainer):
             action_taken=i % 2,
             reward=1.0,
             next_state=[0.1 * (i + 1), 0.2 * (i + 1)],
-            done=False
+            done=False,
         )
 
     await rl_trainer.train_step(session_id="test-session")
 
     # Save model
     save_result = await rl_trainer.save_model(
-        session_id="test-session",
-        path="/tmp/test_model"
+        session_id="test-session", path="/tmp/test_model"
     )
     assert save_result.success is True
 
     # Load model
     load_result = await rl_trainer.load_model(
-        session_id="test-session",
-        path="/tmp/test_model"
+        session_id="test-session", path="/tmp/test_model"
     )
     assert load_result.success is True
 
@@ -217,10 +188,7 @@ async def test_save_and_load_model(rl_trainer):
 async def test_get_training_stats(rl_trainer):
     """Test getting training statistics."""
     await rl_trainer.create_session(
-        name="test-session",
-        algorithm=RLAlgorithm.Q_LEARNING,
-        state_dim=2,
-        action_dim=2
+        name="test-session", algorithm=RLAlgorithm.Q_LEARNING, state_dim=2, action_dim=2
     )
 
     # Add experiences
@@ -231,7 +199,7 @@ async def test_get_training_stats(rl_trainer):
             action_taken=0,
             reward=1.0,
             next_state=[0.2, 0.3],
-            done=False
+            done=False,
         )
 
     result = await rl_trainer.get_stats(session_id="test-session")
@@ -245,10 +213,7 @@ async def test_get_training_stats(rl_trainer):
 async def test_episode_tracking(rl_trainer):
     """Test tracking episodes."""
     await rl_trainer.create_session(
-        name="test-session",
-        algorithm=RLAlgorithm.Q_LEARNING,
-        state_dim=2,
-        action_dim=2
+        name="test-session", algorithm=RLAlgorithm.Q_LEARNING, state_dim=2, action_dim=2
     )
 
     # Episode 1
@@ -258,7 +223,7 @@ async def test_episode_tracking(rl_trainer):
         action_taken=0,
         reward=1.0,
         next_state=[0.2, 0.3],
-        done=True  # Episode ends
+        done=True,  # Episode ends
     )
 
     # Episode 2
@@ -268,7 +233,7 @@ async def test_episode_tracking(rl_trainer):
         action_taken=1,
         reward=0.5,
         next_state=[0.1, 0.1],
-        done=False
+        done=False,
     )
 
     result = await rl_trainer.get_stats(session_id="test-session")
@@ -279,10 +244,7 @@ async def test_episode_tracking(rl_trainer):
 async def test_reward_tracking(rl_trainer):
     """Test tracking cumulative rewards."""
     await rl_trainer.create_session(
-        name="test-session",
-        algorithm=RLAlgorithm.Q_LEARNING,
-        state_dim=2,
-        action_dim=2
+        name="test-session", algorithm=RLAlgorithm.Q_LEARNING, state_dim=2, action_dim=2
     )
 
     rewards = [1.0, 0.5, -0.5, 2.0, 0.0]
@@ -294,7 +256,7 @@ async def test_reward_tracking(rl_trainer):
             action_taken=0,
             reward=reward,
             next_state=[0.1 * (i + 1), 0.2 * (i + 1)],
-            done=False
+            done=False,
         )
 
     result = await rl_trainer.get_stats(session_id="test-session")
@@ -306,16 +268,11 @@ async def test_reward_tracking(rl_trainer):
 async def test_update_hyperparameters(rl_trainer):
     """Test updating training hyperparameters."""
     await rl_trainer.create_session(
-        name="test-session",
-        algorithm=RLAlgorithm.Q_LEARNING,
-        state_dim=2,
-        action_dim=2
+        name="test-session", algorithm=RLAlgorithm.Q_LEARNING, state_dim=2, action_dim=2
     )
 
     result = await rl_trainer.update_hyperparameters(
-        session_id="test-session",
-        learning_rate=0.01,
-        epsilon=0.1
+        session_id="test-session", learning_rate=0.01, epsilon=0.1
     )
 
     assert result.success is True
@@ -325,10 +282,7 @@ async def test_update_hyperparameters(rl_trainer):
 async def test_reset_session(rl_trainer):
     """Test resetting a training session."""
     await rl_trainer.create_session(
-        name="test-session",
-        algorithm=RLAlgorithm.Q_LEARNING,
-        state_dim=2,
-        action_dim=2
+        name="test-session", algorithm=RLAlgorithm.Q_LEARNING, state_dim=2, action_dim=2
     )
 
     # Add experiences
@@ -338,7 +292,7 @@ async def test_reset_session(rl_trainer):
         action_taken=0,
         reward=1.0,
         next_state=[0.2, 0.3],
-        done=False
+        done=False,
     )
 
     # Reset
@@ -354,10 +308,7 @@ async def test_reset_session(rl_trainer):
 async def test_delete_session(rl_trainer):
     """Test deleting a training session."""
     await rl_trainer.create_session(
-        name="test-session",
-        algorithm=RLAlgorithm.Q_LEARNING,
-        state_dim=2,
-        action_dim=2
+        name="test-session", algorithm=RLAlgorithm.Q_LEARNING, state_dim=2, action_dim=2
     )
 
     result = await rl_trainer.delete_session(session_id="test-session")
@@ -377,7 +328,7 @@ async def test_list_sessions(rl_trainer):
             name=f"session-{i}",
             algorithm=RLAlgorithm.Q_LEARNING,
             state_dim=2,
-            action_dim=2
+            action_dim=2,
         )
 
     result = await rl_trainer.list_sessions()
@@ -394,13 +345,11 @@ async def test_continuous_action_space(rl_trainer):
         algorithm=RLAlgorithm.PPO,  # PPO handles continuous actions
         state_dim=4,
         action_dim=2,
-        continuous_actions=True
+        continuous_actions=True,
     )
 
     result = await rl_trainer.get_action(
-        session_id="test-session",
-        state=[0.1, 0.2, 0.3, 0.4],
-        explore=True
+        session_id="test-session", state=[0.1, 0.2, 0.3, 0.4], explore=True
     )
 
     assert result.success is True
@@ -411,10 +360,7 @@ async def test_continuous_action_space(rl_trainer):
 async def test_batch_training(rl_trainer):
     """Test batch training."""
     await rl_trainer.create_session(
-        name="test-session",
-        algorithm=RLAlgorithm.DQN,
-        state_dim=2,
-        action_dim=2
+        name="test-session", algorithm=RLAlgorithm.DQN, state_dim=2, action_dim=2
     )
 
     # Add batch of experiences
@@ -425,13 +371,10 @@ async def test_batch_training(rl_trainer):
             action_taken=i % 2,
             reward=1.0 if i % 2 == 0 else -1.0,
             next_state=[0.1 * (i + 1), 0.2 * (i + 1)],
-            done=i % 10 == 0
+            done=i % 10 == 0,
         )
 
     # Batch train
-    result = await rl_trainer.train_batch(
-        session_id="test-session",
-        batch_size=16
-    )
+    result = await rl_trainer.train_batch(session_id="test-session", batch_size=16)
 
     assert result.success is True

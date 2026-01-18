@@ -378,12 +378,8 @@ class ObservabilityCapability(BaseCapability):
                     "avg": summary.performance.avg_latency,
                 },
                 "throughput": {
-                    "requests_per_minute": (
-                        summary.performance.requests_per_minute
-                    ),
-                    "tokens_per_second": (
-                        summary.performance.tokens_per_second
-                    ),
+                    "requests_per_minute": (summary.performance.requests_per_minute),
+                    "tokens_per_second": (summary.performance.tokens_per_second),
                 },
             },
         )
@@ -536,9 +532,9 @@ class ObservabilityCapability(BaseCapability):
         if summary.cost.budget_usage_pct >= self.config.alert_on_budget_threshold:
             alerts.append(
                 {
-                    "severity": "warning"
-                    if summary.cost.budget_usage_pct < 1.0
-                    else "critical",
+                    "severity": (
+                        "warning" if summary.cost.budget_usage_pct < 1.0 else "critical"
+                    ),
                     "message": f"Budget usage at {summary.cost.budget_usage_pct * 100:.1f}%",
                     "threshold": self.config.alert_on_budget_threshold,
                     "current": summary.cost.budget_usage_pct,

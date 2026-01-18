@@ -49,7 +49,7 @@ async def test_record_success_experience(reflexion):
         task="Generate code",
         action_taken="Used template pattern",
         result={"code": "class Foo: pass"},
-        success=True
+        success=True,
     )
 
     assert result.success is True
@@ -65,7 +65,7 @@ async def test_record_failure_experience(reflexion):
         task="Parse JSON",
         action_taken="Used json.loads",
         result={"error": "Invalid JSON"},
-        success=False
+        success=False,
     )
 
     assert result.success is True
@@ -81,7 +81,7 @@ async def test_auto_reflection(reflexion):
         task="Implement feature",
         action_taken="TDD approach",
         result={"tests": 10, "coverage": 95},
-        success=True
+        success=True,
     )
 
     exp_id = result.output["experience_id"]
@@ -107,23 +107,17 @@ async def test_manual_reflection(reflexion):
         task="Debug issue",
         action_taken="Added logging",
         result={"found": True},
-        success=True
+        success=True,
     )
 
     exp_id = result.output["experience_id"]
 
     # Manual reflection - shallow
-    shallow_result = await reflexion.reflect(
-        experience_id=exp_id,
-        depth="shallow"
-    )
+    shallow_result = await reflexion.reflect(experience_id=exp_id, depth="shallow")
     assert shallow_result.success is True
 
     # Manual reflection - deep
-    deep_result = await reflexion.reflect(
-        experience_id=exp_id,
-        depth="deep"
-    )
+    deep_result = await reflexion.reflect(experience_id=exp_id, depth="deep")
     assert deep_result.success is True
 
 
@@ -136,7 +130,7 @@ async def test_critique_experience(reflexion):
         task="Write tests",
         action_taken="Wrote 50 tests",
         result={"coverage": 60},
-        success=True
+        success=True,
     )
 
     exp_id = result.output["experience_id"]
@@ -158,7 +152,7 @@ async def test_query_by_agent(reflexion):
         task="Task 1",
         action_taken="Action 1",
         result={},
-        success=True
+        success=True,
     )
 
     await reflexion.record(
@@ -166,7 +160,7 @@ async def test_query_by_agent(reflexion):
         task="Task 2",
         action_taken="Action 2",
         result={},
-        success=True
+        success=True,
     )
 
     # Query agent1 experiences
@@ -185,7 +179,7 @@ async def test_query_by_success(reflexion):
         task="Task 1",
         action_taken="Action 1",
         result={},
-        success=True
+        success=True,
     )
 
     await reflexion.record(
@@ -193,7 +187,7 @@ async def test_query_by_success(reflexion):
         task="Task 2",
         action_taken="Action 2",
         result={},
-        success=False
+        success=False,
     )
 
     # Query only failures
@@ -213,7 +207,7 @@ async def test_query_by_experience_type(reflexion):
         action_taken="Action 1",
         result={},
         success=True,
-        experience_type=ExperienceType.SUCCESS
+        experience_type=ExperienceType.SUCCESS,
     )
 
     await reflexion.record(
@@ -222,7 +216,7 @@ async def test_query_by_experience_type(reflexion):
         action_taken="Action 2",
         result={},
         success=False,
-        experience_type=ExperienceType.FAILURE
+        experience_type=ExperienceType.FAILURE,
     )
 
     # Query failures
@@ -242,7 +236,7 @@ async def test_get_patterns(reflexion):
             task=f"Implement feature {i}",
             action_taken="Used TDD",
             result={"coverage": 90 + i},
-            success=True
+            success=True,
         )
 
     # Get patterns
@@ -261,7 +255,7 @@ async def test_get_insights(reflexion):
             task=f"Task {i}",
             action_taken=f"Action {i}",
             result={},
-            success=i % 2 == 0  # Alternate success/failure
+            success=i % 2 == 0,  # Alternate success/failure
         )
 
     # Get insights
@@ -284,16 +278,14 @@ async def test_experience_with_metadata(reflexion):
         metadata={
             "environment": "production",
             "duration_seconds": 120,
-            "rollback_available": True
-        }
+            "rollback_available": True,
+        },
     )
 
     assert result.success is True
 
     # Query and check metadata
-    query_result = await reflexion.query(
-        experience_id=result.output["experience_id"]
-    )
+    query_result = await reflexion.query(experience_id=result.output["experience_id"])
     exp = query_result.output["experiences"][0]
     assert exp["metadata"]["environment"] == "production"
     assert exp["metadata"]["duration_seconds"] == 120
@@ -311,7 +303,7 @@ async def test_persistence(temp_db):
         task="Test task",
         action_taken="Test action",
         result={},
-        success=True
+        success=True,
     )
     exp_id = result.output["experience_id"]
 
@@ -334,7 +326,7 @@ async def test_limit_and_offset(reflexion):
             task=f"Task {i}",
             action_taken=f"Action {i}",
             result={},
-            success=True
+            success=True,
         )
 
     # Query with limit

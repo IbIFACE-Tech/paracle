@@ -101,19 +101,46 @@ from paracle_meta.capabilities.multi_language_execution import (
 from paracle_meta.capabilities.filesystem import FileSystemCapability, FileSystemConfig
 from paracle_meta.capabilities.mcp_integration import MCPCapability, MCPConfig, MCPTool
 from paracle_meta.capabilities.memory import MemoryCapability, MemoryConfig, MemoryItem
-from paracle_meta.capabilities.paracle_integration import ParacleCapability, ParacleConfig
+from paracle_meta.capabilities.paracle_integration import (
+    ParacleCapability,
+    ParacleConfig,
+)
 from paracle_meta.capabilities.shell import ProcessInfo, ShellCapability, ShellConfig
 
 # New Extended Capabilities (v1.8.0)
 from paracle_meta.capabilities.image import ImageCapability, ImageConfig
 from paracle_meta.capabilities.audio import AudioCapability, AudioConfig
-from paracle_meta.capabilities.database import DatabaseCapability, DatabaseConfig, DatabaseType
-from paracle_meta.capabilities.notification import NotificationCapability, NotificationConfig, NotificationChannel
-from paracle_meta.capabilities.scheduler import SchedulerCapability, SchedulerConfig, ScheduledTask
-from paracle_meta.capabilities.container import ContainerCapability, ContainerConfig, ContainerRuntime
+from paracle_meta.capabilities.database import (
+    DatabaseCapability,
+    DatabaseConfig,
+    DatabaseType,
+)
+from paracle_meta.capabilities.notification import (
+    NotificationCapability,
+    NotificationConfig,
+    NotificationChannel,
+)
+from paracle_meta.capabilities.scheduler import (
+    SchedulerCapability,
+    SchedulerConfig,
+    ScheduledTask,
+)
+from paracle_meta.capabilities.container import (
+    ContainerCapability,
+    ContainerConfig,
+    ContainerRuntime,
+)
 from paracle_meta.capabilities.cloud import CloudCapability, CloudConfig, CloudProvider
-from paracle_meta.capabilities.document import DocumentCapability, DocumentConfig, DocumentFormat
-from paracle_meta.capabilities.browser import BrowserCapability, BrowserConfig, BrowserType
+from paracle_meta.capabilities.document import (
+    DocumentCapability,
+    DocumentConfig,
+    DocumentFormat,
+)
+from paracle_meta.capabilities.browser import (
+    BrowserCapability,
+    BrowserConfig,
+    BrowserType,
+)
 from paracle_meta.capabilities.polyglot import (
     PolyglotCapability,
     PolyglotConfig,

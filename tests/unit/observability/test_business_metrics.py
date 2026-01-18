@@ -1,6 +1,5 @@
 """Tests for business metrics tracking."""
 
-
 import pytest
 from paracle_core.cost.config import BudgetConfig, CostConfig
 from paracle_core.cost.tracker import CostTracker
@@ -313,8 +312,7 @@ def test_health_score_perfect(business_metrics):
         active_hours=24,
     )
 
-    score = business_metrics._calculate_health_score(
-        cost, usage, performance, quality)
+    score = business_metrics._calculate_health_score(cost, usage, performance, quality)
 
     # Should be high (budget:30 + quality:40 + perf:20 + usage:10)
     assert score >= 90.0
@@ -378,8 +376,7 @@ def test_health_score_degraded(business_metrics):
         active_hours=8,
     )
 
-    score = business_metrics._calculate_health_score(
-        cost, usage, performance, quality)
+    score = business_metrics._calculate_health_score(cost, usage, performance, quality)
 
     # Should be lower (budget:20 + quality:32 + perf:5 + usage:1)
     assert score < 70.0

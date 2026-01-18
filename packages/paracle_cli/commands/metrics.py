@@ -104,9 +104,7 @@ def _fallback_metrics_quality() -> dict:
         "success_rate": quality.success_rate,
         "error_rate": quality.error_rate,
         "timeout_rate": 0.0,  # Not tracked separately
-        "total_successes": int(
-            quality.success_rate * summary.usage.total_requests
-        ),
+        "total_successes": int(quality.success_rate * summary.usage.total_requests),
         "total_errors": quality.error_count,
         "total_timeouts": 0,  # Not tracked
     }
@@ -135,8 +133,10 @@ def _display_summary(data: dict) -> None:
     # Create summary panel
     title = Text()
     title.append("Business Metrics Summary - ", style="bold")
-    title.append(f"{health_icon} Health Score: {health_score:.1f}/100",
-                 style=f"bold {health_color}")
+    title.append(
+        f"{health_icon} Health Score: {health_score:.1f}/100",
+        style=f"bold {health_color}",
+    )
 
     table = Table(show_header=False, box=None, padding=(0, 2))
     table.add_column("Metric", style="cyan")
@@ -179,8 +179,7 @@ def _display_cost(data: dict) -> None:
     table.add_row("Daily Cost", f"${data.get('daily_cost', 0):.4f}")
     table.add_row("Weekly Cost", f"${data.get('weekly_cost', 0):.4f}")
     table.add_row("Monthly Cost", f"${data.get('monthly_cost', 0):.4f}")
-    table.add_row("Estimated Monthly",
-                  f"${data.get('estimated_monthly_cost', 0):.2f}")
+    table.add_row("Estimated Monthly", f"${data.get('estimated_monthly_cost', 0):.2f}")
     table.add_row("", "")
 
     budget_util = data.get("budget_utilization", 0)
@@ -192,10 +191,9 @@ def _display_cost(data: dict) -> None:
     table.add_row("Budget Utilization", f"{budget_util:.1%}")
     table.add_row(
         "Budget Status",
-        f"[{status_colors.get(status, 'white')}]{status_icons.get(status, '•')} {status.upper()}[/]"
+        f"[{status_colors.get(status, 'white')}]{status_icons.get(status, '•')} {status.upper()}[/]",
     )
-    table.add_row("Cost per Request",
-                  f"${data.get('cost_per_request', 0):.6f}")
+    table.add_row("Cost per Request", f"${data.get('cost_per_request', 0):.6f}")
 
     alerts = data.get("alerts", 0)
     if alerts > 0:
@@ -213,14 +211,12 @@ def _display_usage(data: dict) -> None:
 
     table.add_row("Total Tokens", f"{data.get('total_tokens', 0):,}")
     table.add_row("  - Prompt Tokens", f"{data.get('prompt_tokens', 0):,}")
-    table.add_row("  - Completion Tokens",
-                  f"{data.get('completion_tokens', 0):,}")
+    table.add_row("  - Completion Tokens", f"{data.get('completion_tokens', 0):,}")
     table.add_row("", "")
     table.add_row("Total Requests", f"{data.get('total_requests', 0):,}")
     table.add_row("Active Agents", f"{data.get('active_agents', 0)}")
     table.add_row("", "")
-    table.add_row("Avg Tokens/Request",
-                  f"{data.get('avg_tokens_per_request', 0):.1f}")
+    table.add_row("Avg Tokens/Request", f"{data.get('avg_tokens_per_request', 0):.1f}")
 
     console.print(table)
 
@@ -244,15 +240,17 @@ def _display_performance(data: dict) -> None:
         else:
             return "red"
 
-    table.add_row("Average Latency",
-                  f"[{latency_color(avg_latency)}]{avg_latency:.0f}ms[/]")
     table.add_row(
-        "P95 Latency", f"[{latency_color(p95_latency)}]{p95_latency:.0f}ms[/]")
+        "Average Latency", f"[{latency_color(avg_latency)}]{avg_latency:.0f}ms[/]"
+    )
     table.add_row(
-        "P99 Latency", f"[{latency_color(p99_latency)}]{p99_latency:.0f}ms[/]")
+        "P95 Latency", f"[{latency_color(p95_latency)}]{p95_latency:.0f}ms[/]"
+    )
+    table.add_row(
+        "P99 Latency", f"[{latency_color(p99_latency)}]{p99_latency:.0f}ms[/]"
+    )
     table.add_row("", "")
-    table.add_row("Requests/Minute",
-                  f"{data.get('requests_per_minute', 0):.1f}")
+    table.add_row("Requests/Minute", f"{data.get('requests_per_minute', 0):.1f}")
     table.add_row("Tokens/Second", f"{data.get('tokens_per_second', 0):.1f}")
     table.add_row("", "")
     table.add_row("Active Connections", f"{data.get('active_connections', 0)}")
@@ -288,12 +286,15 @@ def _display_quality(data: dict) -> None:
             else:
                 return "red"
 
-    table.add_row("Success Rate",
-                  f"[{quality_color(success_rate)}]{success_rate:.1%}[/]")
     table.add_row(
-        "Error Rate", f"[{quality_color(error_rate, True)}]{error_rate:.1%}[/]")
+        "Success Rate", f"[{quality_color(success_rate)}]{success_rate:.1%}[/]"
+    )
     table.add_row(
-        "Timeout Rate", f"[{quality_color(timeout_rate, True)}]{timeout_rate:.1%}[/]")
+        "Error Rate", f"[{quality_color(error_rate, True)}]{error_rate:.1%}[/]"
+    )
+    table.add_row(
+        "Timeout Rate", f"[{quality_color(timeout_rate, True)}]{timeout_rate:.1%}[/]"
+    )
     table.add_row("", "")
     table.add_row("Total Successes", f"{data.get('total_successes', 0):,}")
     table.add_row("Total Errors", f"{data.get('total_errors', 0):,}")

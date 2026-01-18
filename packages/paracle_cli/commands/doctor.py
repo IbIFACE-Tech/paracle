@@ -17,15 +17,9 @@ console = Console()
 
 @click.command()
 @click.option(
-    "--verbose", "-v",
-    is_flag=True,
-    help="Show detailed diagnostic information"
+    "--verbose", "-v", is_flag=True, help="Show detailed diagnostic information"
 )
-@click.option(
-    "--fix",
-    is_flag=True,
-    help="Attempt to auto-fix issues (where possible)"
-)
+@click.option("--fix", is_flag=True, help="Attempt to auto-fix issues (where possible)")
 def doctor(verbose: bool = False, fix: bool = False) -> None:
     """Run comprehensive system health check.
 
@@ -116,8 +110,7 @@ def check_python_environment(verbose: bool = False) -> dict[str, Any]:
     info["Virtual Environment"] = "Yes" if in_venv else "No"
 
     if not in_venv and platform.system() != "Windows":
-        warnings.append(
-            "Not in virtual environment (recommended for isolation)")
+        warnings.append("Not in virtual environment (recommended for isolation)")
 
     return {
         "status": "error" if errors else ("warning" if warnings else "ok"),
@@ -140,7 +133,13 @@ def check_paracle_installation(verbose: bool = False) -> dict[str, Any]:
         info["Paracle Version"] = getattr(paracle, "__version__", "Unknown")
     except ImportError:
         errors.append("Paracle not properly installed")
-        return {"status": "error", "errors": 1, "warnings": 0, "issues": errors, "info": {}}
+        return {
+            "status": "error",
+            "errors": 1,
+            "warnings": 0,
+            "issues": errors,
+            "info": {},
+        }
 
     # Check core packages
     core_packages = [
@@ -202,7 +201,13 @@ def check_workspace_structure(verbose: bool = False) -> dict[str, Any]:
     except Exception:
         errors.append(".parac/ workspace not found")
         errors.append("Run: paracle init to create workspace")
-        return {"status": "error", "errors": 2, "warnings": 0, "issues": errors, "info": {}}
+        return {
+            "status": "error",
+            "errors": 2,
+            "warnings": 0,
+            "issues": errors,
+            "info": {},
+        }
 
     # Required directories
     required_dirs = [
@@ -281,10 +286,10 @@ def check_configuration(verbose: bool = False) -> dict[str, Any]:
 
             with open(project_yaml) as f:
                 config = yaml.safe_load(f)
-                info["Project Name"] = config.get(
-                    "project", {}).get("name", "Unknown")
-                info["Project Version"] = config.get(
-                    "project", {}).get("version", "Unknown")
+                info["Project Name"] = config.get("project", {}).get("name", "Unknown")
+                info["Project Version"] = config.get("project", {}).get(
+                    "version", "Unknown"
+                )
         except Exception as e:
             errors.append(f"project.yaml syntax error: {e}")
     else:
@@ -371,7 +376,8 @@ def check_optional_features(verbose: bool = False) -> dict[str, Any]:
     if verbose:
         if unavailable:
             warnings.append(
-                f"Optional features not available: {', '.join(unavailable)}")
+                f"Optional features not available: {', '.join(unavailable)}"
+            )
 
     return {
         "status": "warning" if warnings else "ok",

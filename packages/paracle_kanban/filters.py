@@ -67,47 +67,29 @@ class TaskFilter:
 
         # Status filter
         if status is not None:
-            statuses = (
-                [status] if not isinstance(status, list) else status
-            )
+            statuses = [status] if not isinstance(status, list) else status
             result = [t for t in result if t.status in statuses]
 
         # Priority filter
         if priority is not None:
-            priorities = (
-                [priority]
-                if not isinstance(priority, list)
-                else priority
-            )
+            priorities = [priority] if not isinstance(priority, list) else priority
             result = [t for t in result if t.priority in priorities]
 
         # Type filter
         if task_type is not None:
-            types = (
-                [task_type]
-                if not isinstance(task_type, list)
-                else task_type
-            )
+            types = [task_type] if not isinstance(task_type, list) else task_type
             result = [t for t in result if t.task_type in types]
 
         # Assigned filter
         if assigned_to is not None:
             assignees = (
-                [assigned_to]
-                if not isinstance(assigned_to, list)
-                else assigned_to
+                [assigned_to] if not isinstance(assigned_to, list) else assigned_to
             )
-            result = [
-                t for t in result if t.assigned_to in assignees
-            ]
+            result = [t for t in result if t.assigned_to in assignees]
 
         # Tags filter (any match)
         if tags:
-            result = [
-                t
-                for t in result
-                if any(tag in t.tags for tag in tags)
-            ]
+            result = [t for t in result if any(tag in t.tags for tag in tags)]
 
         # Swimlane filter
         if swimlane is not None:
@@ -119,18 +101,10 @@ class TaskFilter:
 
         # Due date filters
         if due_before is not None:
-            result = [
-                t
-                for t in result
-                if t.due_date and t.due_date <= due_before
-            ]
+            result = [t for t in result if t.due_date and t.due_date <= due_before]
 
         if due_after is not None:
-            result = [
-                t
-                for t in result
-                if t.due_date and t.due_date >= due_after
-            ]
+            result = [t for t in result if t.due_date and t.due_date >= due_after]
 
         # Overdue filter
         if overdue is not None:
@@ -139,17 +113,13 @@ class TaskFilter:
                 result = [
                     t
                     for t in result
-                    if t.due_date
-                    and t.due_date < now
-                    and not t.is_complete()
+                    if t.due_date and t.due_date < now and not t.is_complete()
                 ]
             else:
                 result = [
                     t
                     for t in result
-                    if not t.due_date
-                    or t.due_date >= now
-                    or t.is_complete()
+                    if not t.due_date or t.due_date >= now or t.is_complete()
                 ]
 
         # Dependencies filter
@@ -172,8 +142,7 @@ class TaskFilter:
             result = [
                 t
                 for t in result
-                if pattern.search(t.title)
-                or pattern.search(t.description)
+                if pattern.search(t.title) or pattern.search(t.description)
             ]
 
         # Custom filter
@@ -295,14 +264,10 @@ class TaskFilter:
         return [
             t
             for t in tasks
-            if t.due_date
-            and now <= t.due_date <= threshold
-            and not t.is_complete()
+            if t.due_date and now <= t.due_date <= threshold and not t.is_complete()
         ]
 
-    def get_overdue(
-        self, tasks: list[Task] | None = None
-    ) -> list[Task]:
+    def get_overdue(self, tasks: list[Task] | None = None) -> list[Task]:
         """Get overdue tasks.
 
         Args:
@@ -316,9 +281,7 @@ class TaskFilter:
 
         now = datetime.utcnow()
         return [
-            t
-            for t in tasks
-            if t.due_date and t.due_date < now and not t.is_complete()
+            t for t in tasks if t.due_date and t.due_date < now and not t.is_complete()
         ]
 
     def search(self, query: str) -> list[Task]:

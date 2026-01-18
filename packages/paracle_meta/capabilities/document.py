@@ -485,7 +485,9 @@ class DocumentCapability(BaseCapability):
 
             for row_num, row in enumerate(ws.iter_rows(values_only=True)):
                 if row_num == 0:
-                    headers = [str(cell) if cell else f"col_{i}" for i, cell in enumerate(row)]
+                    headers = [
+                        str(cell) if cell else f"col_{i}" for i, cell in enumerate(row)
+                    ]
                 else:
                     data.append(dict(zip(headers, row)))
 
@@ -514,9 +516,7 @@ class DocumentCapability(BaseCapability):
 
             def write_excel():
                 df = pd.DataFrame(data)
-                df.to_excel(
-                    path, sheet_name=sheet or "Sheet1", index=False
-                )
+                df.to_excel(path, sheet_name=sheet or "Sheet1", index=False)
                 return {"success": True, "path": path, "rows": len(data)}
 
             return await loop.run_in_executor(None, write_excel)
@@ -547,8 +547,7 @@ class DocumentCapability(BaseCapability):
             return await loop.run_in_executor(None, write_excel)
         else:
             raise RuntimeError(
-                "No Excel library available. "
-                "Install with: pip install openpyxl"
+                "No Excel library available. " "Install with: pip install openpyxl"
             )
 
     async def _excel_get_sheets(self, path: str, **kwargs: Any) -> dict[str, Any]:
@@ -692,9 +691,7 @@ class DocumentCapability(BaseCapability):
 
         raise ValueError(f"Conversion from {from_format} to {to_format} not supported")
 
-    async def _markdown_to_html(
-        self, content: str, **kwargs: Any
-    ) -> dict[str, Any]:
+    async def _markdown_to_html(self, content: str, **kwargs: Any) -> dict[str, Any]:
         """Convert Markdown to HTML."""
         if self._markdown_available:
             import markdown

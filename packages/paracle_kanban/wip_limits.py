@@ -50,9 +50,7 @@ class WIPLimitValidator:
             WIPLimitError: If raise_on_exceed=True and limit exceeded
         """
         # Get WIP limit for this status
-        status_str = (
-            status.value if hasattr(status, "value") else str(status)
-        )
+        status_str = status.value if hasattr(status, "value") else str(status)
         limit = self.board.wip_limits.get(status_str)
 
         if limit is None:
@@ -70,9 +68,7 @@ class WIPLimitValidator:
 
         return within_limit, current_count, limit
 
-    def get_wip_status(
-        self, tasks: dict[str, list[Task]]
-    ) -> dict[str, dict]:
+    def get_wip_status(self, tasks: dict[str, list[Task]]) -> dict[str, dict]:
         """Get WIP status for all columns.
 
         Args:
@@ -91,9 +87,7 @@ class WIPLimitValidator:
                 "current": current,
                 "limit": limit,
                 "within_limit": limit is None or current <= limit,
-                "percentage": (
-                    (current / limit * 100) if limit else 0
-                ),
+                "percentage": ((current / limit * 100) if limit else 0),
             }
 
         return status_info
@@ -133,9 +127,7 @@ class WIPLimitValidator:
 
         return suggestions
 
-    def get_overloaded_columns(
-        self, tasks: dict[str, list[Task]]
-    ) -> list[dict]:
+    def get_overloaded_columns(self, tasks: dict[str, list[Task]]) -> list[dict]:
         """Identify columns that are over WIP limit.
 
         Args:
@@ -182,9 +174,7 @@ class WIPLimitValidator:
             Tuple of (can_move, reason)
         """
         status_str = (
-            new_status.value
-            if hasattr(new_status, "value")
-            else str(new_status)
+            new_status.value if hasattr(new_status, "value") else str(new_status)
         )
         limit = self.board.wip_limits.get(status_str)
 
@@ -200,8 +190,7 @@ class WIPLimitValidator:
         # Check if moving would exceed limit
         if current_count >= limit:
             return False, (
-                f"WIP limit would be exceeded: "
-                f"{current_count + 1} > {limit}"
+                f"WIP limit would be exceeded: " f"{current_count + 1} > {limit}"
             )
 
         return True, f"Within limit: {current_count + 1} <= {limit}"

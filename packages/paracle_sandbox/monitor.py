@@ -56,9 +56,7 @@ class SandboxMonitor:
     async def start(self) -> None:
         """Start monitoring."""
         if self._task and not self._task.done():
-            logger.warning(
-                "Monitor already running for %s", self.sandbox.sandbox_id
-            )
+            logger.warning("Monitor already running for %s", self.sandbox.sandbox_id)
             return
 
         self._stop_event.clear()
@@ -121,14 +119,10 @@ class SandboxMonitor:
                         try:
                             self.on_limit_exceeded(stats)
                         except Exception as cb_error:
-                            logger.error(
-                                "Limit callback failed: %s", cb_error
-                            )
+                            logger.error("Limit callback failed: %s", cb_error)
 
             except Exception as e:
-                logger.error(
-                    "Monitor error for %s: %s", self.sandbox.sandbox_id, e
-                )
+                logger.error("Monitor error for %s: %s", self.sandbox.sandbox_id, e)
 
             # Wait for next interval
             try:

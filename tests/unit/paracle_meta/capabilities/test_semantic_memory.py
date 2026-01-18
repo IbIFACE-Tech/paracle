@@ -43,7 +43,7 @@ async def test_store_memory(semantic_memory):
         content="This is a test memory",
         memory_type="conversation",
         agent_name="test-agent",
-        metadata={"session": "test-session"}
+        metadata={"session": "test-session"},
     )
 
     assert result.success is True
@@ -55,9 +55,7 @@ async def test_store_memory(semantic_memory):
 async def test_store_with_importance(semantic_memory):
     """Test storing memory with importance score."""
     result = await semantic_memory.store(
-        content="Critical information",
-        memory_type="knowledge",
-        importance=0.9
+        content="Critical information", memory_type="knowledge", importance=0.9
     )
 
     assert result.success is True
@@ -69,23 +67,15 @@ async def test_search_memories_text(semantic_memory):
     """Test searching memories by text (without vector search)."""
     # Store memories
     await semantic_memory.store(
-        content="Python is a programming language",
-        memory_type="knowledge"
+        content="Python is a programming language", memory_type="knowledge"
     )
     await semantic_memory.store(
-        content="JavaScript is also a programming language",
-        memory_type="knowledge"
+        content="JavaScript is also a programming language", memory_type="knowledge"
     )
-    await semantic_memory.store(
-        content="Cats are animals",
-        memory_type="knowledge"
-    )
+    await semantic_memory.store(content="Cats are animals", memory_type="knowledge")
 
     # Search
-    result = await semantic_memory.search(
-        query="programming language",
-        top_k=10
-    )
+    result = await semantic_memory.search(query="programming language", top_k=10)
 
     assert result.success is True
     # Should find memories containing "programming"
@@ -97,19 +87,14 @@ async def test_search_with_type_filter(semantic_memory):
     """Test searching with memory type filter."""
     # Store different types
     await semantic_memory.store(
-        content="Conversation about Python",
-        memory_type="conversation"
+        content="Conversation about Python", memory_type="conversation"
     )
     await semantic_memory.store(
-        content="Python knowledge base",
-        memory_type="knowledge"
+        content="Python knowledge base", memory_type="knowledge"
     )
 
     # Search only knowledge
-    result = await semantic_memory.search(
-        query="Python",
-        memory_type="knowledge"
-    )
+    result = await semantic_memory.search(query="Python", memory_type="knowledge")
 
     assert result.success is True
     for mem in result.output["results"]:
@@ -121,8 +106,7 @@ async def test_get_memory_by_id(semantic_memory):
     """Test retrieving specific memory by ID."""
     # Store memory
     store_result = await semantic_memory.store(
-        content="Test memory",
-        memory_type="test"
+        content="Test memory", memory_type="test"
     )
     memory_id = store_result.output["memory_id"]
 
@@ -139,16 +123,13 @@ async def test_update_memory(semantic_memory):
     """Test updating a memory."""
     # Store memory
     store_result = await semantic_memory.store(
-        content="Original content",
-        memory_type="test"
+        content="Original content", memory_type="test"
     )
     memory_id = store_result.output["memory_id"]
 
     # Update
     result = await semantic_memory.update(
-        memory_id=memory_id,
-        content="Updated content",
-        importance=0.8
+        memory_id=memory_id, content="Updated content", importance=0.8
     )
 
     assert result.success is True
@@ -164,8 +145,7 @@ async def test_delete_memory(semantic_memory):
     """Test deleting a memory."""
     # Store memory
     store_result = await semantic_memory.store(
-        content="To be deleted",
-        memory_type="test"
+        content="To be deleted", memory_type="test"
     )
     memory_id = store_result.output["memory_id"]
 
@@ -185,7 +165,7 @@ async def test_store_conversation_turn(semantic_memory):
         agent_name="test-agent",
         user_message="What is Python?",
         assistant_message="Python is a programming language",
-        metadata={"session": "test"}
+        metadata={"session": "test"},
     )
 
     assert result.success is True
@@ -197,9 +177,7 @@ async def test_get_conversation(semantic_memory):
     """Test retrieving conversation history."""
     # Store conversation
     store_result = await semantic_memory.store_conversation(
-        agent_name="test-agent",
-        user_message="Hello",
-        assistant_message="Hi there!"
+        agent_name="test-agent", user_message="Hello", assistant_message="Hi there!"
     )
     conv_id = store_result.output["conversation_id"]
 
@@ -219,13 +197,12 @@ async def test_get_conversation_history(semantic_memory):
         await semantic_memory.store_conversation(
             agent_name="test-agent",
             user_message=f"Question {i}",
-            assistant_message=f"Answer {i}"
+            assistant_message=f"Answer {i}",
         )
 
     # Get history
     result = await semantic_memory.get_conversation_history(
-        agent_name="test-agent",
-        limit=3
+        agent_name="test-agent", limit=3
     )
 
     assert result.success is True
@@ -239,18 +216,17 @@ async def test_search_conversations(semantic_memory):
     await semantic_memory.store_conversation(
         agent_name="test-agent",
         user_message="Tell me about Python",
-        assistant_message="Python is great"
+        assistant_message="Python is great",
     )
     await semantic_memory.store_conversation(
         agent_name="test-agent",
         user_message="What about JavaScript?",
-        assistant_message="JavaScript is also good"
+        assistant_message="JavaScript is also good",
     )
 
     # Search
     result = await semantic_memory.search_conversations(
-        query="Python",
-        agent_name="test-agent"
+        query="Python", agent_name="test-agent"
     )
 
     assert result.success is True
@@ -261,14 +237,8 @@ async def test_search_conversations(semantic_memory):
 async def test_get_stats(semantic_memory):
     """Test getting memory statistics."""
     # Store various memories
-    await semantic_memory.store(
-        content="Memory 1",
-        memory_type="knowledge"
-    )
-    await semantic_memory.store(
-        content="Memory 2",
-        memory_type="conversation"
-    )
+    await semantic_memory.store(content="Memory 1", memory_type="knowledge")
+    await semantic_memory.store(content="Memory 2", memory_type="conversation")
 
     result = await semantic_memory.get_stats()
 
@@ -282,16 +252,11 @@ async def test_cleanup_old_memories(semantic_memory):
     """Test cleaning up old memories."""
     # Store memory
     await semantic_memory.store(
-        content="Old memory",
-        memory_type="test",
-        importance=0.1  # Low importance
+        content="Old memory", memory_type="test", importance=0.1  # Low importance
     )
 
     # Cleanup (keep only important memories or recent ones)
-    result = await semantic_memory.cleanup(
-        keep_count=0,
-        min_importance=0.5
-    )
+    result = await semantic_memory.cleanup(keep_count=0, min_importance=0.5)
 
     assert result.success is True
 
@@ -302,11 +267,7 @@ async def test_memory_with_metadata(semantic_memory):
     result = await semantic_memory.store(
         content="Test content",
         memory_type="test",
-        metadata={
-            "source": "unit_test",
-            "tags": ["test", "demo"],
-            "version": 1
-        }
+        metadata={"source": "unit_test", "tags": ["test", "demo"], "version": 1},
     )
 
     memory_id = result.output["memory_id"]
@@ -322,21 +283,14 @@ async def test_importance_filtering(semantic_memory):
     """Test filtering by importance."""
     # Store memories with different importance
     await semantic_memory.store(
-        content="Very important",
-        memory_type="test",
-        importance=0.9
+        content="Very important", memory_type="test", importance=0.9
     )
     await semantic_memory.store(
-        content="Less important",
-        memory_type="test",
-        importance=0.3
+        content="Less important", memory_type="test", importance=0.3
     )
 
     # Search with minimum importance
-    result = await semantic_memory.search(
-        query="important",
-        min_importance=0.5
-    )
+    result = await semantic_memory.search(query="important", min_importance=0.5)
 
     assert result.success is True
     # Should only return high importance memory
@@ -351,10 +305,7 @@ async def test_persistence(temp_db):
     config1 = SemanticMemoryConfig(db_path=temp_db, enable_vector_search=False)
     cap1 = SemanticMemoryCapability(config1)
 
-    store_result = await cap1.store(
-        content="Persistent memory",
-        memory_type="test"
-    )
+    store_result = await cap1.store(content="Persistent memory", memory_type="test")
     memory_id = store_result.output["memory_id"]
 
     # Second instance - should load existing memories
@@ -371,21 +322,14 @@ async def test_agent_name_filtering(semantic_memory):
     """Test filtering memories by agent name."""
     # Store memories for different agents
     await semantic_memory.store(
-        content="Agent 1 memory",
-        memory_type="test",
-        agent_name="agent1"
+        content="Agent 1 memory", memory_type="test", agent_name="agent1"
     )
     await semantic_memory.store(
-        content="Agent 2 memory",
-        memory_type="test",
-        agent_name="agent2"
+        content="Agent 2 memory", memory_type="test", agent_name="agent2"
     )
 
     # Search for agent1
-    result = await semantic_memory.search(
-        query="memory",
-        agent_name="agent1"
-    )
+    result = await semantic_memory.search(query="memory", agent_name="agent1")
 
     assert result.success is True
     # Should only return agent1 memories

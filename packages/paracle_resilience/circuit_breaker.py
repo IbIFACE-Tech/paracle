@@ -223,8 +223,7 @@ class CircuitBreaker:
         if self.state == CircuitBreakerState.OPEN:
             self.total_rejected += 1
             retry_after = (
-                self.config.timeout -
-                (datetime.now() - self.opened_at).total_seconds()
+                self.config.timeout - (datetime.now() - self.opened_at).total_seconds()
             )
             raise CircuitOpenError(self.name, max(0, retry_after))
 
@@ -367,8 +366,7 @@ class CircuitBreaker:
                     else 0.0
                 ),
                 "rejection_rate": (
-                    self.total_rejected /
-                    (self.total_calls + self.total_rejected)
+                    self.total_rejected / (self.total_calls + self.total_rejected)
                     if (self.total_calls + self.total_rejected) > 0
                     else 0.0
                 ),
@@ -382,8 +380,7 @@ class CircuitBreaker:
 
         if self.state == CircuitBreakerState.OPEN:
             retry_after = (
-                self.config.timeout -
-                (datetime.now() - self.opened_at).total_seconds()
+                self.config.timeout - (datetime.now() - self.opened_at).total_seconds()
             )
             raise CircuitOpenError(self.name, max(0, retry_after))
 

@@ -370,7 +370,9 @@ class RLTrainingCapability(BaseCapability):
             "session_id": session_id,
             "experience_recorded": True,
             "memory_size": len(session["memory"]),
-            "episode_steps": session["current_episode"].steps if session["current_episode"] else 0,
+            "episode_steps": (
+                session["current_episode"].steps if session["current_episode"] else 0
+            ),
         }
 
     async def _train_step(
@@ -403,7 +405,9 @@ class RLTrainingCapability(BaseCapability):
             }
 
         # Sample batch from memory
-        indices = np.random.choice(len(session["memory"]), self.config.batch_size, replace=False)
+        indices = np.random.choice(
+            len(session["memory"]), self.config.batch_size, replace=False
+        )
         batch = [session["memory"][i] for i in indices]
 
         loss = 0.0
@@ -415,7 +419,11 @@ class RLTrainingCapability(BaseCapability):
             loss = self._train_sarsa(session, batch)
         elif algorithm == RLAlgorithm.DQN:
             loss = self._train_dqn(session, batch)
-        elif algorithm in (RLAlgorithm.POLICY_GRADIENT, RLAlgorithm.A2C, RLAlgorithm.PPO):
+        elif algorithm in (
+            RLAlgorithm.POLICY_GRADIENT,
+            RLAlgorithm.A2C,
+            RLAlgorithm.PPO,
+        ):
             loss = self._train_policy_gradient(session, batch, algorithm)
         else:
             # Placeholder for other algorithms
@@ -469,7 +477,11 @@ class RLTrainingCapability(BaseCapability):
                 if next_state_key not in q_table:
                     q_table[next_state_key] = {}
 
-                next_q_values = list(q_table[next_state_key].values()) if q_table[next_state_key] else [0.0]
+                next_q_values = (
+                    list(q_table[next_state_key].values())
+                    if q_table[next_state_key]
+                    else [0.0]
+                )
                 max_next_q = max(next_q_values) if next_q_values else 0.0
 
                 target_q = exp.reward + self.config.discount_factor * max_next_q
@@ -678,8 +690,7 @@ class RLTrainingCapability(BaseCapability):
 
         # Decay epsilon
         session["epsilon"] = max(
-            self.config.min_epsilon,
-            session["epsilon"] * self.config.epsilon_decay
+            self.config.min_epsilon, session["epsilon"] * self.config.epsilon_decay
         )
 
         # Clear current episode

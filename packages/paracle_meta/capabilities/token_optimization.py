@@ -236,7 +236,9 @@ class TokenOptimizationCapability(BaseCapability):
             }
 
         level_enum = OptimizationLevel(level) if level else self.config.default_level
-        content_type_enum = ContentType(content_type) if content_type else ContentType.TEXT
+        content_type_enum = (
+            ContentType(content_type) if content_type else ContentType.TEXT
+        )
 
         original_tokens = self._estimate_tokens(text)
         optimized = text
@@ -247,7 +249,9 @@ class TokenOptimizationCapability(BaseCapability):
             optimized, code_techniques = self._optimize_code(optimized, level_enum)
             techniques.extend(code_techniques)
         elif content_type_enum == ContentType.CONVERSATION:
-            optimized, conv_techniques = self._optimize_conversation_text(optimized, level_enum)
+            optimized, conv_techniques = self._optimize_conversation_text(
+                optimized, level_enum
+            )
             techniques.extend(conv_techniques)
         else:
             # General text optimization
@@ -255,15 +259,19 @@ class TokenOptimizationCapability(BaseCapability):
             techniques.extend(text_techniques)
 
         optimized_tokens = self._estimate_tokens(optimized)
-        reduction_pct = ((original_tokens - optimized_tokens) / original_tokens * 100) if original_tokens > 0 else 0
+        reduction_pct = (
+            ((original_tokens - optimized_tokens) / original_tokens * 100)
+            if original_tokens > 0
+            else 0
+        )
 
         # Update stats
         self._stats["total_optimizations"] += 1
-        self._stats["total_tokens_saved"] += (original_tokens - optimized_tokens)
+        self._stats["total_tokens_saved"] += original_tokens - optimized_tokens
         self._stats["avg_reduction_pct"] = (
-            (self._stats["avg_reduction_pct"] * (self._stats["total_optimizations"] - 1) + reduction_pct)
-            / self._stats["total_optimizations"]
-        )
+            self._stats["avg_reduction_pct"] * (self._stats["total_optimizations"] - 1)
+            + reduction_pct
+        ) / self._stats["total_optimizations"]
 
         result = OptimizationResult(
             original_text=text,
@@ -279,7 +287,9 @@ class TokenOptimizationCapability(BaseCapability):
             **result.to_dict(),
         }
 
-    def _optimize_text(self, text: str, level: OptimizationLevel) -> tuple[str, list[str]]:
+    def _optimize_text(
+        self, text: str, level: OptimizationLevel
+    ) -> tuple[str, list[str]]:
         """Optimize general text.
 
         Args:
@@ -294,31 +304,36 @@ class TokenOptimizationCapability(BaseCapability):
 
         # Level 1: Light optimization (all levels)
         # Remove extra whitespace
-        optimized = re.sub(r'\s+', ' ', optimized)
+        optimized = re.sub(r"\s+", " ", optimized)
         techniques.append("whitespace_compression")
 
         # Remove trailing whitespace
-        optimized = '\n'.join(line.rstrip() for line in optimized.split('\n'))
+        optimized = "\n".join(line.rstrip() for line in optimized.split("\n"))
         techniques.append("trailing_whitespace_removal")
 
         if level in (OptimizationLevel.MEDIUM, OptimizationLevel.AGGRESSIVE):
             # Level 2: Medium optimization
             # Remove filler words
             filler_words = [
-                r'\bvery\b', r'\breally\b', r'\bquite\b', r'\bactually\b',
-                r'\bjust\b', r'\bbasically\b', r'\bliterally\b',
+                r"\bvery\b",
+                r"\breally\b",
+                r"\bquite\b",
+                r"\bactually\b",
+                r"\bjust\b",
+                r"\bbasically\b",
+                r"\bliterally\b",
             ]
             for pattern in filler_words:
-                optimized = re.sub(pattern, '', optimized, flags=re.IGNORECASE)
+                optimized = re.sub(pattern, "", optimized, flags=re.IGNORECASE)
             techniques.append("filler_word_removal")
 
             # Simplify phrases
             replacements = {
-                r'in order to': 'to',
-                r'due to the fact that': 'because',
-                r'in the event that': 'if',
-                r'at this point in time': 'now',
-                r'for the purpose of': 'for',
+                r"in order to": "to",
+                r"due to the fact that": "because",
+                r"in the event that": "if",
+                r"at this point in time": "now",
+                r"for the purpose of": "for",
             }
             for pattern, replacement in replacements.items():
                 optimized = re.sub(pattern, replacement, optimized, flags=re.IGNORECASE)
@@ -327,26 +342,28 @@ class TokenOptimizationCapability(BaseCapability):
         if level == OptimizationLevel.AGGRESSIVE:
             # Level 3: Aggressive optimization
             # Remove articles in non-critical contexts
-            optimized = re.sub(r'\b(a|an|the)\s+', ' ', optimized, flags=re.IGNORECASE)
+            optimized = re.sub(r"\b(a|an|the)\s+", " ", optimized, flags=re.IGNORECASE)
             techniques.append("article_removal")
 
             # Abbreviate common words
             abbreviations = {
-                r'\bwith\b': 'w/',
-                r'\bwithout\b': 'w/o',
-                r'\band\b': '&',
-                r'\bapproximately\b': '~',
+                r"\bwith\b": "w/",
+                r"\bwithout\b": "w/o",
+                r"\band\b": "&",
+                r"\bapproximately\b": "~",
             }
             for pattern, abbrev in abbreviations.items():
                 optimized = re.sub(pattern, abbrev, optimized, flags=re.IGNORECASE)
             techniques.append("abbreviation")
 
         # Final cleanup
-        optimized = re.sub(r'\s+', ' ', optimized).strip()
+        optimized = re.sub(r"\s+", " ", optimized).strip()
 
         return optimized, techniques
 
-    def _optimize_code(self, code: str, level: OptimizationLevel) -> tuple[str, list[str]]:
+    def _optimize_code(
+        self, code: str, level: OptimizationLevel
+    ) -> tuple[str, list[str]]:
         """Optimize code while preserving functionality.
 
         Args:
@@ -361,24 +378,27 @@ class TokenOptimizationCapability(BaseCapability):
 
         if not self.config.preserve_code_structure:
             # Remove comments
-            optimized = re.sub(r'#.*$', '', optimized, flags=re.MULTILINE)
-            optimized = re.sub(r'//.*$', '', optimized, flags=re.MULTILINE)
-            optimized = re.sub(r'/\*.*?\*/', '', optimized, flags=re.DOTALL)
+            optimized = re.sub(r"#.*$", "", optimized, flags=re.MULTILINE)
+            optimized = re.sub(r"//.*$", "", optimized, flags=re.MULTILINE)
+            optimized = re.sub(r"/\*.*?\*/", "", optimized, flags=re.DOTALL)
             techniques.append("comment_removal")
 
         # Remove blank lines
-        optimized = re.sub(r'\n\s*\n', '\n', optimized)
+        optimized = re.sub(r"\n\s*\n", "\n", optimized)
         techniques.append("blank_line_removal")
 
         if level in (OptimizationLevel.MEDIUM, OptimizationLevel.AGGRESSIVE):
             # Remove trailing whitespace
-            optimized = '\n'.join(line.rstrip() for line in optimized.split('\n'))
+            optimized = "\n".join(line.rstrip() for line in optimized.split("\n"))
             techniques.append("trailing_whitespace")
 
-        if level == OptimizationLevel.AGGRESSIVE and not self.config.preserve_code_structure:
+        if (
+            level == OptimizationLevel.AGGRESSIVE
+            and not self.config.preserve_code_structure
+        ):
             # Aggressive minification (may break some code)
             # Remove extra spaces around operators
-            optimized = re.sub(r'\s*([=+\-*/,<>])\s*', r'\1', optimized)
+            optimized = re.sub(r"\s*([=+\-*/,<>])\s*", r"\1", optimized)
             techniques.append("operator_spacing_removal")
 
         return optimized, techniques
@@ -400,11 +420,16 @@ class TokenOptimizationCapability(BaseCapability):
 
         # Remove conversational fillers
         fillers = [
-            r'\buh\b', r'\bum\b', r'\bhmm\b', r'\bwell\b',
-            r'\bso\b', r'\blike\b', r'\byou know\b',
+            r"\buh\b",
+            r"\bum\b",
+            r"\bhmm\b",
+            r"\bwell\b",
+            r"\bso\b",
+            r"\blike\b",
+            r"\byou know\b",
         ]
         for pattern in fillers:
-            optimized = re.sub(pattern, '', optimized, flags=re.IGNORECASE)
+            optimized = re.sub(pattern, "", optimized, flags=re.IGNORECASE)
         techniques.append("conversation_filler_removal")
 
         # Apply general text optimization
@@ -438,11 +463,17 @@ class TokenOptimizationCapability(BaseCapability):
                 "reduction_pct": 0.0,
             }
 
-        original_tokens = sum(self._estimate_tokens(msg.get("content", "")) for msg in messages)
+        original_tokens = sum(
+            self._estimate_tokens(msg.get("content", "")) for msg in messages
+        )
 
         # Preserve most recent messages
-        recent_messages = messages[-preserve_recent:] if len(messages) > preserve_recent else messages
-        older_messages = messages[:-preserve_recent] if len(messages) > preserve_recent else []
+        recent_messages = (
+            messages[-preserve_recent:] if len(messages) > preserve_recent else messages
+        )
+        older_messages = (
+            messages[:-preserve_recent] if len(messages) > preserve_recent else []
+        )
 
         optimized_messages = []
 
@@ -455,10 +486,12 @@ class TokenOptimizationCapability(BaseCapability):
                     level="aggressive",
                     content_type="conversation",
                 )
-                optimized_messages.append({
-                    "role": msg.get("role", "user"),
-                    "content": opt_result["optimized_text"],
-                })
+                optimized_messages.append(
+                    {
+                        "role": msg.get("role", "user"),
+                        "content": opt_result["optimized_text"],
+                    }
+                )
             else:
                 optimized_messages.append(msg)
 
@@ -470,18 +503,24 @@ class TokenOptimizationCapability(BaseCapability):
                 level="light",
                 content_type="conversation",
             )
-            optimized_messages.append({
-                "role": msg.get("role", "user"),
-                "content": opt_result["optimized_text"],
-            })
+            optimized_messages.append(
+                {
+                    "role": msg.get("role", "user"),
+                    "content": opt_result["optimized_text"],
+                }
+            )
 
         # If still over max_tokens, remove oldest messages
         if max_tokens:
             current_tokens = sum(
-                self._estimate_tokens(msg.get("content", "")) for msg in optimized_messages
+                self._estimate_tokens(msg.get("content", ""))
+                for msg in optimized_messages
             )
 
-            while current_tokens > max_tokens and len(optimized_messages) > preserve_recent:
+            while (
+                current_tokens > max_tokens
+                and len(optimized_messages) > preserve_recent
+            ):
                 removed = optimized_messages.pop(0)
                 current_tokens -= self._estimate_tokens(removed.get("content", ""))
 

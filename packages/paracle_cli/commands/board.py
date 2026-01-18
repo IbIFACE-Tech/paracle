@@ -74,7 +74,7 @@ def _fallback_list_boards(archived: bool) -> dict:
                 "id": b.id,
                 "name": b.name,
                 "description": b.description,
-                "columns": [c.value if hasattr(c, 'value') else c for c in b.columns],
+                "columns": [c.value if hasattr(c, "value") else c for c in b.columns],
                 "archived": b.archived,
                 "created_at": b.created_at.isoformat(),
                 "updated_at": b.updated_at.isoformat(),
@@ -94,9 +94,7 @@ def _fallback_create_board(name: str, description: str) -> dict:
         "id": board.id,
         "name": board.name,
         "description": board.description,
-        "columns": [
-            c.value if hasattr(c, "value") else c for c in board.columns
-        ],
+        "columns": [c.value if hasattr(c, "value") else c for c in board.columns],
         "archived": board.archived,
         "created_at": board.created_at.isoformat(),
         "updated_at": board.updated_at.isoformat(),
@@ -113,9 +111,7 @@ def _fallback_get_board(board_id: str) -> dict:
         "id": board.id,
         "name": board.name,
         "description": board.description,
-        "columns": [
-            c.value if hasattr(c, "value") else c for c in board.columns
-        ],
+        "columns": [c.value if hasattr(c, "value") else c for c in board.columns],
         "archived": board.archived,
         "created_at": board.created_at.isoformat(),
         "updated_at": board.updated_at.isoformat(),
@@ -165,7 +161,9 @@ def _fallback_list_tasks(board_id: str) -> dict:
                 "id": t.id,
                 "title": t.title,
                 "status": t.status.value if hasattr(t.status, "value") else t.status,
-                "priority": t.priority.value if hasattr(t.priority, "value") else t.priority,
+                "priority": (
+                    t.priority.value if hasattr(t.priority, "value") else t.priority
+                ),
                 "assigned_to": t.assigned_to,
                 "blocked_by": t.blocked_by,
             }
@@ -175,9 +173,7 @@ def _fallback_list_tasks(board_id: str) -> dict:
         "board": {
             "id": board.id,
             "name": board.name,
-            "columns": [
-                c.value if hasattr(c, "value") else c for c in board.columns
-            ],
+            "columns": [c.value if hasattr(c, "value") else c for c in board.columns],
         },
     }
 
@@ -225,8 +221,7 @@ def create_board(name: str, description: str, as_json: bool) -> None:
 def list_boards(archived: bool, as_json: bool) -> None:
     """List all boards."""
     try:
-        result = use_api_or_fallback(
-            _api_list_boards, _fallback_list_boards, archived)
+        result = use_api_or_fallback(_api_list_boards, _fallback_list_boards, archived)
 
         if as_json:
             click.echo(json.dumps(result, indent=2, default=str))
@@ -278,21 +273,18 @@ def list_boards(archived: bool, as_json: bool) -> None:
 def get_board(board_id: str, as_json: bool) -> None:
     """Get board details."""
     try:
-        result = use_api_or_fallback(
-            _api_get_board, _fallback_get_board, board_id)
+        result = use_api_or_fallback(_api_get_board, _fallback_get_board, board_id)
 
         if as_json:
             click.echo(json.dumps(result, indent=2, default=str))
         else:
             console.print(f"\n[bold cyan]Board: {result['name']}[/bold cyan]")
             console.print(f"  ID: {result['id']}")
-            console.print(
-                f"  Description: {result['description'] or '(none)'}")
+            console.print(f"  Description: {result['description'] or '(none)'}")
             console.print(f"  Columns: {', '.join(result['columns'])}")
             console.print(f"  Created: {result['created_at']}")
             console.print(f"  Updated: {result['updated_at']}")
-            console.print(
-                f"  Status: {'Archived' if result['archived'] else 'Active'}")
+            console.print(f"  Status: {'Archived' if result['archived'] else 'Active'}")
 
     except (APIError, ValueError) as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -307,8 +299,7 @@ def get_board(board_id: str, as_json: bool) -> None:
 def show_board(board_id: str) -> None:
     """Show board with tasks in columns."""
     try:
-        result = use_api_or_fallback(
-            _api_list_tasks, _fallback_list_tasks, board_id)
+        result = use_api_or_fallback(_api_list_tasks, _fallback_list_tasks, board_id)
 
         board_info = result.get("board", {})
         tasks = result.get("tasks", [])
@@ -336,12 +327,10 @@ def show_board(board_id: str) -> None:
         # Add column headers
         for status in columns:
             count = len(tasks_by_status[status])
-            table.add_column(f"{status.value} ({count})",
-                             style="white", vertical="top")
+            table.add_column(f"{status.value} ({count})", style="white", vertical="top")
 
         # Find max rows needed
-        max_rows = max((len(tasks_by_status[status])
-                       for status in columns), default=0)
+        max_rows = max((len(tasks_by_status[status]) for status in columns), default=0)
 
         # Add rows
         for row_idx in range(max_rows):
@@ -471,8 +460,7 @@ def delete_board(board_id: str) -> None:
             _api_delete_board, _fallback_delete_board, board_id
         )
 
-        console.print(
-            f"[green]OK[/green] {result.get('message', 'Board deleted')}")
+        console.print(f"[green]OK[/green] {result.get('message', 'Board deleted')}")
 
     except (APIError, ValueError) as e:
         console.print(f"[red]Error: {e}[/red]")

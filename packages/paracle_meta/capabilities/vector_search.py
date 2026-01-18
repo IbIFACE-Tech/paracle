@@ -266,7 +266,10 @@ class VectorSearchCapability(BaseCapability):
         self._operation_count += 1
 
         # Auto-save
-        if self.config.auto_save and self._operation_count % self.config.save_interval == 0:
+        if (
+            self.config.auto_save
+            and self._operation_count % self.config.save_interval == 0
+        ):
             await self.save()
 
         return CapabilityResult(
@@ -285,7 +288,9 @@ class VectorSearchCapability(BaseCapability):
 
         # Create or get index
         if namespace not in self._hnsw_indices:
-            index = hnswlib.Index(space=self.config.distance_metric.value, dim=self.config.dimensions)
+            index = hnswlib.Index(
+                space=self.config.distance_metric.value, dim=self.config.dimensions
+            )
             index.init_index(
                 max_elements=len(docs) + 1000,  # Reserve space
                 ef_construction=self.config.hnsw_ef_construction,
@@ -384,7 +389,9 @@ class VectorSearchCapability(BaseCapability):
         docs = self._index[namespace]
 
         # Query index
-        labels, distances = index.knn_query(query_vector.reshape(1, -1), k=min(top_k * 2, len(docs)))
+        labels, distances = index.knn_query(
+            query_vector.reshape(1, -1), k=min(top_k * 2, len(docs))
+        )
 
         # Convert to SearchResult
         results = []
@@ -454,7 +461,9 @@ class VectorSearchCapability(BaseCapability):
         if self.config.distance_metric == DistanceMetric.COSINE:
             # Normalize
             query_norm = query_vector / (np.linalg.norm(query_vector) + 1e-9)
-            vectors_norm = vectors / (np.linalg.norm(vectors, axis=1, keepdims=True) + 1e-9)
+            vectors_norm = vectors / (
+                np.linalg.norm(vectors, axis=1, keepdims=True) + 1e-9
+            )
             scores = np.dot(vectors_norm, query_norm)
         elif self.config.distance_metric == DistanceMetric.L2:
             distances = np.linalg.norm(vectors - query_vector, axis=1)
@@ -487,9 +496,7 @@ class VectorSearchCapability(BaseCapability):
 
         return results
 
-    async def delete(
-        self, id: str, namespace: str | None = None
-    ) -> CapabilityResult:
+    async def delete(self, id: str, namespace: str | None = None) -> CapabilityResult:
         """Delete a document by ID."""
         namespace = namespace or self.config.default_namespace
 
@@ -507,7 +514,11 @@ class VectorSearchCapability(BaseCapability):
         deleted = len(self._index[namespace]) < original_count
 
         # Rebuild HNSW if using it
-        if deleted and self.config.index_type == IndexType.HNSW and self._hnswlib_available:
+        if (
+            deleted
+            and self.config.index_type == IndexType.HNSW
+            and self._hnswlib_available
+        ):
             # Clear and rebuild
             if namespace in self._hnsw_indices:
                 del self._hnsw_indices[namespace]

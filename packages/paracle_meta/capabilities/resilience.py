@@ -157,7 +157,10 @@ class CircuitBreaker:
         """Get current circuit state with automatic state transitions."""
         if self.state == CircuitState.OPEN:
             # Check if recovery timeout elapsed
-            if self.opened_at and datetime.now(UTC) - self.opened_at >= self.recovery_timeout:
+            if (
+                self.opened_at
+                and datetime.now(UTC) - self.opened_at >= self.recovery_timeout
+            ):
                 self.state = CircuitState.HALF_OPEN
                 self.success_count = 0
 
@@ -352,7 +355,9 @@ class ResilienceCapability(BaseCapability):
                 if self.config.fallback_enabled and fallback:
                     self._metrics["fallback_calls"] += 1
                     fallback_result = (
-                        await fallback() if asyncio.iscoroutinefunction(fallback) else fallback()
+                        await fallback()
+                        if asyncio.iscoroutinefunction(fallback)
+                        else fallback()
                     )
                     duration = (datetime.now(UTC) - start).total_seconds() * 1000
                     return CapabilityResult(
@@ -370,7 +375,9 @@ class ResilienceCapability(BaseCapability):
                     return CapabilityResult(
                         capability=self.name,
                         success=False,
-                        output={"error": "Bulkhead full - max concurrent calls reached"},
+                        output={
+                            "error": "Bulkhead full - max concurrent calls reached"
+                        },
                         duration_ms=duration,
                     )
 
@@ -464,7 +471,9 @@ class ResilienceCapability(BaseCapability):
             self._metrics["fallback_calls"] += 1
             try:
                 fallback_result = (
-                    await fallback() if asyncio.iscoroutinefunction(fallback) else fallback()
+                    await fallback()
+                    if asyncio.iscoroutinefunction(fallback)
+                    else fallback()
                 )
                 duration = (datetime.now(UTC) - start).total_seconds() * 1000
                 return CapabilityResult(
@@ -586,9 +595,7 @@ class ResilienceCapability(BaseCapability):
 
         # Calculate success rate
         total = self._metrics["total_calls"]
-        success_rate = (
-            self._metrics["successful_calls"] / total if total > 0 else 0.0
-        )
+        success_rate = self._metrics["successful_calls"] / total if total > 0 else 0.0
 
         # Circuit breaker states
         circuit_states = {

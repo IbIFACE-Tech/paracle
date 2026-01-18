@@ -24,9 +24,7 @@ def inventory() -> None:
     default=".parac/memory/knowledge/services_inventory.md",
     help="Output file path",
 )
-@click.option(
-    "--dry-run", is_flag=True, help="Preview changes without writing to file"
-)
+@click.option("--dry-run", is_flag=True, help="Preview changes without writing to file")
 def update_inventory(output: str, dry_run: bool) -> None:
     """Auto-generate/update services inventory from package structure.
 
@@ -77,6 +75,7 @@ def update_inventory(output: str, dry_run: bool) -> None:
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
         import traceback
+
         traceback.print_exc()
 
 
@@ -102,17 +101,12 @@ def check_inventory() -> None:
             return
 
         # Get actual packages
-        actual_packages = {
-            p.name for p in packages_dir.glob("paracle_*") if p.is_dir()
-        }
+        actual_packages = {p.name for p in packages_dir.glob("paracle_*") if p.is_dir()}
 
         # Get documented packages
         content = inventory_file.read_text(encoding="utf-8")
-        documented_packages = set(
-            re.findall(r"\*\*paracle_(\w+)\*\*", content)
-        )
-        documented_packages = {
-            f"paracle_{name}" for name in documented_packages}
+        documented_packages = set(re.findall(r"\*\*paracle_(\w+)\*\*", content))
+        documented_packages = {f"paracle_{name}" for name in documented_packages}
 
         # Compare
         new_packages = actual_packages - documented_packages
@@ -120,23 +114,23 @@ def check_inventory() -> None:
 
         if not new_packages and not removed_packages:
             console.print("[green]✓[/green] Inventory is up-to-date")
-            console.print(
-                f"[dim]  {len(actual_packages)} packages documented[/dim]")
+            console.print(f"[dim]  {len(actual_packages)} packages documented[/dim]")
         else:
             if new_packages:
                 console.print(
-                    f"[yellow]New packages not documented ({len(new_packages)}):[/yellow]")
+                    f"[yellow]New packages not documented ({len(new_packages)}):[/yellow]"
+                )
                 for pkg in sorted(new_packages):
                     console.print(f"  + {pkg}")
 
             if removed_packages:
                 console.print(
-                    f"[yellow]Removed packages still documented ({len(removed_packages)}):[/yellow]")
+                    f"[yellow]Removed packages still documented ({len(removed_packages)}):[/yellow]"
+                )
                 for pkg in sorted(removed_packages):
                     console.print(f"  - {pkg}")
 
-            console.print(
-                "\n[cyan]Run to update:[/cyan] paracle inventory update")
+            console.print("\n[cyan]Run to update:[/cyan] paracle inventory update")
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")

@@ -131,9 +131,7 @@ class NotificationManager:
         """
         self.rules = [r for r in self.rules if r.id != rule_id]
 
-    def subscribe(
-        self, event: NotificationEvent, handler: Callable
-    ) -> None:
+    def subscribe(self, event: NotificationEvent, handler: Callable) -> None:
         """Subscribe to an event.
 
         Args:
@@ -210,9 +208,7 @@ class NotificationManager:
                 return False
         return True
 
-    def _format_message(
-        self, event: NotificationEvent, data: dict[str, Any]
-    ) -> str:
+    def _format_message(self, event: NotificationEvent, data: dict[str, Any]) -> str:
         """Format notification message.
 
         Args:
@@ -223,23 +219,15 @@ class NotificationManager:
             Formatted message
         """
         templates = {
-            NotificationEvent.TASK_CREATED: (
-                "Task '{title}' was created"
-            ),
-            NotificationEvent.TASK_ASSIGNED: (
-                "Task '{title}' was assigned to you"
-            ),
+            NotificationEvent.TASK_CREATED: ("Task '{title}' was created"),
+            NotificationEvent.TASK_ASSIGNED: ("Task '{title}' was assigned to you"),
             NotificationEvent.STATUS_CHANGED: (
                 "Task '{title}' status changed to {new_status}"
             ),
-            NotificationEvent.DUE_DATE_APPROACHING: (
-                "Task '{title}' is due soon"
-            ),
+            NotificationEvent.DUE_DATE_APPROACHING: ("Task '{title}' is due soon"),
         }
 
-        template = templates.get(
-            event, "Task '{title}' was updated"
-        )
+        template = templates.get(event, "Task '{title}' was updated")
         return template.format(**data)
 
     def mark_as_sent(self, notification_id: str) -> None:

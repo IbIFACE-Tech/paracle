@@ -74,8 +74,7 @@ class SandboxExecutor:
         try:
             # Create sandbox
             sandbox = await self.manager.create(config)
-            logger.info(
-                f"Created sandbox {sandbox.sandbox_id} for agent execution")
+            logger.info(f"Created sandbox {sandbox.sandbox_id} for agent execution")
 
             # Start monitoring if enabled
             if monitor:

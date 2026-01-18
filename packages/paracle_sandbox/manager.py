@@ -66,8 +66,7 @@ class SandboxManager:
             # Check concurrent limit
             if len(self.active_sandboxes) >= self.max_concurrent:
                 raise SandboxError(
-                    f"Maximum concurrent sandboxes reached: "
-                    f"{self.max_concurrent}"
+                    f"Maximum concurrent sandboxes reached: " f"{self.max_concurrent}"
                 )
 
             # Generate ID if not provided
@@ -126,9 +125,7 @@ class SandboxManager:
                 sandbox = self.active_sandboxes.pop(sandbox_id)
                 await sandbox.stop()
 
-            logger.info(
-                "Destroyed all sandboxes (%d total)", len(sandbox_ids)
-            )
+            logger.info("Destroyed all sandboxes (%d total)", len(sandbox_ids))
 
     async def get_stats(self) -> dict[str, Any]:
         """Get statistics for all active sandboxes.
@@ -148,9 +145,7 @@ class SandboxManager:
                 sandbox_stats = await sandbox.get_stats()
                 stats["sandboxes"][sandbox_id] = sandbox_stats
             except Exception as e:  # noqa: BLE001
-                logger.error(
-                    "Failed to get stats for %s: %s", sandbox_id, e
-                )
+                logger.error("Failed to get stats for %s: %s", sandbox_id, e)
                 stats["sandboxes"][sandbox_id] = {"error": str(e)}
 
         return stats

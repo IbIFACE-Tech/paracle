@@ -290,8 +290,14 @@ class TestSandboxExecutor:
         mock_exec_result.output = (b"Agent output\n", b"")
         mock_container.exec_run.return_value = mock_exec_result
         mock_container.stats.return_value = {
-            "cpu_stats": {"cpu_usage": {"total_usage": 1000}, "system_cpu_usage": 10000},
-            "precpu_stats": {"cpu_usage": {"total_usage": 900}, "system_cpu_usage": 9000},
+            "cpu_stats": {
+                "cpu_usage": {"total_usage": 1000},
+                "system_cpu_usage": 10000,
+            },
+            "precpu_stats": {
+                "cpu_usage": {"total_usage": 900},
+                "system_cpu_usage": 9000,
+            },
             "memory_stats": {"usage": 104857600, "limit": 536870912},
         }
         mock_client.containers.create.return_value = mock_container
@@ -321,8 +327,14 @@ class TestSandboxExecutor:
         mock_exec_result.output = (b"42\n", b"")
         mock_container.exec_run.return_value = mock_exec_result
         mock_container.stats.return_value = {
-            "cpu_stats": {"cpu_usage": {"total_usage": 1000}, "system_cpu_usage": 10000},
-            "precpu_stats": {"cpu_usage": {"total_usage": 900}, "system_cpu_usage": 9000},
+            "cpu_stats": {
+                "cpu_usage": {"total_usage": 1000},
+                "system_cpu_usage": 10000,
+            },
+            "precpu_stats": {
+                "cpu_usage": {"total_usage": 900},
+                "system_cpu_usage": 9000,
+            },
             "memory_stats": {"usage": 104857600, "limit": 536870912},
         }
         mock_client.containers.create.return_value = mock_container
@@ -357,8 +369,14 @@ print(inputs['value'])
         mock_exec_result.output = (b"", b"Error: division by zero\n")
         mock_container.exec_run.return_value = mock_exec_result
         mock_container.stats.return_value = {
-            "cpu_stats": {"cpu_usage": {"total_usage": 1000}, "system_cpu_usage": 10000},
-            "precpu_stats": {"cpu_usage": {"total_usage": 900}, "system_cpu_usage": 9000},
+            "cpu_stats": {
+                "cpu_usage": {"total_usage": 1000},
+                "system_cpu_usage": 10000,
+            },
+            "precpu_stats": {
+                "cpu_usage": {"total_usage": 900},
+                "system_cpu_usage": 9000,
+            },
             "memory_stats": {"usage": 104857600, "limit": 536870912},
         }
         mock_client.containers.create.return_value = mock_container
@@ -386,8 +404,14 @@ print(inputs['value'])
         mock_exec_result.output = (b"OK\n", b"")
         mock_container.exec_run.return_value = mock_exec_result
         mock_container.stats.return_value = {
-            "cpu_stats": {"cpu_usage": {"total_usage": 1000}, "system_cpu_usage": 10000},
-            "precpu_stats": {"cpu_usage": {"total_usage": 900}, "system_cpu_usage": 9000},
+            "cpu_stats": {
+                "cpu_usage": {"total_usage": 1000},
+                "system_cpu_usage": 10000,
+            },
+            "precpu_stats": {
+                "cpu_usage": {"total_usage": 900},
+                "system_cpu_usage": 9000,
+            },
             "memory_stats": {"usage": 104857600, "limit": 536870912},
         }
         mock_client.containers.create.return_value = mock_container
@@ -397,12 +421,9 @@ print(inputs['value'])
         executor = SandboxExecutor()
 
         jobs = [
-            {"agent_code": "print('Job 1')", "inputs": {
-                "id": 1}, "monitor": False},
-            {"agent_code": "print('Job 2')", "inputs": {
-                "id": 2}, "monitor": False},
-            {"agent_code": "print('Job 3')", "inputs": {
-                "id": 3}, "monitor": False},
+            {"agent_code": "print('Job 1')", "inputs": {"id": 1}, "monitor": False},
+            {"agent_code": "print('Job 2')", "inputs": {"id": 2}, "monitor": False},
+            {"agent_code": "print('Job 3')", "inputs": {"id": 3}, "monitor": False},
         ]
 
         results = await executor.execute_batch(jobs, max_concurrent=2)
@@ -424,8 +445,14 @@ class TestSandboxMonitor:
         mock_client = MagicMock()
         mock_container = MagicMock()
         mock_container.stats.return_value = {
-            "cpu_stats": {"cpu_usage": {"total_usage": 1000}, "system_cpu_usage": 10000},
-            "precpu_stats": {"cpu_usage": {"total_usage": 900}, "system_cpu_usage": 9000},
+            "cpu_stats": {
+                "cpu_usage": {"total_usage": 1000},
+                "system_cpu_usage": 10000,
+            },
+            "precpu_stats": {
+                "cpu_usage": {"total_usage": 900},
+                "system_cpu_usage": 9000,
+            },
             "memory_stats": {"usage": 104857600, "limit": 536870912},
         }
         mock_client.containers.create.return_value = mock_container
@@ -456,8 +483,14 @@ class TestSandboxMonitor:
         mock_client = MagicMock()
         mock_container = MagicMock()
         mock_container.stats.return_value = {
-            "cpu_stats": {"cpu_usage": {"total_usage": 1000}, "system_cpu_usage": 10000},
-            "precpu_stats": {"cpu_usage": {"total_usage": 900}, "system_cpu_usage": 9000},
+            "cpu_stats": {
+                "cpu_usage": {"total_usage": 1000},
+                "system_cpu_usage": 10000,
+            },
+            "precpu_stats": {
+                "cpu_usage": {"total_usage": 900},
+                "system_cpu_usage": 9000,
+            },
             "memory_stats": {"usage": 104857600, "limit": 536870912},
         }
         mock_client.containers.create.return_value = mock_container

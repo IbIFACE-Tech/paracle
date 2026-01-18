@@ -316,7 +316,9 @@ class SchedulerCapability(BaseCapability):
             return base
 
         if not CRONITER_AVAILABLE:
-            raise RuntimeError("croniter required for cron scheduling: pip install croniter")
+            raise RuntimeError(
+                "croniter required for cron scheduling: pip install croniter"
+            )
 
         cron = croniter(schedule, base)
         return cron.get_next(datetime)

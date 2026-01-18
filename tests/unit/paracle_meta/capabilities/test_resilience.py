@@ -47,9 +47,7 @@ def circuit_breaker(resilience_config):
     """Create CircuitBreaker instance."""
     return CircuitBreaker(
         failure_threshold=resilience_config.failure_threshold,
-        recovery_timeout_seconds=(
-            resilience_config.recovery_timeout_seconds
-        ),
+        recovery_timeout_seconds=(resilience_config.recovery_timeout_seconds),
         success_threshold=resilience_config.success_threshold,
     )
 
@@ -468,6 +466,7 @@ async def test_get_circuit_state(resilience):
 @pytest.mark.asyncio
 async def test_reset_circuit(resilience):
     """Test reset_circuit method."""
+
     # Trigger some failures
     async def failing_operation():
         raise Exception("Failure")
@@ -486,9 +485,7 @@ async def test_reset_circuit(resilience):
     assert result.output["operation"] == "fail"
 
     # Verify state is reset
-    state_result = await resilience.get_circuit_state(
-        operation_name="fail"
-    )
+    state_result = await resilience.get_circuit_state(operation_name="fail")
     assert state_result.output["state"] == CircuitState.CLOSED.value
     assert state_result.output["failure_count"] == 0
 
@@ -555,9 +552,7 @@ async def test_execute_default_action(resilience):
 @pytest.mark.asyncio
 async def test_execute_get_circuit_state_action(resilience):
     """Test execute with get_circuit_state action."""
-    result = await resilience.execute(
-        action="get_circuit_state", operation_name="test"
-    )
+    result = await resilience.execute(action="get_circuit_state", operation_name="test")
 
     assert result.success is True
     assert "state" in result.output
@@ -567,9 +562,7 @@ async def test_execute_get_circuit_state_action(resilience):
 @pytest.mark.asyncio
 async def test_execute_reset_circuit_action(resilience):
     """Test execute with reset_circuit action."""
-    result = await resilience.execute(
-        action="reset_circuit", operation_name="test"
-    )
+    result = await resilience.execute(action="reset_circuit", operation_name="test")
 
     assert result.success is True
     assert result.output["reset"] is False

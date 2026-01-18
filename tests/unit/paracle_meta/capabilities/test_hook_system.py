@@ -74,7 +74,7 @@ async def test_register_before_hook(hook_system):
         name="test_before",
         hook_type=HookType.BEFORE,
         operation="test_op",
-        callback=before_hook
+        callback=before_hook,
     )
 
     assert result.success is True
@@ -89,7 +89,7 @@ async def test_register_after_hook(hook_system):
         name="test_after",
         hook_type=HookType.AFTER,
         operation="test_op",
-        callback=after_hook
+        callback=after_hook,
     )
 
     assert result.success is True
@@ -103,7 +103,7 @@ async def test_register_error_hook(hook_system):
         name="test_error",
         hook_type=HookType.ERROR,
         operation="test_op",
-        callback=error_hook
+        callback=error_hook,
     )
 
     assert result.success is True
@@ -117,7 +117,7 @@ async def test_register_finally_hook(hook_system):
         name="test_finally",
         hook_type=HookType.FINALLY,
         operation="test_op",
-        callback=finally_hook
+        callback=finally_hook,
     )
 
     assert result.success is True
@@ -131,16 +131,14 @@ async def test_execute_with_before_hook(hook_system):
         name="test_before",
         hook_type=HookType.BEFORE,
         operation="test_op",
-        callback=before_hook
+        callback=before_hook,
     )
 
     async def test_operation(x: int) -> int:
         return x * 2
 
     result = await hook_system.execute_with_hooks(
-        operation="test_op",
-        callback=test_operation,
-        args={"x": 5}
+        operation="test_op", callback=test_operation, args={"x": 5}
     )
 
     assert result.success is True
@@ -157,16 +155,14 @@ async def test_execute_with_after_hook(hook_system):
         name="test_after",
         hook_type=HookType.AFTER,
         operation="test_op",
-        callback=after_hook
+        callback=after_hook,
     )
 
     async def test_operation(x: int) -> int:
         return x * 2
 
     result = await hook_system.execute_with_hooks(
-        operation="test_op",
-        callback=test_operation,
-        args={"x": 5}
+        operation="test_op", callback=test_operation, args={"x": 5}
     )
 
     assert result.success is True
@@ -182,15 +178,14 @@ async def test_execute_with_error_hook(hook_system):
         name="test_error",
         hook_type=HookType.ERROR,
         operation="test_op",
-        callback=error_hook
+        callback=error_hook,
     )
 
     async def failing_operation() -> None:
         raise ValueError("Test error")
 
     result = await hook_system.execute_with_hooks(
-        operation="test_op",
-        callback=failing_operation
+        operation="test_op", callback=failing_operation
     )
 
     assert result.success is False
@@ -206,15 +201,14 @@ async def test_execute_with_finally_hook(hook_system):
         name="test_finally",
         hook_type=HookType.FINALLY,
         operation="test_op",
-        callback=finally_hook
+        callback=finally_hook,
     )
 
     async def test_operation() -> str:
         return "success"
 
     result = await hook_system.execute_with_hooks(
-        operation="test_op",
-        callback=test_operation
+        operation="test_op", callback=test_operation
     )
 
     assert result.success is True
@@ -229,15 +223,14 @@ async def test_finally_hook_on_error(hook_system):
         name="test_finally",
         hook_type=HookType.FINALLY,
         operation="test_op",
-        callback=finally_hook
+        callback=finally_hook,
     )
 
     async def failing_operation() -> None:
         raise ValueError("Test error")
 
     result = await hook_system.execute_with_hooks(
-        operation="test_op",
-        callback=failing_operation
+        operation="test_op", callback=failing_operation
     )
 
     assert result.success is False
@@ -262,7 +255,7 @@ async def test_hook_priority_order(hook_system):
         hook_type=HookType.BEFORE,
         operation="test_op",
         callback=low_priority_hook,
-        priority=10
+        priority=10,
     )
 
     await hook_system.register(
@@ -270,16 +263,13 @@ async def test_hook_priority_order(hook_system):
         hook_type=HookType.BEFORE,
         operation="test_op",
         callback=high_priority_hook,
-        priority=90
+        priority=90,
     )
 
     async def test_operation() -> str:
         return "done"
 
-    await hook_system.execute_with_hooks(
-        operation="test_op",
-        callback=test_operation
-    )
+    await hook_system.execute_with_hooks(operation="test_op", callback=test_operation)
 
     # High priority should execute first
     assert priority_log == ["high", "low"]
@@ -293,7 +283,7 @@ async def test_conditional_hook(hook_system):
         hook_type=HookType.BEFORE,
         operation="test_op",
         callback=conditional_hook,
-        condition=should_run_hook
+        condition=should_run_hook,
     )
 
     async def test_operation() -> str:
@@ -301,17 +291,13 @@ async def test_conditional_hook(hook_system):
 
     # Execute without condition being true
     await hook_system.execute_with_hooks(
-        operation="test_op",
-        callback=test_operation,
-        args={"run_hook": False}
+        operation="test_op", callback=test_operation, args={"run_hook": False}
     )
     assert len(call_log) == 0
 
     # Execute with condition being true
     await hook_system.execute_with_hooks(
-        operation="test_op",
-        callback=test_operation,
-        args={"run_hook": True}
+        operation="test_op", callback=test_operation, args={"run_hook": True}
     )
     assert len(call_log) == 1
 
@@ -323,26 +309,20 @@ async def test_wildcard_operation(hook_system):
         name="wildcard",
         hook_type=HookType.BEFORE,
         operation="test.*",
-        callback=before_hook
+        callback=before_hook,
     )
 
     async def test_operation() -> str:
         return "done"
 
     # Should match test.foo
-    await hook_system.execute_with_hooks(
-        operation="test.foo",
-        callback=test_operation
-    )
+    await hook_system.execute_with_hooks(operation="test.foo", callback=test_operation)
     assert len(call_log) == 1
 
     call_log.clear()
 
     # Should match test.bar
-    await hook_system.execute_with_hooks(
-        operation="test.bar",
-        callback=test_operation
-    )
+    await hook_system.execute_with_hooks(operation="test.bar", callback=test_operation)
     assert len(call_log) == 1
 
 
@@ -354,7 +334,7 @@ async def test_unregister_hook(hook_system):
         name="test_hook",
         hook_type=HookType.BEFORE,
         operation="test_op",
-        callback=before_hook
+        callback=before_hook,
     )
 
     # Unregister
@@ -365,10 +345,7 @@ async def test_unregister_hook(hook_system):
     async def test_operation() -> str:
         return "done"
 
-    await hook_system.execute_with_hooks(
-        operation="test_op",
-        callback=test_operation
-    )
+    await hook_system.execute_with_hooks(operation="test_op", callback=test_operation)
     assert len(call_log) == 0
 
 
@@ -380,14 +357,11 @@ async def test_list_hooks(hook_system):
         name="hook1",
         hook_type=HookType.BEFORE,
         operation="test_op",
-        callback=before_hook
+        callback=before_hook,
     )
 
     await hook_system.register(
-        name="hook2",
-        hook_type=HookType.AFTER,
-        operation="test_op",
-        callback=after_hook
+        name="hook2", hook_type=HookType.AFTER, operation="test_op", callback=after_hook
     )
 
     result = await hook_system.list_hooks(operation="test_op")
@@ -407,26 +381,17 @@ async def test_multiple_hooks_same_type(hook_system):
         hook_count.append(2)
 
     await hook_system.register(
-        name="hook1",
-        hook_type=HookType.BEFORE,
-        operation="test_op",
-        callback=hook1
+        name="hook1", hook_type=HookType.BEFORE, operation="test_op", callback=hook1
     )
 
     await hook_system.register(
-        name="hook2",
-        hook_type=HookType.BEFORE,
-        operation="test_op",
-        callback=hook2
+        name="hook2", hook_type=HookType.BEFORE, operation="test_op", callback=hook2
     )
 
     async def test_operation() -> str:
         return "done"
 
-    await hook_system.execute_with_hooks(
-        operation="test_op",
-        callback=test_operation
-    )
+    await hook_system.execute_with_hooks(operation="test_op", callback=test_operation)
 
     assert len(hook_count) == 2
 
@@ -446,25 +411,25 @@ async def test_all_hook_types_together(hook_system):
         execution_order.append("finally")
 
     await hook_system.register(
-        name="before", hook_type=HookType.BEFORE,
-        operation="test_op", callback=before_test
+        name="before",
+        hook_type=HookType.BEFORE,
+        operation="test_op",
+        callback=before_test,
     )
     await hook_system.register(
-        name="after", hook_type=HookType.AFTER,
-        operation="test_op", callback=after_test
+        name="after", hook_type=HookType.AFTER, operation="test_op", callback=after_test
     )
     await hook_system.register(
-        name="finally", hook_type=HookType.FINALLY,
-        operation="test_op", callback=finally_test
+        name="finally",
+        hook_type=HookType.FINALLY,
+        operation="test_op",
+        callback=finally_test,
     )
 
     async def test_operation() -> str:
         execution_order.append("operation")
         return "done"
 
-    await hook_system.execute_with_hooks(
-        operation="test_op",
-        callback=test_operation
-    )
+    await hook_system.execute_with_hooks(operation="test_op", callback=test_operation)
 
     assert execution_order == ["before", "operation", "after", "finally"]

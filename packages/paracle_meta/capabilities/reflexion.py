@@ -350,7 +350,9 @@ class ReflexionCapability(BaseCapability):
 
         # Auto-reflect if enabled
         if self.config.auto_reflect:
-            reflection = self._generate_reflection(experience, self.config.reflection_depth)
+            reflection = self._generate_reflection(
+                experience, self.config.reflection_depth
+            )
             experience.reflection = reflection
 
         # Auto-critique on failure if enabled
@@ -399,7 +401,9 @@ class ReflexionCapability(BaseCapability):
         # Simple rule-based reflection
         # In production, this would use an LLM
         if experience.success:
-            reflection = f"Successfully completed '{experience.task}' by {experience.action}."
+            reflection = (
+                f"Successfully completed '{experience.task}' by {experience.action}."
+            )
 
             if depth in (ReflectionDepth.MEDIUM, ReflectionDepth.DEEP):
                 reflection += f" Result: {experience.result}"
@@ -410,14 +414,18 @@ class ReflexionCapability(BaseCapability):
                 if similar:
                     reflection += f" Similar past successes: {len(similar)}"
         else:
-            reflection = f"Failed to complete '{experience.task}'. Action: {experience.action}"
+            reflection = (
+                f"Failed to complete '{experience.task}'. Action: {experience.action}"
+            )
 
             if depth in (ReflectionDepth.MEDIUM, ReflectionDepth.DEEP):
                 reflection += f" Error: {experience.result}"
 
             if depth == ReflectionDepth.DEEP:
                 # Suggest improvements
-                reflection += " Consider: review approach, check assumptions, seek assistance."
+                reflection += (
+                    " Consider: review approach, check assumptions, seek assistance."
+                )
 
         return reflection
 
@@ -477,7 +485,10 @@ class ReflexionCapability(BaseCapability):
                 continue
 
             # Check task similarity (simple string matching)
-            if experience.task.lower() in exp.task.lower() or exp.task.lower() in experience.task.lower():
+            if (
+                experience.task.lower() in exp.task.lower()
+                or exp.task.lower() in experience.task.lower()
+            ):
                 similar.append(exp)
 
         # Sort by timestamp (most recent first)
@@ -584,7 +595,9 @@ class ReflexionCapability(BaseCapability):
         ]
 
         if len(failures) > 1:
-            suggestions.append("Consider fundamentally different approach (repeated failures detected)")
+            suggestions.append(
+                "Consider fundamentally different approach (repeated failures detected)"
+            )
 
         # Generic suggestions
         suggestions.append("Break task into smaller steps")
@@ -702,7 +715,9 @@ class ReflexionCapability(BaseCapability):
             return  # Success rate too low
 
         # Create pattern
-        pattern_id = self._generate_id(f"pattern-{experience.agent_name}-{experience.task}")
+        pattern_id = self._generate_id(
+            f"pattern-{experience.agent_name}-{experience.task}"
+        )
 
         # Extract common conditions and actions
         conditions = [f"Task: {experience.task}"]
@@ -910,9 +925,13 @@ class ReflexionCapability(BaseCapability):
         }
         return await self.execute(action="record", **params)
 
-    async def reflect(self, experience_id: str, depth: str = "medium") -> CapabilityResult:
+    async def reflect(
+        self, experience_id: str, depth: str = "medium"
+    ) -> CapabilityResult:
         """Reflect on an experience."""
-        return await self.execute(action="reflect", experience_id=experience_id, depth=depth)
+        return await self.execute(
+            action="reflect", experience_id=experience_id, depth=depth
+        )
 
     async def query(self, **kwargs) -> CapabilityResult:
         """Query past experiences."""

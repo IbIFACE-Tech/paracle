@@ -12,6 +12,7 @@ from paracle_core.ids import generate_ulid
 try:
     import docker
     from docker.errors import APIError
+
     DOCKER_AVAILABLE = True
 except ImportError:
     docker = None  # type: ignore
@@ -142,8 +143,7 @@ class TarballSnapshotStrategy:
             storage_path = self.storage_dir / filename
 
             # Get archive from container
-            logger.info(
-                f"Creating snapshot {snapshot_id} from {container_id}:{path}")
+            logger.info(f"Creating snapshot {snapshot_id} from {container_id}:{path}")
 
             bits, stat = container.get_archive(path)
 
@@ -219,8 +219,7 @@ class TarballSnapshotStrategy:
             # Put archive into container
             container.put_archive(path, data)
 
-            logger.info(
-                f"Snapshot {snapshot.snapshot_id} restored successfully")
+            logger.info(f"Snapshot {snapshot.snapshot_id} restored successfully")
 
         except APIError as e:
             raise RestoreError(
@@ -244,12 +243,10 @@ class TarballSnapshotStrategy:
                 snapshot.storage_path.unlink()
                 logger.info(f"Deleted snapshot {snapshot.snapshot_id}")
             else:
-                logger.warning(
-                    f"Snapshot file not found: {snapshot.storage_path}")
+                logger.warning(f"Snapshot file not found: {snapshot.storage_path}")
 
         except Exception as e:
-            logger.error(
-                f"Failed to delete snapshot {snapshot.snapshot_id}: {e}")
+            logger.error(f"Failed to delete snapshot {snapshot.snapshot_id}: {e}")
 
     def get_total_size(self) -> int:
         """Get total size of all snapshots.

@@ -39,7 +39,7 @@ async def test_add_repository(github_enhanced):
     result = await github_enhanced.add_repository(
         owner="test-owner",
         name="test-repo",
-        url="https://github.com/test-owner/test-repo"
+        url="https://github.com/test-owner/test-repo",
     )
 
     assert result.success is True
@@ -51,17 +51,17 @@ async def test_add_repository(github_enhanced):
 async def test_review_pr(github_enhanced):
     """Test AI-powered PR review."""
     # Mock PR data
-    github_enhanced._client.get_pull_request = AsyncMock(return_value={
-        "number": 123,
-        "title": "Add new feature",
-        "diff": "+def new_function():\n+    return True",
-        "files_changed": 1,
-    })
+    github_enhanced._client.get_pull_request = AsyncMock(
+        return_value={
+            "number": 123,
+            "title": "Add new feature",
+            "diff": "+def new_function():\n+    return True",
+            "files_changed": 1,
+        }
+    )
 
     result = await github_enhanced.review_pr(
-        repo="test-owner/test-repo",
-        pr_number=123,
-        auto_comment=False
+        repo="test-owner/test-repo", pr_number=123, auto_comment=False
     )
 
     assert result.success is True
@@ -73,19 +73,19 @@ async def test_review_pr(github_enhanced):
 @pytest.mark.asyncio
 async def test_review_pr_with_auto_comment(github_enhanced):
     """Test PR review with automatic comments."""
-    github_enhanced._client.get_pull_request = AsyncMock(return_value={
-        "number": 123,
-        "title": "Fix bug",
-        "diff": "-    buggy_code()\n+    fixed_code()",
-        "files_changed": 1,
-    })
+    github_enhanced._client.get_pull_request = AsyncMock(
+        return_value={
+            "number": 123,
+            "title": "Fix bug",
+            "diff": "-    buggy_code()\n+    fixed_code()",
+            "files_changed": 1,
+        }
+    )
 
     github_enhanced._client.add_pr_comment = AsyncMock()
 
     result = await github_enhanced.review_pr(
-        repo="test-owner/test-repo",
-        pr_number=123,
-        auto_comment=True
+        repo="test-owner/test-repo", pr_number=123, auto_comment=True
     )
 
     assert result.success is True
@@ -94,17 +94,16 @@ async def test_review_pr_with_auto_comment(github_enhanced):
 @pytest.mark.asyncio
 async def test_review_identifies_security_issues(github_enhanced):
     """Test that review identifies security issues."""
-    github_enhanced._client.get_pull_request = AsyncMock(return_value={
-        "number": 123,
-        "title": "Add authentication",
-        "diff": '+password = "hardcoded_password"\n+execute_sql(f"SELECT * FROM users WHERE id={user_id}")',
-        "files_changed": 1,
-    })
-
-    result = await github_enhanced.review_pr(
-        repo="test-owner/test-repo",
-        pr_number=123
+    github_enhanced._client.get_pull_request = AsyncMock(
+        return_value={
+            "number": 123,
+            "title": "Add authentication",
+            "diff": '+password = "hardcoded_password"\n+execute_sql(f"SELECT * FROM users WHERE id={user_id}")',
+            "files_changed": 1,
+        }
     )
+
+    result = await github_enhanced.review_pr(repo="test-owner/test-repo", pr_number=123)
 
     assert result.success is True
     # Should detect security issues
@@ -116,17 +115,16 @@ async def test_review_identifies_security_issues(github_enhanced):
 @pytest.mark.asyncio
 async def test_review_checks_performance(github_enhanced):
     """Test that review includes performance analysis."""
-    github_enhanced._client.get_pull_request = AsyncMock(return_value={
-        "number": 123,
-        "title": "Optimize loop",
-        "diff": "+for i in range(1000000):\n+    slow_operation()",
-        "files_changed": 1,
-    })
-
-    result = await github_enhanced.review_pr(
-        repo="test-owner/test-repo",
-        pr_number=123
+    github_enhanced._client.get_pull_request = AsyncMock(
+        return_value={
+            "number": 123,
+            "title": "Optimize loop",
+            "diff": "+for i in range(1000000):\n+    slow_operation()",
+            "files_changed": 1,
+        }
     )
+
+    result = await github_enhanced.review_pr(repo="test-owner/test-repo", pr_number=123)
 
     assert result.success is True
     assert "performance" in result.output
@@ -135,17 +133,16 @@ async def test_review_checks_performance(github_enhanced):
 @pytest.mark.asyncio
 async def test_review_checks_style(github_enhanced):
     """Test that review includes style analysis."""
-    github_enhanced._client.get_pull_request = AsyncMock(return_value={
-        "number": 123,
-        "title": "Add function",
-        "diff": "+def badlyNamed():\n+  return x",  # Bad style
-        "files_changed": 1,
-    })
-
-    result = await github_enhanced.review_pr(
-        repo="test-owner/test-repo",
-        pr_number=123
+    github_enhanced._client.get_pull_request = AsyncMock(
+        return_value={
+            "number": 123,
+            "title": "Add function",
+            "diff": "+def badlyNamed():\n+  return x",  # Bad style
+            "files_changed": 1,
+        }
     )
+
+    result = await github_enhanced.review_pr(repo="test-owner/test-repo", pr_number=123)
 
     assert result.success is True
     assert "style" in result.output
@@ -162,15 +159,11 @@ async def test_sync_repos(github_enhanced):
         owner="org", name="repo2", url="https://github.com/org/repo2"
     )
 
-    github_enhanced._client.get_file_content = AsyncMock(
-        return_value="File content"
-    )
+    github_enhanced._client.get_file_content = AsyncMock(return_value="File content")
     github_enhanced._client.create_or_update_file = AsyncMock()
 
     result = await github_enhanced.sync_repos(
-        source="org/repo1",
-        targets=["org/repo2"],
-        files=["README.md"]
+        source="org/repo1", targets=["org/repo2"], files=["README.md"]
     )
 
     assert result.success is True
@@ -189,7 +182,7 @@ async def test_create_pr(github_enhanced):
         title="New feature",
         body="Description",
         head="feature-branch",
-        base="main"
+        base="main",
     )
 
     assert result.success is True
@@ -202,9 +195,7 @@ async def test_merge_pr(github_enhanced):
     github_enhanced._client.merge_pull_request = AsyncMock()
 
     result = await github_enhanced.merge_pr(
-        repo="test-owner/test-repo",
-        pr_number=123,
-        merge_method="squash"
+        repo="test-owner/test-repo", pr_number=123, merge_method="squash"
     )
 
     assert result.success is True
@@ -220,10 +211,7 @@ async def test_list_prs(github_enhanced):
         ]
     )
 
-    result = await github_enhanced.list_prs(
-        repo="test-owner/test-repo",
-        state="open"
-    )
+    result = await github_enhanced.list_prs(repo="test-owner/test-repo", state="open")
 
     assert result.success is True
     assert len(result.output["pull_requests"]) == 2
@@ -232,16 +220,17 @@ async def test_list_prs(github_enhanced):
 @pytest.mark.asyncio
 async def test_get_pr_status(github_enhanced):
     """Test getting PR status."""
-    github_enhanced._client.get_pull_request = AsyncMock(return_value={
-        "number": 123,
-        "state": "open",
-        "mergeable": True,
-        "checks": [{"name": "CI", "status": "success"}],
-    })
+    github_enhanced._client.get_pull_request = AsyncMock(
+        return_value={
+            "number": 123,
+            "state": "open",
+            "mergeable": True,
+            "checks": [{"name": "CI", "status": "success"}],
+        }
+    )
 
     result = await github_enhanced.get_pr_status(
-        repo="test-owner/test-repo",
-        pr_number=123
+        repo="test-owner/test-repo", pr_number=123
     )
 
     assert result.success is True
@@ -252,21 +241,20 @@ async def test_get_pr_status(github_enhanced):
 @pytest.mark.asyncio
 async def test_auto_approve_pr(github_enhanced):
     """Test auto-approving a PR based on criteria."""
-    github_enhanced._client.get_pull_request = AsyncMock(return_value={
-        "number": 123,
-        "diff": "+# Minor fix",
-        "files_changed": 1,
-    })
+    github_enhanced._client.get_pull_request = AsyncMock(
+        return_value={
+            "number": 123,
+            "diff": "+# Minor fix",
+            "files_changed": 1,
+        }
+    )
 
     github_enhanced._client.approve_pull_request = AsyncMock()
 
     result = await github_enhanced.auto_approve_pr(
         repo="test-owner/test-repo",
         pr_number=123,
-        criteria={
-            "max_files_changed": 5,
-            "min_quality_score": 80
-        }
+        criteria={"max_files_changed": 5, "min_quality_score": 80},
     )
 
     assert result.success is True
@@ -275,14 +263,15 @@ async def test_auto_approve_pr(github_enhanced):
 @pytest.mark.asyncio
 async def test_check_ci_status(github_enhanced):
     """Test checking CI status."""
-    github_enhanced._client.get_checks = AsyncMock(return_value=[
-        {"name": "test", "status": "completed", "conclusion": "success"},
-        {"name": "lint", "status": "completed", "conclusion": "success"},
-    ])
+    github_enhanced._client.get_checks = AsyncMock(
+        return_value=[
+            {"name": "test", "status": "completed", "conclusion": "success"},
+            {"name": "lint", "status": "completed", "conclusion": "success"},
+        ]
+    )
 
     result = await github_enhanced.check_ci_status(
-        repo="test-owner/test-repo",
-        pr_number=123
+        repo="test-owner/test-repo", pr_number=123
     )
 
     assert result.success is True
@@ -297,11 +286,13 @@ async def test_get_repository_stats(github_enhanced):
         owner="org", name="repo", url="https://github.com/org/repo"
     )
 
-    github_enhanced._client.get_repository = AsyncMock(return_value={
-        "stars": 100,
-        "forks": 20,
-        "open_issues": 5,
-    })
+    github_enhanced._client.get_repository = AsyncMock(
+        return_value={
+            "stars": 100,
+            "forks": 20,
+            "open_issues": 5,
+        }
+    )
 
     result = await github_enhanced.get_repository_stats(repo="org/repo")
 
@@ -312,15 +303,13 @@ async def test_get_repository_stats(github_enhanced):
 @pytest.mark.asyncio
 async def test_create_issue(github_enhanced):
     """Test creating an issue."""
-    github_enhanced._client.create_issue = AsyncMock(
-        return_value={"number": 789}
-    )
+    github_enhanced._client.create_issue = AsyncMock(return_value={"number": 789})
 
     result = await github_enhanced.create_issue(
         repo="test-owner/test-repo",
         title="Bug report",
         body="Description of the bug",
-        labels=["bug"]
+        labels=["bug"],
     )
 
     assert result.success is True
@@ -340,8 +329,7 @@ async def test_close_stale_prs(github_enhanced):
     github_enhanced._client.close_pull_request = AsyncMock()
 
     result = await github_enhanced.close_stale_prs(
-        repo="test-owner/test-repo",
-        days_threshold=365
+        repo="test-owner/test-repo", days_threshold=365
     )
 
     assert result.success is True
@@ -352,16 +340,15 @@ async def test_close_stale_prs(github_enhanced):
 async def test_get_review_stats(github_enhanced):
     """Test getting review statistics."""
     # Review a few PRs
-    github_enhanced._client.get_pull_request = AsyncMock(return_value={
-        "number": 123,
-        "diff": "+code",
-        "files_changed": 1,
-    })
-
-    await github_enhanced.review_pr(
-        repo="test-owner/test-repo",
-        pr_number=123
+    github_enhanced._client.get_pull_request = AsyncMock(
+        return_value={
+            "number": 123,
+            "diff": "+code",
+            "files_changed": 1,
+        }
     )
+
+    await github_enhanced.review_pr(repo="test-owner/test-repo", pr_number=123)
 
     result = await github_enhanced.get_review_stats()
 
@@ -373,18 +360,15 @@ async def test_get_review_stats(github_enhanced):
 async def test_batch_review_prs(github_enhanced):
     """Test reviewing multiple PRs in batch."""
     github_enhanced._client.list_pull_requests = AsyncMock(
-        return_value=[
-            {"number": 1}, {"number": 2}, {"number": 3}
-        ]
+        return_value=[{"number": 1}, {"number": 2}, {"number": 3}]
     )
 
-    github_enhanced._client.get_pull_request = AsyncMock(return_value={
-        "diff": "+code", "files_changed": 1
-    })
+    github_enhanced._client.get_pull_request = AsyncMock(
+        return_value={"diff": "+code", "files_changed": 1}
+    )
 
     result = await github_enhanced.batch_review(
-        repo="test-owner/test-repo",
-        pr_numbers=[1, 2, 3]
+        repo="test-owner/test-repo", pr_numbers=[1, 2, 3]
     )
 
     assert result.success is True
@@ -395,17 +379,11 @@ async def test_batch_review_prs(github_enhanced):
 async def test_compare_branches(github_enhanced):
     """Test comparing two branches."""
     github_enhanced._client.compare_branches = AsyncMock(
-        return_value={
-            "ahead_by": 5,
-            "behind_by": 2,
-            "commits": []
-        }
+        return_value={"ahead_by": 5, "behind_by": 2, "commits": []}
     )
 
     result = await github_enhanced.compare_branches(
-        repo="test-owner/test-repo",
-        base="main",
-        head="develop"
+        repo="test-owner/test-repo", base="main", head="develop"
     )
 
     assert result.success is True

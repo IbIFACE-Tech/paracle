@@ -54,7 +54,7 @@ async def test_add_vector(vector_search):
         vector=vector,
         content="Test document",
         metadata={"type": "test"},
-        namespace="default"
+        namespace="default",
     )
 
     assert result.success is True
@@ -74,15 +74,13 @@ async def test_search_vectors(vector_search):
             vector=vec,
             content=f"Document {i}",
             metadata={"index": i},
-            namespace="default"
+            namespace="default",
         )
 
     # Search
     query_vector = vectors[0]  # Should find doc0 as most similar
     result = await vector_search.search(
-        query_vector=query_vector,
-        top_k=3,
-        namespace="default"
+        query_vector=query_vector, top_k=3, namespace="default"
     )
 
     assert result.success is True
@@ -103,7 +101,7 @@ async def test_search_with_filter(vector_search):
             vector=vector,
             content=f"Document {i}",
             metadata={"category": "A" if i < 3 else "B"},
-            namespace="default"
+            namespace="default",
         )
 
     # Search with filter
@@ -112,7 +110,7 @@ async def test_search_with_filter(vector_search):
         query_vector=query_vector,
         top_k=10,
         namespace="default",
-        filter={"category": "A"}
+        filter={"category": "A"},
     )
 
     assert result.success is True
@@ -132,14 +130,12 @@ async def test_namespace_isolation(vector_search):
         vector=vector,
         content="Document 1",
         metadata={},
-        namespace="namespace1"
+        namespace="namespace1",
     )
 
     # Search in namespace2 (should find nothing)
     result = await vector_search.search(
-        query_vector=vector,
-        top_k=10,
-        namespace="namespace2"
+        query_vector=vector, top_k=10, namespace="namespace2"
     )
 
     assert result.success is True
@@ -153,11 +149,7 @@ async def test_delete_vector(vector_search):
 
     # Add vector
     await vector_search.add(
-        id="doc1",
-        vector=vector,
-        content="Document 1",
-        metadata={},
-        namespace="default"
+        id="doc1", vector=vector, content="Document 1", metadata={}, namespace="default"
     )
 
     # Delete vector
@@ -166,9 +158,7 @@ async def test_delete_vector(vector_search):
 
     # Search should not find it
     search_result = await vector_search.search(
-        query_vector=vector,
-        top_k=10,
-        namespace="default"
+        query_vector=vector, top_k=10, namespace="default"
     )
     assert len(search_result.output["results"]) == 0
 
@@ -184,7 +174,7 @@ async def test_get_stats(vector_search):
             vector=vector,
             content=f"Document {i}",
             metadata={},
-            namespace="default"
+            namespace="default",
         )
 
     result = await vector_search.get_stats(namespace="default")
@@ -211,11 +201,7 @@ async def test_quantization():
 
         vector = np.random.rand(128).astype(np.float32)
         result = await capability.add(
-            id="doc1",
-            vector=vector,
-            content="Test",
-            metadata={},
-            namespace="default"
+            id="doc1", vector=vector, content="Test", metadata={}, namespace="default"
         )
 
         assert result.success is True
@@ -231,11 +217,7 @@ async def test_invalid_dimension(vector_search):
     vector = np.random.rand(64).astype(np.float32)  # Wrong dimension
 
     result = await vector_search.add(
-        id="doc1",
-        vector=vector,
-        content="Test",
-        metadata={},
-        namespace="default"
+        id="doc1", vector=vector, content="Test", metadata={}, namespace="default"
     )
 
     assert result.success is False
@@ -252,22 +234,14 @@ async def test_persistence(temp_db):
     cap1 = VectorSearchCapability(config1)
 
     await cap1.add(
-        id="doc1",
-        vector=vector,
-        content="Test",
-        metadata={},
-        namespace="default"
+        id="doc1", vector=vector, content="Test", metadata={}, namespace="default"
     )
 
     # Second instance - should load existing index
     config2 = VectorSearchConfig(db_path=temp_db, dimension=128)
     cap2 = VectorSearchCapability(config2)
 
-    result = await cap2.search(
-        query_vector=vector,
-        top_k=1,
-        namespace="default"
-    )
+    result = await cap2.search(query_vector=vector, top_k=1, namespace="default")
 
     assert result.success is True
     assert len(result.output["results"]) == 1

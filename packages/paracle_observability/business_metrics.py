@@ -267,8 +267,9 @@ class BusinessMetrics:
             if "usage_percent" in latest_alert:
                 budget_usage_pct = latest_alert["usage_percent"]
             if "budget_limit" in latest_alert and "current_usage" in latest_alert:
-                budget_remaining = latest_alert["budget_limit"] - \
-                    latest_alert["current_usage"]
+                budget_remaining = (
+                    latest_alert["budget_limit"] - latest_alert["current_usage"]
+                )
 
         # Update Prometheus metrics
         self._cost_gauge.set(usage.total_cost)
@@ -295,8 +296,7 @@ class BusinessMetrics:
     def _get_weekly_usage(self) -> CostUsage:
         """Get usage for the last 7 days."""
         now = _utcnow()
-        weekly_usage = CostUsage(
-            period_start=now - timedelta(days=7), period_end=now)
+        weekly_usage = CostUsage(period_start=now - timedelta(days=7), period_end=now)
 
         # Sum up daily usage for last 7 days
         for days_ago in range(7):
@@ -325,10 +325,12 @@ class BusinessMetrics:
         month = self.cost_tracker.get_monthly_usage()
 
         # Calculate rates
-        requests_per_day_avg = week.request_count / \
-            7.0 if week.request_count > 0 else 0.0
-        requests_per_hour = today.request_count / \
-            24.0 if today.request_count > 0 else 0.0
+        requests_per_day_avg = (
+            week.request_count / 7.0 if week.request_count > 0 else 0.0
+        )
+        requests_per_hour = (
+            today.request_count / 24.0 if today.request_count > 0 else 0.0
+        )
 
         # Analyze request timestamps for peak detection
         peak_hour, peak_requests = self._find_peak_hour()
@@ -378,8 +380,7 @@ class BusinessMetrics:
             Performance metrics including latency and throughput
         """
         # Calculate latency percentiles
-        latencies_sorted = sorted(
-            self._latencies) if self._latencies else [0.0]
+        latencies_sorted = sorted(self._latencies) if self._latencies else [0.0]
         n = len(latencies_sorted)
 
         avg_latency = sum(self._latencies) / n if n > 0 else 0.0
@@ -391,8 +392,9 @@ class BusinessMetrics:
         total_usage = self.cost_tracker.get_total_usage()
         total_time = sum(self._latencies) if self._latencies else 1.0
 
-        tokens_per_second = total_usage.total_tokens / \
-            total_time if total_time > 0 else 0.0
+        tokens_per_second = (
+            total_usage.total_tokens / total_time if total_time > 0 else 0.0
+        )
         requests_per_minute = (
             (total_usage.request_count / total_time * 60) if total_time > 0 else 0.0
         )
@@ -403,8 +405,9 @@ class BusinessMetrics:
             if total_usage.request_count > 0
             else 0.0
         )
-        avg_cost_per_second = total_usage.total_cost / \
-            total_time if total_time > 0 else 0.0
+        avg_cost_per_second = (
+            total_usage.total_cost / total_time if total_time > 0 else 0.0
+        )
 
         # Update Prometheus histogram
         for latency in self._latencies[-100:]:  # Last 100 samples
@@ -465,8 +468,7 @@ class BusinessMetrics:
         quality = self.get_quality_metrics()
 
         # Calculate overall health score (0-100)
-        health_score = self._calculate_health_score(
-            cost, usage, performance, quality)
+        health_score = self._calculate_health_score(cost, usage, performance, quality)
 
         return BusinessMetricsSummary(
             cost=cost,

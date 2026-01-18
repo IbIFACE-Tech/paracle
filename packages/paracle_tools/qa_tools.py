@@ -108,9 +108,7 @@ class PerformanceProfilingTool(BaseTool):
         self, target: str, output_format: str, sort_by: str
     ) -> dict[str, Any]:
         """Run CPU profiling with cProfile."""
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".prof", delete=False
-        ) as tmp:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".prof", delete=False) as tmp:
             prof_file = tmp.name
 
         try:
@@ -125,9 +123,7 @@ class PerformanceProfilingTool(BaseTool):
                 sort_by,
                 target,
             ]
-            result = subprocess.run(
-                cmd, capture_output=True, text=True, timeout=300
-            )
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
 
             if result.returncode != 0:
                 return {
@@ -162,16 +158,12 @@ class PerformanceProfilingTool(BaseTool):
                 except Exception:
                     pass
 
-    async def _profile_memory(
-        self, target: str, output_format: str
-    ) -> dict[str, Any]:
+    async def _profile_memory(self, target: str, output_format: str) -> dict[str, Any]:
         """Run memory profiling."""
         cmd = ["python", "-m", "memory_profiler", target]
 
         try:
-            result = subprocess.run(
-                cmd, capture_output=True, text=True, timeout=300
-            )
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
 
             return {
                 "success": result.returncode == 0,
@@ -191,25 +183,19 @@ class PerformanceProfilingTool(BaseTool):
                 "error": "memory_profiler not installed. Install with: pip install memory-profiler",
             }
 
-    async def _profile_line(
-        self, target: str, output_format: str
-    ) -> dict[str, Any]:
+    async def _profile_line(self, target: str, output_format: str) -> dict[str, Any]:
         """Run line-by-line profiling."""
         return {
             "success": False,
             "error": "Line profiling requires manual decoration with @profile. Use performance_profiling with profile_type='cpu' instead.",
         }
 
-    async def _run_benchmark(
-        self, target: str, output_format: str
-    ) -> dict[str, Any]:
+    async def _run_benchmark(self, target: str, output_format: str) -> dict[str, Any]:
         """Run performance benchmarks."""
         cmd = ["python", "-m", "pytest", "--benchmark-only", target]
 
         try:
-            result = subprocess.run(
-                cmd, capture_output=True, text=True, timeout=300
-            )
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
 
             return {
                 "success": result.returncode == 0,
@@ -356,9 +342,7 @@ export default function () {{
             ]
 
         try:
-            result = subprocess.run(
-                cmd, capture_output=True, text=True, timeout=600
-            )
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
 
             success = result.returncode == 0
             output = result.stdout if success else result.stderr
@@ -429,9 +413,7 @@ export default function () {{
         ]
 
         try:
-            result = subprocess.run(
-                cmd, capture_output=True, text=True, timeout=600
-            )
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
 
             return {
                 "success": result.returncode == 0,
@@ -547,9 +529,7 @@ class QualityMetricsTool(BaseTool):
                 )
 
             # Calculate overall quality score
-            results["quality_score"] = self._calculate_quality_score(
-                results["metrics"]
-            )
+            results["quality_score"] = self._calculate_quality_score(results["metrics"])
 
             return {"success": True, "results": results, "format": output_format}
         except Exception as e:
@@ -586,9 +566,7 @@ class QualityMetricsTool(BaseTool):
         try:
             # Run radon for complexity
             cmd = ["radon", "cc", project_path, "-a", "-j"]
-            result = subprocess.run(
-                cmd, capture_output=True, text=True, timeout=60
-            )
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
 
             if result.returncode == 0:
                 data = json.loads(result.stdout)
@@ -654,8 +632,12 @@ class QualityMetricsTool(BaseTool):
     async def _get_performance_metrics(self, project_path: str) -> dict[str, Any]:
         """Get performance benchmark metrics."""
         # Check for pytest-benchmark results
-        benchmark_file = Path(project_path) / ".benchmarks" / \
-            "Linux-CPython-3.10" / "0001_benchmark.json"
+        benchmark_file = (
+            Path(project_path)
+            / ".benchmarks"
+            / "Linux-CPython-3.10"
+            / "0001_benchmark.json"
+        )
         if benchmark_file.exists():
             try:
                 with open(benchmark_file) as f:
@@ -671,8 +653,12 @@ class QualityMetricsTool(BaseTool):
     def _calculate_quality_score(self, metrics: dict[str, Any]) -> float:
         """Calculate overall quality score (0-100)."""
         score = 0
-        weights = {"coverage": 0.4, "complexity": 0.2,
-                   "security": 0.3, "performance": 0.1}
+        weights = {
+            "coverage": 0.4,
+            "complexity": 0.2,
+            "security": 0.3,
+            "performance": 0.1,
+        }
 
         # Coverage score
         if metrics.get("coverage", {}).get("status") == "available":
@@ -681,8 +667,7 @@ class QualityMetricsTool(BaseTool):
 
         # Complexity score (inverse - lower is better)
         if metrics.get("complexity", {}).get("status") == "available":
-            avg_complexity = metrics["complexity"].get(
-                "average_complexity", 10)
+            avg_complexity = metrics["complexity"].get("average_complexity", 10)
             complexity_score = max(0, 100 - (avg_complexity * 5))
             score += complexity_score * weights["complexity"]
 
@@ -690,8 +675,7 @@ class QualityMetricsTool(BaseTool):
         if metrics.get("security", {}).get("status") == "available":
             total_issues = metrics["security"].get("total_issues", 0)
             high_issues = metrics["security"].get("high_severity", 0)
-            security_score = max(
-                0, 100 - (high_issues * 20 + total_issues * 5))
+            security_score = max(0, 100 - (high_issues * 20 + total_issues * 5))
             score += security_score * weights["security"]
 
         # Performance score (placeholder)
@@ -815,9 +799,7 @@ class TestAutomationTool(BaseTool):
         """Run CLI tests with pytest."""
         cmd = ["pytest", "tests/cli/", "-v", "--tb=short"]
         try:
-            result = subprocess.run(
-                cmd, capture_output=True, text=True, timeout=300
-            )
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
             return {
                 "success": result.returncode == 0,
                 "output": result.stdout,
@@ -831,9 +813,7 @@ class TestAutomationTool(BaseTool):
         """Run API tests with pytest."""
         cmd = ["pytest", "tests/api/", "-v", "--tb=short"]
         try:
-            result = subprocess.run(
-                cmd, capture_output=True, text=True, timeout=300
-            )
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
             return {
                 "success": result.returncode == 0,
                 "output": result.stdout,
@@ -847,9 +827,7 @@ class TestAutomationTool(BaseTool):
         """Run UI tests with Playwright."""
         cmd = ["pytest", "tests/ui/", "-v", "--headed"]
         try:
-            result = subprocess.run(
-                cmd, capture_output=True, text=True, timeout=600
-            )
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
             return {
                 "success": result.returncode == 0,
                 "output": result.stdout,
@@ -863,9 +841,7 @@ class TestAutomationTool(BaseTool):
         """Run performance tests."""
         cmd = ["pytest", "tests/performance/", "--benchmark-only", "-v"]
         try:
-            result = subprocess.run(
-                cmd, capture_output=True, text=True, timeout=600
-            )
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
             return {
                 "success": result.returncode == 0,
                 "output": result.stdout,
@@ -894,8 +870,7 @@ class TestAutomationTool(BaseTool):
             "passed_suites": passed_tests,
             "failed_suites": failed_tests,
             "success_rate": (
-                round((passed_tests / total_tests) *
-                      100, 2) if total_tests > 0 else 0
+                round((passed_tests / total_tests) * 100, 2) if total_tests > 0 else 0
             ),
         }
 
@@ -959,6 +934,7 @@ class TestAutomationTool(BaseTool):
 
 # Modern Testing Tool Integrations
 
+
 class BatsTestingTool(BaseTool):
     """Execute CLI tests using Bats (Bash Automated Testing System)."""
 
@@ -993,9 +969,7 @@ class BatsTestingTool(BaseTool):
         cmd.append(test_file)
 
         try:
-            result = subprocess.run(
-                cmd, capture_output=True, text=True, timeout=300
-            )
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
             return {
                 "success": result.returncode == 0,
                 "tool": "bats",
@@ -1033,16 +1007,12 @@ class DreddTestingTool(BaseTool):
             },
         )
 
-    async def _execute(
-        self, spec_file: str, api_url: str, **kwargs
-    ) -> dict[str, Any]:
+    async def _execute(self, spec_file: str, api_url: str, **kwargs) -> dict[str, Any]:
         """Execute Dredd contract tests."""
         cmd = ["dredd", spec_file, api_url, "--reporter", "json"]
 
         try:
-            result = subprocess.run(
-                cmd, capture_output=True, text=True, timeout=300
-            )
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
             return {
                 "success": result.returncode == 0,
                 "tool": "dredd",
@@ -1101,9 +1071,7 @@ class SchemathesisTestingTool(BaseTool):
             cmd.extend(["--checks", check])
 
         try:
-            result = subprocess.run(
-                cmd, capture_output=True, text=True, timeout=600
-            )
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
             return {
                 "success": result.returncode == 0,
                 "tool": "schemathesis",
@@ -1160,9 +1128,7 @@ class NewmanTestingTool(BaseTool):
         cmd.extend(["-r", ",".join(reporters)])
 
         try:
-            result = subprocess.run(
-                cmd, capture_output=True, text=True, timeout=300
-            )
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
             return {
                 "success": result.returncode == 0,
                 "tool": "newman",
@@ -1219,9 +1185,7 @@ class PlaywrightTestingTool(BaseTool):
             cmd.append("--headed")
 
         try:
-            result = subprocess.run(
-                cmd, capture_output=True, text=True, timeout=600
-            )
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
             return {
                 "success": result.returncode == 0,
                 "tool": "playwright",
@@ -1236,6 +1200,7 @@ class PlaywrightTestingTool(BaseTool):
 
 
 # Factory functions for tool registry
+
 
 def performance_profiling() -> PerformanceProfilingTool:
     """Create PerformanceProfilingTool instance."""

@@ -442,8 +442,7 @@ class IDEConfigGenerator:
         self._prepare_workspace(skip_format=skip_format, strict=strict)
 
         # Build context
-        builder = ContextBuilder(
-            self.parac_root, max_size=config.max_context_size)
+        builder = ContextBuilder(self.parac_root, max_size=config.max_context_size)
         context = builder.build(ide=config.name)
 
         # Add IDE-specific context
@@ -606,8 +605,7 @@ class IDEConfigGenerator:
         self.ide_output_dir.mkdir(parents=True, exist_ok=True)
 
         with open(manifest_path, "w", encoding="utf-8") as f:
-            yaml.dump(manifest, f, default_flow_style=False,
-                      allow_unicode=True)
+            yaml.dump(manifest, f, default_flow_style=False, allow_unicode=True)
 
         return manifest_path
 
@@ -731,8 +729,7 @@ class IDEConfigGenerator:
             return []
 
         exporter = SkillExporter(skills)
-        results = exporter.export_to_platform(
-            platform, self.project_root, overwrite)
+        results = exporter.export_to_platform(platform, self.project_root, overwrite)
 
         return [r.skill_name for r in results if r.success]
 

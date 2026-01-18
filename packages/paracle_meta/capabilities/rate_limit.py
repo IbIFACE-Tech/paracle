@@ -204,9 +204,7 @@ class RateLimitCapability(BaseCapability):
 
         return self._buckets[resource]
 
-    async def check_limit(
-        self, resource: str, tokens: int = 1
-    ) -> CapabilityResult:
+    async def check_limit(self, resource: str, tokens: int = 1) -> CapabilityResult:
         """Check if request would be allowed without consuming tokens.
 
         Args:
@@ -244,9 +242,7 @@ class RateLimitCapability(BaseCapability):
             duration_ms=duration,
         )
 
-    async def consume(
-        self, resource: str, tokens: int = 1
-    ) -> CapabilityResult:
+    async def consume(self, resource: str, tokens: int = 1) -> CapabilityResult:
         """Consume tokens from bucket.
 
         Args:

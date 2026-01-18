@@ -24,9 +24,7 @@ from paracle_mcp.api_bridge import (  # noqa: E402
 def api_bridge():
     """Create API bridge instance for testing."""
     bridge = MCPAPIBridge(
-        api_base_url="http://localhost:8000",
-        timeout=10.0,
-        enable_fallback=True
+        api_base_url="http://localhost:8000", timeout=10.0, enable_fallback=True
     )
     yield bridge
     bridge.close()
@@ -92,8 +90,7 @@ class TestOfflineCriticalTools:
 
             # Call offline tool
             result = await api_bridge.call_api_tool(
-                "paracle_board_list",
-                {"archived": False}
+                "paracle_board_list", {"archived": False}
             )
 
             assert "boards" in result
@@ -109,13 +106,10 @@ class TestOfflineCriticalTools:
                 "total_errors": 5,
                 "by_severity": {"ERROR": 3, "WARNING": 2},
                 "by_component": {"api": 2, "cli": 3},
-                "recent_errors": 2
+                "recent_errors": 2,
             }
 
-            result = await api_bridge.call_api_tool(
-                "paracle_errors_stats",
-                {}
-            )
+            result = await api_bridge.call_api_tool("paracle_errors_stats", {})
 
             assert result["total_errors"] == 5
             assert result["by_severity"]["ERROR"] == 3
@@ -147,17 +141,13 @@ class TestAPIBridge:
         with patch.object(api_bridge.client, "get") as mock_get:
             mock_response = Mock()
             mock_response.status_code = 200
-            mock_response.json.return_value = {
-                "boards": [],
-                "count": 0
-            }
+            mock_response.json.return_value = {"boards": [], "count": 0}
             mock_get.return_value = mock_response
 
             # Call non-critical tool (should use API)
             with patch("paracle_mcp.api_bridge.OFFLINE_CRITICAL", []):
                 result = await api_bridge.call_api_tool(
-                    "paracle_board_list",
-                    {"archived": False}
+                    "paracle_board_list", {"archived": False}
                 )
 
             assert "boards" in result
@@ -169,14 +159,12 @@ class TestAPIBridge:
         with patch.object(api_bridge.client, "get") as mock_get:
             mock_response = Mock()
             mock_response.status_code = 200
-            mock_response.json.return_value = {
-                "id": "board-123", "name": "Test"}
+            mock_response.json.return_value = {"id": "board-123", "name": "Test"}
             mock_get.return_value = mock_response
 
             with patch("paracle_mcp.api_bridge.OFFLINE_CRITICAL", []):
                 result = await api_bridge.call_api_tool(
-                    "paracle_board_show",
-                    {"board_id": "board-123"}
+                    "paracle_board_show", {"board_id": "board-123"}
                 )
 
             # Verify path parameter was substituted
@@ -189,8 +177,7 @@ class TestAPIBridge:
         with patch.object(api_bridge.client, "post") as mock_post:
             mock_response = Mock()
             mock_response.status_code = 201
-            mock_response.json.return_value = {
-                "id": "task-1", "title": "New Task"}
+            mock_response.json.return_value = {"id": "task-1", "title": "New Task"}
             mock_post.return_value = mock_response
 
             with patch("paracle_mcp.api_bridge.OFFLINE_CRITICAL", []):
@@ -200,8 +187,8 @@ class TestAPIBridge:
                         "board_id": "board-1",
                         "title": "New Task",
                         "description": "Test task",
-                        "priority": "high"
-                    }
+                        "priority": "high",
+                    },
                 )
 
             assert result["title"] == "New Task"
@@ -216,10 +203,7 @@ class TestAPIBridge:
             mock_get.side_effect = Exception("Connection refused")
 
             with patch("paracle_mcp.api_bridge.OFFLINE_CRITICAL", []):
-                result = await api_bridge.call_api_tool(
-                    "paracle_board_list",
-                    {}
-                )
+                result = await api_bridge.call_api_tool("paracle_board_list", {})
 
             # Should return fallback error message
             assert "error" in result or "suggestion" in result
@@ -233,10 +217,7 @@ class TestAPIBridge:
             mock_get.side_effect = Exception("Connection refused")
 
             with pytest.raises(Exception):
-                await api_bridge.call_api_tool(
-                    "paracle_task_list",
-                    {}
-                )
+                await api_bridge.call_api_tool("paracle_task_list", {})
 
 
 class TestMappingCoverage:
@@ -307,10 +288,7 @@ class TestPerformance:
 
             # Should timeout and fallback
             with patch("paracle_mcp.api_bridge.OFFLINE_CRITICAL", []):
-                result = await api_bridge.call_api_tool(
-                    "paracle_board_list",
-                    {}
-                )
+                result = await api_bridge.call_api_tool("paracle_board_list", {})
 
             # Should have fallback error
             assert "error" in result or "suggestion" in result
@@ -322,7 +300,7 @@ class TestAPIBridgeIntegration:
 
     @pytest.mark.skipif(
         True,  # Skip by default - requires API server
-        reason="Requires running Paracle API server"
+        reason="Requires running Paracle API server",
     )
     @pytest.mark.asyncio
     async def test_real_api_call(self):
@@ -333,10 +311,7 @@ class TestAPIBridgeIntegration:
             if not bridge.is_api_available():
                 pytest.skip("API server not available")
 
-            result = await bridge.call_api_tool(
-                "paracle_parac_status",
-                {}
-            )
+            result = await bridge.call_api_tool("paracle_parac_status", {})
 
             assert "status" in result or "error" in result
         finally:

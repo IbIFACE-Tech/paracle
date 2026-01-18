@@ -52,9 +52,7 @@ class DependencyValidator:
         # Check that all dependencies exist
         for dep_id in task.depends_on:
             if dep_id not in self.tasks:
-                errors.append(
-                    f"Dependency task '{dep_id}' does not exist"
-                )
+                errors.append(f"Dependency task '{dep_id}' does not exist")
 
         # Check for circular dependencies
         if self._has_circular_dependency(task.id, task.depends_on):

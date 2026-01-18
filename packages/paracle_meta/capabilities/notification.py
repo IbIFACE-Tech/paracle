@@ -85,15 +85,21 @@ class NotificationConfig(CapabilityConfig):
     slack_token: str | None = Field(default=None, description="Slack Bot token")
 
     # Discord settings
-    discord_webhook_url: str | None = Field(default=None, description="Discord webhook URL")
+    discord_webhook_url: str | None = Field(
+        default=None, description="Discord webhook URL"
+    )
 
     # Teams settings
     teams_webhook_url: str | None = Field(default=None, description="Teams webhook URL")
 
     # Twilio settings
-    twilio_account_sid: str | None = Field(default=None, description="Twilio Account SID")
+    twilio_account_sid: str | None = Field(
+        default=None, description="Twilio Account SID"
+    )
     twilio_auth_token: str | None = Field(default=None, description="Twilio Auth Token")
-    twilio_from_number: str | None = Field(default=None, description="Twilio phone number")
+    twilio_from_number: str | None = Field(
+        default=None, description="Twilio phone number"
+    )
 
     # Request settings
     timeout: float = Field(default=30.0, description="Request timeout in seconds")
@@ -286,7 +292,7 @@ class NotificationCapability(BaseCapability):
                     msg.attach(MIMEText(body, "plain"))
 
                 # Add attachments
-                for attachment in (attachments or []):
+                for attachment in attachments or []:
                     part = MIMEBase("application", "octet-stream")
                     part.set_payload(attachment["content"])
                     encoders.encode_base64(part)
@@ -337,7 +343,9 @@ class NotificationCapability(BaseCapability):
                 "personalizations": [{"to": [{"email": e} for e in to_list]}],
                 "from": {"email": from_email},
                 "subject": subject,
-                "content": [{"type": "text/html" if html else "text/plain", "value": body}],
+                "content": [
+                    {"type": "text/html" if html else "text/plain", "value": body}
+                ],
             }
 
             if cc:
@@ -430,7 +438,11 @@ class NotificationCapability(BaseCapability):
             )
 
         else:
-            url = webhook_url or self.config.slack_webhook_url or os.getenv("SLACK_WEBHOOK_URL")
+            url = (
+                webhook_url
+                or self.config.slack_webhook_url
+                or os.getenv("SLACK_WEBHOOK_URL")
+            )
             if not url:
                 raise RuntimeError("Slack webhook URL not configured")
 
@@ -479,7 +491,11 @@ class NotificationCapability(BaseCapability):
         if not HTTPX_AVAILABLE:
             raise RuntimeError("httpx required: pip install httpx")
 
-        url = webhook_url or self.config.discord_webhook_url or os.getenv("DISCORD_WEBHOOK_URL")
+        url = (
+            webhook_url
+            or self.config.discord_webhook_url
+            or os.getenv("DISCORD_WEBHOOK_URL")
+        )
         if not url:
             raise RuntimeError("Discord webhook URL not configured")
 
@@ -530,7 +546,11 @@ class NotificationCapability(BaseCapability):
         if not HTTPX_AVAILABLE:
             raise RuntimeError("httpx required: pip install httpx")
 
-        url = webhook_url or self.config.teams_webhook_url or os.getenv("TEAMS_WEBHOOK_URL")
+        url = (
+            webhook_url
+            or self.config.teams_webhook_url
+            or os.getenv("TEAMS_WEBHOOK_URL")
+        )
         if not url:
             raise RuntimeError("Teams webhook URL not configured")
 
@@ -585,7 +605,11 @@ class NotificationCapability(BaseCapability):
 
         account_sid = self.config.twilio_account_sid or os.getenv("TWILIO_ACCOUNT_SID")
         auth_token = self.config.twilio_auth_token or os.getenv("TWILIO_AUTH_TOKEN")
-        from_number = from_number or self.config.twilio_from_number or os.getenv("TWILIO_FROM_NUMBER")
+        from_number = (
+            from_number
+            or self.config.twilio_from_number
+            or os.getenv("TWILIO_FROM_NUMBER")
+        )
 
         if not all([account_sid, auth_token, from_number]):
             raise RuntimeError("Twilio credentials not configured")
@@ -663,9 +687,13 @@ class NotificationCapability(BaseCapability):
         )
 
     # Convenience methods
-    async def email(self, to: str, subject: str, body: str, **kwargs) -> CapabilityResult:
+    async def email(
+        self, to: str, subject: str, body: str, **kwargs
+    ) -> CapabilityResult:
         """Send email notification."""
-        return await self.execute(action="email", to=to, subject=subject, body=body, **kwargs)
+        return await self.execute(
+            action="email", to=to, subject=subject, body=body, **kwargs
+        )
 
     async def slack(self, message: str, **kwargs) -> CapabilityResult:
         """Send Slack notification."""
@@ -683,6 +711,8 @@ class NotificationCapability(BaseCapability):
         """Send SMS notification."""
         return await self.execute(action="sms", to=to, message=message, **kwargs)
 
-    async def webhook(self, url: str, data: dict[str, Any] = None, **kwargs) -> CapabilityResult:
+    async def webhook(
+        self, url: str, data: dict[str, Any] = None, **kwargs
+    ) -> CapabilityResult:
         """Send webhook notification."""
         return await self.execute(action="webhook", url=url, data=data, **kwargs)

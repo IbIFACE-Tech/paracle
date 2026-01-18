@@ -109,9 +109,7 @@ class ImageConfig(CapabilityConfig):
     )
 
     # Vision settings
-    vision_model: str = Field(
-        default="gpt-4o", description="Model for vision analysis"
-    )
+    vision_model: str = Field(default="gpt-4o", description="Model for vision analysis")
     max_tokens: int = Field(default=1000, description="Max tokens for vision response")
 
     # Local settings
@@ -813,7 +811,9 @@ class ImageCapability(BaseCapability):
             data={
                 "language": language,
                 "word_count": len(words),
-                "confidence": sum(data["conf"]) / len(data["conf"]) if data["conf"] else 0,
+                "confidence": (
+                    sum(data["conf"]) / len(data["conf"]) if data["conf"] else 0
+                ),
             },
             duration_ms=duration_ms,
         )
@@ -954,7 +954,9 @@ class ImageCapability(BaseCapability):
             return {"base64": base64.b64encode(data).decode(), "mime_type": mime_type}
 
     # Convenience methods
-    async def analyze(self, image: str, prompt: str = "Describe this image.") -> CapabilityResult:
+    async def analyze(
+        self, image: str, prompt: str = "Describe this image."
+    ) -> CapabilityResult:
         """Analyze an image using vision AI."""
         return await self.execute(action="analyze", image=image, prompt=prompt)
 
@@ -962,13 +964,27 @@ class ImageCapability(BaseCapability):
         """Generate an image from a text prompt."""
         return await self.execute(action="generate", prompt=prompt, **kwargs)
 
-    async def resize(self, image: str, width: int = None, height: int = None, **kwargs) -> CapabilityResult:
+    async def resize(
+        self, image: str, width: int = None, height: int = None, **kwargs
+    ) -> CapabilityResult:
         """Resize an image."""
-        return await self.execute(action="resize", image=image, width=width, height=height, **kwargs)
+        return await self.execute(
+            action="resize", image=image, width=width, height=height, **kwargs
+        )
 
-    async def crop(self, image: str, left: int, top: int, right: int, bottom: int, **kwargs) -> CapabilityResult:
+    async def crop(
+        self, image: str, left: int, top: int, right: int, bottom: int, **kwargs
+    ) -> CapabilityResult:
         """Crop an image."""
-        return await self.execute(action="crop", image=image, left=left, top=top, right=right, bottom=bottom, **kwargs)
+        return await self.execute(
+            action="crop",
+            image=image,
+            left=left,
+            top=top,
+            right=right,
+            bottom=bottom,
+            **kwargs,
+        )
 
     async def ocr(self, image: str, language: str = "eng") -> CapabilityResult:
         """Extract text from image using OCR."""

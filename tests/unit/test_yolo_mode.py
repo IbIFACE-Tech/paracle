@@ -148,9 +148,7 @@ class TestApprovalManagerYoloMode:
         )
 
         # Act
-        is_approved = await manager.wait_for_decision(
-            request.id, timeout_seconds=1.0
-        )
+        is_approved = await manager.wait_for_decision(request.id, timeout_seconds=1.0)
 
         # Assert
         assert is_approved is True

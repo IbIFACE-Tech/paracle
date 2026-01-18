@@ -23,9 +23,7 @@ class KanbanAnalytics:
         """
         self.tasks = tasks
 
-    def velocity_metrics(
-        self, days: int = 30
-    ) -> dict[str, Any]:
+    def velocity_metrics(self, days: int = 30) -> dict[str, Any]:
         """Calculate velocity metrics.
 
         Args:
@@ -38,14 +36,10 @@ class KanbanAnalytics:
         cutoff = now - timedelta(days=days)
 
         completed = [
-            t
-            for t in self.tasks
-            if t.completed_at and t.completed_at >= cutoff
+            t for t in self.tasks if t.completed_at and t.completed_at >= cutoff
         ]
 
-        total_story_points = sum(
-            t.story_points for t in completed if t.story_points
-        )
+        total_story_points = sum(t.story_points for t in completed if t.story_points)
         total_tasks = len(completed)
         avg_cycle_time = self._avg_cycle_time(completed)
 
@@ -54,9 +48,7 @@ class KanbanAnalytics:
             "tasks_completed": total_tasks,
             "story_points_completed": total_story_points,
             "tasks_per_day": total_tasks / days if days > 0 else 0,
-            "story_points_per_day": (
-                total_story_points / days if days > 0 else 0
-            ),
+            "story_points_per_day": (total_story_points / days if days > 0 else 0),
             "avg_cycle_time_hours": avg_cycle_time,
         }
 
@@ -69,18 +61,10 @@ class KanbanAnalytics:
         Returns:
             Average cycle time in hours
         """
-        cycle_times = [
-            t.cycle_time() for t in tasks if t.cycle_time()
-        ]
-        return (
-            sum(cycle_times) / len(cycle_times)
-            if cycle_times
-            else 0
-        )
+        cycle_times = [t.cycle_time() for t in tasks if t.cycle_time()]
+        return sum(cycle_times) / len(cycle_times) if cycle_times else 0
 
-    def throughput(
-        self, days: int = 30, group_by: str = "day"
-    ) -> dict[str, int]:
+    def throughput(self, days: int = 30, group_by: str = "day") -> dict[str, int]:
         """Calculate throughput over time.
 
         Args:
@@ -94,9 +78,7 @@ class KanbanAnalytics:
         cutoff = now - timedelta(days=days)
 
         completed = [
-            t
-            for t in self.tasks
-            if t.completed_at and t.completed_at >= cutoff
+            t for t in self.tasks if t.completed_at and t.completed_at >= cutoff
         ]
 
         throughput: dict[str, int] = {}
@@ -118,9 +100,7 @@ class KanbanAnalytics:
 
         return throughput
 
-    def burndown_data(
-        self, sprint_id: str | None = None
-    ) -> dict[str, Any]:
+    def burndown_data(self, sprint_id: str | None = None) -> dict[str, Any]:
         """Generate burndown chart data.
 
         Args:
@@ -133,13 +113,9 @@ class KanbanAnalytics:
         if sprint_id:
             tasks = [t for t in tasks if t.sprint_id == sprint_id]
 
-        total_points = sum(
-            t.story_points for t in tasks if t.story_points
-        )
+        total_points = sum(t.story_points for t in tasks if t.story_points)
         remaining_points = sum(
-            t.story_points
-            for t in tasks
-            if t.story_points and not t.is_complete()
+            t.story_points for t in tasks if t.story_points and not t.is_complete()
         )
 
         # Group by completion date
@@ -148,8 +124,7 @@ class KanbanAnalytics:
             if task.completed_at and task.story_points:
                 date_key = task.completed_at.strftime("%Y-%m-%d")
                 completed_by_date[date_key] = (
-                    completed_by_date.get(date_key, 0)
-                    + task.story_points
+                    completed_by_date.get(date_key, 0) + task.story_points
                 )
 
         return {
@@ -164,9 +139,7 @@ class KanbanAnalytics:
             "completed_by_date": completed_by_date,
         }
 
-    def cumulative_flow(
-        self, days: int = 30
-    ) -> dict[str, dict[str, int]]:
+    def cumulative_flow(self, days: int = 30) -> dict[str, dict[str, int]]:
         """Generate cumulative flow diagram data.
 
         Args:
@@ -202,9 +175,7 @@ class KanbanAnalytics:
         Returns:
             Lead time statistics
         """
-        completed = [
-            t for t in self.tasks if t.is_complete() and t.lead_time()
-        ]
+        completed = [t for t in self.tasks if t.is_complete() and t.lead_time()]
 
         if not completed:
             return {
@@ -218,9 +189,7 @@ class KanbanAnalytics:
                 "p95": 0,
             }
 
-        lead_times = sorted(
-            [t.lead_time() for t in completed if t.lead_time()]
-        )
+        lead_times = sorted([t.lead_time() for t in completed if t.lead_time()])
         count = len(lead_times)
 
         return {
@@ -252,9 +221,7 @@ class KanbanAnalytics:
         bottlenecks = []
         for status, tasks in by_status.items():
             if len(tasks) > 5:  # Arbitrary threshold
-                avg_time_in_status = self._avg_time_in_status(
-                    tasks, status
-                )
+                avg_time_in_status = self._avg_time_in_status(tasks, status)
                 bottlenecks.append(
                     {
                         "status": status.value,
@@ -271,9 +238,7 @@ class KanbanAnalytics:
             "total_wip": sum(len(tasks) for tasks in by_status.values()),
         }
 
-    def _avg_time_in_status(
-        self, tasks: list[Task], status: TaskStatus
-    ) -> float:
+    def _avg_time_in_status(self, tasks: list[Task], status: TaskStatus) -> float:
         """Calculate average time tasks spend in a status.
 
         Args:
@@ -290,12 +255,10 @@ class KanbanAnalytics:
         for task in tasks:
             if task.status == status:
                 if status == TaskStatus.IN_PROGRESS and task.started_at:
-                    time_in_status = (
-                        now - task.started_at).total_seconds() / 3600
+                    time_in_status = (now - task.started_at).total_seconds() / 3600
                     times.append(time_in_status)
                 elif task.updated_at:
-                    time_in_status = (
-                        now - task.updated_at).total_seconds() / 3600
+                    time_in_status = (now - task.updated_at).total_seconds() / 3600
                     times.append(time_in_status)
 
         return sum(times) / len(times) if times else 0
@@ -324,16 +287,12 @@ class KanbanAnalytics:
             }
 
         estimated_days = remaining_story_points / points_per_day
-        completion_date = datetime.utcnow() + timedelta(
-            days=estimated_days
-        )
+        completion_date = datetime.utcnow() + timedelta(days=estimated_days)
 
         return {
             "remaining_story_points": remaining_story_points,
             "velocity_points_per_day": points_per_day,
             "estimated_days": estimated_days,
-            "estimated_completion_date": completion_date.strftime(
-                "%Y-%m-%d"
-            ),
+            "estimated_completion_date": completion_date.strftime("%Y-%m-%d"),
             "confidence": "medium" if days_history >= 14 else "low",
         }

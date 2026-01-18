@@ -32,6 +32,7 @@ from paracle_meta.capabilities.base import (
 # Optional: Use existing vector_search capability
 try:
     from paracle_meta.capabilities.vector_search import VectorSearchCapability
+
     HAS_VECTOR_SEARCH = True
 except ImportError:
     HAS_VECTOR_SEARCH = False
@@ -71,7 +72,9 @@ class Memory:
             "metadata": self.metadata,
             "importance": self.importance,
             "access_count": self.access_count,
-            "last_accessed": self.last_accessed.isoformat() if self.last_accessed else None,
+            "last_accessed": (
+                self.last_accessed.isoformat() if self.last_accessed else None
+            ),
         }
         if include_embedding and self.embedding is not None:
             result["embedding"] = self.embedding.tolist()
@@ -208,7 +211,10 @@ class SemanticMemoryCapability(BaseCapability):
 
         # Initialize vector search if enabled
         if self.config.enable_vector_search and HAS_VECTOR_SEARCH:
-            from paracle_meta.capabilities.vector_search import VectorSearchConfig, IndexType
+            from paracle_meta.capabilities.vector_search import (
+                VectorSearchConfig,
+                IndexType,
+            )
 
             vector_config = VectorSearchConfig(
                 storage_path=self.config.storage_path / "vectors",
@@ -229,7 +235,8 @@ class SemanticMemoryCapability(BaseCapability):
         cursor = self._db.cursor()
 
         # Memories table
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS memories (
                 id TEXT PRIMARY KEY,
                 content TEXT NOT NULL,
@@ -242,10 +249,12 @@ class SemanticMemoryCapability(BaseCapability):
                 last_accessed TEXT,
                 has_embedding INTEGER DEFAULT 0
             )
-        """)
+        """
+        )
 
         # Conversations table
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS conversations (
                 id TEXT PRIMARY KEY,
                 agent_name TEXT,
@@ -253,10 +262,12 @@ class SemanticMemoryCapability(BaseCapability):
                 updated_at TEXT NOT NULL,
                 metadata TEXT
             )
-        """)
+        """
+        )
 
         # Conversation turns table
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS conversation_turns (
                 id TEXT PRIMARY KEY,
                 conversation_id TEXT NOT NULL,
@@ -266,14 +277,25 @@ class SemanticMemoryCapability(BaseCapability):
                 metadata TEXT,
                 FOREIGN KEY (conversation_id) REFERENCES conversations(id)
             )
-        """)
+        """
+        )
 
         # Indexes
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_memory_type ON memories(memory_type)")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_agent_name ON memories(agent_name)")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_importance ON memories(importance)")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_timestamp ON memories(timestamp)")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_conv_turns ON conversation_turns(conversation_id)")
+        cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_memory_type ON memories(memory_type)"
+        )
+        cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_agent_name ON memories(agent_name)"
+        )
+        cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_importance ON memories(importance)"
+        )
+        cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_timestamp ON memories(timestamp)"
+        )
+        cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_conv_turns ON conversation_turns(conversation_id)"
+        )
 
         self._db.commit()
 
@@ -281,16 +303,18 @@ class SemanticMemoryCapability(BaseCapability):
         """Initialize embedding provider."""
         if self.config.embedding_provider == EmbeddingProvider.MOCK:
             # Mock embeddings for testing
-            self._embedding_provider = lambda text: np.random.randn(self.config.embedding_dimensions).astype(np.float32)
+            self._embedding_provider = lambda text: np.random.randn(
+                self.config.embedding_dimensions
+            ).astype(np.float32)
         elif self.config.embedding_provider == EmbeddingProvider.OPENAI:
             try:
                 import openai
+
                 client = openai.OpenAI()
 
                 def get_embedding(text: str) -> np.ndarray:
                     response = client.embeddings.create(
-                        input=text,
-                        model=self.config.embedding_model
+                        input=text, model=self.config.embedding_model
                     )
                     return np.array(response.data[0].embedding, dtype=np.float32)
 
@@ -300,10 +324,15 @@ class SemanticMemoryCapability(BaseCapability):
         elif self.config.embedding_provider == EmbeddingProvider.LOCAL:
             try:
                 from sentence_transformers import SentenceTransformer
+
                 model = SentenceTransformer(self.config.embedding_model)
-                self._embedding_provider = lambda text: model.encode(text, convert_to_numpy=True).astype(np.float32)
+                self._embedding_provider = lambda text: model.encode(
+                    text, convert_to_numpy=True
+                ).astype(np.float32)
             except ImportError:
-                raise RuntimeError("sentence-transformers not available. Install: pip install sentence-transformers")
+                raise RuntimeError(
+                    "sentence-transformers not available. Install: pip install sentence-transformers"
+                )
 
     async def shutdown(self) -> None:
         """Cleanup resources."""
@@ -415,21 +444,24 @@ class SemanticMemoryCapability(BaseCapability):
 
         # Store in SQLite
         cursor = self._db.cursor()
-        cursor.execute("""
+        cursor.execute(
+            """
             INSERT INTO memories (
                 id, content, memory_type, agent_name, timestamp,
                 metadata, importance, has_embedding
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        """, (
-            memory_id,
-            content,
-            memory_type,
-            agent_name,
-            datetime.utcnow().isoformat(),
-            json.dumps(metadata or {}),
-            importance,
-            1 if has_embedding else 0,
-        ))
+        """,
+            (
+                memory_id,
+                content,
+                memory_type,
+                agent_name,
+                datetime.utcnow().isoformat(),
+                json.dumps(metadata or {}),
+                importance,
+                1 if has_embedding else 0,
+            ),
+        )
         self._db.commit()
 
         # Store in vector index if available
@@ -515,12 +547,15 @@ class SemanticMemoryCapability(BaseCapability):
                 cursor = self._db.cursor()
                 for result in results:
                     memory_id = result["id"]
-                    cursor.execute("""
+                    cursor.execute(
+                        """
                         UPDATE memories
                         SET access_count = access_count + 1,
                             last_accessed = ?
                         WHERE id = ?
-                    """, (datetime.utcnow().isoformat(), memory_id))
+                    """,
+                        (datetime.utcnow().isoformat(), memory_id),
+                    )
                 self._db.commit()
 
                 return {
@@ -558,24 +593,29 @@ class SemanticMemoryCapability(BaseCapability):
 
         memories = []
         for row in rows:
-            memories.append({
-                "id": row["id"],
-                "content": row["content"],
-                "memory_type": row["memory_type"],
-                "agent_name": row["agent_name"],
-                "timestamp": row["timestamp"],
-                "importance": row["importance"],
-                "metadata": json.loads(row["metadata"]) if row["metadata"] else {},
-                "score": 0.5,  # Default score for text search
-            })
+            memories.append(
+                {
+                    "id": row["id"],
+                    "content": row["content"],
+                    "memory_type": row["memory_type"],
+                    "agent_name": row["agent_name"],
+                    "timestamp": row["timestamp"],
+                    "importance": row["importance"],
+                    "metadata": json.loads(row["metadata"]) if row["metadata"] else {},
+                    "score": 0.5,  # Default score for text search
+                }
+            )
 
             # Update access count
-            cursor.execute("""
+            cursor.execute(
+                """
                 UPDATE memories
                 SET access_count = access_count + 1,
                     last_accessed = ?
                 WHERE id = ?
-            """, (datetime.utcnow().isoformat(), row["id"]))
+            """,
+                (datetime.utcnow().isoformat(), row["id"]),
+            )
 
         self._db.commit()
 
@@ -595,18 +635,23 @@ class SemanticMemoryCapability(BaseCapability):
             Memory details
         """
         cursor = self._db.cursor()
-        row = cursor.execute("SELECT * FROM memories WHERE id = ?", (memory_id,)).fetchone()
+        row = cursor.execute(
+            "SELECT * FROM memories WHERE id = ?", (memory_id,)
+        ).fetchone()
 
         if not row:
             raise ValueError(f"Memory not found: {memory_id}")
 
         # Update access count
-        cursor.execute("""
+        cursor.execute(
+            """
             UPDATE memories
             SET access_count = access_count + 1,
                 last_accessed = ?
             WHERE id = ?
-        """, (datetime.utcnow().isoformat(), memory_id))
+        """,
+            (datetime.utcnow().isoformat(), memory_id),
+        )
         self._db.commit()
 
         return {
@@ -633,7 +678,9 @@ class SemanticMemoryCapability(BaseCapability):
         cursor = self._db.cursor()
 
         # Check if exists
-        row = cursor.execute("SELECT id FROM memories WHERE id = ?", (memory_id,)).fetchone()
+        row = cursor.execute(
+            "SELECT id FROM memories WHERE id = ?", (memory_id,)
+        ).fetchone()
         if not row:
             raise ValueError(f"Memory not found: {memory_id}")
 
@@ -674,39 +721,50 @@ class SemanticMemoryCapability(BaseCapability):
         cursor = self._db.cursor()
 
         # Ensure conversation exists
-        row = cursor.execute("SELECT id FROM conversations WHERE id = ?", (conversation_id,)).fetchone()
+        row = cursor.execute(
+            "SELECT id FROM conversations WHERE id = ?", (conversation_id,)
+        ).fetchone()
         if not row:
             # Create new conversation
-            cursor.execute("""
+            cursor.execute(
+                """
                 INSERT INTO conversations (id, created_at, updated_at, metadata)
                 VALUES (?, ?, ?, ?)
-            """, (
-                conversation_id,
-                datetime.utcnow().isoformat(),
-                datetime.utcnow().isoformat(),
-                json.dumps({}),
-            ))
+            """,
+                (
+                    conversation_id,
+                    datetime.utcnow().isoformat(),
+                    datetime.utcnow().isoformat(),
+                    json.dumps({}),
+                ),
+            )
 
         # Add turn
         turn_id = self._generate_id("turn")
-        cursor.execute("""
+        cursor.execute(
+            """
             INSERT INTO conversation_turns (id, conversation_id, role, content, timestamp, metadata)
             VALUES (?, ?, ?, ?, ?, ?)
-        """, (
-            turn_id,
-            conversation_id,
-            role,
-            content,
-            datetime.utcnow().isoformat(),
-            json.dumps(metadata or {}),
-        ))
+        """,
+            (
+                turn_id,
+                conversation_id,
+                role,
+                content,
+                datetime.utcnow().isoformat(),
+                json.dumps(metadata or {}),
+            ),
+        )
 
         # Update conversation timestamp
-        cursor.execute("""
+        cursor.execute(
+            """
             UPDATE conversations
             SET updated_at = ?
             WHERE id = ?
-        """, (datetime.utcnow().isoformat(), conversation_id))
+        """,
+            (datetime.utcnow().isoformat(), conversation_id),
+        )
 
         self._db.commit()
 
@@ -830,14 +888,22 @@ class SemanticMemoryCapability(BaseCapability):
 
         total = cursor.execute("SELECT COUNT(*) FROM memories").fetchone()[0]
         by_type = {}
-        for row in cursor.execute("SELECT memory_type, COUNT(*) as count FROM memories GROUP BY memory_type"):
+        for row in cursor.execute(
+            "SELECT memory_type, COUNT(*) as count FROM memories GROUP BY memory_type"
+        ):
             by_type[row[0]] = row[1]
 
-        avg_importance = cursor.execute("SELECT AVG(importance) FROM memories").fetchone()[0] or 0.0
-        with_embeddings = cursor.execute("SELECT COUNT(*) FROM memories WHERE has_embedding = 1").fetchone()[0]
+        avg_importance = (
+            cursor.execute("SELECT AVG(importance) FROM memories").fetchone()[0] or 0.0
+        )
+        with_embeddings = cursor.execute(
+            "SELECT COUNT(*) FROM memories WHERE has_embedding = 1"
+        ).fetchone()[0]
 
         total_convs = cursor.execute("SELECT COUNT(*) FROM conversations").fetchone()[0]
-        total_turns = cursor.execute("SELECT COUNT(*) FROM conversation_turns").fetchone()[0]
+        total_turns = cursor.execute(
+            "SELECT COUNT(*) FROM conversation_turns"
+        ).fetchone()[0]
 
         return {
             "total_memories": total,
@@ -877,19 +943,25 @@ class SemanticMemoryCapability(BaseCapability):
         to_delete = total - max_keep
 
         deleted_ids = []
-        rows = cursor.execute("""
+        rows = cursor.execute(
+            """
             SELECT id FROM memories
             ORDER BY importance ASC, access_count ASC, timestamp ASC
             LIMIT ?
-        """, (to_delete,)).fetchall()
+        """,
+            (to_delete,),
+        ).fetchall()
 
         for row in rows:
             deleted_ids.append(row[0])
 
-        cursor.execute(f"""
+        cursor.execute(
+            f"""
             DELETE FROM memories
             WHERE id IN ({','.join('?' * len(deleted_ids))})
-        """, deleted_ids)
+        """,
+            deleted_ids,
+        )
 
         self._db.commit()
 

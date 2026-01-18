@@ -85,8 +85,7 @@ class TestRetryConfig:
 
     def test_calculate_delay_exponential(self):
         """Test exponential delay calculation."""
-        config = RetryConfig(
-            base_delay=1.0, exponential_base=2.0, jitter=False)
+        config = RetryConfig(base_delay=1.0, exponential_base=2.0, jitter=False)
 
         assert config.calculate_delay(0) == 1.0  # 1 * 2^0
         assert config.calculate_delay(1) == 2.0  # 1 * 2^1
@@ -167,8 +166,7 @@ class TestRetryWithBackoff:
     @pytest.mark.asyncio
     async def test_non_retryable_exception_not_retried(self):
         """Test that non-retryable exceptions are not retried."""
-        mock_operation = AsyncMock(
-            side_effect=LLMProviderError("Non-retryable"))
+        mock_operation = AsyncMock(side_effect=LLMProviderError("Non-retryable"))
         config = RetryConfig(max_attempts=3, base_delay=0.01)
 
         with pytest.raises(LLMProviderError):
@@ -597,7 +595,7 @@ class TestRetryManagerMetrics:
         assert stats["total_contexts"] == 6
         assert stats["succeeded"] == 5
         assert stats["failed"] == 1
-        assert abs(stats["success_rate"] - 5/6) < 0.01
+        assert abs(stats["success_rate"] - 5 / 6) < 0.01
 
         metrics = stats["metrics"]
         assert metrics["immediate_success"] == 3

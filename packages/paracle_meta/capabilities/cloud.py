@@ -519,9 +519,11 @@ class CloudCapability(BaseCapability):
                             key=blob.name,
                             size=blob.size or 0,
                             last_modified=str(blob.last_modified),
-                            content_type=blob.content_settings.content_type
-                            if blob.content_settings
-                            else None,
+                            content_type=(
+                                blob.content_settings.content_type
+                                if blob.content_settings
+                                else None
+                            ),
                         ).__dict__
                     )
                 return result
@@ -640,9 +642,7 @@ class CloudCapability(BaseCapability):
             def get_secret():
                 client = secretmanager.SecretManagerServiceClient()
                 version = kwargs.get("version", "latest")
-                secret_name = (
-                    f"projects/{self.config.gcp_project}/secrets/{name}/versions/{version}"
-                )
+                secret_name = f"projects/{self.config.gcp_project}/secrets/{name}/versions/{version}"
                 response = client.access_secret_version(name=secret_name)
                 return {
                     "name": name,

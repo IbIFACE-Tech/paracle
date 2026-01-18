@@ -387,8 +387,7 @@ async def test_query_logs_by_action_type(audit):
     assert result.success is True
     assert result.output["count"] == 2
     assert all(
-        e["action_type"] == ActionType.FILE_READ.value
-        for e in result.output["entries"]
+        e["action_type"] == ActionType.FILE_READ.value for e in result.output["entries"]
     )
 
 

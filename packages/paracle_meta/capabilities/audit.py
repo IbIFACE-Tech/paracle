@@ -153,9 +153,7 @@ class SQLiteAuditStore:
         )
 
         # Indexes for common queries
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_agent_id ON audit_log(agent_id)"
-        )
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_agent_id ON audit_log(agent_id)")
         cursor.execute(
             "CREATE INDEX IF NOT EXISTS idx_timestamp ON audit_log(timestamp)"
         )
@@ -426,9 +424,7 @@ class SQLiteAuditStore:
         by_action_type = dict(cursor.fetchall())
 
         # Entries by agent
-        cursor.execute(
-            "SELECT agent_id, COUNT(*) FROM audit_log GROUP BY agent_id"
-        )
+        cursor.execute("SELECT agent_id, COUNT(*) FROM audit_log GROUP BY agent_id")
         by_agent = dict(cursor.fetchall())
 
         # Date range
@@ -584,15 +580,11 @@ class AuditCapability(BaseCapability):
         action_type_enum = None
         if action_type:
             action_type_enum = (
-                ActionType(action_type)
-                if isinstance(action_type, str)
-                else action_type
+                ActionType(action_type) if isinstance(action_type, str) else action_type
             )
 
         # Convert date strings to datetime
-        start_datetime = (
-            datetime.fromisoformat(start_date) if start_date else None
-        )
+        start_datetime = datetime.fromisoformat(start_date) if start_date else None
         end_datetime = datetime.fromisoformat(end_date) if end_date else None
 
         # Query entries

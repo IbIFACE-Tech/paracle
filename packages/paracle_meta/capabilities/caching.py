@@ -154,8 +154,7 @@ class MemoryCache:
 
         # Evict if necessary
         while (
-            self.current_size_bytes + size_bytes > self.max_size_bytes
-            and self._cache
+            self.current_size_bytes + size_bytes > self.max_size_bytes and self._cache
         ):
             self._evict_lru()
 
@@ -215,9 +214,7 @@ class MemoryCache:
             Dictionary with cache stats.
         """
         total_entries = len(self._cache)
-        expired_entries = sum(
-            1 for entry in self._cache.values() if entry.is_expired()
-        )
+        expired_entries = sum(1 for entry in self._cache.values() if entry.is_expired())
 
         return {
             "total_entries": total_entries,
@@ -494,9 +491,7 @@ class CachingCapability(BaseCapability):
         start = datetime.now(UTC)
 
         total_accesses = self._metrics["hits"] + self._metrics["misses"]
-        hit_rate = (
-            self._metrics["hits"] / total_accesses if total_accesses > 0 else 0.0
-        )
+        hit_rate = self._metrics["hits"] / total_accesses if total_accesses > 0 else 0.0
 
         cache_stats = self._cache.get_stats()
 

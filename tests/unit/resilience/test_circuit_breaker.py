@@ -15,8 +15,7 @@ class TestCircuitBreakerBasics:
 
     def test_circuit_breaker_creation(self):
         """Test circuit breaker initialization."""
-        circuit = CircuitBreaker(
-            "test_service", failure_threshold=5, timeout=60)
+        circuit = CircuitBreaker("test_service", failure_threshold=5, timeout=60)
         assert circuit.name == "test_service"
         assert circuit.state == CircuitBreakerState.CLOSED
         assert circuit.failure_count == 0
@@ -379,8 +378,7 @@ class TestCircuitBreakerMetrics:
         # Execute 3 failed calls (not enough to open circuit)
         for _ in range(3):
             with pytest.raises(ValueError):
-                circuit.call(lambda: (_ for _ in ()).throw(
-                    ValueError("error")))
+                circuit.call(lambda: (_ for _ in ()).throw(ValueError("error")))
 
         state = circuit.get_state()
         metrics = state["metrics"]
@@ -403,8 +401,7 @@ class TestCircuitBreakerMetrics:
         # 3 failed calls
         for _ in range(3):
             with pytest.raises(ValueError):
-                circuit.call(lambda: (_ for _ in ()).throw(
-                    ValueError("error")))
+                circuit.call(lambda: (_ for _ in ()).throw(ValueError("error")))
 
         state = circuit.get_state()
         metrics = state["metrics"]
@@ -422,8 +419,7 @@ class TestCircuitBreakerMetrics:
         # Open the circuit with 3 failures
         for _ in range(3):
             with pytest.raises(ValueError):
-                circuit.call(lambda: (_ for _ in ()).throw(
-                    ValueError("error")))
+                circuit.call(lambda: (_ for _ in ()).throw(ValueError("error")))
 
         assert circuit.state == CircuitBreakerState.OPEN
 
@@ -441,8 +437,7 @@ class TestCircuitBreakerMetrics:
 
         # Rejection rate calculation: rejected / (calls + rejected)
         total_requests = metrics["total_calls"] + metrics["total_rejected"]
-        assert metrics["rejection_rate"] == metrics["total_rejected"] / \
-            total_requests
+        assert metrics["rejection_rate"] == metrics["total_rejected"] / total_requests
 
     def test_metrics_rate_calculations(self):
         """Test that rate calculations are accurate."""
@@ -455,8 +450,7 @@ class TestCircuitBreakerMetrics:
         # 30 failures (threshold is 100, so won't open)
         for _ in range(30):
             with pytest.raises(ValueError):
-                circuit.call(lambda: (_ for _ in ()).throw(
-                    ValueError("error")))
+                circuit.call(lambda: (_ for _ in ()).throw(ValueError("error")))
 
         # Verify metrics before forcing rejections
         state = circuit.get_state()
@@ -486,17 +480,13 @@ class TestCircuitBreakerMetrics:
     def test_metrics_half_open_state(self):
         """Test metrics tracking during half-open state."""
         circuit = CircuitBreaker(
-            "test",
-            failure_threshold=2,
-            success_threshold=2,
-            timeout=0.1
+            "test", failure_threshold=2, success_threshold=2, timeout=0.1
         )
 
         # Open circuit
         for _ in range(2):
             with pytest.raises(ValueError):
-                circuit.call(lambda: (_ for _ in ()).throw(
-                    ValueError("error")))
+                circuit.call(lambda: (_ for _ in ()).throw(ValueError("error")))
 
         assert circuit.state == CircuitBreakerState.OPEN
 
@@ -531,8 +521,7 @@ class TestCircuitBreakerMetrics:
         # Failures to open circuit (CLOSED -> OPEN)
         for _ in range(2):
             with pytest.raises(ValueError):
-                circuit.call(lambda: (_ for _ in ()).throw(
-                    ValueError("error")))
+                circuit.call(lambda: (_ for _ in ()).throw(ValueError("error")))
 
         # Rejections while open
         for _ in range(3):
