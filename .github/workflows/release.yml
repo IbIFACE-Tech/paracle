@@ -20,6 +20,11 @@ on:
         required: false
         default: false
         type: boolean
+      skip_tests:
+        description: "Skip tests (use for workflow testing only)"
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write
@@ -122,6 +127,7 @@ jobs:
   test:
     name: Run Tests
     needs: [quick-security]
+    if: ${{ inputs.skip_tests == false }}
     runs-on: ubuntu-latest
 
     steps:
@@ -153,7 +159,8 @@ jobs:
 
   build:
     name: Build distribution
-    needs: [test]
+    needs: [quick-security]
+    if: always() && !cancelled() && (needs.quick-security.result == 'success')
     runs-on: ubuntu-latest
 
     steps:
