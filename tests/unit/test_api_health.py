@@ -23,7 +23,7 @@ class TestHealthRouter:
 
     def test_health_endpoint(self) -> None:
         """Test health check endpoint."""
-        response = self.client.get("/health")
+        response = self.client.get("/v1/health")
 
         assert response.status_code == 200
         data = response.json()

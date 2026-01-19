@@ -14,7 +14,21 @@ try:
     _using_defusedxml = True
 except ImportError:
     # Fallback to standard library with debug log only
+    # Security: Use defusedxml to prevent XML attacks (XXE, billion laughs, etc.)
+    pass
+
+try:
+    from defusedxml import ElementTree as ET
+except ImportError:
+    # Fallback to standard library with warning
     import xml.etree.ElementTree as ET
+    import warnings
+    warnings.warn(
+        "defusedxml not installed - XML parsing may be vulnerable. "
+        "Install with: pip install defusedxml",
+        SecurityWarning,
+        stacklevel=2
+    )
 
     _using_defusedxml = False
     # Log at debug level - only visible when debugging is enabled

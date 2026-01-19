@@ -11,7 +11,7 @@ from enum import Enum
 from typing import Any
 
 from paracle_domain.models import generate_id
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 
 class TaskStatus(str, Enum):
@@ -137,10 +137,7 @@ class Task(BaseModel):
     recurrence: str | None = None  # "daily", "weekly", "monthly", "cron:*/15 * * * *"
     template_id: str | None = None
 
-    class Config:
-        """Pydantic configuration."""
-
-        use_enum_values = True
+    model_config = ConfigDict(use_enum_values=True)
 
     def can_transition_to(self, new_status: TaskStatus) -> bool:
         """Check if task can transition to new status.

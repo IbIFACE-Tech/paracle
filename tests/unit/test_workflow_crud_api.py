@@ -12,9 +12,12 @@ class TestWorkflowCRUD:
     """Tests for /api/workflows CRUD endpoints."""
 
     @pytest.fixture(autouse=True)
-    def reset_repository(self) -> None:
+    def reset_repository(self, monkeypatch) -> None:
         """Reset the workflow repository before each test."""
         workflow_crud._repository.clear()
+        # Mock the loader to return None so tests use the repository
+        monkeypatch.setattr("paracle_api.routers.workflow_crud._loader", None)
+        monkeypatch.setattr("paracle_api.routers.workflow_crud._get_loader", lambda: None)
 
     @pytest.fixture
     def client(self) -> TestClient:
@@ -64,7 +67,8 @@ class TestWorkflowCRUD:
         for i in range(3):
             spec = sample_workflow_spec.copy()
             spec["name"] = f"workflow-{i}"
-            client.post("/api/workflows", json={"spec": spec})
+            create_response = client.post("/api/workflows", json={"spec": spec})
+            assert create_response.status_code == 201, f"Failed to create workflow {i}: {create_response.json()}"
 
         response = client.get("/api/workflows")
 

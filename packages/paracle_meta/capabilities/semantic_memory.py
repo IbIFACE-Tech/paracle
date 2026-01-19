@@ -406,7 +406,7 @@ class SemanticMemoryCapability(BaseCapability):
     def _generate_id(self, prefix: str = "mem") -> str:
         """Generate unique ID."""
         unique = f"{prefix}-{time.time()}-{np.random.randint(0, 1000000)}"
-        return hashlib.md5(unique.encode()).hexdigest()[:16]
+        return hashlib.sha256(unique.encode()).hexdigest()[:32][:16]
 
     async def _store_memory(
         self,

@@ -326,7 +326,7 @@ class SchedulerCapability(BaseCapability):
     def _generate_task_id(self, name: str) -> str:
         """Generate unique task ID."""
         unique = f"{name}-{time.time()}"
-        return hashlib.md5(unique.encode()).hexdigest()[:12]
+        return hashlib.sha256(unique.encode()).hexdigest()[:32][:12]
 
     async def _schedule_task(
         self,

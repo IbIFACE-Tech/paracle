@@ -230,25 +230,25 @@ def create_app(config: SecurityConfig | None = None) -> FastAPI:
     app.include_router(logs_router, prefix="/v1")
 
     # CRUD routers (protected)
-    app.include_router(agent_crud_router, prefix="/v1")
-    app.include_router(workflow_crud_router, prefix="/v1")
+    app.include_router(agent_crud_router)
+    app.include_router(workflow_crud_router)
     # Phase 4: Workflow execution
     app.include_router(workflow_execution_router, prefix="/v1")
-    app.include_router(tool_crud_router, prefix="/v1")
+    app.include_router(tool_crud_router)
     # Human-in-the-Loop approvals (ISO 42001)
     app.include_router(approvals_router, prefix="/v1")
     # Phase 5: Artifact reviews
     app.include_router(reviews_router, prefix="/v1")
 
     # Kanban boards and tasks
-    app.include_router(kanban_router, prefix="/v1")
+    app.include_router(kanban_router)
     # Observability (metrics, traces, alerts)
-    app.include_router(observability_router, prefix="/v1")
+    app.include_router(observability_router)
 
     # Auth router
     from paracle_api.routers.auth import router as auth_router
 
-    app.include_router(auth_router, prefix="/v1")
+    app.include_router(auth_router)
 
     # =========================================================================
     # Custom OpenAPI Schema with Security Schemes
@@ -342,3 +342,4 @@ def create_app(config: SecurityConfig | None = None) -> FastAPI:
 
 # Create the default application instance
 app = create_app()
+

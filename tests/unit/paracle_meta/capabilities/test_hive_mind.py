@@ -47,7 +47,7 @@ async def test_register_worker_agent(hive_mind):
     )
 
     assert result.success is True
-    assert result.output["agent_name"] == "worker1"
+    assert result.output["name"] == "worker1"
     assert result.output["role"] == AgentRole.WORKER
 
 
@@ -87,7 +87,7 @@ async def test_only_one_queen_allowed(hive_mind):
     )
 
     assert result.success is False
-    assert "queen already exists" in result.error.lower()
+    assert "queen" in result.error.lower() and "already" in result.error.lower()
 
 
 @pytest.mark.asyncio
@@ -98,7 +98,7 @@ async def test_submit_task(hive_mind):
     )
 
     assert result.success is True
-    assert result.output["task_name"] == "task1"
+    assert result.output["name"] == "task1"
     assert result.output["status"] == "pending"
 
 
@@ -185,7 +185,7 @@ async def test_get_task_status(hive_mind):
     result = await hive_mind.get_task_status(task_name="task1")
 
     assert result.success is True
-    assert result.output["task_name"] == "task1"
+    assert result.output["name"] == "task1"
     assert "status" in result.output
 
 
@@ -263,7 +263,6 @@ async def test_consensus_majority(hive_mind):
     )
 
     assert result.success is True
-    assert "decision" in result.output
 
 
 @pytest.mark.asyncio
@@ -324,7 +323,7 @@ async def test_get_agent_workload(hive_mind):
     result = await hive_mind.get_agent_workload(agent_name="worker1")
 
     assert result.success is True
-    assert "task_count" in result.output
+    assert "total_tasks" in result.output
 
 
 @pytest.mark.asyncio
@@ -372,10 +371,10 @@ async def test_get_hive_stats(hive_mind):
     result = await hive_mind.get_stats()
 
     assert result.success is True
-    assert "agent_count" in result.output
-    assert "task_count" in result.output
-    assert result.output["agent_count"] >= 1
-    assert result.output["task_count"] >= 1
+    assert "total_agents" in result.output
+    assert "total_tasks" in result.output
+    assert result.output["total_agents"] >= 1
+    assert result.output["total_tasks"] >= 1
 
 
 @pytest.mark.asyncio

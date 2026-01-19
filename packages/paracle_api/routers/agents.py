@@ -64,7 +64,13 @@ async def list_agents() -> AgentListResponse:
     parac_root = get_parac_root_or_raise()
     discovery = AgentDiscovery(parac_root)
 
-    agents = discovery.discover_agents()
+    try:
+        agents = discovery.discover_agents()
+    except FileNotFoundError:
+        raise HTTPException(
+            status_code=404,
+            detail="No .parac/ directory found. Initialize with paracle init.",
+        )
 
     return AgentListResponse(
         agents=[

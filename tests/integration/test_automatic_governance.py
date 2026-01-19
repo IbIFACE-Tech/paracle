@@ -309,7 +309,7 @@ class TestConcurrency:
         project_dir, parac_dir = temp_project
         monkeypatch.chdir(project_dir)
 
-        @log_agent_action("Worker", GovernanceActionType.IMPLEMENTATION)
+        @log_agent_action("Coder", GovernanceActionType.IMPLEMENTATION)
         async def concurrent_task(task_id: int):
             await asyncio.sleep(0.01)
             return f"Task {task_id} complete"
@@ -326,7 +326,7 @@ class TestConcurrency:
         log_content = log_file.read_text()
 
         # Should have 20 log entries
-        assert log_content.count("Worker") >= 20
+        assert log_content.count("Coder") >= 20
 
     @pytest.mark.asyncio
     async def test_concurrent_state_updates(self, temp_project, monkeypatch):

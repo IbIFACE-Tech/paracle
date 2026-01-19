@@ -591,6 +591,1158 @@
       "created_at": "2026-01-10T14:07:19.484219",
       "last_used": null,
       "metadata": {}
+    },
+    {
+      "id": "b7611f7e893e2631",
+      "name": "Pattern for Generate code",
+      "description": "Learned from 4 successful experiences",
+      "conditions": [
+        "Task: Generate code"
+      ],
+      "actions": [
+        "Used template pattern"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T03:48:23.817918",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "d6655577fd5a3997",
+      "name": "Pattern for Implement feature",
+      "description": "Learned from 19 successful experiences",
+      "conditions": [
+        "Task: Implement feature"
+      ],
+      "actions": [
+        "TDD approach"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T03:48:23.898442",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "31d97dcd54e53de7",
+      "name": "Pattern for Debug issue",
+      "description": "Learned from 4 successful experiences",
+      "conditions": [
+        "Task: Debug issue"
+      ],
+      "actions": [
+        "Added logging"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T03:48:23.963399",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "6a2211d4df871027",
+      "name": "Pattern for Write tests",
+      "description": "Learned from 4 successful experiences",
+      "conditions": [
+        "Task: Write tests"
+      ],
+      "actions": [
+        "Wrote 50 tests"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T03:48:24.024076",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "aacfe7a3ab6ef0f1",
+      "name": "Pattern for Task 1",
+      "description": "Learned from 4 successful experiences",
+      "conditions": [
+        "Task: Task 1"
+      ],
+      "actions": [
+        "Action 1"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T03:48:24.085538",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "886defc05c0ae2c9",
+      "name": "Pattern for Task 2",
+      "description": "Learned from 4 successful experiences",
+      "conditions": [
+        "Task: Task 2"
+      ],
+      "actions": [
+        "Action 2"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T03:48:24.088875",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "eedf87bcdfa57fe6",
+      "name": "Pattern for Task 1",
+      "description": "Learned from 10 successful experiences",
+      "conditions": [
+        "Task: Task 1"
+      ],
+      "actions": [
+        "Action 1"
+      ],
+      "success_rate": 0.7692307692307693,
+      "usage_count": 0,
+      "created_at": "2026-01-19T03:48:24.143150",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "fb916e3a0c118e29",
+      "name": "Pattern for Task 1",
+      "description": "Learned from 11 successful experiences",
+      "conditions": [
+        "Task: Task 1"
+      ],
+      "actions": [
+        "Action 1"
+      ],
+      "success_rate": 0.7857142857142857,
+      "usage_count": 0,
+      "created_at": "2026-01-19T03:48:24.197107",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "7773bcf06349b865",
+      "name": "Pattern for Implement feature 0",
+      "description": "Learned from 4 successful experiences",
+      "conditions": [
+        "Task: Implement feature 0"
+      ],
+      "actions": [
+        "Used TDD"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T03:48:24.243745",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "ddf6d0e1ab202396",
+      "name": "Pattern for Implement feature 1",
+      "description": "Learned from 4 successful experiences",
+      "conditions": [
+        "Task: Implement feature 1"
+      ],
+      "actions": [
+        "Used TDD"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T03:48:24.249500",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "620800133b351f82",
+      "name": "Pattern for Implement feature 2",
+      "description": "Learned from 4 successful experiences",
+      "conditions": [
+        "Task: Implement feature 2"
+      ],
+      "actions": [
+        "Used TDD"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T03:48:24.254454",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "b17cd6bb31bdb9c9",
+      "name": "Pattern for Implement feature 3",
+      "description": "Learned from 4 successful experiences",
+      "conditions": [
+        "Task: Implement feature 3"
+      ],
+      "actions": [
+        "Used TDD"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T03:48:24.259033",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "7f881af6230084c0",
+      "name": "Pattern for Implement feature 4",
+      "description": "Learned from 4 successful experiences",
+      "conditions": [
+        "Task: Implement feature 4"
+      ],
+      "actions": [
+        "Used TDD"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T03:48:24.263645",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "7bb36c7f24e91135",
+      "name": "Pattern for Task 0",
+      "description": "Learned from 7 successful experiences",
+      "conditions": [
+        "Task: Task 0"
+      ],
+      "actions": [
+        "Action 0"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T03:48:24.320507",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "c8f6240c358248b7",
+      "name": "Pattern for Task 4",
+      "description": "Learned from 7 successful experiences",
+      "conditions": [
+        "Task: Task 4"
+      ],
+      "actions": [
+        "Action 4"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T03:48:24.337543",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "a4d12ebd0289e09f",
+      "name": "Pattern for Task 6",
+      "description": "Learned from 7 successful experiences",
+      "conditions": [
+        "Task: Task 6"
+      ],
+      "actions": [
+        "Action 6"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T03:48:24.344707",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "2adf66bae738a892",
+      "name": "Pattern for Task 8",
+      "description": "Learned from 7 successful experiences",
+      "conditions": [
+        "Task: Task 8"
+      ],
+      "actions": [
+        "Action 8"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T03:48:24.354666",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "93a1ecb5df55e0c7",
+      "name": "Pattern for Deploy service",
+      "description": "Learned from 4 successful experiences",
+      "conditions": [
+        "Task: Deploy service"
+      ],
+      "actions": [
+        "Blue-green deployment"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T03:48:24.417282",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "2490a7c746553a41",
+      "name": "Pattern for Test task",
+      "description": "Learned from 4 successful experiences",
+      "conditions": [
+        "Task: Test task"
+      ],
+      "actions": [
+        "Test action"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T03:48:24.469203",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "8b8410ef7246af3d",
+      "name": "Pattern for Task 0",
+      "description": "Learned from 8 successful experiences",
+      "conditions": [
+        "Task: Task 0"
+      ],
+      "actions": [
+        "Action 0"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T03:48:24.567211",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "88b34fd3483994f5",
+      "name": "Pattern for Task 1",
+      "description": "Learned from 12 successful experiences",
+      "conditions": [
+        "Task: Task 1"
+      ],
+      "actions": [
+        "Action 1"
+      ],
+      "success_rate": 0.75,
+      "usage_count": 0,
+      "created_at": "2026-01-19T03:48:24.580796",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "78710d21ae96b4f7",
+      "name": "Pattern for Task 4",
+      "description": "Learned from 8 successful experiences",
+      "conditions": [
+        "Task: Task 4"
+      ],
+      "actions": [
+        "Action 4"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T03:48:24.598035",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "afe522e637b0230c",
+      "name": "Pattern for Task 6",
+      "description": "Learned from 8 successful experiences",
+      "conditions": [
+        "Task: Task 6"
+      ],
+      "actions": [
+        "Action 6"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T03:48:24.614096",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "05725af4de159ea6",
+      "name": "Pattern for Task 8",
+      "description": "Learned from 8 successful experiences",
+      "conditions": [
+        "Task: Task 8"
+      ],
+      "actions": [
+        "Action 8"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T03:48:24.624666",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "ba2cf2ada65c2e55",
+      "name": "Pattern for Generate code",
+      "description": "Learned from 5 successful experiences",
+      "conditions": [
+        "Task: Generate code"
+      ],
+      "actions": [
+        "Used template pattern"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T06:26:35.339274",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "196dfe5bd8ed8d1a",
+      "name": "Pattern for Implement feature",
+      "description": "Learned from 25 successful experiences",
+      "conditions": [
+        "Task: Implement feature"
+      ],
+      "actions": [
+        "TDD approach"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T06:26:35.439237",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "98fcd0ca45e33fee",
+      "name": "Pattern for Debug issue",
+      "description": "Learned from 5 successful experiences",
+      "conditions": [
+        "Task: Debug issue"
+      ],
+      "actions": [
+        "Added logging"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T06:26:35.782267",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "15a60cce6f78e07f",
+      "name": "Pattern for Write tests",
+      "description": "Learned from 5 successful experiences",
+      "conditions": [
+        "Task: Write tests"
+      ],
+      "actions": [
+        "Wrote 50 tests"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T06:26:35.848045",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "cf143c5446119456",
+      "name": "Pattern for Task 1",
+      "description": "Learned from 5 successful experiences",
+      "conditions": [
+        "Task: Task 1"
+      ],
+      "actions": [
+        "Action 1"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T06:26:35.922931",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "ee35fd5d32cff3e3",
+      "name": "Pattern for Task 2",
+      "description": "Learned from 5 successful experiences",
+      "conditions": [
+        "Task: Task 2"
+      ],
+      "actions": [
+        "Action 2"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T06:26:35.932237",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "7ef16b9468cfdd48",
+      "name": "Pattern for Task 1",
+      "description": "Learned from 13 successful experiences",
+      "conditions": [
+        "Task: Task 1"
+      ],
+      "actions": [
+        "Action 1"
+      ],
+      "success_rate": 0.7647058823529411,
+      "usage_count": 0,
+      "created_at": "2026-01-19T06:26:36.010040",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "9b0c195c66c02cfa",
+      "name": "Pattern for Task 1",
+      "description": "Learned from 14 successful experiences",
+      "conditions": [
+        "Task: Task 1"
+      ],
+      "actions": [
+        "Action 1"
+      ],
+      "success_rate": 0.7777777777777778,
+      "usage_count": 0,
+      "created_at": "2026-01-19T06:26:36.082805",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "268135186564dd81",
+      "name": "Pattern for Implement feature 0",
+      "description": "Learned from 5 successful experiences",
+      "conditions": [
+        "Task: Implement feature 0"
+      ],
+      "actions": [
+        "Used TDD"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T06:26:36.155835",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "29173b7ab08dc4a8",
+      "name": "Pattern for Implement feature 1",
+      "description": "Learned from 5 successful experiences",
+      "conditions": [
+        "Task: Implement feature 1"
+      ],
+      "actions": [
+        "Used TDD"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T06:26:36.163307",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "90999c8d11352af9",
+      "name": "Pattern for Implement feature 2",
+      "description": "Learned from 5 successful experiences",
+      "conditions": [
+        "Task: Implement feature 2"
+      ],
+      "actions": [
+        "Used TDD"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T06:26:36.171355",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "39153a6160a69f33",
+      "name": "Pattern for Implement feature 3",
+      "description": "Learned from 5 successful experiences",
+      "conditions": [
+        "Task: Implement feature 3"
+      ],
+      "actions": [
+        "Used TDD"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T06:26:36.180307",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "4de02d5e6ec8b524",
+      "name": "Pattern for Implement feature 4",
+      "description": "Learned from 5 successful experiences",
+      "conditions": [
+        "Task: Implement feature 4"
+      ],
+      "actions": [
+        "Used TDD"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T06:26:36.191070",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "3111cd6eb818edd2",
+      "name": "Pattern for Task 0",
+      "description": "Learned from 9 successful experiences",
+      "conditions": [
+        "Task: Task 0"
+      ],
+      "actions": [
+        "Action 0"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T06:26:36.301320",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "d766abd137112d4f",
+      "name": "Pattern for Task 4",
+      "description": "Learned from 9 successful experiences",
+      "conditions": [
+        "Task: Task 4"
+      ],
+      "actions": [
+        "Action 4"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T06:26:36.316967",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "479fc5ba0ffb5fed",
+      "name": "Pattern for Task 6",
+      "description": "Learned from 9 successful experiences",
+      "conditions": [
+        "Task: Task 6"
+      ],
+      "actions": [
+        "Action 6"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T06:26:36.329717",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "f7deb200e53e6865",
+      "name": "Pattern for Task 8",
+      "description": "Learned from 9 successful experiences",
+      "conditions": [
+        "Task: Task 8"
+      ],
+      "actions": [
+        "Action 8"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T06:26:36.348503",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "7596873ed1355f34",
+      "name": "Pattern for Deploy service",
+      "description": "Learned from 5 successful experiences",
+      "conditions": [
+        "Task: Deploy service"
+      ],
+      "actions": [
+        "Blue-green deployment"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T06:26:36.428270",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "2d8a3eb83bd58c6a",
+      "name": "Pattern for Test task",
+      "description": "Learned from 5 successful experiences",
+      "conditions": [
+        "Task: Test task"
+      ],
+      "actions": [
+        "Test action"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T06:26:36.491149",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "ed3564da5793a575",
+      "name": "Pattern for Task 0",
+      "description": "Learned from 10 successful experiences",
+      "conditions": [
+        "Task: Task 0"
+      ],
+      "actions": [
+        "Action 0"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T06:26:36.566818",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "2c47b26646fd66d9",
+      "name": "Pattern for Task 1",
+      "description": "Learned from 15 successful experiences",
+      "conditions": [
+        "Task: Task 1"
+      ],
+      "actions": [
+        "Action 1"
+      ],
+      "success_rate": 0.75,
+      "usage_count": 0,
+      "created_at": "2026-01-19T06:26:36.578578",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "8bc71e0160c7947b",
+      "name": "Pattern for Task 4",
+      "description": "Learned from 10 successful experiences",
+      "conditions": [
+        "Task: Task 4"
+      ],
+      "actions": [
+        "Action 4"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T06:26:36.590405",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "78fd1c84c96eb89a",
+      "name": "Pattern for Task 6",
+      "description": "Learned from 10 successful experiences",
+      "conditions": [
+        "Task: Task 6"
+      ],
+      "actions": [
+        "Action 6"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T06:26:36.611068",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "5ef8c6d720b882c6",
+      "name": "Pattern for Task 8",
+      "description": "Learned from 10 successful experiences",
+      "conditions": [
+        "Task: Task 8"
+      ],
+      "actions": [
+        "Action 8"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T06:26:36.623880",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "6bacff59d0b29d5f",
+      "name": "Pattern for Generate code",
+      "description": "Learned from 6 successful experiences",
+      "conditions": [
+        "Task: Generate code"
+      ],
+      "actions": [
+        "Used template pattern"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T07:20:07.999102",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "5218046938217d9b",
+      "name": "Pattern for Implement feature",
+      "description": "Learned from 31 successful experiences",
+      "conditions": [
+        "Task: Implement feature"
+      ],
+      "actions": [
+        "TDD approach"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T07:20:08.189074",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "d455b1eedb69e890",
+      "name": "Pattern for Debug issue",
+      "description": "Learned from 6 successful experiences",
+      "conditions": [
+        "Task: Debug issue"
+      ],
+      "actions": [
+        "Added logging"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T07:20:08.630025",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "af56c79a82467c14",
+      "name": "Pattern for Write tests",
+      "description": "Learned from 6 successful experiences",
+      "conditions": [
+        "Task: Write tests"
+      ],
+      "actions": [
+        "Wrote 50 tests"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T07:20:08.719005",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "f91ddfc2bd239715",
+      "name": "Pattern for Task 1",
+      "description": "Learned from 6 successful experiences",
+      "conditions": [
+        "Task: Task 1"
+      ],
+      "actions": [
+        "Action 1"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T07:20:08.857619",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "87fe5fa382fd33fc",
+      "name": "Pattern for Task 2",
+      "description": "Learned from 6 successful experiences",
+      "conditions": [
+        "Task: Task 2"
+      ],
+      "actions": [
+        "Action 2"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T07:20:08.869383",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "5db4548210bd93a8",
+      "name": "Pattern for Task 1",
+      "description": "Learned from 16 successful experiences",
+      "conditions": [
+        "Task: Task 1"
+      ],
+      "actions": [
+        "Action 1"
+      ],
+      "success_rate": 0.7619047619047619,
+      "usage_count": 0,
+      "created_at": "2026-01-19T07:20:08.967248",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "0755dd89e9c8d139",
+      "name": "Pattern for Task 1",
+      "description": "Learned from 17 successful experiences",
+      "conditions": [
+        "Task: Task 1"
+      ],
+      "actions": [
+        "Action 1"
+      ],
+      "success_rate": 0.7727272727272727,
+      "usage_count": 0,
+      "created_at": "2026-01-19T07:20:09.077273",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "7c01742aa6c068b7",
+      "name": "Pattern for Implement feature 0",
+      "description": "Learned from 6 successful experiences",
+      "conditions": [
+        "Task: Implement feature 0"
+      ],
+      "actions": [
+        "Used TDD"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T07:20:09.186745",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "41bb8dac911d0560",
+      "name": "Pattern for Implement feature 1",
+      "description": "Learned from 6 successful experiences",
+      "conditions": [
+        "Task: Implement feature 1"
+      ],
+      "actions": [
+        "Used TDD"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T07:20:09.203224",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "39fe55209e69b8e3",
+      "name": "Pattern for Implement feature 2",
+      "description": "Learned from 6 successful experiences",
+      "conditions": [
+        "Task: Implement feature 2"
+      ],
+      "actions": [
+        "Used TDD"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T07:20:09.212437",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "d5c7b445d12e5a78",
+      "name": "Pattern for Implement feature 3",
+      "description": "Learned from 6 successful experiences",
+      "conditions": [
+        "Task: Implement feature 3"
+      ],
+      "actions": [
+        "Used TDD"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T07:20:09.230936",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "504ddb89bf60f973",
+      "name": "Pattern for Implement feature 4",
+      "description": "Learned from 6 successful experiences",
+      "conditions": [
+        "Task: Implement feature 4"
+      ],
+      "actions": [
+        "Used TDD"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T07:20:09.242553",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "bb3a6647aab5da22",
+      "name": "Pattern for Task 0",
+      "description": "Learned from 11 successful experiences",
+      "conditions": [
+        "Task: Task 0"
+      ],
+      "actions": [
+        "Action 0"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T07:20:09.344511",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "7fe4338fd445ed79",
+      "name": "Pattern for Task 4",
+      "description": "Learned from 11 successful experiences",
+      "conditions": [
+        "Task: Task 4"
+      ],
+      "actions": [
+        "Action 4"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T07:20:09.366713",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "46d44affd0333300",
+      "name": "Pattern for Task 6",
+      "description": "Learned from 11 successful experiences",
+      "conditions": [
+        "Task: Task 6"
+      ],
+      "actions": [
+        "Action 6"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T07:20:09.378637",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "9e442200917d0117",
+      "name": "Pattern for Task 8",
+      "description": "Learned from 11 successful experiences",
+      "conditions": [
+        "Task: Task 8"
+      ],
+      "actions": [
+        "Action 8"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T07:20:09.392827",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "9bf61e9c560e162a",
+      "name": "Pattern for Deploy service",
+      "description": "Learned from 6 successful experiences",
+      "conditions": [
+        "Task: Deploy service"
+      ],
+      "actions": [
+        "Blue-green deployment"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T07:20:09.508258",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "3ad9e0b3c7aaa494",
+      "name": "Pattern for Test task",
+      "description": "Learned from 6 successful experiences",
+      "conditions": [
+        "Task: Test task"
+      ],
+      "actions": [
+        "Test action"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T07:20:09.593244",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "641478de732b6444",
+      "name": "Pattern for Task 0",
+      "description": "Learned from 12 successful experiences",
+      "conditions": [
+        "Task: Task 0"
+      ],
+      "actions": [
+        "Action 0"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T07:20:09.714037",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "1dacf9f1ed103f49",
+      "name": "Pattern for Task 1",
+      "description": "Learned from 18 successful experiences",
+      "conditions": [
+        "Task: Task 1"
+      ],
+      "actions": [
+        "Action 1"
+      ],
+      "success_rate": 0.75,
+      "usage_count": 0,
+      "created_at": "2026-01-19T07:20:09.742384",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "ac400f7a352ba4e1",
+      "name": "Pattern for Task 4",
+      "description": "Learned from 12 successful experiences",
+      "conditions": [
+        "Task: Task 4"
+      ],
+      "actions": [
+        "Action 4"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T07:20:09.758025",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "af06062b8106d098",
+      "name": "Pattern for Task 6",
+      "description": "Learned from 12 successful experiences",
+      "conditions": [
+        "Task: Task 6"
+      ],
+      "actions": [
+        "Action 6"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T07:20:09.778374",
+      "last_used": null,
+      "metadata": {}
+    },
+    {
+      "id": "a31556a5afe93287",
+      "name": "Pattern for Task 8",
+      "description": "Learned from 12 successful experiences",
+      "conditions": [
+        "Task: Task 8"
+      ],
+      "actions": [
+        "Action 8"
+      ],
+      "success_rate": 1.0,
+      "usage_count": 0,
+      "created_at": "2026-01-19T07:20:09.799718",
+      "last_used": null,
+      "metadata": {}
     }
   ]
 }

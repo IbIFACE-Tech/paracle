@@ -36,6 +36,25 @@
 
 > **`.parac/` is the single source of truth. Read it. Follow it. Log to it.**
 
+## 🚨 CRITICAL: Keep Root Folder Clean
+
+**NEVER create files in project root except these allowed files:**
+
+✅ **Allowed in root**: README.md, CHANGELOG.md, CONTRIBUTING.md, CODE_OF_CONDUCT.md, SECURITY.md, LICENSE, pyproject.toml, Makefile, MANIFEST.in, mkdocs.yml, uv.lock, CLAUDE.md
+
+❌ **FORBIDDEN in root**:
+
+- Temporary scripts (→ `scripts/temp/`)
+- Reports/summaries (→ `.parac/memory/summaries/`)
+- Test files (→ `tests/`)
+- Data files (→ `.parac/memory/data/` or `data/`)
+- Log files (→ `.parac/memory/logs/`)
+- Documentation (→ `content/docs/`)
+- Examples (→ `content/examples/`)
+- Any `*.py`, `*.md`, `*.json`, `*.txt` files except allowed ones
+
+**Before creating ANY file, check [.parac/STRUCTURE.md](../.parac/STRUCTURE.md) for proper location!**
+
 ## 🚨 MANDATORY: Pre-Flight Checklist
 
 **Before ANY implementation task:**

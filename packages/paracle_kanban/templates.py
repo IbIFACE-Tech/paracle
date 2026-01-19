@@ -10,7 +10,7 @@ from datetime import datetime
 from typing import Any
 
 from paracle_domain.models import generate_id
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 from paracle_kanban.task import Task, TaskPriority, TaskType
 
@@ -58,10 +58,7 @@ class TaskTemplate(BaseModel):
         default_factory=dict
     )  # {"var_name": "description"}
 
-    class Config:
-        """Pydantic configuration."""
-
-        use_enum_values = True
+    model_config = ConfigDict(use_enum_values=True)
 
     def create_task(
         self, board_id: str, variables: dict[str, str] | None = None

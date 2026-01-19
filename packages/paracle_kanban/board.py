@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Any
 
 from paracle_domain.models import generate_id
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 from paracle_kanban.task import Task, TaskPriority, TaskStatus
 
@@ -97,10 +97,7 @@ class Board(BaseModel):
     default_view: str = "kanban"  # kanban, list, calendar, timeline
     sprint_config: dict[str, Any] = Field(default_factory=dict)
 
-    class Config:
-        """Pydantic configuration."""
-
-        use_enum_values = True
+    model_config = ConfigDict(use_enum_values=True)
 
 
 class BoardRepository:

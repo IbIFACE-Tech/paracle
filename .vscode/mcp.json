@@ -19,6 +19,13 @@
     "mermaid-mcp": {
       "url": "https://mcp.mermaidchart.com/mcp",
       "type": "http"
+    },
+    "markitdown": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": [
+        "markitdown-mcp"
+      ]
     }
   }
 }

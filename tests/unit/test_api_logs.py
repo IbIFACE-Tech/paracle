@@ -59,7 +59,7 @@ class TestLogsAPI:
     def test_log_action(self, client: TestClient, temp_parac_project: Path) -> None:
         """Test POST /logs/action endpoint."""
         response = client.post(
-            "/logs/action",
+            "/v1/logs/action",
             json={
                 "action": "SYNC",
                 "description": "Test sync action",
@@ -80,7 +80,7 @@ class TestLogsAPI:
     ) -> None:
         """Test POST /logs/action with details."""
         response = client.post(
-            "/logs/action",
+            "/v1/logs/action",
             json={
                 "action": "IMPLEMENTATION",
                 "description": "Added new feature",
@@ -99,7 +99,7 @@ class TestLogsAPI:
     ) -> None:
         """Test POST /logs/action uses SystemAgent by default."""
         response = client.post(
-            "/logs/action",
+            "/v1/logs/action",
             json={
                 "action": "UPDATE",
                 "description": "Updated configuration",
@@ -113,7 +113,7 @@ class TestLogsAPI:
     def test_log_decision(self, client: TestClient, temp_parac_project: Path) -> None:
         """Test POST /logs/decision endpoint."""
         response = client.post(
-            "/logs/decision",
+            "/v1/logs/decision",
             json={
                 "agent": "ArchitectAgent",
                 "decision": "Use hexagonal architecture",
@@ -136,14 +136,14 @@ class TestLogsAPI:
         # First, log some actions
         for i in range(5):
             client.post(
-                "/logs/action",
+                "/v1/logs/action",
                 json={
                     "action": "UPDATE",
                     "description": f"Action {i}",
                 },
             )
 
-        response = client.get("/logs/recent?count=3")
+        response = client.get("/v1/logs/recent?count=3")
 
         assert response.status_code == 200
         data = response.json()
@@ -154,7 +154,7 @@ class TestLogsAPI:
         self, client: TestClient, temp_parac_project: Path
     ) -> None:
         """Test GET /logs/recent with default count."""
-        response = client.get("/logs/recent")
+        response = client.get("/v1/logs/recent")
 
         assert response.status_code == 200
         data = response.json()
@@ -165,14 +165,14 @@ class TestLogsAPI:
         """Test GET /logs/today endpoint."""
         # Log an action today
         client.post(
-            "/logs/action",
+            "/v1/logs/action",
             json={
                 "action": "SYNC",
                 "description": "Today's action",
             },
         )
 
-        response = client.get("/logs/today")
+        response = client.get("/v1/logs/today")
 
         assert response.status_code == 200
         data = response.json()
@@ -183,7 +183,7 @@ class TestLogsAPI:
         """Test GET /logs/agent/{agent} endpoint."""
         # Log actions from different agents
         client.post(
-            "/logs/action",
+            "/v1/logs/action",
             json={
                 "action": "IMPLEMENTATION",
                 "description": "Code 1",
@@ -191,15 +191,15 @@ class TestLogsAPI:
             },
         )
         client.post(
-            "/logs/action",
+            "/v1/logs/action",
             json={"action": "TEST", "description": "Test 1", "agent": "TesterAgent"},
         )
         client.post(
-            "/logs/action",
+            "/v1/logs/action",
             json={"action": "BUGFIX", "description": "Code 2", "agent": "CoderAgent"},
         )
 
-        response = client.get("/logs/agent/CoderAgent")
+        response = client.get("/v1/logs/agent/CoderAgent")
 
         assert response.status_code == 200
         data = response.json()
@@ -211,7 +211,7 @@ class TestLogsAPI:
         self, client: TestClient, temp_parac_project: Path
     ) -> None:
         """Test GET /logs/agent/{agent} with invalid agent."""
-        response = client.get("/logs/agent/InvalidAgent")
+        response = client.get("/v1/logs/agent/InvalidAgent")
 
         assert response.status_code == 400
         assert "Invalid agent" in response.json()["detail"]
@@ -226,7 +226,7 @@ class TestLogsAPI:
         monkeypatch.chdir(empty_dir)
 
         response = client.post(
-            "/logs/action",
+            "/v1/logs/action",
             json={
                 "action": "SYNC",
                 "description": "Should fail",
@@ -241,7 +241,7 @@ class TestLogsAPI:
     ) -> None:
         """Test POST /logs/action with invalid action type."""
         response = client.post(
-            "/logs/action",
+            "/v1/logs/action",
             json={
                 "action": "INVALID_ACTION",
                 "description": "Should fail",
@@ -272,7 +272,7 @@ class TestLogsAPI:
 
         for action_type in action_types:
             response = client.post(
-                "/logs/action",
+                "/v1/logs/action",
                 json={
                     "action": action_type,
                     "description": f"Test {action_type}",
@@ -296,7 +296,7 @@ class TestLogsAPI:
 
         for agent_type in agent_types:
             response = client.post(
-                "/logs/action",
+                "/v1/logs/action",
                 json={
                     "action": "UPDATE",
                     "description": f"Test {agent_type}",

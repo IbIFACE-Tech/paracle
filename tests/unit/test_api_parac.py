@@ -71,7 +71,7 @@ class TestParacRouter:
     def test_status_no_parac(self, tmp_path: Path) -> None:
         """Test status endpoint when no .parac/ exists."""
         os.chdir(tmp_path)
-        response = self.client.get("/parac/status")
+        response = self.client.get("/v1/parac/status")
 
         assert response.status_code == 404
         assert ".parac/" in response.json()["detail"]
@@ -79,7 +79,7 @@ class TestParacRouter:
     def test_status_success(self, temp_parac_project: Path) -> None:
         """Test status endpoint with valid .parac/."""
         os.chdir(temp_parac_project)
-        response = self.client.get("/parac/status")
+        response = self.client.get("/v1/parac/status")
 
         assert response.status_code == 200
         data = response.json()
@@ -93,7 +93,7 @@ class TestParacRouter:
         """Test sync endpoint."""
         os.chdir(temp_parac_project)
         response = self.client.post(
-            "/parac/sync",
+            "/v1/parac/sync",
             json={"update_git": False, "update_metrics": True},
         )
 
@@ -105,7 +105,7 @@ class TestParacRouter:
     def test_sync_default_options(self, temp_parac_project: Path) -> None:
         """Test sync endpoint with default options."""
         os.chdir(temp_parac_project)
-        response = self.client.post("/parac/sync")
+        response = self.client.post("/v1/parac/sync")
 
         assert response.status_code == 200
         data = response.json()
@@ -114,7 +114,7 @@ class TestParacRouter:
     def test_validate_success(self, temp_parac_project: Path) -> None:
         """Test validate endpoint with valid workspace."""
         os.chdir(temp_parac_project)
-        response = self.client.get("/parac/validate")
+        response = self.client.get("/v1/parac/validate")
 
         assert response.status_code == 200
         data = response.json()
@@ -125,7 +125,7 @@ class TestParacRouter:
     def test_session_start(self, temp_parac_project: Path) -> None:
         """Test session start endpoint."""
         os.chdir(temp_parac_project)
-        response = self.client.post("/parac/session/start")
+        response = self.client.post("/v1/parac/session/start")
 
         assert response.status_code == 200
         data = response.json()
@@ -137,7 +137,7 @@ class TestParacRouter:
         """Test session end endpoint with dry run."""
         os.chdir(temp_parac_project)
         response = self.client.post(
-            "/parac/session/end",
+            "/v1/parac/session/end",
             json={
                 "progress": 50,
                 "completed": ["task_a"],
@@ -155,7 +155,7 @@ class TestParacRouter:
         """Test session end endpoint applying changes."""
         os.chdir(temp_parac_project)
         response = self.client.post(
-            "/parac/session/end",
+            "/v1/parac/session/end",
             json={
                 "progress": 75,
                 "completed": ["task_a"],
@@ -185,7 +185,7 @@ class TestParacRouter:
         """Test session end endpoint with no changes."""
         os.chdir(temp_parac_project)
         response = self.client.post(
-            "/parac/session/end",
+            "/v1/parac/session/end",
             json={"dry_run": False},
         )
 
@@ -201,14 +201,14 @@ class TestParacRouter:
 
         # Test invalid progress (over 100)
         response = self.client.post(
-            "/parac/session/end",
+            "/v1/parac/session/end",
             json={"progress": 150},
         )
         assert response.status_code == 422  # Validation error
 
         # Test invalid progress (negative)
         response = self.client.post(
-            "/parac/session/end",
+            "/v1/parac/session/end",
             json={"progress": -10},
         )
         assert response.status_code == 422  # Validation error

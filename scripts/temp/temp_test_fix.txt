@@ -1,0 +1,17 @@
+﻿    def test_list_workflows(
+        self, client: TestClient, sample_workflow_spec: dict
+    ) -> None:
+        '''Test GET /api/workflows.'''
+        # Create some workflows
+        for i in range(3):
+            spec = sample_workflow_spec.copy()
+            spec[\"name\"] = f\"workflow-{i}\"
+            create_response = client.post(\"/api/workflows\", json={\"spec\": spec})
+            assert create_response.status_code == 201, f\"Failed to create workflow {i}: {create_response.json()}\"
+
+        response = client.get(\"/api/workflows\")
+
+        assert response.status_code == 200
+        data = response.json()
+        assert \"workflows\" in data
+        assert data[\"total\"] >= 3

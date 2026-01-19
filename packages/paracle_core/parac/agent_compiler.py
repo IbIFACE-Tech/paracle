@@ -177,6 +177,7 @@ class AgentCompiler:
                 loader=FileSystemLoader(self.TEMPLATES_DIR),
                 trim_blocks=True,
                 lstrip_blocks=True,
+                autoescape=True,  # Security: Enable autoescape to prevent XSS
             )
         else:
             logger.warning(f"Templates directory not found: {self.TEMPLATES_DIR}")

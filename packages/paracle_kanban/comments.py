@@ -10,7 +10,7 @@ from datetime import datetime
 from typing import Any
 
 from paracle_domain.models import generate_id
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 
 class TaskComment(BaseModel):
@@ -40,10 +40,7 @@ class TaskComment(BaseModel):
     mentions: list[str] = Field(default_factory=list)
     attachments: list[dict[str, str]] = Field(default_factory=list)
 
-    class Config:
-        """Pydantic configuration."""
-
-        use_enum_values = True
+    model_config = ConfigDict(use_enum_values=True)
 
 
 class TaskActivity(BaseModel):
@@ -71,7 +68,4 @@ class TaskActivity(BaseModel):
     old_value: Any = None
     new_value: Any = None
 
-    class Config:
-        """Pydantic configuration."""
-
-        use_enum_values = True
+    model_config = ConfigDict(use_enum_values=True)

@@ -107,7 +107,7 @@ class ResponseCacheMiddleware(BaseHTTPMiddleware):
             str(sorted(request.query_params.items())),
         ]
         key_str = "|".join(key_parts)
-        return f"response:{hashlib.md5(key_str.encode()).hexdigest()}"
+        return f"response:{hashlib.sha256(key_str.encode()).hexdigest()[:32]}"
 
     def _should_bypass_cache(self, request: Request) -> bool:
         """Check if request should bypass cache."""

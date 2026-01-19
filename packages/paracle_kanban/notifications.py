@@ -12,7 +12,7 @@ from enum import Enum
 from typing import Any
 
 from paracle_domain.models import generate_id
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 
 class NotificationChannel(str, Enum):
@@ -73,10 +73,7 @@ class Notification(BaseModel):
     read_at: datetime | None = None
     status: str = "pending"  # pending, sent, failed, read
 
-    class Config:
-        """Pydantic configuration."""
-
-        use_enum_values = True
+    model_config = ConfigDict(use_enum_values=True)
 
 
 class NotificationRule(BaseModel):
@@ -100,10 +97,7 @@ class NotificationRule(BaseModel):
     channels: list[NotificationChannel]
     enabled: bool = True
 
-    class Config:
-        """Pydantic configuration."""
-
-        use_enum_values = True
+    model_config = ConfigDict(use_enum_values=True)
 
 
 class NotificationManager:

@@ -298,7 +298,7 @@ class ReflexionCapability(BaseCapability):
     def _generate_id(self, data: str) -> str:
         """Generate unique ID from data."""
         unique = f"{data}-{time.time()}"
-        return hashlib.md5(unique.encode()).hexdigest()[:16]
+        return hashlib.sha256(unique.encode()).hexdigest()[:32][:16]
 
     async def _record_experience(
         self,

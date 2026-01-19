@@ -59,6 +59,7 @@ Toute décision architecturale, tout changement de scope, toute modification de 
 ### Règle 2: Immutabilité des Décisions
 
 Une fois une décision documentée dans `decisions.md`:
+
 - Elle ne peut PAS être modifiée sans créer une nouvelle ADR
 - L'historique est préservé
 - Les raisons de changement sont documentées
@@ -66,6 +67,7 @@ Une fois une décision documentée dans `decisions.md`:
 ### Règle 3: Synchronisation Obligatoire
 
 Avant et après chaque session de travail:
+
 1. **Début**: Lire `current_state.yaml` pour contexte
 2. **Fin**: Mettre à jour `current_state.yaml` avec les changements
 
@@ -119,18 +121,18 @@ Quand un deliverable majeur est complété:
    ```yaml
    deliverables:
      - name: "Feature X"
-       status: completed  # ← Changer
-       completion: 100%   # ← Mettre à 100%
-       completed_date: "YYYY-MM-DD"  # ← Ajouter
+       status: completed # ← Changer
+       completion: 100% # ← Mettre à 100%
+       completed_date: "YYYY-MM-DD" # ← Ajouter
    ```
 
 2. **Mettre à jour `current_state.yaml`**
 
    ```yaml
    current_phase:
-     progress: XX%  # ← Recalculer
+     progress: XX% # ← Recalculer
      completed:
-       - feature_x  # ← Ajouter
+       - feature_x # ← Ajouter
    ```
 
 3. **Vérifier la cohérence**
@@ -237,17 +239,43 @@ Quand un deliverable majeur est complété:
 
 **Users MAY customize project root** (add docs, config files, etc.) based on their needs, but `.parac/` structure is sacred.
 
-### Recommended Root Files (Not Enforced)
+### Allowed Root Files (STRICTLY ENFORCED)
 
 ```text
+# Core Project Files (ALLOWED)
 README.md          # Project overview
 CHANGELOG.md       # Version history
 CONTRIBUTING.md    # Contribution guide
 CODE_OF_CONDUCT.md # Code of conduct
 SECURITY.md        # Security policy
+LICENSE            # License file
+pyproject.toml     # Python project config
+Makefile           # Build automation
+MANIFEST.in        # Package manifest
+mkdocs.yml         # Documentation config
+uv.lock            # UV lock file
+CLAUDE.md          # IDE instructions (if needed)
+
+# Configuration Files (ALLOWED)
+.gitignore, .gitattributes
+.editorconfig, .pre-commit-config.yaml
+.readthedocs.yaml, .mcp.json
+.env.example
+
+# ALL OTHER FILES MUST GO IN PROPER DIRECTORIES
 ```
 
-**Strong recommendation**: Keep root clean by placing technical docs in `docs/` or `content/docs/` and examples in `examples/` or `content/examples/`.
+**🚨 CRITICAL RULE**: **NEVER create temporary scripts, reports, or non-root files in project root!**
+
+**Proper Locations**:
+
+- **Scripts/fixes** → `scripts/` or `scripts/temp/`
+- **Reports/summaries** → `.parac/memory/summaries/`
+- **Documentation** → `content/docs/`
+- **Examples** → `content/examples/`
+- **Test files** → `tests/`
+- **Data files** → `data/` or `.parac/memory/data/`
+- **Temporary files** → Delete or move to `scripts/temp/`
 
 ### File Placement Rules
 
@@ -296,6 +324,7 @@ Creating a new file?
 ### Enforcement
 
 All AI agents MUST:
+
 1. ✅ Check file placement rules before creating files
 2. ✅ Use proper directories (`.parac/` or `content/`)
 3. ❌ NEVER create markdown/docs in project root
@@ -355,6 +384,7 @@ L'agent IA (Claude, GitHub Copilot, etc.) DOIT:
 - 📖 **Voir**: `content/docs/agent-execution-model.md` pour explication complète
 
 1. **Lire `.parac/` au début de chaque session**
+
    ```
    SOURCE OF TRUTH: .parac/memory/context/current_state.yaml
    ```
@@ -376,12 +406,14 @@ L'agent IA (Claude, GitHub Copilot, etc.) DOIT:
 ### Prompts Obligatoires
 
 **Début de session:**
+
 ```
 Je vais lire l'état actuel du projet depuis .parac/memory/context/current_state.yaml
 pour m'assurer de travailler avec le contexte correct.
 ```
 
 **Fin de session:**
+
 ```
 Avant de terminer, je propose les mises à jour suivantes pour .parac/:
 1. current_state.yaml: [changements]
@@ -409,11 +441,13 @@ Avant chaque commit touchant `.parac/`:
 ### Audit Périodique
 
 **Hebdomadaire:**
+
 - Vérifier cohérence `current_state.yaml` vs réalité
 - Mettre à jour les métriques
 - Créer `weekly_summary.md`
 
 **Par Phase:**
+
 - Audit complet de `.parac/`
 - Vérifier toutes les décisions documentées
 - Archiver les artefacts de phase
@@ -455,6 +489,7 @@ Avant chaque commit touchant `.parac/`:
 ## Évolution de ce Protocole
 
 Ce document (`GOVERNANCE.md`) peut être mis à jour pour:
+
 - Ajouter de nouvelles règles
 - Clarifier des processus existants
 - Documenter des exceptions approuvées
