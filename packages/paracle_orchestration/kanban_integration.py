@@ -164,9 +164,7 @@ class TaskWorkflowSync:
             True if task was updated, False otherwise
         """
         # Map workflow status to task status
-        new_status = TaskWorkflowSync.WORKFLOW_TO_TASK_STATUS.get(
-            context.status, None
-        )
+        new_status = TaskWorkflowSync.WORKFLOW_TO_TASK_STATUS.get(context.status, None)
 
         if new_status is None or task.status == new_status:
             return False
@@ -335,7 +333,8 @@ def execute_workflow_from_task(
 
     # Execute workflow
     context = workflow_engine.execute(
-        workflow_id, inputs=task.metadata.get("inputs", {}))
+        workflow_id, inputs=task.metadata.get("inputs", {})
+    )
 
     # Link task to workflow
     TaskWorkflowSync.link_task_to_workflow(context, task.id)

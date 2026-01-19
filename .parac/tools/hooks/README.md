@@ -1,5 +1,10 @@
 # Paracle Governance Hooks
 
+> **⚠️ IMPORTANT - Dogfooding Séparation**
+> Ce répertoire contient les outils de **GOUVERNANCE** (maintenir `.parac/`).
+> Pour les outils de **DÉVELOPPEMENT** du framework, voir `scripts/`.
+> Voir [DOGFOODING_SEPARATION.md](../DOGFOODING_SEPARATION.md) pour la distinction complète.
+
 Ce répertoire contient les scripts de mise à jour automatique de `.parac/`.
 
 ## 🔄 Synchronisation des Agents
@@ -76,9 +81,13 @@ paracle agents get tester
 ### agent-logger.py
 Logger pour tracer les actions des agents dans `.parac/memory/logs/`.
 
+**Méthode 1: Ligne de commande (détaillé)**
 ```bash
 # Logger une action
 python .parac/tools/hooks/agent-logger.py CoderAgent IMPLEMENTATION "Added webhook system"
+
+# Logger un bugfix
+python .parac/tools/hooks/agent-logger.py CoderAgent BUGFIX "Fixed docker import error in sandbox module"
 
 # Logger une décision
 python .parac/tools/hooks/agent-logger.py ArchitectAgent DECISION "Use event sourcing" \
@@ -87,8 +96,19 @@ python .parac/tools/hooks/agent-logger.py ArchitectAgent DECISION "Use event sou
   --impact "Medium impact on persistence"
 ```
 
-Utilisation depuis Python:
+**Méthode 2: Helper Scripts (simplifié - recommandé)**
+```powershell
+# Windows PowerShell
+.\.parac\tools\hooks\log-fix.ps1 "Fixed docker import error"
 
+# Linux/Mac Bash
+bash .parac/tools/hooks/log-fix.sh "Fixed docker import error"
+
+# Avec agent et action personnalisés
+.\.parac\tools\hooks\log-fix.ps1 "Updated docs" -Agent DocumenterAgent -Action DOCUMENTATION
+```
+
+**Méthode 3: Depuis Python**
 ```python
 from parac.tools.hooks.agent_logger import AgentLogger
 
@@ -101,6 +121,17 @@ logger.log_decision(
     "High impact - restructure packages"
 )
 ```
+
+**Types d'Actions Supportés:**
+- `IMPLEMENTATION` - Nouvelle fonctionnalité
+- `BUGFIX` - Correction d'erreur
+- `TEST` - Tests ajoutés/modifiés
+- `REVIEW` - Code review
+- `DOCUMENTATION` - Mise à jour docs
+- `DECISION` - Décision architecturale
+- `PLANNING` - Planification
+- `REFACTORING` - Refactoring
+- `UPDATE` - Mise à jour générale
 
 ### pre-session.py
 Vérifie l'état de `.parac/` avant une session de travail.

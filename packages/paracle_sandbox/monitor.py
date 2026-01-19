@@ -6,8 +6,12 @@ from collections.abc import Callable
 from datetime import datetime
 from typing import Any
 
-from paracle_sandbox.docker_sandbox import DockerSandbox
 from paracle_sandbox.exceptions import ResourceLimitError
+
+try:
+    from paracle_sandbox.docker_sandbox import DockerSandbox
+except ImportError:
+    DockerSandbox = None  # type: ignore
 
 logger = logging.getLogger(__name__)
 
@@ -52,12 +56,12 @@ class SandboxMonitor:
     async def start(self) -> None:
         """Start monitoring."""
         if self._task and not self._task.done():
-            logger.warning(f"Monitor already running for {self.sandbox.sandbox_id}")
+            logger.warning("Monitor already running for %s", self.sandbox.sandbox_id)
             return
 
         self._stop_event.clear()
         self._task = asyncio.create_task(self._monitor_loop())
-        logger.info(f"Started monitoring {self.sandbox.sandbox_id}")
+        logger.info("Started monitoring %s", self.sandbox.sandbox_id)
 
     async def stop(self) -> None:
         """Stop monitoring."""
@@ -65,7 +69,7 @@ class SandboxMonitor:
         if self._task:
             await self._task
             self._task = None
-        logger.info(f"Stopped monitoring {self.sandbox.sandbox_id}")
+        logger.info("Stopped monitoring %s", self.sandbox.sandbox_id)
 
     async def _monitor_loop(self) -> None:
         """Main monitoring loop."""
@@ -107,16 +111,18 @@ class SandboxMonitor:
                     await self.sandbox.check_limits()
                 except ResourceLimitError as e:
                     logger.error(
-                        f"Resource limit exceeded in {self.sandbox.sandbox_id}: {e}"
+                        "Resource limit exceeded in %s: %s",
+                        self.sandbox.sandbox_id,
+                        e,
                     )
                     if self.on_limit_exceeded:
                         try:
                             self.on_limit_exceeded(stats)
                         except Exception as cb_error:
-                            logger.error(f"Limit callback failed: {cb_error}")
+                            logger.error("Limit callback failed: %s", cb_error)
 
             except Exception as e:
-                logger.error(f"Monitor error for {self.sandbox.sandbox_id}: {e}")
+                logger.error("Monitor error for %s: %s", self.sandbox.sandbox_id, e)
 
             # Wait for next interval
             try:

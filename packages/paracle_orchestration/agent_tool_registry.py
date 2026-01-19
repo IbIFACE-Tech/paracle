@@ -3,8 +3,9 @@
 import logging
 from typing import Any
 
-from paracle_tools import (  # Architect tools; Coder tools; Git tools (shared by coder and releasemanager); GitHub CLI tool (for releasemanager); Documenter tools; Reviewer tools; PM tools; Terminal tools (for IDE agents); Tester tools; Release Manager tools
+from paracle_tools import (  # Architect tools; Coder tools; Git tools (shared by coder and releasemanager); GitHub CLI tool (for releasemanager); Documenter tools; Reviewer tools; PM tools; Terminal tools (for IDE agents); Tester tools; Release Manager tools; QA tools
     api_doc_generation,
+    bats_testing,
     changelog_generation,
     cicd_integration,
     code_analysis,
@@ -13,6 +14,7 @@ from paracle_tools import (  # Architect tools; Coder tools; Git tools (shared b
     coverage_analysis,
     diagram_creation,
     diagram_generation,
+    dredd_testing,
     git_add,
     git_branch,
     git_checkout,
@@ -29,11 +31,17 @@ from paracle_tools import (  # Architect tools; Coder tools; Git tools (shared b
     git_status,
     git_tag,
     github_cli,
+    load_testing,
     markdown_generation,
     milestone_management,
+    newman_testing,
     package_publishing,
     pattern_matching,
+    performance_profiling,
+    playwright_testing,
+    quality_metrics,
     refactoring,
+    schemathesis_testing,
     security_scan,
     static_analysis,
     task_tracking,
@@ -42,6 +50,7 @@ from paracle_tools import (  # Architect tools; Coder tools; Git tools (shared b
     terminal_info,
     terminal_interactive,
     terminal_which,
+    test_automation,
     test_execution,
     test_generation,
     testing,
@@ -154,6 +163,30 @@ class AgentToolRegistry:
             "terminal": {
                 "terminal_execute": terminal_execute,
                 "terminal_interactive": terminal_interactive,
+                "terminal_info": terminal_info,
+                "terminal_which": terminal_which,
+            },
+            # QA Agent (Senior QA Architect) with comprehensive testing tools
+            "qa": {
+                # Core QA tools
+                "performance_profiling": performance_profiling,
+                "load_testing": load_testing,
+                "quality_metrics": quality_metrics,
+                "test_automation": test_automation,
+                # Modern CLI/API/UI testing frameworks
+                "bats_testing": bats_testing,
+                "dredd_testing": dredd_testing,
+                "schemathesis_testing": schemathesis_testing,
+                "newman_testing": newman_testing,
+                "playwright_testing": playwright_testing,
+                # Reuse existing tools from tester and reviewer
+                "test_generation": test_generation,
+                "test_execution": test_execution,
+                "coverage_analysis": coverage_analysis,
+                "static_analysis": static_analysis,
+                "security_scan": security_scan,
+                # Terminal access for running test commands
+                "terminal_execute": terminal_execute,
                 "terminal_info": terminal_info,
                 "terminal_which": terminal_which,
             },

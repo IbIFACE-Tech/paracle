@@ -5,9 +5,20 @@ import logging
 from contextlib import asynccontextmanager
 from typing import Any
 
-import docker
-from docker.errors import APIError, ImageNotFound
-from docker.models.containers import Container
+# Docker is an optional dependency
+try:
+    import docker
+    from docker.errors import APIError, ImageNotFound
+    from docker.models.containers import Container
+
+    DOCKER_AVAILABLE = True
+except ImportError:
+    docker = None  # type: ignore
+    APIError = Exception  # type: ignore
+    ImageNotFound = Exception  # type: ignore
+    Container = None  # type: ignore
+    DOCKER_AVAILABLE = False
+
 from paracle_sandbox.config import SandboxConfig
 from paracle_sandbox.exceptions import (
     ResourceLimitError,
@@ -37,7 +48,22 @@ class DockerSandbox:
         Args:
             sandbox_id: Unique sandbox identifier
             config: Sandbox configuration
+
+        Raises:
+            ImportError: If docker package is not installed
         """
+        if not DOCKER_AVAILABLE:
+            raise ImportError(
+                "Docker SDK for Python is not installed.\n\n"
+                "Sandbox features require Docker. To enable sandbox support:\n\n"
+                "1. Install Docker Desktop: https://www.docker.com/products/docker-desktop\n"
+                "2. Install Python dependencies:\n"
+                "   pip install paracle[sandbox]\n"
+                "   or\n"
+                "   pip install docker psutil\n\n"
+                "Note: Sandbox features are optional. You can use Paracle without them."
+            )
+
         self.sandbox_id = sandbox_id
         self.config = config
         self.container: Container | None = None
@@ -54,7 +80,16 @@ class DockerSandbox:
         """
         try:
             # Initialize Docker client
-            self._client = docker.from_env()
+            try:
+                self._client = docker.from_env()
+            except Exception as e:
+                raise SandboxCreationError(
+                    "Failed to connect to Docker daemon.\n\n"
+                    "Please ensure Docker is running:\n"
+                    "  - Windows/Mac: Start Docker Desktop\n"
+                    "  - Linux: sudo systemctl start docker\n\n"
+                    f"Error: {e}"
+                ) from e
 
             # Pull image if not present
             try:

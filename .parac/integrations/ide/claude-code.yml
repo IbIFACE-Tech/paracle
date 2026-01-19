@@ -1,7 +1,7 @@
 # Claude Code GitHub Action for Paracle
 # Auto-generated from .parac/ - DO NOT EDIT MANUALLY
 # Regenerate with: paracle ide sync --copy
-# Generated: 2026-01-08T16:50:20.359271
+# Generated: 2026-01-11T05:37:53.005484
 #
 # This workflow enables Claude Code to work on your repository.
 # Documentation: https://docs.anthropic.com/claude-code/github-action
@@ -13,11 +13,6 @@ on:
     types: [created]
   pull_request_review_comment:
     types: [created]
-
-# Environment variables for Paracle
-env:
-  PARACLE_PROJECT: paracle-lite
-  PARACLE_PHASE: phase_10
 
 jobs:
   claude-code:
@@ -37,7 +32,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: Install Paracle
         run: |
@@ -56,3 +51,8 @@ jobs:
         if: success()
         run: |
           echo "[$(date -Iseconds)] [ClaudeAction] [CI] GitHub Action completed" >> .parac/memory/logs/agent_actions.log
+
+# Environment variables for Paracle
+env:
+  PARACLE_PROJECT: paracle-lite
+  PARACLE_PHASE: phase_10

@@ -1,7 +1,8 @@
 """Tests for ExecutionContext and ExecutionStatus."""
 
-from datetime import UTC, datetime
+from datetime import datetime
 
+from paracle_core.compat import UTC
 from paracle_orchestration.context import ExecutionContext, ExecutionStatus
 
 

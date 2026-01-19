@@ -270,8 +270,7 @@ class MCPAPIBridge:
 
             if mapping.body_params:
                 # POST/PUT: Parameters go in body
-                body = {k: v for k, v in arguments.items()
-                        if k in mapping.body_params}
+                body = {k: v for k, v in arguments.items() if k in mapping.body_params}
             else:
                 # GET/DELETE: Parameters go in query string
                 params = {
@@ -294,8 +293,7 @@ class MCPAPIBridge:
             elif mapping.http_method == "DELETE":
                 response = self.client.delete(url, params=params)
             else:
-                raise ValueError(
-                    f"Unsupported HTTP method: {mapping.http_method}")
+                raise ValueError(f"Unsupported HTTP method: {mapping.http_method}")
 
             response.raise_for_status()
             return response.json()
@@ -339,8 +337,7 @@ class MCPAPIBridge:
 
         try:
             repo = BoardRepository()
-            boards = repo.list_boards(
-                include_archived=arguments.get("archived", False))
+            boards = repo.list_boards(include_archived=arguments.get("archived", False))
 
             return {
                 "boards": [

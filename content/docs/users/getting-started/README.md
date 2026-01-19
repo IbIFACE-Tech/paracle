@@ -362,10 +362,10 @@ See [Contributing Guide](CONTRIBUTING.md)
 
 ## 🔗 External Resources
 
-- [GitHub Repository](https://github.com/IbIFACE-Tech/paracle-lite)
+- [GitHub Repository](https://github.com/IbIFACE-Tech/paracle)
 - [PyPI Package](https://pypi.org/project/paracle/)
-- [Issue Tracker](https://github.com/IbIFACE-Tech/paracle-lite/issues)
-- [Discussions](https://github.com/IbIFACE-Tech/paracle-lite/discussions)
+- [Issue Tracker](https://github.com/IbIFACE-Tech/paracle/issues)
+- [Discussions](https://github.com/IbIFACE-Tech/paracle/discussions)
 
 ---
 

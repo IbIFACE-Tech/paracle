@@ -228,8 +228,8 @@ docker-compose -f docker/docker-compose.yaml build
 
 ```bash
 # Tag
-docker tag paracle-lite-api:latest registry.example.com/paracle/api:v0.0.1
-docker tag paracle-lite-worker:latest registry.example.com/paracle/worker:v0.0.1
+docker tag paracle-api:latest registry.example.com/paracle/api:v0.0.1
+docker tag paracle-worker:latest registry.example.com/paracle/worker:v0.0.1
 
 # Push
 docker push registry.example.com/paracle/api:v0.0.1

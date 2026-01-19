@@ -1,6 +1,7 @@
 """Paracle CLI - Command Line Interface."""
 
 import click
+from paracle_core.version import __version__
 from rich.console import Console
 
 from paracle_cli.commands.a2a import a2a
@@ -15,6 +16,7 @@ from paracle_cli.commands.compliance import compliance
 from paracle_cli.commands.config import config
 from paracle_cli.commands.conflicts import conflicts
 from paracle_cli.commands.cost import cost
+from paracle_cli.commands.doctor import doctor
 from paracle_cli.commands.errors import errors
 from paracle_cli.commands.git import git
 from paracle_cli.commands.governance import governance
@@ -24,6 +26,7 @@ from paracle_cli.commands.inventory import inventory
 from paracle_cli.commands.logs import logs
 from paracle_cli.commands.mcp import mcp
 from paracle_cli.commands.meta import meta
+from paracle_cli.commands.metrics import metrics
 from paracle_cli.commands.parac import init, parac, session, status, sync
 from paracle_cli.commands.parac import validate as parac_validate
 from paracle_cli.commands.pool import pool
@@ -46,7 +49,7 @@ console = Console()
 
 
 @click.group()
-@click.version_option(version="1.0.0")
+@click.version_option(version=__version__)
 def cli() -> None:
     """Paracle - User-driven multi-agent framework.
 
@@ -98,6 +101,12 @@ cli.add_command(providers)
 
 # Cost tracking
 cli.add_command(cost)
+
+# System health check
+cli.add_command(doctor, name="doctor")
+
+# Business metrics
+cli.add_command(metrics)
 
 # Error management and monitoring
 cli.add_command(errors)
@@ -160,10 +169,13 @@ cli.add_command(parac)
 @cli.command()
 def hello() -> None:
     """Verify Paracle installation."""
-    console.print("[bold green]Paracle v1.0.0[/bold green]")
+    from paracle_core.version import format_version
+
+    console.print(f"[bold green]{format_version()}[/bold green]")
     console.print("\n[cyan]Framework successfully installed![/cyan]")
     console.print("\nGet started:")
     console.print("  paracle init              - Initialize a project")
+    console.print("  paracle doctor            - System health check")
     console.print("  paracle agents list       - List available agents")
     console.print("  paracle agents run coder -t 'Fix bug'  - Run an agent")
     console.print("  paracle governance list   - List policies")

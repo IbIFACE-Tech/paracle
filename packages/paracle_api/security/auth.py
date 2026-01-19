@@ -15,7 +15,8 @@ from pydantic import BaseModel, Field
 
 # Optional dependencies - checked at runtime when actually used
 try:
-    from jose import JWTError, jwt
+    import jwt
+    from jwt.exceptions import InvalidTokenError as JWTError
 
     JWT_AVAILABLE = True
 except ImportError:
@@ -32,7 +33,8 @@ except ImportError:
     PASSLIB_AVAILABLE = False
 
 if TYPE_CHECKING:
-    from jose import jwt
+    import jwt
+    from jwt.exceptions import InvalidTokenError as JWTError
     from passlib.context import CryptContext
 
 from paracle_api.security.config import SecurityConfig, get_security_config
@@ -46,8 +48,8 @@ def _check_auth_dependencies() -> None:
     """
     if not JWT_AVAILABLE:
         raise ImportError(
-            "python-jose is required for authentication. "
-            "Install with: pip install python-jose[cryptography]"
+            "PyJWT is required for authentication. "
+            "Install with: pip install pyjwt[crypto]"
         )
     if not PASSLIB_AVAILABLE:
         raise ImportError(
@@ -57,16 +59,17 @@ def _check_auth_dependencies() -> None:
 
 
 # Password hashing context - created lazily
-_pwd_context: "CryptContext | None" = None
+_pwd_context: CryptContext | None = None
 
 
-def _get_pwd_context() -> "CryptContext":
+def _get_pwd_context() -> CryptContext:
     """Get password context, creating it if needed."""
     global _pwd_context
     if _pwd_context is None:
         _check_auth_dependencies()
         _pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
     return _pwd_context
+
 
 # OAuth2 scheme for token extraction
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/token", auto_error=False)

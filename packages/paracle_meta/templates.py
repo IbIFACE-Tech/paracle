@@ -388,7 +388,7 @@ class TemplateLibrary:
             updated_at=datetime.fromisoformat(row[10]),
             source=row[11],
             version=row[12],
-            metadata=eval(row[13]) if row[13] else {},
+            metadata=ast.literal_eval(row[13]) if row[13] else {},
         )
 
     def _init_database(self) -> None:

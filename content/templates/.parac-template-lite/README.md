@@ -37,7 +37,7 @@ paracle agents run myagent --task "Your task here"
 
 ## 📚 Documentation
 
-- [Paracle Docs](https://github.com/IbIFACE-Tech/paracle-lite)
+- [Paracle Docs](https://github.com/IbIFACE-Tech/paracle)
 - [Quick Reference](docs/quickstart.md)
 - [Agent Guide](docs/agent-guide.md)
 

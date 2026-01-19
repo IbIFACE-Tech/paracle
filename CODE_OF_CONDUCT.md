@@ -130,7 +130,7 @@ Community Impact Guidelines were inspired by [Mozilla's code of conduct enforcem
 For questions about this Code of Conduct, please contact:
 
 - **Email**: conduct@paracle.ai
-- **GitHub Discussions**: [Paracle Discussions](https://github.com/IbIFACE-Tech/paracle-lite/discussions)
+- **GitHub Discussions**: [Paracle Discussions](https://github.com/IbIFACE-Tech/paracle/discussions)
 
 ---
 

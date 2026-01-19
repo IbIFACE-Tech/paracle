@@ -32,7 +32,6 @@ Example:
 """
 
 from paracle_sandbox.config import SandboxConfig
-from paracle_sandbox.docker_sandbox import DockerSandbox
 from paracle_sandbox.exceptions import (
     DockerConnectionError,
     ResourceLimitError,
@@ -45,6 +44,12 @@ from paracle_sandbox.exceptions import (
 from paracle_sandbox.executor import SandboxExecutor
 from paracle_sandbox.manager import SandboxManager
 from paracle_sandbox.monitor import SandboxMonitor
+
+# Optional: DockerSandbox requires docker package
+try:
+    from paracle_sandbox.docker_sandbox import DockerSandbox
+except ImportError:
+    DockerSandbox = None  # type: ignore
 
 __all__ = [
     "SandboxManager",

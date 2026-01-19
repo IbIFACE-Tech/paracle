@@ -208,7 +208,10 @@ class TestMultiLanguageCapability:
     def test_init(self, capability):
         """Test capability initialization."""
         assert capability.name == "multi_language_execution"
-        assert "Python" in capability.description or "python" in capability.description.lower()
+        assert (
+            "Python" in capability.description
+            or "python" in capability.description.lower()
+        )
 
     @pytest.mark.asyncio
     async def test_initialize(self, capability):
@@ -329,10 +332,7 @@ class TestJavaScriptExecutor:
 
     @pytest.mark.asyncio
     @pytest.mark.skipif(
-        not any(
-            Path(p).exists()
-            for p in ["/usr/bin/node", "/usr/local/bin/node"]
-        )
+        not any(Path(p).exists() for p in ["/usr/bin/node", "/usr/local/bin/node"])
         and sys.platform != "win32",
         reason="Node.js not installed",
     )
@@ -392,7 +392,9 @@ class TestBashExecutor:
         return tmp_path
 
     @pytest.mark.asyncio
-    @pytest.mark.skipif(sys.platform == "win32", reason="Bash may not be available on Windows")
+    @pytest.mark.skipif(
+        sys.platform == "win32", reason="Bash may not be available on Windows"
+    )
     async def test_execute_simple(self, config, temp_dir):
         """Test simple Bash execution."""
         executor = BashExecutor(config, temp_dir)

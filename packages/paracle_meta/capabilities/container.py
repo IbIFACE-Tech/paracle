@@ -153,7 +153,8 @@ class ContainerCapability(BaseCapability):
         # Try Docker first
         try:
             proc = await asyncio.create_subprocess_exec(
-                "docker", "version",
+                "docker",
+                "version",
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
             )
@@ -166,7 +167,8 @@ class ContainerCapability(BaseCapability):
         # Try Podman
         try:
             proc = await asyncio.create_subprocess_exec(
-                "podman", "version",
+                "podman",
+                "version",
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
             )
@@ -649,9 +651,7 @@ class ContainerCapability(BaseCapability):
     async def _inspect(self, container: str, **kwargs) -> ContainerResult:
         """Inspect a container."""
         start_time = time.time()
-        returncode, stdout, stderr = await self._run_command(
-            ["inspect", container]
-        )
+        returncode, stdout, stderr = await self._run_command(["inspect", container])
         duration_ms = (time.time() - start_time) * 1000
 
         info = None
@@ -789,7 +789,9 @@ class ContainerCapability(BaseCapability):
         )
 
     # Convenience methods
-    async def build(self, path: str = ".", tag: str = None, **kwargs) -> CapabilityResult:
+    async def build(
+        self, path: str = ".", tag: str = None, **kwargs
+    ) -> CapabilityResult:
         """Build a container image."""
         return await self.execute(action="build", path=path, tag=tag, **kwargs)
 

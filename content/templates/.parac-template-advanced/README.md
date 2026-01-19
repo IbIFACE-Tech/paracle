@@ -93,7 +93,7 @@ GitHub Actions workflows are configured in `.github/workflows/`:
 ## Support
 
 - Documentation: https://paracle.dev/templates/advanced
-- Issues: https://github.com/IbIFACE-Tech/paracle-lite/issues
+- Issues: https://github.com/IbIFACE-Tech/paracle/issues
 - Discord: https://discord.gg/paracle
 
 ---

@@ -10,7 +10,7 @@ We are committed to providing a welcoming and inclusive environment. Please be r
 
 ### Reporting Bugs
 
-1. Check if the bug has already been reported in [Issues](https://github.com/IbIFACE-Tech/paracle-lite/issues)
+1. Check if the bug has already been reported in [Issues](https://github.com/IbIFACE-Tech/paracle/issues)
 2. If not, create a new issue with:
    - Clear title and description
    - Steps to reproduce
@@ -50,11 +50,11 @@ We are committed to providing a welcoming and inclusive environment. Please be r
 
 ```bash
 # Clone your fork
-git clone https://github.com/YOUR-USERNAME/paracle-lite.git
-cd paracle-lite
+git clone https://github.com/YOUR-USERNAME/paracle.git
+cd paracle
 
 # Add upstream remote
-git remote add upstream https://github.com/IbIFACE-Tech/paracle-lite.git
+git remote add upstream https://github.com/IbIFACE-Tech/paracle.git
 
 # Install dependencies
 make install-dev
@@ -235,8 +235,8 @@ Maintainers handle releases.
 
 ## Getting Help
 
-- **Questions**: Open a [Discussion](https://github.com/IbIFACE-Tech/paracle-lite/discussions)
-- **Bugs**: Open an [Issue](https://github.com/IbIFACE-Tech/paracle-lite/issues)
+- **Questions**: Open a [Discussion](https://github.com/IbIFACE-Tech/paracle/discussions)
+- **Bugs**: Open an [Issue](https://github.com/IbIFACE-Tech/paracle/issues)
 - **Security**: Email security@ibiface-tech.com
 
 ## Recognition

@@ -34,6 +34,104 @@ Log action to `.parac/memory/logs/agent_actions.log`:
 
 Document architectural decisions in `.parac/roadmap/decisions.md`.
 
+## 🚨 CRITICAL: File Placement Rules (MANDATORY)
+
+### Root Directory Policy
+
+**NEVER create files in project root. Only 5 standard files allowed:**
+
+- ✅ README.md - Project overview
+- ✅ CHANGELOG.md - Version history
+- ✅ CONTRIBUTING.md - Contribution guidelines
+- ✅ CODE_OF_CONDUCT.md - Code of conduct
+- ✅ SECURITY.md - Security policy
+
+**❌ ANY OTHER FILE IN ROOT IS FORBIDDEN AND WILL BE MOVED**
+
+### File Placement Decision Tree
+
+When creating ANY new file:
+
+```
+Creating a new file?
+├─ Standard docs? → Project root (5 files only)
+├─ Project governance/memory/decisions?
+│  ├─ Phase completion report → .parac/memory/summaries/phase_*.md
+│  ├─ Implementation summary → .parac/memory/summaries/*.md
+│  ├─ Testing/metrics report → .parac/memory/summaries/*.md
+│  ├─ Knowledge/analysis → .parac/memory/knowledge/*.md
+│  ├─ Decision (ADR) → .parac/roadmap/decisions.md
+│  ├─ Agent spec → .parac/agents/specs/*.md
+│  ├─ Log file → .parac/memory/logs/*.log
+│  └─ Operational data → .parac/memory/data/*.db
+└─ User-facing content?
+   ├─ Documentation → content/docs/
+   │  ├─ Features → content/docs/features/
+   │  ├─ Troubleshooting → content/docs/troubleshooting/
+   │  └─ Technical → content/docs/technical/
+   ├─ Examples → content/examples/
+   └─ Templates → content/templates/
+```
+
+### Quick Placement Rules
+
+| What You're Creating    | Where It Goes                        | ❌ NOT Here           |
+| ----------------------- | ------------------------------------ | -------------------- |
+| Phase completion report | `.parac/memory/summaries/phase_*.md` | Root `*_COMPLETE.md` |
+| Implementation summary  | `.parac/memory/summaries/*.md`       | Root `*_SUMMARY.md`  |
+| Testing report          | `.parac/memory/summaries/*.md`       | Root `*_TESTS.md`    |
+| Analysis/knowledge      | `.parac/memory/knowledge/*.md`       | Root `*_REPORT.md`   |
+| Bug fix documentation   | `content/docs/troubleshooting/*.md`  | Root `*_ERROR.md`    |
+| Feature documentation   | `content/docs/features/*.md`         | Root `*_FEATURE.md`  |
+| User guide              | `content/docs/*.md`                  | Root `*_GUIDE.md`    |
+| Code example            | `content/examples/*.py`              | Root `example_*.py`  |
+
+### Enforcement Checklist
+
+Before creating ANY file:
+
+1. ✅ Is it one of the 5 standard root files? → Root, otherwise continue
+2. ✅ Is it project governance/memory? → `.parac/`
+3. ✅ Is it user-facing documentation? → `content/docs/`
+4. ✅ Is it a code example? → `content/examples/`
+5. ❌ NEVER put reports, summaries, or docs in root
+
+**See [.parac/STRUCTURE.md](../.parac/STRUCTURE.md) for complete reference.**
+
+### File Organization Policy
+
+📋 **Comprehensive Policy**: [.parac/policies/FILE_ORGANIZATION.md](../policies/FILE_ORGANIZATION.md)
+
+**Coder-Specific Guidelines**:
+
+```python
+
+# When creating implementation summaries or reports
+from paracle_core.parac import find_parac_root
+from pathlib import Path
+
+# ✅ CORRECT - Implementation summaries go to .parac/memory/summaries/
+summary_path = find_parac_root() / "memory" / "summaries" / "feature_implementation.md"
+
+# ✅ CORRECT - Performance optimization reports go to summaries
+report_path = find_parac_root() / "memory" / "summaries" / "performance_optimization_results.md"
+
+# ✅ CORRECT - User-facing troubleshooting docs go to content/docs/
+docs_path = Path("content/docs/troubleshooting/bugfix_authentication.md")
+
+# ❌ WRONG - Never create reports in root
+
+# report_path = Path("IMPLEMENTATION_SUMMARY.md")
+```
+
+**Key Points for CoderAgent**:
+
+- Implementation code → `packages/paracle_*/`
+- Feature summaries → `.parac/memory/summaries/`
+- Troubleshooting docs → `content/docs/troubleshooting/`
+- Performance reports → `.parac/memory/summaries/`
+- Architecture notes → `.parac/memory/knowledge/architecture.md`
+
 ## Skills
 
 - paracle-development
@@ -120,18 +218,18 @@ from pydantic import BaseModel, Field, field_validator, ConfigDict
 # ✅ Protocol for interfaces (duck typing)
 class IAgentRepository(Protocol):
     """Repository interface for agent persistence."""
-    
+
     async def find_by_id(self, agent_id: str) -> Agent | None:
         """Find agent by ID.
-        
+
         Args:
             agent_id: Unique agent identifier
-            
+
         Returns:
             Agent if found, None otherwise
         """
         ...
-    
+
     async def save(self, agent: Agent) -> Agent:
         """Persist agent entity."""
         ...
@@ -144,19 +242,19 @@ def process_agent(
     config: dict[str, Any] | None = None
 ) -> tuple[Agent, list[str]]:
     """Process agent with configuration.
-    
+
     Args:
         agent_id: Agent identifier
         repository: Repository implementation
         config: Optional configuration dictionary
-        
+
     Returns:
         Tuple of (processed agent, log messages)
-        
+
     Raises:
         AgentNotFoundError: If agent doesn't exist
         ValidationError: If config invalid
-    
+
     Example:
         >>> repo = SQLAlchemyAgentRepository(session)
         >>> agent, logs = process_agent(
@@ -170,18 +268,18 @@ def process_agent(
 # ✅ Pydantic v2 models with validation
 class AgentSpec(BaseModel):
     """Agent specification model."""
-    
+
     model_config = ConfigDict(
         str_strip_whitespace=True,
         validate_assignment=True,
         frozen=False
     )
-    
+
     name: str = Field(..., min_length=1, max_length=100, description="Unique agent name")
     temperature: float = Field(default=0.7, ge=0.0, le=2.0, description="LLM temperature")
     model: str = Field(..., pattern=r"^[a-z0-9-]+$")
     tools: list[str] = Field(default_factory=list)
-    
+
     @field_validator("name")
     @classmethod
     def validate_name(cls, v: str) -> str:
@@ -196,14 +294,14 @@ async def fetch_agent(
     agent_id: str
 ) -> Agent:
     """Fetch agent from repository.
-    
+
     Args:
         repository: Repository implementation
         agent_id: Agent identifier
-        
+
     Returns:
         Agent entity
-        
+
     Raises:
         AgentNotFoundError: If agent not found
     """
@@ -225,7 +323,7 @@ class AgentError(ParacleError):
 
 class AgentNotFoundError(AgentError):
     """Agent not found in repository."""
-    
+
     def __init__(self, agent_id: str):
         self.agent_id = agent_id
         super().__init__(
@@ -236,7 +334,7 @@ class AgentNotFoundError(AgentError):
 
 class AgentValidationError(AgentError):
     """Agent validation failed."""
-    
+
     def __init__(self, field: str, message: str):
         self.field = field
         self.message = message
@@ -276,7 +374,7 @@ async def fetch_multiple_agents(
     """Fetch multiple agents concurrently."""
     tasks = [repository.find_by_id(aid) for aid in agent_ids]
     results = await asyncio.gather(*tasks, return_exceptions=True)
-    
+
     agents = []
     for result in results:
         if isinstance(result, Exception):
@@ -296,14 +394,14 @@ class AgentService:
     def __init__(self, repository: IAgentRepository, cache: AsyncCache):
         self.repository = repository
         self.cache = cache
-    
+
     async def get_agent(self, agent_id: str) -> Agent:
         """Get agent with caching."""
         # Check cache
         cached = await self.cache.get(f"agent:{agent_id}")
         if cached:
             return Agent.model_validate(cached)
-        
+
         # Cache miss - fetch from repository
         agent = await self.repository.find_by_id(agent_id)
         if agent:
@@ -336,10 +434,10 @@ import re
 # ✅ Input validation with Pydantic
 class AgentInput(BaseModel):
     """Validated agent input."""
-    
+
     name: str = Field(..., min_length=1, max_length=100)
     file_path: str = Field(..., max_length=500)
-    
+
     @field_validator("name")
     @classmethod
     def validate_name(cls, v: str) -> str:
@@ -347,7 +445,7 @@ class AgentInput(BaseModel):
         if not re.match(r'^[a-zA-Z0-9 _-]+$', v):
             raise ValueError("Invalid characters in name")
         return v.strip()
-    
+
     @field_validator("file_path")
     @classmethod
     def validate_path(cls, v: str) -> str:
@@ -359,17 +457,17 @@ class AgentInput(BaseModel):
 # ✅ Secrets management
 class Settings(BaseSettings):
     """Application settings with validation."""
-    
+
     database_url: str
     api_key: str = Field(..., min_length=32)
     secret_key: str = Field(..., min_length=32)
-    
+
     model_config = ConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
         case_sensitive=False
     )
-    
+
     @field_validator("api_key", "secret_key")
     @classmethod
     def validate_secret(cls, v: str) -> str:
@@ -405,7 +503,7 @@ from unittest.mock import AsyncMock
 
 class TestAgentService:
     """Test suite for AgentService."""
-    
+
     @pytest.fixture
     def mock_repository(self):
         """Mock repository for testing."""
@@ -413,12 +511,12 @@ class TestAgentService:
         repo.find_by_id = AsyncMock()
         repo.save = AsyncMock()
         return repo
-    
+
     @pytest.fixture
     def service(self, mock_repository):
         """Service with mocked dependencies."""
         return AgentService(repository=mock_repository)
-    
+
     @pytest.mark.asyncio
     async def test_get_agent_success(self, service, mock_repository):
         """Test successful agent retrieval."""
@@ -426,21 +524,21 @@ class TestAgentService:
         agent_id = "agent_123"
         expected = Agent(id=agent_id, name="Test")
         mock_repository.find_by_id.return_value = expected
-        
+
         # Act
         result = await service.get_agent(agent_id)
-        
+
         # Assert
         assert result == expected
         mock_repository.find_by_id.assert_awaited_once_with(agent_id)
-    
+
     @pytest.mark.asyncio
     async def test_get_agent_not_found(self, service, mock_repository):
         """Test agent not found raises error."""
         # Arrange
         agent_id = "nonexistent"
         mock_repository.find_by_id.return_value = None
-        
+
         # Act & Assert
         with pytest.raises(AgentNotFoundError) as exc_info:
             await service.get_agent(agent_id)
@@ -451,16 +549,16 @@ class TestAgentService:
 async def test_agent_repository_integration(async_session):
     """Test repository with real database."""
     repo = SQLAlchemyAgentRepository(async_session)
-    
+
     # Create
     agent = Agent(name="Integration Test", model="gpt-4")
     saved = await repo.save(agent)
     assert saved.id is not None
-    
+
     # Read
     found = await repo.find_by_id(saved.id)
     assert found.name == "Integration Test"
-    
+
     # Update
     found.model = "gpt-4-turbo"
     updated = await repo.save(found)
@@ -552,6 +650,7 @@ async def test_agent_repository_integration(async_session):
 
 **Key patterns to emulate**:
 ```python
+
 # Type-safe mapping structure
 @dataclass
 class APIEndpointMapping:
@@ -567,14 +666,14 @@ async def call_api_tool(self, tool_name: str, arguments: dict) -> Any:
     # Tier 1: Offline critical tools
     if tool_name in OFFLINE_CRITICAL:
         return await self._offline_handler(tool_name, arguments)
-    
+
     # Tier 2: API bridge
     if await self.is_api_available():
         try:
             return await self._api_call(tool_name, arguments)
         except Exception as e:
             logger.warning(f"API failed: {e}, falling back")
-    
+
     # Tier 3: Direct core access
     return await self._fallback_to_direct(tool_name, arguments)
 ```

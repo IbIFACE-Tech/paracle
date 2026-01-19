@@ -101,6 +101,39 @@ agents:
       - Coverage monitoring
       - Integration testing
 
+  - id: qa
+    name: Senior QA Architect
+    role: quality_assurance_architecture
+    description: Quality assurance architecture, test strategy design, quality metrics tracking, and comprehensive quality validation
+    spec_file: specs/qa.md
+    tools:
+      - test_generation # TestGenerationTool - generate test scaffolds
+      - test_execution # TestExecutionTool - execute tests with pytest
+      - coverage_analysis # CoverageAnalysisTool - analyze test coverage
+      - static_analysis # StaticAnalysisTool - run ruff, mypy, pylint
+      - security_scan # SecurityScanTool - scan with bandit, safety
+      - performance_profiling # PerformanceProfilingTool - profile performance
+      - load_testing # LoadTestingTool - execute load tests
+      - quality_metrics # QualityMetricsTool - track quality KPIs
+      - test_automation # TestAutomationTool - CI/CD test integration
+    skills:
+      - testing-qa # Primary expertise in test strategies, frameworks, and quality validation
+      - security-hardening # Security testing and compliance validation
+      - performance-optimization # Performance testing and benchmarking
+      - paracle-development # Framework-specific testing patterns and standards
+      - api-development # API testing strategies and contract testing
+      - cicd-devops # Test automation in CI/CD pipelines
+      - workflow-orchestration # Test workflow coordination and quality gates
+    responsibilities:
+      - Quality strategy and architecture
+      - Test planning and design
+      - Quality gates definition
+      - Quality metrics tracking
+      - Testing process improvement
+      - Team mentoring on QA practices
+      - Comprehensive quality validation
+      - Risk-based test prioritization
+
   - id: pm
     name: Project Manager
     role: project_management

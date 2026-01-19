@@ -40,6 +40,17 @@ New in v1.8.0:
 - Cloud services (AWS, GCP, Azure - storage, functions, secrets)
 - Document processing (PDF, Excel, CSV, Markdown)
 - Browser automation (Playwright - navigation, scraping, screenshots)
+- Polyglot extensions (Go, Rust, JS/TS, WASM)
+
+New in v1.9.0 (Claude-Flow Inspired):
+- Vector search (HNSW semantic search with quantization, 96-164x faster)
+- Reflexion (learning from experience through self-critique)
+- Hook system (pre/post operation hooks for extensibility)
+- Semantic memory (hybrid vector + SQL storage for conversations)
+- HiveMind (Queen-led multi-agent coordination)
+- Token optimization (30%+ reduction through intelligent compression)
+- RL training (9 algorithms: Q-Learning, DQN, A2C, PPO, SAC, etc.)
+- GitHub Enhanced (AI-powered PR review, multi-repo management)
 
 Example:
     >>> from paracle_meta import MetaAgent
@@ -273,7 +284,7 @@ except ImportError:
 # Configuration - Always available (uses pydantic)
 from paracle_meta.config import MetaEngineConfig, load_config, validate_config
 
-__version__ = "1.8.0"
+__version__ = "1.9.0"
 
 __all__ = [
     # Core

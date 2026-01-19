@@ -70,7 +70,7 @@ class A2AServerConfig(BaseModel):
         description="Provider organization name",
     )
     provider_url: str | None = Field(
-        default="https://github.com/IbIFACE-Tech/paracle-lite",
+        default="https://github.com/IbIFACE-Tech/paracle",
         description="Provider URL",
     )
 

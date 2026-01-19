@@ -530,7 +530,7 @@ git commit -m "feat(providers): add MCP protocol support"
 git add tests/unit/providers/test_mcp.py
 git commit -m "test(providers): add MCP provider tests"
 
-git add content/docs/tools/mcp-integration.md
+git add docs/mcp-integration.md
 git commit -m "docs: add MCP integration guide"
 
 # Update with develop

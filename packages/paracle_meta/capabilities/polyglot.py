@@ -181,7 +181,8 @@ class GoRunner(ExtensionRunner):
         """Check if Go is available."""
         try:
             proc = await asyncio.create_subprocess_exec(
-                "go", "version",
+                "go",
+                "version",
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
             )
@@ -196,7 +197,9 @@ class GoRunner(ExtensionRunner):
         manifest = extension.manifest
 
         # Determine output path
-        cache_dir = Path(self.config.cache_dir or tempfile.gettempdir()) / "paracle_extensions"
+        cache_dir = (
+            Path(self.config.cache_dir or tempfile.gettempdir()) / "paracle_extensions"
+        )
         cache_dir.mkdir(parents=True, exist_ok=True)
 
         binary_name = f"{manifest.name}"
@@ -214,8 +217,8 @@ class GoRunner(ExtensionRunner):
             if existing_hash == source_hash:
                 return binary_path
 
-        # Build
-        build_cmd = manifest.build_command or f"go build -o {binary_path}"
+        # Build - always use the full binary path
+        build_cmd = f'go build -o "{binary_path}"'
 
         proc = await asyncio.create_subprocess_shell(
             build_cmd,
@@ -287,7 +290,8 @@ class RustRunner(ExtensionRunner):
         """Check if Rust/Cargo is available."""
         try:
             proc = await asyncio.create_subprocess_exec(
-                "cargo", "--version",
+                "cargo",
+                "--version",
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
             )
@@ -380,7 +384,8 @@ class JavaScriptRunner(ExtensionRunner):
         runtime = "deno" if self.use_deno else "node"
         try:
             proc = await asyncio.create_subprocess_exec(
-                runtime, "--version",
+                runtime,
+                "--version",
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
             )
@@ -395,7 +400,8 @@ class JavaScriptRunner(ExtensionRunner):
         alt_runtime = "node" if self.use_deno else "deno"
         try:
             proc = await asyncio.create_subprocess_exec(
-                alt_runtime, "--version",
+                alt_runtime,
+                "--version",
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
             )
@@ -431,7 +437,10 @@ class JavaScriptRunner(ExtensionRunner):
 
         # Return entry point
         entry = manifest.entry_point or "index.js"
-        if manifest.language == ExtensionLanguage.TYPESCRIPT and self._runtime != "deno":
+        if (
+            manifest.language == ExtensionLanguage.TYPESCRIPT
+            and self._runtime != "deno"
+        ):
             entry = entry.replace(".ts", ".js")
 
         return ext_path / entry
@@ -443,9 +452,12 @@ class JavaScriptRunner(ExtensionRunner):
 
         if self._runtime == "deno":
             cmd = [
-                "deno", "run",
-                "--allow-read", "--allow-write", "--allow-net",
-                str(extension.binary_path)
+                "deno",
+                "run",
+                "--allow-read",
+                "--allow-write",
+                "--allow-net",
+                str(extension.binary_path),
             ]
         else:
             # Node.js
@@ -496,6 +508,7 @@ class WasmRunner(ExtensionRunner):
         """Check if WASM runtime is available."""
         try:
             import wasmtime  # noqa: F401
+
             self._wasmtime_available = True
             return True
         except ImportError:
@@ -503,6 +516,7 @@ class WasmRunner(ExtensionRunner):
 
         try:
             import wasmer  # noqa: F401
+
             self._wasmer_available = True
             return True
         except ImportError:
@@ -869,7 +883,10 @@ class PolyglotCapability(BaseCapability):
             ext.last_error = str(e)
 
             # Auto-restart on failure
-            if self.config.auto_restart and ext.error_count <= self.config.max_restart_attempts:
+            if (
+                self.config.auto_restart
+                and ext.error_count <= self.config.max_restart_attempts
+            ):
                 await self.stop_extension(extension_name)
                 await asyncio.sleep(self.config.restart_delay)
                 await self.start_extension(extension_name)
@@ -1012,21 +1029,25 @@ go 1.21
         (path / "go.mod").write_text(go_mod)
 
         # main.go
-        method_cases = "\n".join([
-            f'''        case "{m}":
-            result = {m}(req.Params)'''
-            for m in methods
-        ])
+        method_cases = "\n".join(
+            [
+                f"""        case "{m}":
+            result = {m}(req.Params)"""
+                for m in methods
+            ]
+        )
 
-        method_funcs = "\n\n".join([
-            f'''func {m}(params map[string]interface{{}}) interface{{}} {{
+        method_funcs = "\n\n".join(
+            [
+                f"""func {m}(params map[string]interface{{}}) interface{{}} {{
     // TODO: Implement {m}
     return map[string]interface{{}}{{"message": "{m} called", "params": params}}
-}}'''
-            for m in methods
-        ])
+}}"""
+                for m in methods
+            ]
+        )
 
-        main_go = f'''package main
+        main_go = f"""package main
 
 import (
     "bufio"
@@ -1082,7 +1103,7 @@ func sendError(msg string) {{
 }}
 
 {method_funcs}
-'''
+"""
         (path / "main.go").write_text(main_go)
 
     async def _create_rust_template(
@@ -1090,7 +1111,7 @@ func sendError(msg string) {{
     ) -> None:
         """Create Rust extension template."""
         # Cargo.toml
-        cargo_toml = f'''[package]
+        cargo_toml = f"""[package]
 name = "{name}"
 version = "0.1.0"
 edition = "2021"
@@ -1098,30 +1119,31 @@ edition = "2021"
 [dependencies]
 serde = {{ version = "1.0", features = ["derive"] }}
 serde_json = "1.0"
-'''
+"""
         (path / "Cargo.toml").write_text(cargo_toml)
 
         # src/main.rs
         src_path = path / "src"
         src_path.mkdir(exist_ok=True)
 
-        method_matches = "\n".join([
-            f'            "{m}" => {m}(&request.params),'
-            for m in methods
-        ])
+        method_matches = "\n".join(
+            [f'            "{m}" => {m}(&request.params),' for m in methods]
+        )
 
-        method_funcs = "\n\n".join([
-            f'''fn {m}(params: &serde_json::Value) -> serde_json::Value {{
+        method_funcs = "\n\n".join(
+            [
+                f"""fn {m}(params: &serde_json::Value) -> serde_json::Value {{
     // TODO: Implement {m}
     serde_json::json!({{
         "message": "{m} called",
         "params": params
     }})
-}}'''
-            for m in methods
-        ])
+}}"""
+                for m in methods
+            ]
+        )
 
-        main_rs = f'''use serde::{{Deserialize, Serialize}};
+        main_rs = f"""use serde::{{Deserialize, Serialize}};
 use std::io::{{self, BufRead, Write}};
 
 #[derive(Deserialize)]
@@ -1189,7 +1211,7 @@ fn send_error(stdout: &mut io::Stdout, msg: &str) {{
 }}
 
 {method_funcs}
-'''
+"""
         (src_path / "main.rs").write_text(main_rs)
 
     async def _create_js_template(
@@ -1250,20 +1272,24 @@ interface Response {
 
 """
 
-        method_cases = "\n".join([
-            f"        case '{m}': result = {m}(request.params); break;"
-            for m in methods
-        ])
+        method_cases = "\n".join(
+            [
+                f"        case '{m}': result = {m}(request.params); break;"
+                for m in methods
+            ]
+        )
 
-        method_funcs = "\n\n".join([
-            f'''function {m}(params{': Record<string, any>' if is_ts else ''}) {{
+        method_funcs = "\n\n".join(
+            [
+                f"""function {m}(params{': Record<string, any>' if is_ts else ''}) {{
     // TODO: Implement {m}
     return {{ message: '{m} called', params }};
-}}'''
-            for m in methods
-        ])
+}}"""
+                for m in methods
+            ]
+        )
 
-        main_code = f'''import * as readline from 'readline';
+        main_code = f"""import * as readline from 'readline';
 {type_defs}
 const rl = readline.createInterface({{
     input: process.stdin,
@@ -1298,7 +1324,7 @@ function sendError(error{': string' if is_ts else ''}) {{
 }}
 
 {method_funcs}
-'''
+"""
         (path / f"index.{ext}").write_text(main_code)
 
     async def execute(
@@ -1329,6 +1355,7 @@ function sendError(error{': string' if is_ts else ''}) {{
 
         if operation not in operations:
             return CapabilityResult(
+                capability=self.name,
                 success=False,
                 output={"error": f"Unknown operation: {operation}"},
                 error=f"Supported: {list(operations.keys())}",
@@ -1336,9 +1363,10 @@ function sendError(error{': string' if is_ts else ''}) {{
 
         try:
             result = await operations[operation](**kwargs)
-            return CapabilityResult(success=True, output=result)
+            return CapabilityResult(capability=self.name, success=True, output=result)
         except Exception as e:
             return CapabilityResult(
+                capability=self.name,
                 success=False,
                 output={"error": str(e)},
                 error=str(e),

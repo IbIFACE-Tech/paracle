@@ -74,7 +74,7 @@ class TestPolyglotCapability:
         path = await polyglot.create_extension_template(
             name="test-calculator",
             language=ExtensionLanguage.GO,
-            methods=["add", "multiply"]
+            methods=["add", "multiply"],
         )
 
         assert path.exists()
@@ -93,8 +93,8 @@ class TestPolyglotCapability:
         go_code = (path / "main.go").read_text()
         assert "func add(" in go_code
         assert "func multiply(" in go_code
-        assert "case \"add\":" in go_code
-        assert "case \"multiply\":" in go_code
+        assert 'case "add":' in go_code
+        assert 'case "multiply":' in go_code
 
     @pytest.mark.asyncio
     async def test_discover_extensions(self, polyglot_config):
@@ -103,9 +103,7 @@ class TestPolyglotCapability:
 
         # Create an extension first
         await polyglot.create_extension_template(
-            name="discoverable-ext",
-            language=ExtensionLanguage.GO,
-            methods=["test"]
+            name="discoverable-ext", language=ExtensionLanguage.GO, methods=["test"]
         )
 
         # Discover
@@ -125,9 +123,7 @@ class TestPolyglotCapability:
 
         # Create extension
         path = await polyglot.create_extension_template(
-            name="buildable-ext",
-            language=ExtensionLanguage.GO,
-            methods=["hello"]
+            name="buildable-ext", language=ExtensionLanguage.GO, methods=["hello"]
         )
 
         # Discover to register
@@ -159,7 +155,7 @@ class TestPolyglotCapability:
         ext_path.mkdir(parents=True, exist_ok=True)
 
         # Custom Go code that actually does math
-        go_code = '''package main
+        go_code = """package main
 
 import (
     "bufio"
@@ -222,13 +218,13 @@ func sendError(msg string) {
     data, _ := json.Marshal(resp)
     fmt.Println(string(data))
 }
-'''
+"""
         (ext_path / "main.go").write_text(go_code)
 
-        go_mod = '''module math-ext
+        go_mod = """module math-ext
 
 go 1.21
-'''
+"""
         (ext_path / "go.mod").write_text(go_mod)
 
         manifest = {
@@ -237,7 +233,7 @@ go 1.21
             "language": "go",
             "description": "Math operations extension",
             "methods": ["add", "multiply", "echo"],
-            "entry_point": "main.go"
+            "entry_point": "main.go",
         }
         (ext_path / "manifest.json").write_text(json.dumps(manifest, indent=2))
 
@@ -259,7 +255,9 @@ go 1.21
         assert result.output["result"]["product"] == 28.0
 
         # 5. Call echo method
-        result = await polyglot.call("math-ext", "echo", {"message": "hello", "count": 42})
+        result = await polyglot.call(
+            "math-ext", "echo", {"message": "hello", "count": 42}
+        )
 
         assert result.success
         assert result.output["result"]["echo"]["message"] == "hello"
@@ -289,9 +287,7 @@ go 1.21
 
         # Create simple extension
         await polyglot.create_extension_template(
-            name="error-test",
-            language=ExtensionLanguage.GO,
-            methods=["valid_method"]
+            name="error-test", language=ExtensionLanguage.GO, methods=["valid_method"]
         )
 
         await polyglot.discover()
@@ -339,10 +335,7 @@ class TestPolyglotExecuteInterface:
         polyglot = PolyglotCapability(config=polyglot_config)
 
         result = await polyglot.execute(
-            "create",
-            name="exec-test",
-            language="go",
-            methods=["test"]
+            "create", name="exec-test", language="go", methods=["test"]
         )
 
         assert result.success

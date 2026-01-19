@@ -69,7 +69,10 @@ class TestParacleCapability:
     def test_init(self, capability):
         """Test capability initialization."""
         assert capability.name == "paracle"
-        assert capability.description == "Unified access to Paracle API, tools, and MCP integration"
+        assert (
+            capability.description
+            == "Unified access to Paracle API, tools, and MCP integration"
+        )
         assert capability._api_client is None
         assert capability._tool_registry is None
         assert capability._mcp is None
@@ -77,8 +80,12 @@ class TestParacleCapability:
     @pytest.mark.asyncio
     async def test_initialize_api_client(self, capability):
         """Test API client initialization."""
-        with patch("paracle_meta.capabilities.paracle_integration.HTTPX_AVAILABLE", True):
-            with patch("paracle_meta.capabilities.paracle_integration.httpx") as mock_httpx:
+        with patch(
+            "paracle_meta.capabilities.paracle_integration.HTTPX_AVAILABLE", True
+        ):
+            with patch(
+                "paracle_meta.capabilities.paracle_integration.httpx"
+            ) as mock_httpx:
                 mock_client = AsyncMock()
                 mock_httpx.AsyncClient.return_value = mock_client
 
@@ -105,7 +112,10 @@ class TestParacleCapability:
         """Test list_tools action."""
         capability._initialized = True
         capability._tool_registry = None
-        capability._agent_tools = {"git_status": MagicMock(), "code_analysis": MagicMock()}
+        capability._agent_tools = {
+            "git_status": MagicMock(),
+            "code_analysis": MagicMock(),
+        }
         capability._mcp = None
 
         result = await capability.execute(action="list_tools")
@@ -236,7 +246,10 @@ class TestParacleCapability:
     @pytest.mark.asyncio
     async def test_available_tools(self, capability):
         """Test getting available tool names."""
-        capability._agent_tools = {"git_status": MagicMock(), "code_analysis": MagicMock()}
+        capability._agent_tools = {
+            "git_status": MagicMock(),
+            "code_analysis": MagicMock(),
+        }
         capability._tool_registry = None
 
         tools = capability.available_tools

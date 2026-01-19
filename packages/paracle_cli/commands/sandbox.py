@@ -5,17 +5,51 @@ import json
 from pathlib import Path
 
 import click
-from paracle_sandbox import SandboxConfig, SandboxExecutor, SandboxManager
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
 console = Console()
 
+# Check if sandbox dependencies are available
+try:
+    from paracle_sandbox import SandboxConfig, SandboxExecutor, SandboxManager
+
+    SANDBOX_AVAILABLE = True
+except ImportError as e:
+    SANDBOX_AVAILABLE = False
+    SANDBOX_IMPORT_ERROR = str(e)
+
+
+def require_sandbox(func):
+    """Decorator to check sandbox availability."""
+
+    def wrapper(*args, **kwargs):
+        if not SANDBOX_AVAILABLE:
+            console.print("[red]❌ Sandbox features not available[/red]\n")
+            console.print(
+                "[yellow]Sandbox requires Docker. To enable sandbox support:[/yellow]\n"
+            )
+            console.print(
+                "1. Install Docker Desktop: https://www.docker.com/products/docker-desktop"
+            )
+            console.print("2. Start Docker Desktop (or Docker daemon on Linux)")
+            console.print("3. Install Python dependencies:")
+            console.print("   [cyan]pip install paracle[sandbox][/cyan]")
+            console.print("   or")
+            console.print("   [cyan]pip install docker psutil[/cyan]\n")
+            console.print(
+                "[dim]Note: Sandbox features are optional. Core Paracle functionality works without Docker.[/dim]"
+            )
+            raise SystemExit(1)
+        return func(*args, **kwargs)
+
+    return wrapper
+
 
 @click.group("sandbox")
 def sandbox_group():
-    """Sandbox management commands for isolated execution."""
+    """Sandbox management commands for isolated execution (requires Docker)."""
     pass
 
 
@@ -34,6 +68,7 @@ def sandbox_group():
 @click.option("--monitor/--no-monitor", default=True, help="Enable resource monitoring")
 @click.option("--output", type=click.Path(), help="Save results to JSON file")
 @click.option("--verbose", "-v", is_flag=True, help="Verbose output")
+@require_sandbox
 def execute(
     code_file: str,
     cpu: float,
@@ -79,8 +114,7 @@ def execute(
         config_table.add_row("Memory", f"{config.memory_mb} MB")
         config_table.add_row("Timeout", f"{config.timeout_seconds}s")
         config_table.add_row("Network", config.network_mode)
-        config_table.add_row(
-            "Monitoring", "Enabled" if monitor else "Disabled")
+        config_table.add_row("Monitoring", "Enabled" if monitor else "Disabled")
         console.print(config_table)
 
     # Execute
@@ -98,8 +132,7 @@ def execute(
         # Display results
         if result["success"]:
             console.print("\n[bold green]✅ Execution Successful[/bold green]")
-            console.print(
-                f"\n[bold]Output:[/bold]\n{result['result']['stdout']}")
+            console.print(f"\n[bold]Output:[/bold]\n{result['result']['stdout']}")
 
             if result["result"]["stderr"]:
                 console.print(
@@ -107,8 +140,7 @@ def execute(
                 )
         else:
             console.print("\n[bold red]❌ Execution Failed[/bold red]")
-            console.print(
-                f"\n[red]Error:[/red] {result.get('error', 'Unknown error')}")
+            console.print(f"\n[red]Error:[/red] {result.get('error', 'Unknown error')}")
 
         # Display stats
         if "stats" in result and verbose:
@@ -117,11 +149,8 @@ def execute(
             stats_table.add_column("Metric", style="cyan")
             stats_table.add_column("Value", style="yellow")
             stats_table.add_row("CPU", f"{stats.get('cpu_percent', 0):.1f}%")
-            stats_table.add_row(
-                "Memory", f"{stats.get('memory_mb', 0):.1f} MB")
-            stats_table.add_row(
-                "Memory %", f"{stats.get('memory_percent', 0):.1f}%"
-            )
+            stats_table.add_row("Memory", f"{stats.get('memory_mb', 0):.1f} MB")
+            stats_table.add_row("Memory %", f"{stats.get('memory_percent', 0):.1f}%")
             console.print(stats_table)
 
         # Save output
@@ -162,13 +191,10 @@ def health(verbose: bool):
                 console.print(
                     "\n[yellow]💡 Docker is not available. Install Docker to use sandbox mode.[/yellow]"
                 )
-                console.print(
-                    "   Visit: https://docs.docker.com/get-docker/"
-                )
+                console.print("   Visit: https://docs.docker.com/get-docker/")
 
         if verbose:
-            console.print(
-                f"\n[dim]Full result:[/dim]\n{json.dumps(result, indent=2)}")
+            console.print(f"\n[dim]Full result:[/dim]\n{json.dumps(result, indent=2)}")
 
         return result["available"]
 
@@ -249,9 +275,7 @@ def list_sandboxes():
         console.print(
             f"\n[cyan]Total: {stats['total_sandboxes']}/{stats['max_concurrent']}[/cyan]"
         )
-        console.print(
-            f"[cyan]Utilization: {stats['utilization']*100:.1f}%[/cyan]\n"
-        )
+        console.print(f"[cyan]Utilization: {stats['utilization']*100:.1f}%[/cyan]\n")
 
         table = Table(title="Active Sandboxes")
         table.add_column("Sandbox ID", style="cyan")
@@ -296,8 +320,7 @@ def cleanup(cleanup_all: bool, force: bool):
         return
 
     if not force:
-        confirm = click.confirm(
-            "Are you sure you want to destroy all sandboxes?")
+        confirm = click.confirm("Are you sure you want to destroy all sandboxes?")
         if not confirm:
             console.print("[yellow]Cancelled[/yellow]")
             return

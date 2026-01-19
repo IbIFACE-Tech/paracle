@@ -48,6 +48,7 @@ class TestSanitizeArgs:
 
     def test_nested_sanitization(self):
         """Test sanitization of nested objects."""
+
         # Objects are represented by class name, not deeply traversed
         class Config:
             password = "secret"

@@ -141,7 +141,13 @@ class ChatConfig(SessionConfig):
     """
 
     enabled_capabilities: list[str] = field(
-        default_factory=lambda: ["filesystem", "memory", "planning", "editing", "paracle"]
+        default_factory=lambda: [
+            "filesystem",
+            "memory",
+            "planning",
+            "editing",
+            "paracle",
+        ]
     )
     auto_approve_reads: bool = True
     auto_approve_writes: bool = False
@@ -853,14 +859,18 @@ class ChatSession(Session):
     def plan_session(self) -> PlanSession:
         """Get the embedded planning session."""
         if self._plan_session is None:
-            raise RuntimeError("Planning session not initialized. Call initialize() first.")
+            raise RuntimeError(
+                "Planning session not initialized. Call initialize() first."
+            )
         return self._plan_session
 
     @property
     def edit_session(self) -> EditSession:
         """Get the embedded editing session."""
         if self._edit_session is None:
-            raise RuntimeError("Editing session not initialized. Call initialize() first.")
+            raise RuntimeError(
+                "Editing session not initialized. Call initialize() first."
+            )
         return self._edit_session
 
     @property
@@ -1292,11 +1302,13 @@ class ChatSession(Session):
         if plan.success_criteria:
             lines.extend(["", f"**Success Criteria**: {plan.success_criteria}"])
 
-        lines.extend([
-            "",
-            "Use `execute_plan` to run this plan, or `execute_step` for "
-            "individual steps.",
-        ])
+        lines.extend(
+            [
+                "",
+                "Use `execute_plan` to run this plan, or `execute_step` for "
+                "individual steps.",
+            ]
+        )
 
         return "\n".join(lines)
 
@@ -1438,8 +1450,7 @@ class ChatSession(Session):
             if edit_ids:
                 # Apply specific edits
                 edits = [
-                    e for e in self._edit_session.pending_edits
-                    if e.id in edit_ids
+                    e for e in self._edit_session.pending_edits if e.id in edit_ids
                 ]
             else:
                 edits = None  # Apply all pending
@@ -1450,8 +1461,7 @@ class ChatSession(Session):
         elif tool_name == "revert_edit":
             edit_id = tool_input["edit_id"]
             edit = next(
-                (e for e in self._edit_session.applied_edits if e.id == edit_id),
-                None
+                (e for e in self._edit_session.applied_edits if e.id == edit_id), None
             )
             if not edit:
                 return f"Edit not found or not applied: {edit_id}"
@@ -1512,7 +1522,9 @@ class ChatSession(Session):
             workflow_id = tool_input["workflow_id"]
             inputs = tool_input.get("inputs", {})
             result = await self._paracle.api_execute_workflow(workflow_id, inputs)
-            return self._format_paracle_result(result, f"Workflow Execution: {workflow_id}")
+            return self._format_paracle_result(
+                result, f"Workflow Execution: {workflow_id}"
+            )
 
         elif tool_name == "paracle_health":
             result = await self._paracle.api_health()
@@ -1552,7 +1564,9 @@ class ChatSession(Session):
                 path=path,
                 tool=tool,
             )
-            return self._format_paracle_result(result, f"Static Analysis ({tool}): {path}")
+            return self._format_paracle_result(
+                result, f"Static Analysis ({tool}): {path}"
+            )
 
         # Testing tools
         elif tool_name == "run_tests":
@@ -1655,11 +1669,13 @@ class ChatSession(Session):
             lines.append(f"**Error**: {edit.error}")
 
         if edit.status == EditStatus.PREVIEWED:
-            lines.extend([
-                "",
-                f"Use `apply_edits` with edit_id='{edit.id}' to apply, "
-                "or call without arguments to apply all pending edits.",
-            ])
+            lines.extend(
+                [
+                    "",
+                    f"Use `apply_edits` with edit_id='{edit.id}' to apply, "
+                    "or call without arguments to apply all pending edits.",
+                ]
+            )
 
         return "\n".join(lines)
 
@@ -1675,9 +1691,7 @@ class ChatSession(Session):
             lines.append(f"### {status_icon} {edit.file_path} ({edit.id})")
 
             if edit.has_changes:
-                lines.append(
-                    f"+{edit.lines_added} -{edit.lines_removed} lines"
-                )
+                lines.append(f"+{edit.lines_added} -{edit.lines_removed} lines")
                 if edit.diff:
                     # Truncate each diff to keep output manageable
                     diff_preview = edit.diff[:500]
@@ -1703,24 +1717,24 @@ class ChatSession(Session):
         ]
 
         if stats["failed"] > 0:
-            lines.append(
-                "\nSome edits failed. Use `get_pending_edits` to see details."
-            )
+            lines.append("\nSome edits failed. Use `get_pending_edits` to see details.")
 
         return "\n".join(lines)
 
     def _format_edit_summary(self, summary: dict[str, Any]) -> str:
         """Format edit session summary."""
-        return "\n".join([
-            "## Edit Session Summary",
-            "",
-            f"**Pending edits**: {summary['pending_edits']}",
-            f"**Applied edits**: {summary['applied_edits']}",
-            f"**Batches**: {summary['batches']}",
-            f"**Total lines added**: +{summary['total_lines_added']}",
-            f"**Total lines removed**: -{summary['total_lines_removed']}",
-            f"**Files modified**: {summary['files_modified']}",
-        ])
+        return "\n".join(
+            [
+                "## Edit Session Summary",
+                "",
+                f"**Pending edits**: {summary['pending_edits']}",
+                f"**Applied edits**: {summary['applied_edits']}",
+                f"**Batches**: {summary['batches']}",
+                f"**Total lines added**: +{summary['total_lines_added']}",
+                f"**Total lines removed**: -{summary['total_lines_removed']}",
+                f"**Files modified**: {summary['files_modified']}",
+            ]
+        )
 
     async def stream_send(self, message: str):
         """Send a message and stream the response.

@@ -40,29 +40,26 @@ Use this skill when:
 ## Paracle Documentation Structure
 
 ```
-content/docs/
-├── README.md                   # Documentation index
-├── users/                      # User-facing documentation
-│   ├── getting-started/        # Installation and first steps
-│   │   ├── README.md
-│   │   └── quickstart.md
-│   ├── guides/                 # How-to guides
-│   │   ├── installation.md
-│   │   ├── agents.md
-│   │   ├── workflows.md
-│   │   └── skills.md
-│   ├── tutorials/              # Step-by-step tutorials
-│   └── reference/              # Reference documentation
-├── technical/                  # Technical documentation (gitignored)
-│   ├── architecture/           # System architecture
-│   ├── concepts/               # Core concepts
-│   └── modules/                # Package documentation
-├── api/                        # API documentation
-├── tools/                      # MCP & IDE tools docs
-│   ├── ide-tools.md
-│   └── github-cli-tool.md
-├── meta/                       # Paracle Meta Engine docs
-└── quickref/                   # Quick reference cards
+docs/
+├── index.md                    # Documentation home
+├── getting-started.md          # Quick start guide
+├── user-guide/                 # User documentation
+│   ├── installation.md
+│   ├── configuration.md
+│   ├── agents.md
+│   ├── workflows.md
+│   └── tools.md
+├── api-reference/              # API documentation
+│   ├── agents.md
+│   ├── workflows.md
+│   └── providers.md
+├── architecture/               # Architecture docs
+│   ├── overview.md
+│   ├── design-patterns.md
+│   └── decisions.md
+└── examples/                   # Code examples
+    ├── hello-world.md
+    └── advanced-workflows.md
 ```
 
 ## Documentation Patterns
@@ -669,4 +666,4 @@ def resolve_inheritance(
 - [Write the Docs](https://www.writethedocs.org/)
 - [Google Developer Docs Style Guide](https://developers.google.com/style)
 - [Markdown Guide](https://www.markdownguide.org/)
-- Paracle Docs: `content/docs/`
+- Paracle Docs: `docs/`

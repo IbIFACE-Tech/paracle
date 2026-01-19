@@ -116,9 +116,7 @@ class TestGovernanceStructure:
 
     def test_yaml_files_valid(self, parac_path):
         """Ensure all YAML files have valid syntax."""
-        yaml_files = list(parac_path.rglob("*.yaml")) + list(
-            parac_path.rglob("*.yml")
-        )
+        yaml_files = list(parac_path.rglob("*.yaml")) + list(parac_path.rglob("*.yml"))
 
         # Skip templates, assets, definitions, cache files, and IDE integration
         # files (some IDE files use .yaml extension for markdown-like content)
@@ -140,9 +138,7 @@ class TestGovernanceStructure:
                 with open(yaml_path, encoding="utf-8") as f:
                     yaml.safe_load(f)
             except yaml.YAMLError as e:
-                pytest.fail(
-                    f"Invalid YAML in {yaml_path.relative_to(parac_path)}: {e}"
-                )
+                pytest.fail(f"Invalid YAML in {yaml_path.relative_to(parac_path)}: {e}")
 
 
 class TestRoadmapConsistency:

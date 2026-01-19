@@ -106,6 +106,14 @@ class IDEConfigGenerator:
             destination_dir=".github",
             max_context_size=30_000,
         ),
+        "vscode": IDEConfig(
+            name="vscode",
+            display_name="VS Code (GitHub Copilot)",
+            file_name="copilot-instructions.md",
+            template_name="copilot.jinja2",
+            destination_dir=".github",
+            max_context_size=30_000,
+        ),
         "warp": IDEConfig(
             name="warp",
             display_name="Warp Terminal",

@@ -1254,6 +1254,71 @@ class APIClient:
             )
             return self._handle_response(response)
 
+    def metrics_get_summary(self) -> dict[str, Any]:
+        """Get business metrics summary.
+
+        Returns:
+            BusinessMetricsSummary as dict
+        """
+        with httpx.Client(timeout=self.timeout) as client:
+            response = client.get(
+                f"{self.base_url}/api/metrics/business/summary",
+                headers=self._get_headers(),
+            )
+            return self._handle_response(response)
+
+    def metrics_get_cost(self) -> dict[str, Any]:
+        """Get cost metrics.
+
+        Returns:
+            CostMetrics as dict
+        """
+        with httpx.Client(timeout=self.timeout) as client:
+            response = client.get(
+                f"{self.base_url}/api/metrics/business/cost",
+                headers=self._get_headers(),
+            )
+            return self._handle_response(response)
+
+    def metrics_get_usage(self) -> dict[str, Any]:
+        """Get usage metrics.
+
+        Returns:
+            UsageMetrics as dict
+        """
+        with httpx.Client(timeout=self.timeout) as client:
+            response = client.get(
+                f"{self.base_url}/api/metrics/business/usage",
+                headers=self._get_headers(),
+            )
+            return self._handle_response(response)
+
+    def metrics_get_performance(self) -> dict[str, Any]:
+        """Get performance metrics.
+
+        Returns:
+            PerformanceMetrics as dict
+        """
+        with httpx.Client(timeout=self.timeout) as client:
+            response = client.get(
+                f"{self.base_url}/api/metrics/business/performance",
+                headers=self._get_headers(),
+            )
+            return self._handle_response(response)
+
+    def metrics_get_quality(self) -> dict[str, Any]:
+        """Get quality metrics.
+
+        Returns:
+            QualityMetrics as dict
+        """
+        with httpx.Client(timeout=self.timeout) as client:
+            response = client.get(
+                f"{self.base_url}/api/metrics/business/quality",
+                headers=self._get_headers(),
+            )
+            return self._handle_response(response)
+
     # =========================================================================
     # Observability - Tracing Endpoints
     # =========================================================================

@@ -51,7 +51,7 @@ mkdir my-paracle-project
 cd my-paracle-project
 
 # Copy template
-cp -r path/to/paracle-lite/content/templates/.parac-template .parac
+cp -r path/to/paracle/content/templates/.parac-template .parac
 
 # Configure project
 # Edit .parac/project.yaml with your project details
@@ -204,9 +204,9 @@ This template is part of Paracle and is licensed under Apache 2.0.
 
 Found an issue? Want to improve the template?
 
-- [Report issues](https://github.com/IbIFACE-Tech/paracle-lite/issues)
-- [Submit PR](https://github.com/IbIFACE-Tech/paracle-lite/pulls)
-- [Join discussions](https://github.com/IbIFACE-Tech/paracle-lite/discussions)
+- [Report issues](https://github.com/IbIFACE-Tech/paracle/issues)
+- [Submit PR](https://github.com/IbIFACE-Tech/paracle/pulls)
+- [Join discussions](https://github.com/IbIFACE-Tech/paracle/discussions)
 
 ---
 

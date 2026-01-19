@@ -8,8 +8,17 @@ from typing import Protocol
 
 from paracle_core.ids import generate_ulid
 
-import docker
-from docker.errors import APIError
+# Docker is optional for snapshot features
+try:
+    import docker
+    from docker.errors import APIError
+
+    DOCKER_AVAILABLE = True
+except ImportError:
+    docker = None  # type: ignore
+    APIError = Exception  # type: ignore
+    DOCKER_AVAILABLE = False
+
 from paracle_rollback.exceptions import RestoreError, SnapshotError
 
 logger = logging.getLogger(__name__)

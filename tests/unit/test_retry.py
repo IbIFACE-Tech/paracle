@@ -351,3 +351,291 @@ class TestRetryResult:
         assert result.attempts == 3
         assert result.total_delay == 5.5
         assert result.last_error == error
+
+
+class TestRetryManagerMetrics:
+    """Test RetryManager metrics tracking functionality."""
+
+    @pytest.mark.asyncio
+    async def test_get_retry_stats_empty(self):
+        """Test retry stats with no executions."""
+        from paracle_orchestration.retry import RetryManager
+
+        manager = RetryManager()
+        stats = manager.get_retry_stats()
+
+        assert stats["total_contexts"] == 0
+        assert stats["succeeded"] == 0
+        assert stats["failed"] == 0
+        assert stats["success_rate"] == 0.0
+        assert stats["total_attempts"] == 0
+        assert stats["total_retries"] == 0
+        assert stats["avg_retries_per_context"] == 0.0
+
+        # Check new metrics
+        assert "metrics" in stats
+        metrics = stats["metrics"]
+        assert metrics["avg_delay_seconds"] == 0.0
+        assert metrics["max_delay_seconds"] == 0.0
+        assert metrics["total_delay_seconds"] == 0.0
+        assert metrics["success_after_retry"] == 0
+        assert metrics["immediate_success"] == 0
+        assert metrics["error_categories"] == {}
+
+    @pytest.mark.asyncio
+    async def test_get_retry_stats_immediate_success(self):
+        """Test metrics for operations that succeed immediately."""
+        from paracle_domain.models import BackoffStrategy, RetryPolicy
+        from paracle_orchestration.retry import RetryManager
+
+        manager = RetryManager()
+        policy = RetryPolicy(
+            max_attempts=3,
+            backoff_strategy=BackoffStrategy.EXPONENTIAL,
+            initial_delay=0.1,
+        )
+
+        # Execute 5 operations that succeed immediately
+        for i in range(5):
+            result = await manager.execute_with_retry(
+                step_name=f"immediate_success_{i}",
+                func=lambda: "success",
+                policy=policy,
+            )
+            assert result == "success"
+
+        stats = manager.get_retry_stats()
+
+        assert stats["total_contexts"] == 5
+        assert stats["succeeded"] == 5
+        assert stats["failed"] == 0
+        assert stats["success_rate"] == 1.0
+        assert stats["total_retries"] == 0
+
+        # Check metrics
+        metrics = stats["metrics"]
+        assert metrics["immediate_success"] == 5
+        assert metrics["success_after_retry"] == 0
+
+    @pytest.mark.asyncio
+    async def test_get_retry_stats_with_retries(self):
+        """Test metrics for operations requiring retries."""
+        from paracle_domain.models import BackoffStrategy, RetryPolicy
+        from paracle_orchestration.retry import RetryManager
+
+        manager = RetryManager()
+        policy = RetryPolicy(
+            max_attempts=3,
+            backoff_strategy=BackoffStrategy.EXPONENTIAL,
+            initial_delay=0.1,  # Small delay for faster tests
+        )
+
+        # Create flaky function that fails first 2 times
+        call_count = {"count": 0}
+
+        async def flaky_func():
+            call_count["count"] += 1
+            if call_count["count"] < 3:
+                raise RuntimeError("Transient error")
+            return "success"
+
+        result = await manager.execute_with_retry(
+            step_name="flaky_operation",
+            func=flaky_func,
+            policy=policy,
+        )
+
+        assert result == "success"
+
+        stats = manager.get_retry_stats()
+
+        assert stats["total_contexts"] == 1
+        assert stats["succeeded"] == 1
+        assert stats["total_retries"] == 2  # Failed 2 times before success
+
+        # Check metrics
+        metrics = stats["metrics"]
+        assert metrics["success_after_retry"] == 1
+        assert metrics["immediate_success"] == 0
+        assert metrics["avg_delay_seconds"] > 0
+        assert metrics["max_delay_seconds"] > 0
+
+    @pytest.mark.asyncio
+    async def test_get_retry_stats_error_categories(self):
+        """Test error category tracking in metrics."""
+        from paracle_domain.models import BackoffStrategy, RetryPolicy
+        from paracle_orchestration.retry import RetryManager
+
+        manager = RetryManager()
+        policy = RetryPolicy(
+            max_attempts=2,
+            backoff_strategy=BackoffStrategy.EXPONENTIAL,
+            initial_delay=0.1,
+        )
+
+        # Execute operations with different error types
+        errors = [
+            ("timeout_op", RuntimeError("Request timeout")),
+            ("rate_limit_op", RuntimeError("Rate limit exceeded")),
+            ("validation_op", ValueError("Invalid input")),
+        ]
+
+        for name, error in errors:
+            try:
+                await manager.execute_with_retry(
+                    step_name=name,
+                    func=lambda e=error: (_ for _ in ()).throw(e),
+                    policy=policy,
+                )
+            except Exception:
+                pass  # Expected to fail
+
+        stats = manager.get_retry_stats()
+
+        # Check error categories
+        metrics = stats["metrics"]
+        assert "error_categories" in metrics
+        categories = metrics["error_categories"]
+
+        # Should have categorized the errors
+        assert len(categories) > 0
+
+    @pytest.mark.asyncio
+    async def test_get_retry_stats_delay_calculations(self):
+        """Test delay metric calculations."""
+        from paracle_domain.models import BackoffStrategy, RetryPolicy
+        from paracle_orchestration.retry import RetryManager
+
+        manager = RetryManager()
+        policy = RetryPolicy(
+            max_attempts=4,
+            backoff_strategy=BackoffStrategy.EXPONENTIAL,
+            initial_delay=0.1,
+            max_delay=1.0,
+        )
+
+        # Create function that fails first 3 times
+        call_count = {"count": 0}
+
+        async def retry_func():
+            call_count["count"] += 1
+            if call_count["count"] < 4:
+                raise RuntimeError("Transient error")
+            return "success"
+
+        result = await manager.execute_with_retry(
+            step_name="delay_test",
+            func=retry_func,
+            policy=policy,
+        )
+
+        assert result == "success"
+
+        stats = manager.get_retry_stats()
+        metrics = stats["metrics"]
+
+        # Should have delay metrics
+        assert metrics["avg_delay_seconds"] > 0
+        assert metrics["max_delay_seconds"] >= metrics["avg_delay_seconds"]
+        assert metrics["total_delay_seconds"] > 0
+
+        # Total delay should be sum of all delays
+        # With exponential backoff, delays increase
+        assert metrics["max_delay_seconds"] > 0
+
+    @pytest.mark.asyncio
+    async def test_get_retry_stats_mixed_operations(self):
+        """Test metrics with mixed successful and failed operations."""
+        from paracle_domain.models import BackoffStrategy, RetryPolicy
+        from paracle_orchestration.retry import RetryManager
+
+        manager = RetryManager()
+        policy = RetryPolicy(
+            max_attempts=3,
+            backoff_strategy=BackoffStrategy.EXPONENTIAL,
+            initial_delay=0.1,
+        )
+
+        # 3 immediate successes
+        for i in range(3):
+            await manager.execute_with_retry(
+                step_name=f"success_{i}",
+                func=lambda: "success",
+                policy=policy,
+            )
+
+        # 2 operations with retries
+        for i in range(2):
+            call_count = {"count": 0}
+
+            async def retry_func():
+                call_count["count"] += 1
+                if call_count["count"] < 2:
+                    raise RuntimeError("Transient")
+                return "success"
+
+            await manager.execute_with_retry(
+                step_name=f"retry_{i}",
+                func=retry_func,
+                policy=policy,
+            )
+
+        # 1 complete failure
+        try:
+            await manager.execute_with_retry(
+                step_name="failed",
+                func=lambda: (_ for _ in ()).throw(RuntimeError("Fail")),
+                policy=policy,
+            )
+        except Exception:
+            pass
+
+        stats = manager.get_retry_stats()
+
+        assert stats["total_contexts"] == 6
+        assert stats["succeeded"] == 5
+        assert stats["failed"] == 1
+        assert abs(stats["success_rate"] - 5 / 6) < 0.01
+
+        metrics = stats["metrics"]
+        assert metrics["immediate_success"] == 3
+        assert metrics["success_after_retry"] == 2
+
+    @pytest.mark.asyncio
+    async def test_metrics_accumulation(self):
+        """Test that metrics accumulate correctly across executions."""
+        from paracle_domain.models import BackoffStrategy, RetryPolicy
+        from paracle_orchestration.retry import RetryManager
+
+        manager = RetryManager()
+        policy = RetryPolicy(
+            max_attempts=3,
+            backoff_strategy=BackoffStrategy.EXPONENTIAL,
+            initial_delay=0.1,
+        )
+
+        # First batch: 10 immediate successes
+        for i in range(10):
+            await manager.execute_with_retry(
+                step_name=f"batch1_{i}",
+                func=lambda: "success",
+                policy=policy,
+            )
+
+        stats1 = manager.get_retry_stats()
+        assert stats1["total_contexts"] == 10
+
+        # Second batch: 5 more operations
+        for i in range(5):
+            await manager.execute_with_retry(
+                step_name=f"batch2_{i}",
+                func=lambda: "success",
+                policy=policy,
+            )
+
+        stats2 = manager.get_retry_stats()
+
+        # Stats should accumulate
+        assert stats2["total_contexts"] == 15
+        assert stats2["succeeded"] == 15
+        assert stats2["metrics"]["immediate_success"] == 15

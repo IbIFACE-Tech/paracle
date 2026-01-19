@@ -2,7 +2,7 @@
 # Raycast AI Instructions for Paracle Project
 # Auto-generated from .parac/ - DO NOT EDIT MANUALLY
 # Regenerate with: paracle ide sync --copy
-# Generated: 2026-01-08T16:50:19.618059
+# Generated: 2026-01-11T05:37:52.875232
 #
 # HOW TO USE:
 # 1. Open Raycast → AI Command
@@ -47,7 +47,7 @@ This checklist ensures:
 
 ## Current Project State
 
-- **Project**: paracle-lite v1.0.0
+- **Project**: paracle-lite v1.0.3
 - **Phase**: phase_10 - Governance & v1.0 Release (0%)
 - **Status**: in_progress
 
@@ -78,6 +78,12 @@ This checklist ensures:
 - **Role**: Project coordination, roadmap management, progress tracking, and stakeholder communication.
 - **Capabilities**: project planning, progress tracking, risk management, team coordination
 - **Description**: Project coordination, roadmap management, progress tracking, and stakeholder communication.
+
+### QA Agent (Senior QA Architect) (`qa`)
+
+- **Role**: Quality Assurance architecture, test strategy design, quality metrics tracking, and comprehensive quality validation across the entire software development lifecycle.
+- **Capabilities**: quality strategy & architecture, test planning & design, quality assurance & validation, process improvement, team leadership & mentoring
+- **Description**: Quality Assurance architecture, test strategy design, quality metrics tracking, and comprehensive quality validation across the entire software development lifecycle.
 
 ### Release Manager Agent (`releasemanager`)
 
@@ -398,6 +404,7 @@ paracle ide sync
 - **coder**: Implementation of features, writing production-quality code following project standards and best practices.
 - **documenter**: Technical documentation, API references, user guides, and knowledge management.
 - **pm**: Project coordination, roadmap management, progress tracking, and stakeholder communication.
+- **qa**: Quality Assurance architecture, test strategy design, quality metrics tracking, and comprehensive quality validation across the entire software development lifecycle.
 - **releasemanager**: Manages git workflows, semantic versioning, releases, changelogs, and deployment automation for the Paracle project.
 - **reviewer**: Code review, quality assurance, and ensuring adherence to project standards and best practices.
 - **SCHEMA**: One-paragraph description of what this agent does.

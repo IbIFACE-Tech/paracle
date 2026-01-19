@@ -65,7 +65,7 @@ class TestAgentsRouter:
         original_cwd = Path.cwd()
         try:
             os.chdir("/tmp")
-            response = self.client.get("/agents")
+            response = self.client.get("/v1/agents")
             assert response.status_code == 404
             assert "No .parac/ directory found" in response.json()["detail"]
         finally:
@@ -76,7 +76,7 @@ class TestAgentsRouter:
         original_cwd = Path.cwd()
         try:
             os.chdir(temp_parac_project)
-            response = self.client.get("/agents")
+            response = self.client.get("/v1/agents")
 
             assert response.status_code == 200
             data = response.json()
@@ -103,7 +103,7 @@ class TestAgentsRouter:
         original_cwd = Path.cwd()
         try:
             os.chdir(temp_parac_project)
-            response = self.client.get("/agents/pm")
+            response = self.client.get("/v1/agents/pm")
 
             assert response.status_code == 200
             agent = response.json()
@@ -122,7 +122,7 @@ class TestAgentsRouter:
         original_cwd = Path.cwd()
         try:
             os.chdir(temp_parac_project)
-            response = self.client.get("/agents/nonexistent")
+            response = self.client.get("/v1/agents/nonexistent")
 
             assert response.status_code == 404
             assert "not found" in response.json()["detail"].lower()
@@ -135,7 +135,7 @@ class TestAgentsRouter:
         original_cwd = Path.cwd()
         try:
             os.chdir(temp_parac_project)
-            response = self.client.get("/agents/coder/spec")
+            response = self.client.get("/v1/agents/coder/spec")
 
             assert response.status_code == 200
             data = response.json()
@@ -164,7 +164,7 @@ class TestAgentsRouter:
         original_cwd = Path.cwd()
         try:
             os.chdir(temp_parac_project)
-            response = self.client.get("/agents/manifest")
+            response = self.client.get("/v1/agents/manifest")
 
             assert response.status_code == 200
             manifest = response.json()
@@ -192,7 +192,7 @@ class TestAgentsRouter:
         original_cwd = Path.cwd()
         try:
             os.chdir(temp_parac_project)
-            response = self.client.post("/agents/manifest")
+            response = self.client.post("/v1/agents/manifest")
 
             assert response.status_code == 200
             result = response.json()
@@ -227,12 +227,12 @@ class TestAgentsRouter:
             manifest_path.write_text("existing: content", encoding="utf-8")
 
             # Try to write without force
-            response = self.client.post("/agents/manifest")
+            response = self.client.post("/v1/agents/manifest")
             assert response.status_code == 409
             assert "already exists" in response.json()["detail"].lower()
 
             # Write with force
-            response = self.client.post("/agents/manifest?force=true")
+            response = self.client.post("/v1/agents/manifest?force=true")
             assert response.status_code == 200
 
         finally:

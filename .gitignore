@@ -37,6 +37,10 @@ MANIFEST
 pip-log.txt
 pip-delete-this-directory.txt
 
+# Paracle operational databases
+*.db
+.paracle*.db
+
 # Unit test / coverage reports
 htmlcov/
 .tox/
@@ -48,6 +52,9 @@ nosetests.xml
 coverage.xml
 *.cover
 *.py.cover
+test-results.xml
+bandit_report.json
+*_report.json
 .hypothesis/
 .pytest_cache/
 cover/
@@ -210,12 +217,20 @@ __marimo__/
 
 #paracle framework
 #.parac/
+.roadmap/
 .roadmap/*
 temp_example/
 test-tutorial/
 test-tutorial/*
 .benchmarks/
 content/docs/technical/*
+
+# Paracle log archives (auto-generated, keep out of git)
+.parac/memory/logs/archives/
+.parac/memory/logs/*.log.1
+.parac/memory/logs/*.log.2
+.parac/memory/logs/*.log.*
+
 # Private documentation (internal workflows, credentials, etc.)
 .docs-private/
 private-docs/

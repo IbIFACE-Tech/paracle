@@ -21,18 +21,12 @@ class TestWorkflowExecution:
     @pytest.fixture(autouse=True)
     def reset_repositories(self) -> None:
         """Reset repositories before each test."""
-        from paracle_api.routers import workflow_crud, workflow_execution
-
-        workflow_crud._repository.clear()
-        workflow_execution._repository.clear()
-        # Make sure they share the same repository instance
-        workflow_execution._repository = workflow_crud._repository
-        # Reset engine state if needed
-        workflow_execution._engine = MagicMock()
 
     @pytest.fixture
     def client(self) -> TestClient:
         """Create test client."""
+        workflow_crud._repository.clear()
+        workflow_execution._repository.clear()
         return TestClient(app)
 
     @pytest.fixture
@@ -59,7 +53,9 @@ class TestWorkflowExecution:
             ],
         )
         workflow = Workflow(spec=spec)
-        return workflow_crud._repository.add(workflow)
+        workflow = workflow_crud._repository.add(workflow)
+        workflow_execution._repository.add(workflow)
+        return workflow
 
     # =========================================================================
     # POST /api/workflows/execute - Execute Workflow
@@ -80,7 +76,7 @@ class TestWorkflowExecution:
         )
 
         response = client.post(
-            "/api/workflows/execute",
+            f"/api/workflows/{sample_workflow.id}/execute",
             json={
                 "workflow_id": sample_workflow.id,
                 "inputs": {"param1": "value1"},
@@ -113,7 +109,7 @@ class TestWorkflowExecution:
         workflow_execution._engine.execute = AsyncMock(side_effect=mock_execute)
 
         response = client.post(
-            "/api/workflows/execute",
+            f"/api/workflows/{sample_workflow.id}/execute",
             json={
                 "workflow_id": sample_workflow.id,
                 "inputs": {},
@@ -130,7 +126,7 @@ class TestWorkflowExecution:
     def test_execute_workflow_not_found(self, client: TestClient) -> None:
         """Test executing a non-existent workflow."""
         response = client.post(
-            "/api/workflows/execute",
+            "/api/workflows/non-existent-workflow/execute",
             json={
                 "workflow_id": "non-existent-workflow",
                 "inputs": {},
@@ -165,7 +161,7 @@ class TestWorkflowExecution:
         }
 
         response = client.post(
-            "/api/workflows/execute",
+            f"/api/workflows/{sample_workflow.id}/execute",
             json={
                 "workflow_id": sample_workflow.id,
                 "inputs": custom_inputs,
@@ -206,7 +202,7 @@ class TestWorkflowExecution:
             side_effect=mock_get_status
         )
 
-        response = client.get(f"/api/workflows/executions/{execution_id}")
+        response = client.get(f"/v1/api/workflows/executions/{execution_id}")
 
         assert response.status_code == 200
         data = response.json()
@@ -245,7 +241,7 @@ class TestWorkflowExecution:
             side_effect=mock_get_status
         )
 
-        response = client.get(f"/api/workflows/executions/{execution_id}")
+        response = client.get(f"/v1/api/workflows/executions/{execution_id}")
 
         assert response.status_code == 200
         data = response.json()
@@ -280,7 +276,7 @@ class TestWorkflowExecution:
             side_effect=mock_get_status
         )
 
-        response = client.get(f"/api/workflows/executions/{execution_id}")
+        response = client.get(f"/v1/api/workflows/executions/{execution_id}")
 
         assert response.status_code == 200
         data = response.json()
@@ -299,7 +295,7 @@ class TestWorkflowExecution:
             side_effect=mock_get_status
         )
 
-        response = client.get("/api/workflows/executions/non-existent-exec")
+        response = client.get("/v1/api/workflows/executions/non-existent-exec")
 
         assert response.status_code == 404
         assert "not found" in response.json()["detail"].lower()
@@ -330,7 +326,7 @@ class TestWorkflowExecution:
             side_effect=mock_get_status
         )
 
-        response = client.post(f"/api/workflows/executions/{execution_id}/cancel")
+        response = client.post(f"/v1/api/workflows/executions/{execution_id}/cancel")
 
         assert response.status_code == 200
         data = response.json()
@@ -360,7 +356,7 @@ class TestWorkflowExecution:
             side_effect=mock_get_status
         )
 
-        response = client.post(f"/api/workflows/executions/{execution_id}/cancel")
+        response = client.post(f"/v1/api/workflows/executions/{execution_id}/cancel")
 
         assert response.status_code == 200
         data = response.json()
@@ -376,7 +372,7 @@ class TestWorkflowExecution:
 
         workflow_execution._engine.cancel_execution = AsyncMock(side_effect=mock_cancel)
 
-        response = client.post("/api/workflows/executions/non-existent-exec/cancel")
+        response = client.post("/v1/api/workflows/executions/non-existent-exec/cancel")
 
         assert response.status_code == 404
 

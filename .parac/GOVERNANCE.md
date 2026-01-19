@@ -59,6 +59,7 @@ Toute décision architecturale, tout changement de scope, toute modification de 
 ### Règle 2: Immutabilité des Décisions
 
 Une fois une décision documentée dans `decisions.md`:
+
 - Elle ne peut PAS être modifiée sans créer une nouvelle ADR
 - L'historique est préservé
 - Les raisons de changement sont documentées
@@ -66,6 +67,7 @@ Une fois une décision documentée dans `decisions.md`:
 ### Règle 3: Synchronisation Obligatoire
 
 Avant et après chaque session de travail:
+
 1. **Début**: Lire `current_state.yaml` pour contexte
 2. **Fin**: Mettre à jour `current_state.yaml` avec les changements
 
@@ -119,18 +121,18 @@ Quand un deliverable majeur est complété:
    ```yaml
    deliverables:
      - name: "Feature X"
-       status: completed  # ← Changer
-       completion: 100%   # ← Mettre à 100%
-       completed_date: "YYYY-MM-DD"  # ← Ajouter
+       status: completed # ← Changer
+       completion: 100% # ← Mettre à 100%
+       completed_date: "YYYY-MM-DD" # ← Ajouter
    ```
 
 2. **Mettre à jour `current_state.yaml`**
 
    ```yaml
    current_phase:
-     progress: XX%  # ← Recalculer
+     progress: XX% # ← Recalculer
      completed:
-       - feature_x  # ← Ajouter
+       - feature_x # ← Ajouter
    ```
 
 3. **Vérifier la cohérence**
@@ -208,25 +210,125 @@ Quand un deliverable majeur est complété:
 
 ---
 
-## Règle 4: File Placement (NEW)
+## Règle 4: File Placement - Two-Tier Governance
 
-> **Toujours respecter la structure canonique définie dans `STRUCTURE.md`**
+> **⚠️ CRITICAL: `.parac/` structure is IMMUTABLE. Root folder is USER-CONFIGURABLE.**
+>
+> **📋 Comprehensive Policy**: [policies/FILE_ORGANIZATION.md](policies/FILE_ORGANIZATION.md)
 
-Chaque fichier a une place spécifique dans `.parac/`:
+### The Golden Rule
 
-| Type de Fichier         | Emplacement Correct            | ❌ Erreur Commune        |
-| ----------------------- | ------------------------------ | ----------------------- |
-| **Operational Data**    | `.parac/memory/data/*.db`      | `.parac/*.db` (root)    |
-| **Logs**                | `.parac/memory/logs/*.log`     | `packages/*/logs/`      |
-| **Knowledge**           | `.parac/memory/knowledge/*.md` | `.parac/*.md`           |
-| **Decisions (ADRs)**    | `.parac/roadmap/decisions.md`  | `.parac/decisions.md`   |
-| **Agent Specs**         | `.parac/agents/specs/*.md`     | `.parac/agents/*.md`    |
-| **Execution Artifacts** | `.parac/runs/` (gitignored)    | `packages/*/artifacts/` |
-| **User Documentation**  | `content/docs/` (NOT in .parac)| `.parac/docs/`          |
-| **Examples**            | `content/examples/` (NOT in .parac) | `examples/` (root) |
-| **Templates**           | `content/templates/` (NOT in .parac) | `templates/` (root) |
+```text
+┌─────────────────────────────────────────────────────────┐
+│  .parac/ Structure = IMMUTABLE                          │
+│  ✅ MANDATORY - Framework depends on this exact layout  │
+│                                                         │
+│  Project Root = CONFIGURABLE                            │
+│  💡 RECOMMENDED - Users can customize as needed         │
+└─────────────────────────────────────────────────────────┘
+```
 
-**Before creating any new file in .parac/, consult [STRUCTURE.md](STRUCTURE.md) first.**
+**Why `.parac/` MUST Be Respected**:
+
+1. **Framework Integrity**: Paracle CLI/API/tools expect exact paths
+2. **Governance Traceability**: Consistent locations ensure auditability
+3. **Tool Integration**: IDE sync, MCP, validation rely on this structure
+4. **Cross-Project Consistency**: All Paracle projects share same `.parac/` layout
+
+**Result**: `.parac/` file placement is **NON-NEGOTIABLE**.
+
+**Users MAY customize project root** (add docs, config files, etc.) based on their needs, but `.parac/` structure is sacred.
+
+### Allowed Root Files (STRICTLY ENFORCED)
+
+```text
+# Core Project Files (ALLOWED)
+README.md          # Project overview
+CHANGELOG.md       # Version history
+CONTRIBUTING.md    # Contribution guide
+CODE_OF_CONDUCT.md # Code of conduct
+SECURITY.md        # Security policy
+LICENSE            # License file
+pyproject.toml     # Python project config
+Makefile           # Build automation
+MANIFEST.in        # Package manifest
+mkdocs.yml         # Documentation config
+uv.lock            # UV lock file
+CLAUDE.md          # IDE instructions (if needed)
+
+# Configuration Files (ALLOWED)
+.gitignore, .gitattributes
+.editorconfig, .pre-commit-config.yaml
+.readthedocs.yaml, .mcp.json
+.env.example
+
+# ALL OTHER FILES MUST GO IN PROPER DIRECTORIES
+```
+
+**🚨 CRITICAL RULE**: **NEVER create temporary scripts, reports, or non-root files in project root!**
+
+**Proper Locations**:
+
+- **Scripts/fixes** → `scripts/` or `scripts/temp/`
+- **Reports/summaries** → `.parac/memory/summaries/`
+- **Documentation** → `content/docs/`
+- **Examples** → `content/examples/`
+- **Test files** → `tests/`
+- **Data files** → `data/` or `.parac/memory/data/`
+- **Temporary files** → Delete or move to `scripts/temp/`
+
+### File Placement Rules
+
+| Type de Fichier              | Emplacement OBLIGATOIRE              | ❌ INTERDIT           |
+| ---------------------------- | ------------------------------------ | -------------------- |
+| **Phase reports**            | `.parac/memory/summaries/phase_*.md` | Root `*_COMPLETE.md` |
+| **Implementation summaries** | `.parac/memory/summaries/*.md`       | Root `*_SUMMARY.md`  |
+| **Testing reports**          | `.parac/memory/summaries/*.md`       | Root `*_TESTS*.md`   |
+| **Analysis reports**         | `.parac/memory/knowledge/*.md`       | Root `*_REPORT.md`   |
+| **Bug fix docs**             | `content/docs/troubleshooting/*.md`  | Root `*_ERROR*.md`   |
+| **Feature docs**             | `content/docs/features/*.md`         | Root `*_FEATURE.md`  |
+| **User guides**              | `content/docs/*.md`                  | Root `*_GUIDE.md`    |
+| **Code examples**            | `content/examples/*.py`              | Root `example_*.py`  |
+| **Templates**                | `content/templates/`                 | Root `template_*`    |
+| **Operational Data**         | `.parac/memory/data/*.db`            | Root `*.db`          |
+| **Logs**                     | `.parac/memory/logs/*.log`           | Root `*.log`         |
+| **Decisions (ADRs)**         | `.parac/roadmap/decisions.md`        | Root `decisions.md`  |
+| **Agent Specs**              | `.parac/agents/specs/*.md`           | Root `*_agent.md`    |
+| **Execution Artifacts**      | `.parac/runs/` (gitignored)          | Root `artifacts/`    |
+
+### Decision Tree for File Creation
+
+```
+Creating a new file?
+    ↓
+    Is it README/CHANGELOG/CONTRIBUTING/CODE_OF_CONDUCT/SECURITY?
+    ├─ YES → Project root
+    └─ NO  → Continue
+           ↓
+           Is it project governance/memory/decisions?
+           ├─ YES → .parac/
+           │        ├─ Summary → .parac/memory/summaries/
+           │        ├─ Knowledge → .parac/memory/knowledge/
+           │        ├─ Decision → .parac/roadmap/decisions.md
+           │        ├─ Agent spec → .parac/agents/specs/
+           │        └─ Data → .parac/memory/data/
+           │
+           └─ NO  → Is it user-facing?
+                  ├─ Documentation → content/docs/
+                  ├─ Examples → content/examples/
+                  └─ Templates → content/templates/
+```
+
+**Before creating ANY new file, consult [STRUCTURE.md](STRUCTURE.md) first.**
+
+### Enforcement
+
+All AI agents MUST:
+
+1. ✅ Check file placement rules before creating files
+2. ✅ Use proper directories (`.parac/` or `content/`)
+3. ❌ NEVER create markdown/docs in project root
+4. ✅ Move misplaced files to correct locations immediately
 
 ---
 
@@ -282,6 +384,7 @@ L'agent IA (Claude, GitHub Copilot, etc.) DOIT:
 - 📖 **Voir**: `content/docs/agent-execution-model.md` pour explication complète
 
 1. **Lire `.parac/` au début de chaque session**
+
    ```
    SOURCE OF TRUTH: .parac/memory/context/current_state.yaml
    ```
@@ -303,12 +406,14 @@ L'agent IA (Claude, GitHub Copilot, etc.) DOIT:
 ### Prompts Obligatoires
 
 **Début de session:**
+
 ```
 Je vais lire l'état actuel du projet depuis .parac/memory/context/current_state.yaml
 pour m'assurer de travailler avec le contexte correct.
 ```
 
 **Fin de session:**
+
 ```
 Avant de terminer, je propose les mises à jour suivantes pour .parac/:
 1. current_state.yaml: [changements]
@@ -336,11 +441,13 @@ Avant chaque commit touchant `.parac/`:
 ### Audit Périodique
 
 **Hebdomadaire:**
+
 - Vérifier cohérence `current_state.yaml` vs réalité
 - Mettre à jour les métriques
 - Créer `weekly_summary.md`
 
 **Par Phase:**
+
 - Audit complet de `.parac/`
 - Vérifier toutes les décisions documentées
 - Archiver les artefacts de phase
@@ -382,6 +489,7 @@ Avant chaque commit touchant `.parac/`:
 ## Évolution de ce Protocole
 
 Ce document (`GOVERNANCE.md`) peut être mis à jour pour:
+
 - Ajouter de nouvelles règles
 - Clarifier des processus existants
 - Documenter des exceptions approuvées

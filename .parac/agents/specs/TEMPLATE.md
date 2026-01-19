@@ -70,6 +70,18 @@ If making an architectural decision, document in `.parac/roadmap/decisions.md`:
 **Consequences**: [Impact of the decision]
 ```
 
+
+## 🚨 CRITICAL: File Placement Rules (MANDATORY)
+
+**NEVER create files in project root. Only 5 files allowed: README.md, CHANGELOG.md, CONTRIBUTING.md, CODE_OF_CONDUCT.md, SECURITY.md**
+
+All other files MUST go in:
+- Project governance/memory → `.parac/memory/summaries/`, `.parac/memory/knowledge/`
+- User documentation → `content/docs/`
+- Code examples → `content/examples/`
+
+**See [.parac/STRUCTURE.md](../.parac/STRUCTURE.md) for complete rules.**
+
 ## Skills (required)
 
 - [skill-name-1]

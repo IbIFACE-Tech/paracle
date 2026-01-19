@@ -1,8 +1,8 @@
 schema_version: '1.0'
-generated_at: '2026-01-06T23:28:38.573592'
+generated_at: '2026-01-11T01:51:00.761636'
 workspace:
   name: paracle-lite
-  version: 0.0.1
+  version: 1.0.3
   parac_version: 0.0.1
   root: C:\Projets\paracle\paracle-lite\.parac
 agents:
@@ -16,6 +16,16 @@ agents:
   - documentation
   description: System architecture design, module structure, and technical decision
     making.
+  tools:
+  - code_analysis
+  - diagram_generation
+  - pattern_matching
+  skills:
+  - framework-architecture
+  - api-development
+  - performance-optimization
+  - security-hardening
+  - paracle-development
 - id: coder
   name: Coder Agent
   role: Implementation of features, writing production-quality code following project
@@ -27,6 +37,21 @@ agents:
   - integration
   description: Implementation of features, writing production-quality code following
     project standards and best practices.
+  tools:
+  - code_generation
+  - refactoring
+  - testing
+  - git_add
+  - git_commit
+  - git_status
+  - git_push
+  - git_tag
+  skills:
+  - paracle-development
+  - api-development
+  - tool-integration
+  - provider-integration
+  - testing-qa
 - id: documenter
   name: Documenter Agent
   role: Technical documentation, API references, user guides, and knowledge management.
@@ -37,6 +62,14 @@ agents:
   - quality assurance
   description: Technical documentation, API references, user guides, and knowledge
     management.
+  tools:
+  - markdown_generation
+  - api_doc_generation
+  - diagram_creation
+  skills:
+  - technical-documentation
+  - paracle-development
+  - api-development
 - id: pm
   name: Project Manager Agent
   role: Project coordination, roadmap management, progress tracking, and stakeholder
@@ -49,6 +82,47 @@ agents:
   - team coordination
   description: Project coordination, roadmap management, progress tracking, and stakeholder
     communication.
+  tools:
+  - task_tracking
+  - milestone_management
+  - team_coordination
+  skills:
+  - workflow-orchestration
+  - agent-configuration
+  - paracle-development
+  - cicd-devops
+- id: qa
+  name: QA Agent (Senior QA Architect)
+  role: Quality Assurance architecture, test strategy design, quality metrics tracking,
+    and comprehensive quality validation across the entire software development lifecycle.
+  spec_file: agents\specs\qa.md
+  capabilities:
+  - quality strategy & architecture
+  - test planning & design
+  - quality assurance & validation
+  - process improvement
+  - team leadership & mentoring
+  description: Quality Assurance architecture, test strategy design, quality metrics
+    tracking, and comprehensive quality validation across the entire software development
+    lifecycle.
+  tools:
+  - test_generation
+  - test_execution
+  - coverage_analysis
+  - static_analysis
+  - security_scan
+  - performance_profiling
+  - load_testing
+  - quality_metrics
+  - test_automation
+  skills:
+  - testing-qa
+  - security-hardening
+  - performance-optimization
+  - paracle-development
+  - api-development
+  - cicd-devops
+  - workflow-orchestration
 - id: releasemanager
   name: Release Manager Agent
   role: Manages git workflows, semantic versioning, releases, changelogs, and deployment
@@ -61,6 +135,22 @@ agents:
   - bug/feature tracking
   description: Manages git workflows, semantic versioning, releases, changelogs, and
     deployment automation for the Paracle project.
+  tools:
+  - git_add
+  - git_commit
+  - git_status
+  - git_push
+  - git_tag
+  - version_management
+  - changelog_generation
+  - cicd_integration
+  - package_publishing
+  skills:
+  - cicd-devops
+  - git-management
+  - release-automation
+  - workflow-orchestration
+  - paracle-development
 - id: reviewer
   name: Reviewer Agent
   role: Code review, quality assurance, and ensuring adherence to project standards
@@ -72,19 +162,85 @@ agents:
   - knowledge transfer
   description: Code review, quality assurance, and ensuring adherence to project standards
     and best practices.
+  tools:
+  - static_analysis
+  - security_scan
+  - code_review
+  skills:
+  - security-hardening
+  - performance-optimization
+  - testing-qa
+  - paracle-development
+- id: SCHEMA
+  name: Agent Specification Schema
+  role: One-paragraph description of what this agent does.
+  spec_file: agents\specs\SCHEMA.md
+  capabilities:
+  - category name
+  description: One-paragraph description of what this agent does.
+  tools: []
+  skills: []
 - id: security
   name: Security Agent
-  role: Security auditing, vulnerability detection, threat modeling, and security
-    compliance enforcement for Paracle framework and AI applications.
+  role: Security auditing, vulnerability detection, threat modeling, compliance enforcement,
+    and security standards implementation for Paracle framework and AI applications.
   spec_file: agents\specs\security.md
   capabilities:
-  - security auditing
-  - vulnerability detection
-  - threat modeling
-  - compliance & standards
-  - security testing
-  description: Security auditing, vulnerability detection, threat modeling, and security
-    compliance enforcement for Paracle framework and AI applications.
+  - core security
+  - compliance
+  - application security
+  - supply chain security
+  - secret management
+  description: Security auditing, vulnerability detection, threat modeling, compliance
+    enforcement, and security standards implementation for Paracle framework and AI
+    applications.
+  tools:
+  - bandit
+  - semgrep
+  - codeql
+  - sonarqube
+  - pylint_security
+  - ruff_security
+  - safety
+  - pip_audit
+  - trivy
+  - snyk
+  - dependabot
+  - ossf_scorecard
+  - detect_secrets
+  - gitleaks
+  - trufflehog
+  - trivy_container
+  - grype
+  - syft
+  - zap
+  - nuclei
+  - checkov
+  - tfsec
+  - kube_bench
+  - static_analysis
+  - security_scan
+  - vulnerability_detector
+  - secret_scanner
+  - dependency_auditor
+  - compliance_checker
+  - sbom_generator
+  - threat_modeler
+  skills:
+  - security-hardening
+  - testing-qa
+  - paracle-development
+  - performance-optimization
+- id: TEMPLATE
+  name: Agent Specification Template
+  role: '[Describe the agent''s primary function in 1-2 sentences]'
+  spec_file: agents\specs\TEMPLATE.md
+  capabilities:
+  - '[primary category]'
+  - '[secondary category]'
+  description: '[Describe the agent''s primary function in 1-2 sentences]'
+  tools: []
+  skills: []
 - id: tester
   name: Tester Agent
   role: Test design, implementation, and quality validation ensuring comprehensive
@@ -96,6 +252,15 @@ agents:
   - quality validation
   description: Test design, implementation, and quality validation ensuring comprehensive
     coverage and reliability.
+  tools:
+  - test_generation
+  - test_execution
+  - coverage_analysis
+  skills:
+  - testing-qa
+  - security-hardening
+  - performance-optimization
+  - paracle-development
 metadata:
-  agent_count: 8
+  agent_count: 11
   specs_directory: agents/specs/

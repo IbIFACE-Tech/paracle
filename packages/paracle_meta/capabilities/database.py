@@ -103,7 +103,9 @@ class DatabaseConfig(CapabilityConfig):
     postgres_port: int = Field(default=5432, description="PostgreSQL port")
     postgres_database: str = Field(default="paracle", description="PostgreSQL database")
     postgres_user: str | None = Field(default=None, description="PostgreSQL user")
-    postgres_password: str | None = Field(default=None, description="PostgreSQL password")
+    postgres_password: str | None = Field(
+        default=None, description="PostgreSQL password"
+    )
 
     # MySQL settings
     mysql_host: str = Field(default="localhost", description="MySQL host")
@@ -330,7 +332,8 @@ class DatabaseCapability(BaseCapability):
                 port=self.config.postgres_port,
                 database=self.config.postgres_database,
                 user=self.config.postgres_user or os.getenv("POSTGRES_USER"),
-                password=self.config.postgres_password or os.getenv("POSTGRES_PASSWORD"),
+                password=self.config.postgres_password
+                or os.getenv("POSTGRES_PASSWORD"),
             )
             self._connections[database] = conn
 
@@ -379,7 +382,11 @@ class DatabaseCapability(BaseCapability):
         if database == "sqlite":
             async with conn.execute(sql, params) as cursor:
                 rows = await cursor.fetchall()
-                columns = [desc[0] for desc in cursor.description] if cursor.description else []
+                columns = (
+                    [desc[0] for desc in cursor.description]
+                    if cursor.description
+                    else []
+                )
                 result_rows = [dict(zip(columns, row)) for row in rows]
 
         elif database == "postgresql":
@@ -558,13 +565,15 @@ class DatabaseCapability(BaseCapability):
                 rows = await cursor.fetchall()
                 columns = []
                 for row in rows:
-                    columns.append({
-                        "name": row[1],
-                        "type": row[2],
-                        "nullable": not row[3],
-                        "default": row[4],
-                        "primary_key": bool(row[5]),
-                    })
+                    columns.append(
+                        {
+                            "name": row[1],
+                            "type": row[2],
+                            "nullable": not row[3],
+                            "default": row[4],
+                            "primary_key": bool(row[5]),
+                        }
+                    )
 
         elif database == "postgresql":
             sql = """
@@ -822,17 +831,25 @@ class DatabaseCapability(BaseCapability):
         )
 
     # Convenience methods
-    async def query(self, sql: str, params: list[Any] = None, **kwargs) -> CapabilityResult:
+    async def query(
+        self, sql: str, params: list[Any] = None, **kwargs
+    ) -> CapabilityResult:
         """Execute a SQL query."""
         return await self.execute(action="query", sql=sql, params=params, **kwargs)
 
-    async def insert(self, table: str, data: dict[str, Any], **kwargs) -> CapabilityResult:
+    async def insert(
+        self, table: str, data: dict[str, Any], **kwargs
+    ) -> CapabilityResult:
         """Insert a row into a table."""
         return await self.execute(action="insert", table=table, data=data, **kwargs)
 
-    async def update(self, table: str, data: dict[str, Any], where: str, **kwargs) -> CapabilityResult:
+    async def update(
+        self, table: str, data: dict[str, Any], where: str, **kwargs
+    ) -> CapabilityResult:
         """Update rows in a table."""
-        return await self.execute(action="update", table=table, data=data, where=where, **kwargs)
+        return await self.execute(
+            action="update", table=table, data=data, where=where, **kwargs
+        )
 
     async def delete(self, table: str, where: str, **kwargs) -> CapabilityResult:
         """Delete rows from a table."""

@@ -37,7 +37,8 @@ content/docs/
 
 | Guide | Description |
 |-------|-------------|
-| [Installation](users/guides/installation.md) | Complete installation guide |
+| [Installation](installation.md) | Complete installation guide with all options |
+| [Installation Quick Ref](quickref/installation-quickref.md) | Copy-paste installation commands |
 | [Working with Agents](users/guides/agents.md) | Create and run agents |
 | [Working with Workflows](users/guides/workflows.md) | Orchestrate multiple agents |
 | [Working with Skills](users/guides/skills.md) | Reusable agent capabilities |
@@ -79,6 +80,8 @@ content/docs/
 | [Sessions](meta/sessions.md) | Chat, Plan, Edit modes |
 
 ## What is Paracle?
+
+> **📖 For a comprehensive overview**: See [OVERVIEW.md](OVERVIEW.md) - Complete capabilities, strengths, and comparisons
 
 Paracle is an open-source multi-agent framework that enables:
 
@@ -181,7 +184,7 @@ We welcome contributions! See:
 
 - [Contributing Guide](../../CONTRIBUTING.md)
 - [Code Style](../../.parac/policies/CODE_STYLE.md)
-- [GitHub Issues](https://github.com/IbIFACE-Tech/paracle-lite/issues)
+- [GitHub Issues](https://github.com/IbIFACE-Tech/paracle/issues)
 
 ## License
 

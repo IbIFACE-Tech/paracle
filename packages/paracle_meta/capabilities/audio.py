@@ -107,9 +107,7 @@ class AudioConfig(CapabilityConfig):
     # TTS settings
     default_voice: str = Field(default="alloy", description="Default TTS voice")
     default_tts_model: str = Field(default="tts-1", description="Default TTS model")
-    default_speed: float = Field(
-        default=1.0, ge=0.25, le=4.0, description="TTS speed"
-    )
+    default_speed: float = Field(default=1.0, ge=0.25, le=4.0, description="TTS speed")
 
     # Output settings
     output_format: str = Field(default="mp3", description="Default audio format")
@@ -844,17 +842,25 @@ class AudioCapability(BaseCapability):
         """Generate speech from text."""
         return await self.execute(action="speak", text=text, **kwargs)
 
-    async def convert(self, audio: str, format: str = "mp3", **kwargs) -> CapabilityResult:
+    async def convert(
+        self, audio: str, format: str = "mp3", **kwargs
+    ) -> CapabilityResult:
         """Convert audio format."""
-        return await self.execute(action="convert", audio=audio, format=format, **kwargs)
+        return await self.execute(
+            action="convert", audio=audio, format=format, **kwargs
+        )
 
     async def info(self, audio: str) -> CapabilityResult:
         """Get audio file information."""
         return await self.execute(action="info", audio=audio)
 
-    async def trim(self, audio: str, start_ms: int = 0, end_ms: int = None, **kwargs) -> CapabilityResult:
+    async def trim(
+        self, audio: str, start_ms: int = 0, end_ms: int = None, **kwargs
+    ) -> CapabilityResult:
         """Trim audio to specified range."""
-        return await self.execute(action="trim", audio=audio, start_ms=start_ms, end_ms=end_ms, **kwargs)
+        return await self.execute(
+            action="trim", audio=audio, start_ms=start_ms, end_ms=end_ms, **kwargs
+        )
 
     async def merge(self, audio_files: list[str], **kwargs) -> CapabilityResult:
         """Merge multiple audio files."""

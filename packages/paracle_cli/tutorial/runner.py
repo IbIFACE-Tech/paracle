@@ -295,9 +295,14 @@ class InteractiveTutorialRunner:
         console.print()
 
         try:
+            # Security: Use argument list instead of shell=True
+            # Split command string into list for safe execution
+            import shlex
+            command_list = shlex.split(command_str) if isinstance(command_str, str) else command_str
+            
             result = subprocess.run(
-                command_str,
-                shell=True,
+                command_list,
+                shell=False,  # Security: Disabled shell to prevent injection
                 capture_output=capture,
                 text=True,
                 cwd=Path.cwd(),

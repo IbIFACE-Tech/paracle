@@ -1,7 +1,8 @@
 """Tests for memory models."""
 
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta
 
+from paracle_core.compat import UTC
 from paracle_memory.models import (
     ConversationMemory,
     EpisodicMemory,

@@ -5,7 +5,7 @@ Complete structure of Paracle v0.0.1 after Phase 0.
 ## Root Structure
 
 ```
-paracle-lite/
+paracle/
 ├── .parac/              # Paracle workspace (configuration, memory, policies)
 ├── .github/             # GitHub configuration (CI/CD)
 ├── packages/            # Source code (modular packages)

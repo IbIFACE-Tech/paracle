@@ -359,9 +359,7 @@ class BrowserCapability(BaseCapability):
         await self._page.click(selector, button=button, click_count=click_count)
         return {"success": True, "selector": selector}
 
-    async def _fill(
-        self, selector: str, value: str, **kwargs: Any
-    ) -> dict[str, Any]:
+    async def _fill(self, selector: str, value: str, **kwargs: Any) -> dict[str, Any]:
         """Fill an input field."""
         await self._page.fill(selector, value)
         return {"success": True, "selector": selector}
@@ -517,9 +515,7 @@ class BrowserCapability(BaseCapability):
     # JavaScript Execution
     # =========================================================================
 
-    async def _evaluate(
-        self, expression: str, **kwargs: Any
-    ) -> dict[str, Any]:
+    async def _evaluate(self, expression: str, **kwargs: Any) -> dict[str, Any]:
         """Execute JavaScript in the page context."""
         result = await self._page.evaluate(expression)
         return {"result": result}
@@ -615,9 +611,7 @@ class BrowserCapability(BaseCapability):
     # Convenience Methods
     # =========================================================================
 
-    async def navigate(
-        self, url: str, wait_until: str = "load"
-    ) -> CapabilityResult:
+    async def navigate(self, url: str, wait_until: str = "load") -> CapabilityResult:
         """Navigate to a URL."""
         return await self.execute("navigate", url=url, wait_until=wait_until)
 
@@ -639,9 +633,7 @@ class BrowserCapability(BaseCapability):
         """Type text into an element."""
         return await self.execute("type", selector=selector, text=text, delay=delay)
 
-    async def select(
-        self, selector: str, value: str | list[str]
-    ) -> CapabilityResult:
+    async def select(self, selector: str, value: str | list[str]) -> CapabilityResult:
         """Select option(s) from a dropdown."""
         return await self.execute("select", selector=selector, value=value)
 

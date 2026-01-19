@@ -350,10 +350,44 @@ class RetryManager:
         return self._retry_contexts.get(context_key)
 
     def get_retry_stats(self) -> dict[str, Any]:
-        """Get retry statistics across all executions.
+        """Get comprehensive retry statistics across all executions.
+
+        Provides detailed insights into retry behavior including success rates,
+        delay patterns, error categorization, and retry effectiveness.
 
         Returns:
-            Statistics dictionary with counts and rates
+            Dictionary containing:
+                - total_contexts (int): Total execution contexts tracked
+                - succeeded (int): Contexts that eventually succeeded
+                - failed (int): Contexts that exhausted retries
+                - success_rate (float): Succeeded / total_contexts (0.0-1.0)
+                - total_attempts (int): Sum of all attempts across contexts
+                - total_retries (int): Sum of retry attempts (attempts - contexts)
+                - avg_retries_per_context (float): Average retries per context
+                - metrics (dict): Enhanced metrics
+                    - avg_delay_seconds (float): Average delay between retries
+                    - max_delay_seconds (float): Maximum delay encountered
+                    - total_delay_seconds (float): Cumulative delay time
+                    - success_after_retry (int): Contexts succeeding after >=1 retry
+                    - immediate_success (int): Contexts succeeding on first attempt
+                    - error_categories (dict): Error distribution by category
+                        - TIMEOUT, TRANSIENT, VALIDATION, RESOURCE,
+                        - PERMANENT, UNKNOWN
+
+        Example:
+            >>> manager = RetryManager()
+            >>> # ... execute operations with retries ...
+            >>> stats = manager.get_retry_stats()
+            >>> print(f"Success Rate: {stats['success_rate']:.2%}")
+            >>> print(f"Avg Retries: {stats['avg_retries_per_context']:.2f}")
+            >>> print(f"Avg Delay: {stats['metrics']['avg_delay_seconds']:.2f}s")
+            >>> for category, count in stats['metrics']['error_categories'].items():
+            ...     print(f"{category}: {count} errors")
+
+        Note:
+            Statistics accumulate across the manager's lifetime. Use separate
+            RetryManager instances to track different workflows independently.
+            Delays reflect actual wait times including exponential backoff.
         """
         total_contexts = len(self._retry_contexts)
         succeeded = sum(1 for ctx in self._retry_contexts.values() if ctx.succeeded)
@@ -361,6 +395,24 @@ class RetryManager:
 
         total_attempts = sum(len(ctx.attempts) for ctx in self._retry_contexts.values())
         total_retries = sum(ctx.total_retries for ctx in self._retry_contexts.values())
+
+        # Calculate average delays per attempt
+        all_delays = [
+            attempt.delay_before
+            for ctx in self._retry_contexts.values()
+            for attempt in ctx.attempts
+            if attempt.delay_before > 0
+        ]
+        avg_delay = sum(all_delays) / len(all_delays) if all_delays else 0.0
+        max_delay = max(all_delays) if all_delays else 0.0
+
+        # Count by error category
+        error_categories = {}
+        for ctx in self._retry_contexts.values():
+            for attempt in ctx.attempts:
+                if attempt.error_category:
+                    category = attempt.error_category.value
+                    error_categories[category] = error_categories.get(category, 0) + 1
 
         return {
             "total_contexts": total_contexts,
@@ -372,6 +424,23 @@ class RetryManager:
             "avg_retries_per_context": (
                 total_retries / total_contexts if total_contexts > 0 else 0.0
             ),
+            # NEW: Additional metrics
+            "metrics": {
+                "avg_delay_seconds": round(avg_delay, 2),
+                "max_delay_seconds": round(max_delay, 2),
+                "total_delay_seconds": round(sum(all_delays), 2),
+                "success_after_retry": sum(
+                    1
+                    for ctx in self._retry_contexts.values()
+                    if ctx.succeeded and ctx.total_retries > 0
+                ),
+                "immediate_success": sum(
+                    1
+                    for ctx in self._retry_contexts.values()
+                    if ctx.succeeded and ctx.total_retries == 0
+                ),
+                "error_categories": error_categories,
+            },
         }
 
     def clear_context(self, workflow_id: str, execution_id: str) -> None:

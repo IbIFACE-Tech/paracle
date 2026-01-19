@@ -110,7 +110,9 @@ def get_ide_command(ide: str | None = None) -> str:
         )
 
     if ide not in SUPPORTED_IDES:
-        raise IDENotFoundError(f"Unknown IDE: {ide}. Supported: {list(SUPPORTED_IDES.keys())}")
+        raise IDENotFoundError(
+            f"Unknown IDE: {ide}. Supported: {list(SUPPORTED_IDES.keys())}"
+        )
 
     return SUPPORTED_IDES[ide]["command"]
 
@@ -142,7 +144,9 @@ def _run_ide_command(args: list[str], ide: str | None = None) -> dict[str, Any]:
         )
 
         if result.returncode != 0:
-            error_msg = result.stderr.strip() or f"Command failed with code {result.returncode}"
+            error_msg = (
+                result.stderr.strip() or f"Command failed with code {result.returncode}"
+            )
             raise IDECommandError(error_msg)
 
         return {
@@ -185,7 +189,9 @@ def ide_info() -> dict[str, Any]:
 
     return {
         "detected_ide": detected,
-        "detected_display_name": SUPPORTED_IDES[detected]["display_name"] if detected else None,
+        "detected_display_name": (
+            SUPPORTED_IDES[detected]["display_name"] if detected else None
+        ),
         "supported_ides": available,
     }
 
@@ -385,7 +391,9 @@ def ide_list_extensions(ide: str | None = None) -> dict[str, Any]:
     result = _run_ide_command(["--list-extensions"], ide)
 
     if result.get("stdout"):
-        extensions = [ext.strip() for ext in result["stdout"].split("\n") if ext.strip()]
+        extensions = [
+            ext.strip() for ext in result["stdout"].split("\n") if ext.strip()
+        ]
         result["extensions"] = extensions
         result["count"] = len(extensions)
 
@@ -462,11 +470,21 @@ IDE_TOOLS = [
         "description": "Open a file in the IDE, optionally at a specific line and column",
         "function": ide_open_file,
         "parameters": {
-            "path": {"type": "string", "description": "File path to open", "required": True},
+            "path": {
+                "type": "string",
+                "description": "File path to open",
+                "required": True,
+            },
             "line": {"type": "integer", "description": "Line number to go to"},
             "column": {"type": "integer", "description": "Column number"},
-            "reuse_window": {"type": "boolean", "description": "Reuse existing window (default: true)"},
-            "ide": {"type": "string", "description": "IDE to use (vscode, cursor, windsurf, codium)"},
+            "reuse_window": {
+                "type": "boolean",
+                "description": "Reuse existing window (default: true)",
+            },
+            "ide": {
+                "type": "string",
+                "description": "IDE to use (vscode, cursor, windsurf, codium)",
+            },
         },
     },
     {
@@ -474,9 +492,16 @@ IDE_TOOLS = [
         "description": "Open a folder in the IDE",
         "function": ide_open_folder,
         "parameters": {
-            "path": {"type": "string", "description": "Folder path to open", "required": True},
+            "path": {
+                "type": "string",
+                "description": "Folder path to open",
+                "required": True,
+            },
             "new_window": {"type": "boolean", "description": "Open in new window"},
-            "add_to_workspace": {"type": "boolean", "description": "Add to current workspace"},
+            "add_to_workspace": {
+                "type": "boolean",
+                "description": "Add to current workspace",
+            },
             "ide": {"type": "string", "description": "IDE to use"},
         },
     },
@@ -485,8 +510,16 @@ IDE_TOOLS = [
         "description": "Show diff between two files in the IDE",
         "function": ide_diff,
         "parameters": {
-            "file1": {"type": "string", "description": "First file path", "required": True},
-            "file2": {"type": "string", "description": "Second file path", "required": True},
+            "file1": {
+                "type": "string",
+                "description": "First file path",
+                "required": True,
+            },
+            "file2": {
+                "type": "string",
+                "description": "Second file path",
+                "required": True,
+            },
             "wait": {"type": "boolean", "description": "Wait for diff window to close"},
             "ide": {"type": "string", "description": "IDE to use"},
         },
@@ -496,10 +529,26 @@ IDE_TOOLS = [
         "description": "Open 3-way merge editor (VS Code/Codium only)",
         "function": ide_merge,
         "parameters": {
-            "base": {"type": "string", "description": "Base file path", "required": True},
-            "local": {"type": "string", "description": "Local file path", "required": True},
-            "remote": {"type": "string", "description": "Remote file path", "required": True},
-            "result_path": {"type": "string", "description": "Output file path", "required": True},
+            "base": {
+                "type": "string",
+                "description": "Base file path",
+                "required": True,
+            },
+            "local": {
+                "type": "string",
+                "description": "Local file path",
+                "required": True,
+            },
+            "remote": {
+                "type": "string",
+                "description": "Remote file path",
+                "required": True,
+            },
+            "result_path": {
+                "type": "string",
+                "description": "Output file path",
+                "required": True,
+            },
             "wait": {"type": "boolean", "description": "Wait for merge to complete"},
             "ide": {"type": "string", "description": "IDE to use"},
         },
@@ -526,7 +575,11 @@ IDE_TOOLS = [
         "description": "Install an IDE extension",
         "function": ide_install_extension,
         "parameters": {
-            "extension_id": {"type": "string", "description": "Extension ID (e.g., 'ms-python.python')", "required": True},
+            "extension_id": {
+                "type": "string",
+                "description": "Extension ID (e.g., 'ms-python.python')",
+                "required": True,
+            },
             "ide": {"type": "string", "description": "IDE to use"},
         },
     },
@@ -535,7 +588,11 @@ IDE_TOOLS = [
         "description": "Uninstall an IDE extension",
         "function": ide_uninstall_extension,
         "parameters": {
-            "extension_id": {"type": "string", "description": "Extension ID", "required": True},
+            "extension_id": {
+                "type": "string",
+                "description": "Extension ID",
+                "required": True,
+            },
             "ide": {"type": "string", "description": "IDE to use"},
         },
     },

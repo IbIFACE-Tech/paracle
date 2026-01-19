@@ -2,14 +2,14 @@
 # Paracle AI Instructions for Windsurf
 # Auto-generated from .parac/ - DO NOT EDIT MANUALLY
 # Regenerate with: paracle ide sync --copy
-# Generated: 2026-01-08T16:50:14.310843
+# Generated: 2026-01-11T05:37:51.340831
 
 
 ## Core Principle
 
 > **`.parac/` is the single source of truth. Read it. Follow it. Log to it.**
 
-## 🚨 MANDATORY: Pre-Flight Checklist
+## 🚨 MANDATORY PRE-FLIGHT CHECKLIST
 
 **Before ANY implementation task:**
 
@@ -27,10 +27,14 @@ This checklist ensures:
 3. Consult `.parac/roadmap/roadmap.yaml` - Phase & priorities
 4. Verify `.parac/memory/context/open_questions.md` - Blockers
 5. **VALIDATE**: Task in roadmap? Correct phase? Priority? Dependencies?
-6. Select which agent to run (see `.parac/agents/specs/{agent}.md`)
+6. Adopt agent persona from `.parac/agents/specs/{agent}.md`
 7. Check policies (CODE_STYLE, TESTING, SECURITY)
 
-**If Task NOT in Roadmap**: STOP - Add to roadmap first via PM Agent before proceeding.
+**If Task NOT in Roadmap**:
+- ❌ **STOP** - Add to roadmap first (PM Agent)
+- Document reason in `.parac/roadmap/roadmap.yaml`
+- Get approval before proceeding
+- Never work on undocumented tasks
 
 **Before ANY action**, you MUST:
 1. `.parac/GOVERNANCE.md` - Governance rules and dogfooding context
@@ -44,7 +48,7 @@ This checklist ensures:
 
 ## Current Project State
 
-- **Project**: paracle-lite v1.0.0
+- **Project**: paracle-lite v1.0.3
 - **Phase**: phase_10 - Governance & v1.0 Release (0%)
 - **Status**: in_progress
 
@@ -75,6 +79,12 @@ This checklist ensures:
 - **Role**: Project coordination, roadmap management, progress tracking, and stakeholder communication.
 - **Capabilities**: project planning, progress tracking, risk management, team coordination
 - **Description**: Project coordination, roadmap management, progress tracking, and stakeholder communication.
+
+### QA Agent (Senior QA Architect) (`qa`)
+
+- **Role**: Quality Assurance architecture, test strategy design, quality metrics tracking, and comprehensive quality validation across the entire software development lifecycle.
+- **Capabilities**: quality strategy & architecture, test planning & design, quality assurance & validation, process improvement, team leadership & mentoring
+- **Description**: Quality Assurance architecture, test strategy design, quality metrics tracking, and comprehensive quality validation across the entire software development lifecycle.
 
 ### Release Manager Agent (`releasemanager`)
 

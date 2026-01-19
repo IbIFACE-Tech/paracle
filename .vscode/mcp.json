@@ -5,6 +5,7 @@
       "command": "uv",
       "args": [
         "run",
+        "--no-sync",
         "paracle",
         "mcp",
         "serve",
@@ -14,6 +15,17 @@
     "github": {
       "type": "http",
       "url": "https://api.githubcopilot.com/mcp/"
+    },
+    "mermaid-mcp": {
+      "url": "https://mcp.mermaidchart.com/mcp",
+      "type": "http"
+    },
+    "markitdown": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": [
+        "markitdown-mcp"
+      ]
     }
   }
 }

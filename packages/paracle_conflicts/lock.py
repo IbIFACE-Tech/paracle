@@ -61,7 +61,7 @@ class LockManager:
         # Use hash of file path as lock file name
         import hashlib
 
-        file_hash = hashlib.md5(file_path.encode()).hexdigest()
+        file_hash = hashlib.sha256(file_path.encode()).hexdigest()[:32]
         return self.lock_dir / f"{file_hash}.lock"
 
     def acquire_lock(

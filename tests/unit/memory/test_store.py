@@ -219,7 +219,9 @@ class TestSQLiteMemoryStore:
     @pytest.mark.asyncio
     async def test_cleanup_expired(self, store: SQLiteMemoryStore) -> None:
         """Test cleaning up expired memories."""
-        from datetime import UTC, datetime, timedelta
+        from datetime import datetime, timedelta
+
+        from paracle_core.compat import UTC
 
         # Create expired memory
         expired = Memory(

@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Any
 
 from paracle_domain.models import generate_id
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 from paracle_kanban.task import Task, TaskPriority, TaskStatus
 
@@ -64,6 +64,11 @@ class Board(BaseModel):
         updated_at: When board was last updated
         columns: Ordered list of columns (statuses) to display
         archived: Whether board is archived
+        swimlanes: List of swimlane names for horizontal grouping
+        wip_limits: WIP limits per column {status: limit}
+        custom_field_definitions: Define custom fields
+        default_view: Default view type (kanban, list, calendar, timeline)
+        sprint_config: Sprint configuration (duration, start_day, etc.)
     """
 
     id: str = Field(default_factory=lambda: generate_id("board"))
@@ -81,10 +86,18 @@ class Board(BaseModel):
     )
     archived: bool = False
 
-    class Config:
-        """Pydantic configuration."""
+    # New advanced features
+    swimlanes: list[str] = Field(
+        default_factory=list
+    )  # ["Team A", "Team B", "Infrastructure"]
+    wip_limits: dict[str, int] = Field(
+        default_factory=dict
+    )  # {"in_progress": 3, "review": 5}
+    custom_field_definitions: dict[str, dict[str, Any]] = Field(default_factory=dict)
+    default_view: str = "kanban"  # kanban, list, calendar, timeline
+    sprint_config: dict[str, Any] = Field(default_factory=dict)
 
-        use_enum_values = True
+    model_config = ConfigDict(use_enum_values=True)
 
 
 class BoardRepository:

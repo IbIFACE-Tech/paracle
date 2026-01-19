@@ -49,7 +49,7 @@ meta_agent:
       model: "llama3"
       endpoint: "http://localhost:11434"
       use_for: ["simple", "local"]
-      cost: 0.0  # Free!
+      cost: 0.0 # Free!
 
   learning:
     enabled: true
@@ -57,7 +57,7 @@ meta_agent:
 
   cost_optimization:
     enabled: true
-    max_daily_budget: 10.0  # USD
+    max_daily_budget: 10.0 # USD
 ```
 
 ### Basic Usage
@@ -403,7 +403,7 @@ meta_agent:
       endpoint: "http://localhost:11434"
       use_for: ["simple", "local"]
       priority: 4
-      cost: 0.0  # Free
+      cost: 0.0 # Free
 
   # Learning configuration
   learning:
@@ -416,20 +416,20 @@ meta_agent:
   # Cost optimization
   cost_optimization:
     enabled: true
-    max_daily_budget: 10.0  # USD
+    max_daily_budget: 10.0 # USD
     warn_at_percent: 80
     prefer_cheaper_for_simple: true
 
   # Quality thresholds
   quality:
     min_score: 7.0
-    auto_apply_above: 9.0  # Auto-apply if score >= 9.0
+    auto_apply_above: 9.0 # Auto-apply if score >= 9.0
     show_reasoning: true
     explain_decisions: true
 
   # Governance
   governance:
-    auto_apply: false  # Require user confirmation
+    auto_apply: false # Require user confirmation
     log_all_generations: true
     track_costs: true
     audit_trail: true
@@ -530,6 +530,7 @@ pytest packages/paracle_meta/tests/test_engine.py::test_generate_agent
 ## 📈 Roadmap
 
 ### v1.1.0 (Current)
+
 - ✅ Core meta-agent engine
 - ✅ Multi-provider support
 - ✅ Agent generation
@@ -538,6 +539,7 @@ pytest packages/paracle_meta/tests/test_engine.py::test_generate_agent
 - ✅ Cost optimization
 
 ### v1.2.0 (Planned)
+
 - [ ] Skill generation
 - [ ] Policy generation
 - [ ] A/B testing for prompts
@@ -545,6 +547,7 @@ pytest packages/paracle_meta/tests/test_engine.py::test_generate_agent
 - [ ] Voice interface
 
 ### v1.3.0+ (Future)
+
 - [ ] Fine-tuned models
 - [ ] Multi-agent collaboration
 - [ ] Proactive suggestions
@@ -562,7 +565,7 @@ MIT License - See [LICENSE](../../LICENSE)
 
 - **Documentation**: https://paracle.dev/docs/meta-agent
 - **Examples**: [examples/paracle_meta/](../../examples/paracle_meta/)
-- **Issues**: https://github.com/IbIFACE-Tech/paracle-lite/issues
+- **Issues**: https://github.com/IbIFACE-Tech/paracle/issues
 - **Discord**: https://discord.gg/paracle
 
 ---

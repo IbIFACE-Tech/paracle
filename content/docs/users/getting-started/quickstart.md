@@ -372,8 +372,8 @@ pip install --force-reinstall "paracle[all]"
 
 ## Getting Help
 
-- 💬 [GitHub Discussions](https://github.com/IbIFACE-Tech/paracle-lite/discussions)
-- 🐛 [Issue Tracker](https://github.com/IbIFACE-Tech/paracle-lite/issues)
+- 💬 [GitHub Discussions](https://github.com/IbIFACE-Tech/paracle/discussions)
+- 🐛 [Issue Tracker](https://github.com/IbIFACE-Tech/paracle/issues)
 - 📧 Email: team@ibiface-tech.com
 
 ---

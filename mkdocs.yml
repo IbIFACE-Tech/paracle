@@ -5,8 +5,8 @@ site_url: https://paracle.readthedocs.io
 site_description: User-driven multi-agent framework for AI-native applications
 site_author: IbIFACE-Tech
 
-repo_name: IbIFACE-Tech/paracle-lite
-repo_url: https://github.com/IbIFACE-Tech/paracle-lite
+repo_name: IbIFACE-Tech/paracle
+repo_url: https://github.com/IbIFACE-Tech/paracle
 edit_uri: edit/main/content/docs/
 
 theme:
@@ -94,7 +94,7 @@ extra:
         provider: mike
     social:
         - icon: fontawesome/brands/github
-          link: https://github.com/IbIFACE-Tech/paracle-lite
+          link: https://github.com/IbIFACE-Tech/paracle
         - icon: fontawesome/brands/python
           link: https://pypi.org/project/paracle/
     analytics:
