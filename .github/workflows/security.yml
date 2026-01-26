@@ -26,12 +26,12 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
@@ -151,7 +151,7 @@ jobs:
       # Upload Security Reports
       # ========================================
       - name: Upload security reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         if: always()
         with:
           name: security-reports-${{ github.run_number }}
@@ -183,7 +183,7 @@ jobs:
 
       - name: Create issue if vulnerabilities found
         if: steps.check_vulns.outputs.has_issues == 'true' && github.event_name != 'pull_request'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const critical = ${{ steps.check_vulns.outputs.critical || 0 }};
@@ -273,7 +273,7 @@ jobs:
   #
   #   steps:
   #     - name: Checkout code
-  #       uses: actions/checkout@v4
+  #       uses: actions/checkout@v6
   #
   #     - name: Start API server
   #       run: |
@@ -293,7 +293,7 @@ jobs:
   #         cmd_options: '-a'
   #
   #     - name: Upload ZAP report
-  #       uses: actions/upload-artifact@v4
+  #       uses: actions/upload-artifact@v6
   #       with:
   #         name: zap-report
   #         path: zap-report/
